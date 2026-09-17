@@ -1,0 +1,24 @@
+name = "Main"
+version = "0.1.0"
+defaultTargets = ["Main"]
+
+[[lean_lib]]
+name = "Main"
+roots = ["SeveralComplexVariables"]
+globs = [
+  "SeveralComplexVariables", "SeveralComplexVariables.+"
+]
+
+[[lean_exe]]
+name = "main"
+root = "Main"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.34.0"
+
+[[require]]
+name = "doc-gen4"
+scope = "leanprover"
+rev = "v4.34.0"

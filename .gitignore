@@ -1,0 +1,7 @@
+/.lake
+*.olean
+/References/
+# Ignore markdown files except as listed
+*.md
+!/README.md
+!/PALOMAR.md

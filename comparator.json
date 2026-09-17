@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Statement",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "PalomarSnapshot.holomorphic_analytic",
+    "PalomarSnapshot.osgood",
+    "PalomarSnapshot.cauchy_derivatives"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ]
+}

@@ -1,0 +1,183 @@
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
+module
+
+public import SeveralComplexVariables.IdentityPrinciple
+public import SeveralComplexVariables.FunctionSpace
+public import SeveralComplexVariables.LocallyBounded
+public import Mathlib.Topology.MetricSpace.Equicontinuity
+public import Mathlib.Topology.UniformSpace.Ascoli
+
+/-!
+# Montel's and Vitali's theorems
+
+A family of holomorphic maps which is bounded uniformly on each compact subset of its
+domain is equicontinuous. For finite-dimensional targets it has compact closure in the
+compact-open topology. Compactness is supplied by Mathlib's Arzelà–Ascoli theorem.
+Vitali convergence follows from this compactness and the identity theorem: pointwise
+convergence on a nonempty open subset determines every cluster limit uniquely.
+-/
+
+public section
+
+open Complex Filter Function Metric Set
+open scoped Classical Topology
+
+namespace SeveralComplexVariables
+
+variable {ι F : Type*} [Fintype ι] [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
+
+omit [CompleteSpace F] in
+/-- Compact-local bounds on a holomorphic family give equicontinuity. Banach targets
+are allowed here; finite dimensionality is needed only for compactness in Montel's theorem. -/
+theorem equicontinuous_of_holomorphic_bounded_on_compacts
+    {U : TopologicalSpace.Opens (ι → ℂ)} {S : Set (HolomorphicMap U F)}
+    (hb : ∀ K ⊆ (U : Set (ι → ℂ)), IsCompact K → ∃ M : ℝ,
+      ∀ f ∈ S, ∀ z ∈ K, ‖openExtension U f.val z‖ ≤ M) :
+    Equicontinuous (fun f : S => (f.val.val : U → F)) := by
+  intro c
+  rw [Metric.equicontinuousAt_iff]
+  intro ε hε
+  obtain ⟨R, hR, hRU⟩ := nhds_basis_closedBall.mem_iff.mp (U.isOpen.mem_nhds c.property)
+  obtain ⟨M, hM⟩ := hb (closedBall (c : ι → ℂ) R) hRU (isCompact_closedBall _ _)
+  let r := R / 2
+  have hr : 0 < r := by dsimp [r]; positivity
+  have htwo : 2 * r = R := by dsimp [r]; ring
+  let C : ℝ := (Fintype.card ι : ℝ) * (max M 0 / r)
+  have hC : 0 ≤ C := mul_nonneg (Nat.cast_nonneg _) (div_nonneg (le_max_right _ _) hr.le)
+  refine ⟨min r (ε / (C + 1)), lt_min hr (div_pos hε (by positivity)), ?_⟩
+  intro w hw f
+  have hwr : dist (w : ι → ℂ) c < r := (lt_min_iff.mp hw).1
+  have hwe : dist (w : ι → ℂ) c < ε / (C + 1) := (lt_min_iff.mp hw).2
+  have ha : ∀ z ∈ closedBall (c : ι → ℂ) (2 * r), ∀ i,
+      AnalyticAt ℂ (fun v => openExtension U f.val.val (update z i v)) (z i) := by
+    intro z hz i
+    exact f.val.property.analyticAt_update (hRU (by simpa only [htwo] using hz)) i
+  have hbound : ∀ z ∈ closedBall (c : ι → ℂ) (2 * r),
+      ‖openExtension U f.val.val z‖ ≤ max M 0 := by
+    intro z hz
+    exact (hM f.val f.property z (by simpa only [htwo] using hz)).trans (le_max_left _ _)
+  have hn := norm_sub_le_of_separately_analytic_bounded hr ha hbound
+    (mem_closedBall_self hr.le) (mem_closedBall.mpr hwr.le)
+  simp only [openExtension_coe] at hn
+  rw [dist_comm, dist_eq_norm]
+  have hlt : (C + 1) * dist (w : ι → ℂ) c < ε := by
+    nlinarith [(lt_div_iff₀ (by positivity : 0 < C + 1)).mp hwe]
+  have hn' : ‖f.val.val w - f.val.val c‖ ≤ C * dist (w : ι → ℂ) c := by
+    simpa only [C, dist_eq_norm] using hn
+  nlinarith [show 0 ≤ dist (w : ι → ℂ) (c : ι → ℂ) from dist_nonneg]
+
+/-- **Montel's theorem.** A compact-locally bounded family of holomorphic maps into a
+finite-dimensional complex normed space has compact closure in the compact-open topology. -/
+theorem isCompact_closure_of_holomorphic_bounded_on_compacts
+    [FiniteDimensional ℂ F] {U : TopologicalSpace.Opens (ι → ℂ)}
+    {S : Set (HolomorphicMap U F)}
+    (hb : ∀ K ⊆ (U : Set (ι → ℂ)), IsCompact K → ∃ M : ℝ,
+      ∀ f ∈ S, ∀ z ∈ K, ‖openExtension U f.val z‖ ≤ M) : IsCompact (closure S) := by
+  let := FiniteDimensional.proper ℂ F
+  let := UniformOnFun.t2Space_of_covering (β := F)
+    (𝔖 := {K : Set U | IsCompact K}) (by
+      apply eq_univ_iff_forall.mpr
+      intro z
+      exact mem_sUnion_of_mem (mem_singleton z) isCompact_singleton)
+  have he : Topology.IsClosedEmbedding
+      (UniformOnFun.ofFun {K : Set U | IsCompact K} ∘
+        (fun f : HolomorphicMap U F => (f.val : U → F))) := by
+    exact (ContinuousMap.isUniformEmbedding_toUniformOnFunIsCompact.comp
+      isUniformEmbedding_subtype_val).isClosedEmbedding
+  apply ArzelaAscoli.isCompact_closure_of_isClosedEmbedding (fun K hK => hK) he
+  · intro K hK
+    exact (equicontinuous_of_holomorphic_bounded_on_compacts hb).equicontinuousOn K
+  · intro K hK z hz
+    obtain ⟨M, hM⟩ := hb {(z : ι → ℂ)} (singleton_subset_iff.mpr z.property) isCompact_singleton
+    refine ⟨closedBall (0 : F) (max M 0), isCompact_closedBall _ _, ?_⟩
+    intro f hf
+    have h := (hM f hf z (mem_singleton _)).trans (le_max_left M 0)
+    simpa using h
+
+/-- **Vitali's theorem (Jakóbczak–Jarnicki 1.4.24)** in the compact-open function space.
+A locally bounded sequence converging pointwise on a nonempty open subset of a
+preconnected domain converges in the whole holomorphic-map space. -/
+theorem exists_tendsto_of_holomorphic_bounded_on_compacts
+    [FiniteDimensional ℂ F] {U : TopologicalSpace.Opens (ι → ℂ)}
+    (hconn : IsPreconnected (U : Set (ι → ℂ))) (f : ℕ → HolomorphicMap U F)
+    (hb : ∀ K ⊆ (U : Set (ι → ℂ)), IsCompact K → ∃ M : ℝ,
+      ∀ n, ∀ z ∈ K, ‖openExtension U (f n).val z‖ ≤ M)
+    {V : Set (ι → ℂ)} (hV : IsOpen V) (hne : V.Nonempty) (hVU : V ⊆ U)
+    (hp : ∀ z ∈ V, ∃ y : F,
+      Tendsto (fun n => openExtension U (f n).val z) atTop (𝓝 y)) :
+    ∃ g : HolomorphicMap U F, Tendsto f atTop (𝓝 g) := by
+  have hc : IsCompact (closure (range f)) :=
+    isCompact_closure_of_holomorphic_bounded_on_compacts (by
+      intro K hKU hK
+      obtain ⟨M, hM⟩ := hb K hKU hK
+      exact ⟨M, by rintro _ ⟨n, rfl⟩; exact hM n⟩)
+  have hm : ∀ᶠ n in atTop, f n ∈ closure (range f) :=
+    .of_forall fun n => subset_closure (mem_range_self n)
+  obtain ⟨g, _, hg⟩ := hc.exists_mapClusterPt_of_frequently hm.frequently
+  refine ⟨g, hc.tendsto_nhds_of_unique_mapClusterPt hm ?_⟩
+  intro q _ hq
+  have hvalue : ∀ (r : HolomorphicMap U F), MapClusterPt r atTop f →
+      ∀ z ∈ V, ∀ y : F,
+      Tendsto (fun n => openExtension U (f n).val z) atTop (𝓝 y) →
+      openExtension U r.val z = y := by
+    intro r hr z hz y hy
+    have he := hr.continuousAt_comp
+      (continuous_holomorphicMap_eval U ⟨z, hVU hz⟩).continuousAt
+    obtain ⟨φ, hφ, hlim⟩ := he.tendsto_subseq
+    have hy' : Tendsto (fun n => (f n).val ⟨z, hVU hz⟩) atTop (𝓝 y) := by
+      simpa only [openExtension_apply U _ (hVU hz)] using hy
+    simpa only [openExtension_apply U _ (hVU hz)] using
+      tendsto_nhds_unique hlim (hy'.comp hφ.tendsto_atTop)
+  have heq : EqOn (openExtension U q.val) (openExtension U g.val) U :=
+    identity_theorem U.isOpen hconn q.property.differentiableOn
+      g.property.differentiableOn hV hne hVU (by
+        intro z hz
+        obtain ⟨y, hy⟩ := hp z hz
+        exact (hvalue q hq z hz y hy).trans (hvalue g hg z hz y hy).symm)
+  apply Subtype.ext
+  apply ContinuousMap.ext
+  intro z
+  simpa only [openExtension_coe] using heq z.property
+
+/-- **Vitali's theorem** for holomorphic functions on a finite complex coordinate space.
+The limit is holomorphic and convergence is locally uniform on the whole domain.
+Finite-dimensional complex targets, including scalar-valued functions, are allowed. -/
+theorem vitali_theorem [FiniteDimensional ℂ F] {D V : Set (ι → ℂ)}
+    (hD : IsOpen D) (hconn : IsPreconnected D) {f : ℕ → (ι → ℂ) → F}
+    (hf : ∀ n, DifferentiableOn ℂ (f n) D)
+    (hb : ∀ K ⊆ D, IsCompact K → ∃ M : ℝ, ∀ n, ∀ z ∈ K, ‖f n z‖ ≤ M)
+    (hV : IsOpen V) (hne : V.Nonempty) (hVD : V ⊆ D)
+    (hp : ∀ z ∈ V, ∃ y : F, Tendsto (fun n => f n z) atTop (𝓝 y)) :
+    ∃ g : (ι → ℂ) → F, DifferentiableOn ℂ g D ∧
+      TendstoLocallyUniformlyOn f g atTop D := by
+  let U : TopologicalSpace.Opens (ι → ℂ) := ⟨D, hD⟩
+  let s : ℕ → HolomorphicMap U F := fun n =>
+    ⟨⟨fun z => f n z, (hf n).continuousOn.domRestrict⟩,
+      by
+        apply AnalyticOnNhd.congr hD ((hf n).analyticOnNhd_finiteDimensional hD)
+        intro z hz
+        simp [openExtension, U, hz]
+        rfl⟩
+  have hs : ∀ n, ∀ z ∈ D, openExtension U (s n).val z = f n z := by
+    intro n z hz
+    exact openExtension_apply U _ hz
+  obtain ⟨g, hg⟩ := exists_tendsto_of_holomorphic_bounded_on_compacts hconn s
+    (by
+      intro K hKD hK
+      obtain ⟨M, hM⟩ := hb K hKD hK
+      refine ⟨M, fun n z hz => ?_⟩
+      rw [hs n z (hKD hz)]
+      exact hM n z hz) hV hne hVD (by
+      intro z hz
+      simpa only [hs _ z (hVD hz)] using hp z hz)
+  refine ⟨openExtension U g.val, g.property.differentiableOn, ?_⟩
+  exact (holomorphicMap_tendsto_iff.mp hg).congr
+    (fun n z hz => hs n z hz)
+
+end SeveralComplexVariables
+
+end

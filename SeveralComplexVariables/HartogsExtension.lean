@@ -1,0 +1,126 @@
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
+module
+
+public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.HartogsDomain
+public import SeveralComplexVariables.HartogsContinuation
+public import Mathlib.Analysis.Normed.Module.Connected
+
+/-!
+# Hartogs extension
+
+This file develops the geometry of a standard Hartogs figure and uniqueness of its analytic
+extensions. Extension from the figure follows from Hartogs continuation over a connected base.
+Extension across general compact holes still has a pending proof.
+Separate analyticity is treated in `SeparateAnalytic`.
+
+References: Boas (2013), Section 2.7; Scheidemann (2005), Exercise 2.1.7 and Section 2.3;
+Jakóbczak--Jarnicki (2021), Corollary 2.1.2.
+
+All extension targets are subsets of finite-dimensional complex normed spaces. Coordinate
+balls use the supremum norm, so the figure is built from polydiscs. Extension means agreement
+on the old domain; functions outside the new domain are unrestricted.
+-/
+
+public section
+
+open Function Metric Set
+open scoped Classical Topology
+
+namespace SeveralComplexVariables
+
+variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
+
+section Figure
+
+variable {ι : Type*} [Fintype ι]
+
+/-- A standard Hartogs figure: a thin full cylinder together with an outer annular cylinder
+in the last coordinate. The intended parameters satisfy `0 < r < 1` and `0 < s < 1`. -/
+def hartogsFigure (r s : ℝ) : Set ((ι → ℂ) × ℂ) :=
+  (ball 0 r ×ˢ ball 0 1) ∪ (ball 0 1 ×ˢ (ball 0 1 \ closedBall 0 s))
+
+/-- The standard Hartogs figure has rotational symmetry in its fiber coordinate,
+including for degenerate parameters and an empty base coordinate type. -/
+theorem isHartogs_hartogsFigure (r s : ℝ) : IsHartogs (hartogsFigure (ι := ι) r s) := by
+  unfold hartogsFigure
+  apply (isCompleteHartogs_prod_ball _ _).isHartogs.union
+  intro z w hw v hv
+  refine ⟨hw.1, ?_⟩
+  simpa only [mem_sdiff, mem_ball, mem_closedBall, dist_zero_right, hv] using hw.2
+
+/-- The standard Hartogs figure is open, even for an empty coordinate index type. -/
+theorem isOpen_hartogsFigure (r s : ℝ) : IsOpen (hartogsFigure (ι := ι) r s) :=
+  (isOpen_ball.prod isOpen_ball).union
+    (isOpen_ball.prod (isOpen_ball.sdiff isClosed_closedBall))
+
+/-- The Hartogs figure lies in the full unit polydisc when its inner base radius is at most one. -/
+theorem hartogsFigure_subset {r : ℝ} (hr : r ≤ 1) (s : ℝ) :
+    hartogsFigure (ι := ι) r s ⊆ ball 0 1 ×ˢ ball 0 1 := by
+  rintro z (hz | hz)
+  · exact ⟨ball_subset_ball hr hz.1, hz.2⟩
+  · exact ⟨hz.1, hz.2.1⟩
+
+/-- A positive inner base radius makes the Hartogs figure contain the origin. -/
+theorem zero_mem_hartogsFigure {r : ℝ} (hr : 0 < r) (s : ℝ) :
+    (0 : (ι → ℂ) × ℂ) ∈ hartogsFigure r s :=
+  Or.inl ⟨mem_ball_self hr, mem_ball_self zero_lt_one⟩
+
+/-- With no base coordinates, a positive-radius Hartogs figure is already the full disk.
+Thus the figure-extension statement needs no positive-dimensional base assumption. -/
+theorem hartogsFigure_eq_of_isEmpty [IsEmpty ι] {r : ℝ} (hr : 0 < r) (s : ℝ) :
+    hartogsFigure (ι := ι) r s = ball 0 1 ×ˢ ball 0 1 := by
+  ext z
+  simp [hartogsFigure, Subsingleton.elim z.1 (0 : ι → ℂ), hr]
+  exact fun h _ => h
+
+omit [CompleteSpace F] in
+/-- Two analytic extensions from a Hartogs figure agree throughout the full unit polydisc.
+This uniqueness theorem is proved independently of the pending extension-existence theorem. -/
+theorem eqOn_of_eqOn_hartogsFigure {r : ℝ} (hr : 0 < r) (s : ℝ)
+    {f g : ((ι → ℂ) × ℂ) → F}
+    (hf : AnalyticOnNhd ℂ f (ball 0 1 ×ˢ ball 0 1))
+    (hg : AnalyticOnNhd ℂ g (ball 0 1 ×ˢ ball 0 1))
+    (heq : EqOn f g (hartogsFigure r s)) : EqOn f g (ball 0 1 ×ˢ ball 0 1) := by
+  apply hf.eqOn_of_preconnected_of_eventuallyEq hg
+    (isPreconnected_ball.prod isPreconnected_ball)
+    (show (0 : (ι → ℂ) × ℂ) ∈ ball 0 1 ×ˢ ball 0 1 from
+      ⟨mem_ball_self zero_lt_one, mem_ball_self zero_lt_one⟩)
+  exact Filter.mem_of_superset
+    ((isOpen_hartogsFigure r s).mem_nhds (zero_mem_hartogsFigure hr s)) heq
+
+/-- **Extension from a Hartogs figure.** A Banach-valued holomorphic function on the figure
+extends to its full unit polydisc, by Hartogs continuation in the last coordinate. -/
+theorem exists_analyticOnNhd_extension_hartogsFigure
+    {r s : ℝ} (hr : 0 < r) (hr1 : r < 1) (hs : 0 < s) (hs1 : s < 1)
+    {f : ((ι → ℂ) × ℂ) → F} (hf : AnalyticOnNhd ℂ f (hartogsFigure r s)) :
+    ∃ g : ((ι → ℂ) × ℂ) → F,
+      AnalyticOnNhd ℂ g (ball 0 1 ×ˢ ball 0 1) ∧ EqOn g f (hartogsFigure r s) := by
+  obtain ⟨g, hg, he⟩ := exists_extension_hartogsCylinder
+    (D := ball (0 : ι → ℂ) 1) (D₀ := ball 0 r) isOpen_ball isPreconnected_ball
+    isOpen_ball ⟨0, mem_ball_self hr⟩ (ball_subset_ball hr1.le) hs.le hs1
+    (by simpa only [hartogsCylinder, hartogsFigure, union_comm] using hf)
+  exact ⟨g, hg, by simpa only [hartogsCylinder, hartogsFigure, union_comm] using he⟩
+
+end Figure
+
+/-- **Hartogs' compact-hole extension theorem.** In complex dimension at least two, a
+holomorphic function extends across a compact subset if its complement in the domain is
+connected. No boundedness of the function near the hole is required. Proof pending.
+
+The dimension and connected-complement hypotheses are essential. The open domain itself
+need not be bounded, and an empty domain or empty compact set is allowed. -/
+theorem exists_analyticOnNhd_extension_of_isCompact
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
+    (hdim : 2 ≤ Module.finrank ℂ E) {U K : Set E}
+    (hU : IsOpen U) (hconn : IsPreconnected U) (hK : IsCompact K) (hKU : K ⊆ U)
+    (hcompl : IsPreconnected (U \ K)) {f : E → F}
+    (hf : AnalyticOnNhd ℂ f (U \ K)) :
+    ∃ g : E → F, AnalyticOnNhd ℂ g U ∧ EqOn g f (U \ K) := by
+  sorry
+
+end SeveralComplexVariables

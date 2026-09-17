@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: SCV
+  description: >-
+    SCV.
+  authors:
+    - Bastiaan J Braams
+  responsible_maintainers:
+    - Bastiaan J Braams
+  license: Apache-2.0
+
+sources:
+  - title: Lecture notes on several complex variables
+    authors: [Harold P. Boas]
+    type: other
+    id: Lecture notes, 2013
+    relationship: adapts
+    location: Chapters 1–2
+    note: >-
+      The selected SCV statements use Mathlib's differentiability and analyticity
+      predicates, including complete complex normed codomains where proved.
+      Osgood's continuity hypothesis is retained; unrestricted Hartogs is not claimed.
+
+classification:
+  arxiv: [math.CV]
+  msc2020: ["32Axx"]
+
+status:
+  scope: >-
+    See Statement.lean.
+  # Intentional Challenge placeholders are excluded from these counts.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: [propext, Quot.sound, Classical.choice]
+
+automation:
+  methods:
+    - method: agent
+      framework: Codex
+  notes: >-
+    Human-directed, agent-assisted mathematical development, proof writing,
+    debugging, and review using Codex and Lean validation. Historical model
+    versions and per-session costs are not reconstructed here. The metadata
+    does not claim an independent human peer review.
+
+fidelity:
+  divergences: >-
+    To follow.
+
+review:
+  status: agent-reviewed
+  notes: >-
+    Lean builds and declaration axiom audits have been used during development.
+    The selected Solution declarations have been checked with Lean, but an
+    official Comparator/NanoDa run and Palomar editorial review are still pending.
