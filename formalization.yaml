@@ -411,7 +411,11 @@ status:
       file: Solution.lean
       comparator_config: comparator.json
       sorry_count: 0
-      note: "Catalogue item 53: Elementary domains of holomorphy"
+      note: >-
+        Catalogue item 53: Elementary continuation obstructions. Convex open sets and finite
+        products of arbitrary plane sets satisfy the generalized continuation predicate. It is
+        vacuous on sets with empty interior. For nonempty connected open plane factors, the
+        product assertion recovers the classical product theorem for domains of holomorphy.
     - declaration: SCV.isHolomorphicallyConvex_iff_escaping
       file: Solution.lean
       comparator_config: comparator.json
@@ -509,8 +513,13 @@ fidelity:
     polydiscs; the hull-radius form of Thullen's lemma (item 55) is for this norm. (3) Domains are
     not assumed connected or nonempty unless stated; dimension zero and empty index types are
     included. (4) Holomorphic and polynomial hulls are defined through all real upper bounds
-    instead of suprema. (5) The domain-of-holomorphy property requires agreement on a fixed
-    nonempty open overlap, not on a component of the intersection. (6) Subharmonic and
+    instead of suprema. (5) IsDomainOfHolomorphy is a generalized continuation-obstruction
+    predicate defined for arbitrary sets; openness, connectedness and nonemptiness are separate
+    hypotheses. It tests common continuation through a fixed nonempty open overlap and is
+    vacuously true when the set has empty interior. In item 53, the product assertion is proved
+    for arbitrary plane factors with this meaning. Its specialization to nonempty connected
+    open plane factors is the classical product theorem for domains of holomorphy.
+    (6) Subharmonic and
     plurisubharmonic functions are real valued: the value minus infinity is not admitted, so for
     example log|f| is covered only for nonvanishing f. (7) Pseudoconvex means open with a continuous
     plurisubharmonic exhaustion function; the Levi problem is not addressed. (8) The Levi condition

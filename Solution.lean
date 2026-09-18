@@ -695,8 +695,12 @@ def holomorphicHull (U K : Set E) : Set E :=
 def IsHolomorphicallyConvex (U : Set E) : Prop :=
   ∀ K : Set E, IsCompact K → K ⊆ U → IsCompact (holomorphicHull U K)
 
-/-- `U` is a domain of holomorphy: there is no connected open set `V ⊄ U` with a nonempty open
-`W ⊆ U ∩ V` such that every holomorphic function on `U` agrees on `W` with one on `V`. -/
+/-- The generalized domain-of-holomorphy continuation property for a set `U`: there is no connected
+open set `V ⊄ U` with a nonempty open `W ⊆ U ∩ V` such that every holomorphic function on `U`
+agrees on `W` with one on `V`.
+
+Openness, connectedness, and nonemptiness of `U` are separate hypotheses. This predicate is
+automatically satisfied when `interior U = ∅`, because no nonempty open overlap exists. -/
 def IsDomainOfHolomorphy (U : Set E) : Prop :=
   ∀ V W : Set E, IsOpen V → IsConnected V → IsOpen W → W.Nonempty → W ⊆ U → W ⊆ V →
     (∀ f : E → ℂ, AnalyticOnNhd ℂ f U → ∃ g : E → ℂ, AnalyticOnNhd ℂ g V ∧ EqOn g f W) → V ⊆ U
@@ -730,7 +734,12 @@ theorem isHolomorphicallyConvex_of_completeReinhardt {U : Set (ι → ℂ)} (ho 
     (hc : IsCompleteReinhardt U) (hl : IsLogarithmicallyConvex U) : IsHolomorphicallyConvex U := by
   exact SeveralComplexVariables.isHolomorphicallyConvex_of_completeReinhardt ho hc hl
 
-/-- **53. Elementary domains of holomorphy**: convex open sets and products of plane sets. -/
+/-- **53. Elementary continuation obstructions.** Convex open sets and finite products of arbitrary
+plane sets satisfy `IsDomainOfHolomorphy`, the continuation-obstruction predicate defined above.
+This predicate does not require openness, connectedness, or nonemptiness. It holds vacuously
+whenever the set has empty interior, because no nonempty open overlap exists. For nonempty
+connected open plane factors, the product assertion recovers the classical theorem that their
+product is a domain of holomorphy. -/
 theorem isDomainOfHolomorphy_of_convex_and_pi :
     (∀ U : Set E, Convex ℝ U → IsOpen U → IsDomainOfHolomorphy U) ∧
       ∀ S : ι → Set ℂ, IsDomainOfHolomorphy (Set.pi univ S) := by

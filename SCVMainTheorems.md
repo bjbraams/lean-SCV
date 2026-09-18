@@ -22,14 +22,12 @@ Runge domains, and polynomial hulls (K).
 
 The catalogue contains **65 principal results or closely related theorem groups**, and
 every one of them is **proved**: each stated theorem has a checked proof relying only on the
-project and on the existing mathematical library, with no admitted statements. The label
-**Proved** on every item heading is retained from earlier stages, when some items were
-conditional on unfinished proofs or pending. The catalogue follows the main mathematical
-dependencies: local analysis precedes convergence and extension; local mapping theory
-precedes regular zero sets; division and preparation precede factorization and the later
-geometric results; holomorphic convexity precedes pseudoconvexity. Independent branches are
-grouped by subject. This is a mathematical overview, not an inventory of all supporting
-lemmas.
+project and on the existing mathematical library, with no admitted statements. The catalogue
+follows the main mathematical dependencies: local analysis precedes convergence and extension;
+local mapping theory precedes regular zero sets; division and preparation precede factorization
+and the later geometric results; holomorphic convexity precedes pseudoconvexity. Independent
+branches are grouped by subject. This is a mathematical overview, not an inventory of all
+supporting lemmas.
 
 Named theorems outside the present scope are the Oka–Weil approximation theorem and the
 one-variable Runge theorem for rational approximation; see the closing section.
@@ -141,7 +139,7 @@ Boundary distance is distance to the complement, with values in $[0,\infty]$.
 This treats the whole ambient space and empty compact sets without exceptions.
 In coordinate spaces its metric is the supremum metric, giving polydisc radii.
 The **tube over $\Omega\subset\mathbb R^n$** is
-$T_\Omega=\{z\in\mathbb C^n:\operatorname{Re}z\in\Omega\}$.
+$T_\Omega=\{z\in\mathbb C^n:\mathrm{Re}z\in\Omega\}$.
 
 ### Maps, germs, and analytic sets
 
@@ -232,7 +230,7 @@ A real-linear map is complex-linear exactly when all its antiholomorphic parts v
 
 ## A. Local analysis and differential calculus
 
-### 1. Cauchy's integral formula on a polydisc — Proved
+### 1. Cauchy's integral formula on a polydisc
 
 For $f$ holomorphic on a neighborhood of a closed polydisc and $z\in P(a;r)$,
 
@@ -246,7 +244,7 @@ analyticity of each coordinate slice at its points. The iterated integrals and
 the formula are Banach-valued. Expansion of the Cauchy kernel supplies local
 power-series representations.
 
-### 2. Joint analyticity with continuity or local bounds — Proved
+### 2. Joint analyticity with continuity or local bounds
 
 A separately analytic function on an open subset of $\mathbb C^n$ is jointly
 analytic if it is continuous, or if it is locally bounded. The bounded version
@@ -254,14 +252,14 @@ includes quantitative local Lipschitz estimates obtained from one-variable
 Cauchy estimates. Both assertions allow Banach targets. The unrestricted
 separate-analyticity theorem is distinguished in item 27.
 
-### 3. Holomorphic and analytic are equivalent — Proved
+### 3. Holomorphic and analytic are equivalent
 
 For an open subset of a finite-dimensional complex normed space and a complex
 Banach target, complex Fréchet differentiability throughout the set is equivalent
 to local convergent power-series representation. The result is available both
 in coordinates and independently of a chosen basis.
 
-### 4. Cauchy–Riemann equations, derivatives, and chain rule — Proved
+### 4. Cauchy–Riemann equations, derivatives, and chain rule
 
 On an open coordinate set, holomorphy is equivalent to real Fréchet
 differentiability together with the coordinate Cauchy–Riemann equations. The
@@ -275,7 +273,7 @@ D(g\circ f)(z)=Dg(f(z))\circ Df(z),\qquad
 J(g\circ f)(z)=Jg(f(z))Jf(z).
 $$
 
-### 5. Multi-index Taylor expansion and Cauchy estimates — Proved
+### 5. Multi-index Taylor expansion and Cauchy estimates
 
 On a polydisc, the Taylor coefficients equal the torus Cauchy coefficients:
 
@@ -291,7 +289,7 @@ and uniformly on every strictly smaller closed polydisc, and admits explicit
 geometric bounds for finite remainders. Coefficients are independent of the
 admissible radii.
 
-### 6. Identity and real-parameter uniqueness theorems — Proved
+### 6. Identity and real-parameter uniqueness theorems
 
 Two Banach-valued holomorphic maps on a domain that agree on a nonempty open
 subset agree everywhere. Agreement as germs at one interior point also suffices.
@@ -301,7 +299,7 @@ of strictly positive real coordinates determines the function on $\mathbb C^n$.
 The general several-variable identity theorem does not use mere accumulation
 of agreement points as its hypothesis.
 
-### 7. Maximum modulus principle — Proved
+### 7. Maximum modulus principle
 
 A scalar holomorphic function on a domain is constant if its modulus has a local
 maximum at an interior point. The norm version is also proved for maps into
@@ -309,7 +307,7 @@ strictly convex complex Banach spaces, with strict convexity understood over
 the reals. This target restriction matters: constant norm alone does not force
 a holomorphic map into an arbitrary Banach space to be constant.
 
-### 8. Holomorphic dependence of integrals — Proved
+### 8. Holomorphic dependence of integrals
 
 An integral depending on finitely many complex parameters is holomorphic under
 local integrable domination of its parameter derivatives, together with the
@@ -319,7 +317,7 @@ and derivatives provide a useful special case. A Banach-valued version instead a
 local integrable domination of the holomorphic integrand, retaining the stated
 derivative-measurability hypothesis.
 
-### 9. The Cauchy–Pompeiu identity and the Cauchy transform — Proved
+### 9. The Cauchy–Pompeiu identity and the Cauchy transform
 
 For a compactly supported $C^1$ function $\varphi:\mathbb C\to F$,
 
@@ -345,7 +343,7 @@ of the compact-hole theorem in item 31.
 
 ## B. Convergence and spaces of holomorphic functions
 
-### 10. Weierstrass convergence theorem and convergence of derivatives — Proved
+### 10. Weierstrass convergence theorem and convergence of derivatives
 
 A locally uniform limit of Banach-valued holomorphic functions on an open set
 is holomorphic. All fixed mixed coordinate derivatives converge locally
@@ -354,7 +352,7 @@ support locally uniform sums of holomorphic series. Applied to Taylor sums,
 they give termwise mixed differentiation, with locally uniform convergence
 of the differentiated expansion.
 
-### 11. Compact-open holomorphic function spaces — Proved
+### 11. Compact-open holomorphic function spaces
 
 For open subsets of arbitrary complex normed spaces, $\mathcal O(U,F)$ is defined as a
 complex linear subspace of $C(U,F)$. On finite-dimensional source spaces it is closed, with
@@ -370,14 +368,14 @@ spaces to establish the Fréchet open-mapping theorem. For scalar functions,
 multiplication and restriction give the corresponding algebra structures,
 and the restriction algebra isomorphism is continuous in both directions.
 
-### 12. Montel's theorem — Proved
+### 12. Montel's theorem
 
 A family of holomorphic maps bounded uniformly on every compact subset is
 equicontinuous. When the target is finite-dimensional, the family has compact
 closure in the compact-open topology. The equicontinuity assertion allows Banach
 targets; the compactness assertion retains the finite-dimensional restriction.
 
-### 13. Vitali's theorem — Proved
+### 13. Vitali's theorem
 
 Let $(f_k)$ be holomorphic on a domain, with finite-dimensional target, and
 bounded uniformly on every compact subset. If $f_k(z)$ converges for every
@@ -386,7 +384,7 @@ on the whole domain to a holomorphic map. This is the precise convergence-set
 hypothesis currently provided, rather than a general formulation for arbitrary
 uniqueness sets.
 
-### 14. Holomorphic $L^p$ spaces — Proved
+### 14. Holomorphic $L^p$ spaces
 
 For $1\le p\le\infty$, let $A^p(U,F)$ be the subspace of Lebesgue $L^p(U,F)$
 whose classes admit holomorphic representatives. Such representatives are
@@ -406,7 +404,7 @@ empty coordinate types are included.
 
 ## C. Local holomorphic mappings
 
-### 15. Holomorphic inverse mapping theorem — Proved
+### 15. Holomorphic inverse mapping theorem
 
 If $f$ is holomorphic near $a$ and $Df(a)$ is an invertible complex-linear
 map, then $f$ restricts to a biholomorphism between neighborhoods of $a$
@@ -421,7 +419,7 @@ local injectivity when the finite-dimensional target may have larger dimension.
 A biholomorphism with nonempty source forces equality of source and target
 complex dimensions.
 
-### 16. Holomorphic implicit mapping theorem and graphs — Proved
+### 16. Holomorphic implicit mapping theorem and graphs
 
 If $f(z,w)$ is holomorphic near $(a,b)$ and $D_wf(a,b)$ is invertible,
 then the nearby level set $f(z,w)=f(a,b)$ is exactly the graph $w=g(z)$
@@ -437,7 +435,7 @@ Banach parameter and unknown spaces.
 
 ## D. Reinhardt geometry, power series, and continuation from Reinhardt and circular domains
 
-### 17. Complete Reinhardt geometry and hulls — Proved
+### 17. Complete Reinhardt geometry and hulls
 
 Complete Reinhardt sets have Reinhardt symmetry, and nonempty ones are
 path-connected by radial contraction to the origin. Centered polydiscs give
@@ -446,7 +444,7 @@ containment and minimality properties; completion of an open Reinhardt set
 preserves openness. These are geometric results independent of extension
 theorems for functions.
 
-### 18. Logarithmic convexity including zero coordinates — Proved
+### 18. Logarithmic convexity including zero coordinates
 
 For an open complete Reinhardt set, convexity of its positive logarithmic image
 is equivalent to geometric convexity of its full modulus trace. The latter
@@ -461,13 +459,13 @@ If an open Reinhardt set contains the origin, its logarithmic hull contains its
 complete Reinhardt hull. This geometric inclusion is also **proved**, independently
 of the analytic extension theorems.
 
-### 19. Geometry and analyticity of power-series convergence — Proved
+### 19. Geometry and analyticity of power-series convergence
 
 For coefficients $c_\alpha\in F$, define
 
 $$
 A_c=\left\{z:\sum_\alpha\|c_\alpha\|\,|z^\alpha|<\infty\right\},
-\qquad D_c=\operatorname{int}A_c.
+\qquad D_c=\mathrm{int}A_c.
 $$
 
 Both the absolute-convergence set and its interior are complete Reinhardt and
@@ -476,7 +474,7 @@ uniformly and its sum is holomorphic. The definition of $D_c$ excludes merely
 boundary convergence and permits an empty convergence domain. No convergence
 hypothesis on the original coefficient family is needed to state these results.
 
-### 20. Taylor representation and logarithmic extension on complete Reinhardt sets — Proved
+### 20. Taylor representation and logarithmic extension on complete Reinhardt sets
 
 Every Banach-valued holomorphic function on an open complete Reinhardt set is
 represented there by its Taylor series at the origin, with absolute convergence
@@ -485,7 +483,7 @@ set. The sum is analytic at every point of the logarithmic Reinhardt hull and
 agrees with the original function. This proof does not require the
 Laurent theorem or the general hull-openness theorem in item 18.
 
-### 21. Characterization of power-series convergence domains: converse — Proved
+### 21. Characterization of power-series convergence domains: converse
 
 Every nonempty open complete logarithmically convex Reinhardt set is the exact
 convergence domain $D_c$ of a scalar power series. Bounded and unbounded sets
@@ -495,7 +493,7 @@ first proves holomorphic convexity of the prescribed domain. Cartan–Thullen
 then supplies a nonextendable function, whose Taylor series at zero has exactly
 that convergence domain.
 
-### 22. Multivariable Laurent expansion and approximation — Proved
+### 22. Multivariable Laurent expansion and approximation
 
 On a Reinhardt domain, every Banach-valued holomorphic function has a unique
 Laurent expansion indexed by $\mathbb Z^n$, converging absolutely and locally
@@ -511,7 +509,7 @@ holomorphic projection operators, their idempotence and mutual annihilation, and
 convergence of finite partial sums are also **proved**. These are Laurent
 approximation results on Reinhardt sets.
 
-### 23. Continuation from more general Reinhardt domains — Proved
+### 23. Continuation from more general Reinhardt domains
 
 If a Reinhardt domain meets every coordinate hyperplane, its holomorphic
 functions extend by a power series to its logarithmic hull. The intersection
@@ -526,7 +524,7 @@ series use a finite box of radii in the original domain to provide a common
 summable bound. Forbidden negative coefficients vanish, so shrinking the selected
 coordinates introduces no singularities.
 
-### 24. Homogeneous expansion and continuation from circular domains — Proved
+### 24. Homogeneous expansion and continuation from circular domains
 
 For a circular domain containing the origin, the homogeneous Taylor expansion
 of a Banach-valued holomorphic function converges locally uniformly
@@ -538,7 +536,7 @@ and proves uniqueness of the extension. Zero-dimensional source spaces are inclu
 
 ## E. Hartogs phenomena and removable singularities
 
-### 25. Hartogs–Taylor and Hartogs–Laurent expansions — Proved
+### 25. Hartogs–Taylor and Hartogs–Laurent expansions
 
 On an open complete Hartogs set, a holomorphic $f(z,w)$ has the expansion
 
@@ -562,7 +560,7 @@ geometric majorants for the negative and nonnegative terms, establishing local
 uniform convergence. Both formulations allow Banach targets, disconnected bases,
 zero-dimensional parameter spaces, and the empty set.
 
-### 26. Extension from a Hartogs cylinder or figure — Proved
+### 26. Extension from a Hartogs cylinder or figure
 
 Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
@@ -578,7 +576,7 @@ the function is needed. The standard Hartogs-figure theorem and uniqueness of
 its extension are proved consequences. These results do not depend on the
 fiber-expansion theorems in item 25.
 
-### 27. Hartogs' unrestricted separate-holomorphy theorem — Proved
+### 27. Hartogs' unrestricted separate-holomorphy theorem
 
 A Banach-valued function on an open subset of $\mathbb C^n$, analytic in each
 coordinate separately, is jointly analytic without any continuity or local
@@ -611,7 +609,7 @@ coordinate. Its ingredients are proved independently:
 The induction is organized with Mathlib's empty-option induction on finite types;
 reindexing along a bijection of coordinate types is proved separately.
 
-### 28. Removal of isolated singularities in dimension at least two — Proved
+### 28. Removal of isolated singularities in dimension at least two
 
 If $\dim_{\mathbb C}E\ge2$, $U\subseteq E$ is open, and $a\in U$, every
 Banach-valued holomorphic function on $U\setminus\{a\}$ extends
@@ -619,7 +617,7 @@ holomorphically across $a$. Neither boundedness nor connectedness of $U$
 is assumed. The proof uses concrete Hartogs continuation, independently of
 the general compact-hole theorem below.
 
-### 29. Scalar zero sets have no isolated points in dimension at least two — Proved
+### 29. Scalar zero sets have no isolated points in dimension at least two
 
 If a scalar function is holomorphic near $a$, vanishes at $a$, and the
 source dimension is at least two, then every punctured neighborhood of $a$
@@ -627,7 +625,7 @@ contains another zero. The proof applies isolated-singularity removal to a
 putative reciprocal. This is a statement about one scalar equation; several
 simultaneous equations can have isolated common zeros.
 
-### 30. First Riemann extension theorem and continuous removal — Proved
+### 30. First Riemann extension theorem and continuous removal
 
 Let $g$ be scalar holomorphic on an open set $U$, with nonzero germ at
 every point. A Banach-valued holomorphic function on $U\setminus Z(g)$
@@ -640,7 +638,7 @@ A separate proved result says that a continuous function on an open set,
 holomorphic off a countable subset, is holomorphic everywhere. That countable
 exceptional set need not be closed or discrete.
 
-### 31. Hartogs' compact-hole extension theorem — Proved
+### 31. Hartogs' compact-hole extension theorem
 
 In complex dimension at least two, let $U$ be open and $K\subseteq U$ compact, with
 $U\setminus K$ connected. Every Banach-valued holomorphic function on $U\setminus K$
@@ -660,7 +658,7 @@ used.
 
 ## F. Elementary analytic sets
 
-### 32. Basic operations, thinness, and removal for analytic sets — Proved
+### 32. Basic operations, thinness, and removal for analytic sets
 
 Analytic subsets are relatively closed and are stable under finite unions,
 finite intersections, products, holomorphic inverse images, restriction, and
@@ -672,13 +670,13 @@ locally lies in a scalar zero set with nonzero defining germ. Consequently,
 locally bounded Banach-valued holomorphic functions on its complement extend
 uniquely across it, by item 30.
 
-### 33. Regular points and full-rank defining equations — Proved
+### 33. Regular points and full-rank defining equations
 
 A point $a\in A$ is regular of codimension $q$ precisely when, locally,
 
 $$
 A=\{f_1=\cdots=f_q=0\},\qquad
-\operatorname{rank}D(f_1,\ldots,f_q)(a)=q
+\mathrm{rank}D(f_1,\ldots,f_q)(a)=q
 $$
 
 for some choice of holomorphic defining equations. The inverse mapping theorem
@@ -687,7 +685,7 @@ the singular locus is relatively closed. The rank criterion is existential:
 an arbitrary redundant or nonreduced presentation need not have full rank at
 a regular point of the underlying set.
 
-### 34. Removal across a coordinate plane of codimension two — Proved
+### 34. Removal across a coordinate plane of codimension two
 
 For an arbitrary open subset of $P\times\mathbb C\times\mathbb C$, a
 Banach-valued holomorphic function off the plane $w_1=w_2=0$ extends across
@@ -695,7 +693,7 @@ that plane. The plane is verified to be analytic and to satisfy the
 two-dimensional slice condition. The removal proof uses the proved Hartogs
 cylinder theorem directly.
 
-### 35. Second Riemann extension theorem — Proved
+### 35. Second Riemann extension theorem
 
 Let $A$ be an analytic subset of an open $U$ satisfying the slice condition
 for codimension at least two. Every Banach-valued holomorphic function on
@@ -709,7 +707,7 @@ $A$ is therefore also proved. Connectedness of $U$ is unnecessary.
 
 ## G. Germs, Weierstrass theory, and elementary local algebra
 
-### 36. The local integral domain of analytic germs — Proved
+### 36. The local integral domain of analytic germs
 
 The scalar germ ring $\mathcal O_{E,a}$ is a local integral domain. A germ is a
 unit exactly when its value at $a$ is nonzero; the unique maximal ideal is
@@ -717,7 +715,7 @@ the kernel of evaluation, and the residue field is $\mathbb C$. Analytic maps
 induce pullbacks on germs. In dimension zero, the germ ring itself is $\mathbb C$.
 These facts do not rely on Noetherianity or Weierstrass preparation.
 
-### 37. Coordinate normalization and roots of units — Proved
+### 37. Coordinate normalization and roots of units
 
 Translation and invertible complex-linear changes of coordinates identify the
 corresponding germ rings; analytic homeomorphisms analytic in both directions
@@ -726,23 +724,23 @@ dimension can be made regular in the last coordinate by an invertible linear
 change. One change works simultaneously for any finite family of nonzero
 germs. Every unit germ has a $k$-th root for each positive integer $k$.
 
-### 38. Taylor determination and order of germs — Proved
+### 38. Taylor determination and order of germs
 
 The Taylor-series map on scalar germs is injective and preserves addition and
 multiplication. Analytic coordinate differentiation agrees with formal partial
 differentiation of the Taylor series. In particular,
 
 $$
-\operatorname{ord}(f)=\infty\iff f=0,\qquad
-\operatorname{ord}(f)=0\iff f\text{ is a unit}.
+\mathrm{ord}(f)=\infty\iff f=0,\qquad
+\mathrm{ord}(f)=0\iff f\text{ is a unit}.
 $$
 
 The sum inequality
-$\operatorname{ord}(f+g)\ge\min(\operatorname{ord}(f),\operatorname{ord}(g))$,
+$\mathrm{ord}(f+g)\ge\min(\mathrm{ord}(f),\mathrm{ord}(g))$,
 equality for unequal orders, and the product formula
 
 $$
-\operatorname{ord}(fg)=\operatorname{ord}(f)+\operatorname{ord}(g)
+\mathrm{ord}(fg)=\mathrm{ord}(f)+\mathrm{ord}(g)
 $$
 
 are **proved**, including zero germs and zero-dimensional coordinate spaces.
@@ -755,7 +753,7 @@ and follows by evaluating the first nonzero homogeneous Taylor polynomial
 in a suitable direction. Polynomial evaluation has the expected Taylor series,
 and total order in one coordinate agrees with scalar analytic order.
 
-### 39. Division by a coordinate power — Proved
+### 39. Division by a coordinate power
 
 On a product polydisc, a scalar holomorphic $g$ has a unique decomposition
 
@@ -769,7 +767,7 @@ product polydisc. Existence does not require boundedness of the numerator;
 boundedness is used for the estimate. Uniqueness, $d=0$, and the case of no
 parameter variables are included.
 
-### 40. Weierstrass division — Proved
+### 40. Weierstrass division
 
 If $f(z,w)$ is regular of order $d$ in $w$ at the origin, every scalar
 analytic numerator germ $g$ has a unique decomposition
@@ -786,7 +784,7 @@ by shrinking representatives. The ring-theoretic formulation with a polynomial
 remainder over the parameter germ ring is also proved. Division by a
 nonvanishing germ includes the order-zero case.
 
-### 41. Weierstrass preparation and uniqueness — Proved
+### 41. Weierstrass preparation and uniqueness
 
 A scalar germ regular of order $d$ in $w$ has a unique factorization
 
@@ -801,7 +799,7 @@ theorem in item 40, both for function representatives and in the germ ring.
 Simultaneous preparation of a finite family after one linear coordinate change
 is included.
 
-### 42. Distinguished polynomial factors — Proved
+### 42. Distinguished polynomial factors
 
 A monic divisor of a distinguished polynomial over the parameter germ ring is
 distinguished. More generally, if $pq$ is distinguished, the factors $p,q$
@@ -809,7 +807,7 @@ can be rescaled by reciprocal coefficient units so that both become
 distinguished. The proof uses reduction modulo the maximal ideal and does not
 depend on division, Noetherianity, or unique factorization.
 
-### 43. Comparison between polynomials and analytic germs — Proved
+### 43. Comparison between polynomials and analytic germs
 
 The project maps $\mathcal O_{\mathbb C^{n-1},0}[w]$ into $\mathcal O_{\mathbb C^n,0}$ by evaluating
 the last-coordinate polynomial. Injectivity is **proved**, by restriction to the
@@ -820,7 +818,7 @@ polynomial is irreducible exactly when its analytic germ is. The ring-theoretic
 existence-and-uniqueness formulations of germ division and preparation are also
 proved.
 
-### 44. Noetherianity of the analytic germ ring — Proved
+### 44. Noetherianity of the analytic germ ring
 
 Every ideal of $\mathcal O_{\mathbb C^n,a}$ is finitely generated. The proof
 proceeds by dimension induction, starting with the zero-dimensional germ ring
@@ -829,7 +827,7 @@ divides by it, and reduces to a finite module of remainder coefficients over
 the lower-dimensional germ ring. Transport gives the result at every base point
 of any finite-dimensional complex normed space.
 
-### 45. Unique factorization and persistence of relative primality — Proved
+### 45. Unique factorization and persistence of relative primality
 
 Every nonzero scalar analytic germ has a finite factorization into irreducibles,
 unique up to units and order. This is **proved**: Noetherianity gives
@@ -855,7 +853,7 @@ system, and a Taylor-series interface accepts arbitrary finite coordinate index 
 
 ## H. Further zero-set geometry and biholomorphic rigidity
 
-### 46. Existence of a regular point on a hypersurface — Proved
+### 46. Existence of a regular point on a hypersurface
 
 The zero set of a scalar holomorphic function on a domain contains a regular
 point of codimension one provided that the zero set is **nonempty and proper**.
@@ -870,7 +868,7 @@ coordinates straighten its zero set to a hyperplane. Persistence of zeros in
 nearby one-variable slices, proved using the maximum modulus principle for
 reciprocals, identifies the two zero sets locally. No unfinished theorem is used.
 
-### 47. Injective holomorphic maps in equal dimensions — Proved
+### 47. Injective holomorphic maps in equal dimensions
 
 An injective holomorphic map between open subsets of equal-dimensional complex
 spaces has invertible derivative everywhere and is biholomorphic onto its open
@@ -886,7 +884,7 @@ critical set would supply an invertible hyperplane minor and hence a contradicti
 The regular-point theorem for scalar zero sets therefore forces the Jacobian's zero
 set to be empty. The original equal-dimension hypothesis is unchanged.
 
-### 48. Cartan uniqueness and determination by a first derivative — Proved
+### 48. Cartan uniqueness and determination by a first derivative
 
 If $U$ is a bounded domain and $f:U\to U$ is holomorphic with
 $f(a)=a$ and $Df(a)=I$, then $f$ is the identity. No injectivity or
@@ -898,7 +896,7 @@ target are equal if their values and derivatives agree at one point is
 also **proved**; boundedness of the target is not required for this
 consequence.
 
-### 49. Linearity of origin-preserving maps between circular domains with bounded source — Proved
+### 49. Linearity of origin-preserving maps between circular domains with bounded source
 
 A biholomorphism between circular domains with bounded source that sends the origin to
 the origin is the restriction of an invertible complex-linear map. Both
@@ -907,7 +905,7 @@ conjugating rotations gives rotation equivariance, and Cauchy's derivative formu
 identifies the map with its derivative at zero. This last analytic argument is
 independently proved, also for Banach-valued holomorphic maps.
 
-### 50. Euclidean ball automorphisms and the ball–polydisc distinction — Proved
+### 50. Euclidean ball automorphisms and the ball–polydisc distinction
 
 For $a$ in the Euclidean unit ball, the project defines the standard map
 
@@ -938,20 +936,20 @@ identity satisfied by the Euclidean norm, giving a contradiction.
 The explicit involution and transitivity hold in arbitrary complex inner-product spaces;
 finite dimensionality is retained for the separate ball–polydisc distinction.
 
-### 51. Restrictions on common extension domains — Proved
+### 51. Restrictions on common extension domains
 
 Suppose $U\subseteq V$ are domains and every scalar holomorphic function
 on $U$ extends to $V$. For every holomorphic $g$ on $V$,
 
 $$
-g(V)=g(U),\qquad V\subseteq\operatorname{conv}_{\mathbb R}(U).
+g(V)=g(U),\qquad V\subseteq\mathrm{conv}_{\mathbb R}(U).
 $$
 
 Thus a common extension preserves the range of each scalar function, including
 its omitted values, and stays within the real convex hull of the original
 domain. These results concern concrete subsets of the same ambient space.
 
-### 52. Relative holomorphic hulls — Proved
+### 52. Relative holomorphic hulls
 
 Holomorphic hulls are extensive for subsets of the ambient set, monotone,
 idempotent, relatively closed, and bounded when the original set is bounded.
@@ -970,20 +968,29 @@ when the exterior point lies on coordinate hyperplanes. The entire holomorphic
 hull therefore remains inside the domain. This proof includes unbounded and
 empty domains and is independent of Cartan–Thullen.
 
-### 53. Local continuation and elementary domains of holomorphy — Proved
+### 53. Local continuation and elementary continuation obstructions
 
 The project distinguishes obstruction to common local continuation from the
-strong nonextendability of one function. A domain of existence of a single
-function is a domain of holomorphy. A domain of holomorphy cannot have a proper
-connected common extension containing it.
+strong nonextendability of one function. `IsDomainOfHolomorphy` is a generalized
+continuation-obstruction predicate for arbitrary sets: openness, connectedness,
+and nonemptiness are separate hypotheses. It agrees with the classical
+notion of a domain of holomorphy when applied to a nonempty connected open set.
+A domain of existence of a single function satisfies this predicate. An open
+nonempty set satisfying it cannot have a proper connected common extension
+containing it.
 
 Every planar open set, every finite product of planar open sets, and every
-real-convex open subset of a finite-dimensional complex normed space is a
-domain of holomorphy. The proofs use reciprocals of
-separating entire functions and the identity principle. These examples are
-independent of the Cartan–Thullen implications.
+real-convex open subset of a finite-dimensional complex normed space satisfies
+this continuation property. The formal product assertion also permits arbitrary
+plane factors. When the product has empty interior, the predicate holds
+vacuously because there is no nonempty open overlap on which to test
+continuation. For nonempty connected open plane factors, the assertion recovers
+the classical theorem that their product is a domain of holomorphy.
 
-### 54. Convex compact exhaustions and escaping sequences — Proved
+The proofs use reciprocals of separating entire functions and the identity
+principle. These examples are independent of the Cartan–Thullen implications.
+
+### 54. Convex compact exhaustions and escaping sequences
 
 Every holomorphically convex open set has a compact exhaustion by compact sets
 fixed by their relative holomorphic hulls. Successive sets contain their
@@ -997,7 +1004,7 @@ of holomorphic functions, together with separators tending to zero locally
 uniformly. The converse extracts an escaping sequence from a noncompact hull.
 Empty open sets, disconnected open sets, and empty coordinate types are included.
 
-### 55. Thullen's lemma and hull boundary distance — Proved
+### 55. Thullen's lemma and hull boundary distance
 
 Mixed derivative bounds transfer from a set to its holomorphic hull; this is
 **proved**, also for Banach-valued functions, by norming functionals. The Taylor
@@ -1016,7 +1023,7 @@ holomorphically convex are **proved**. In particular, real-convex open coordinat
 sets are now proved holomorphically convex. The separate implication from
 uniform positive hull-radius bounds to compactness of hulls is **proved**.
 
-### 56. Cartan–Thullen equivalences — Proved
+### 56. Cartan–Thullen equivalences
 
 For an open subset $U\subset\mathbb C^n$, the project proves the equivalence of:
 
@@ -1036,10 +1043,10 @@ sets, the whole space, the empty set, and dimension zero. The function-theoretic
 of items 1, 2, and 4 is also exported for arbitrary finite-dimensional complex normed spaces;
 the numerical boundary-distance and polydisc-radius statements retain their coordinate norm.
 
-### 57. Bochner's tube theorem — Proved
+### 57. Bochner's tube theorem
 
 For a preconnected open base $\Omega\subset\mathbb R^n$, every Banach-valued
-holomorphic function on $T_\Omega$ extends to $T_{\operatorname{conv}\Omega}$,
+holomorphic function on $T_\Omega$ extends to $T_{\mathrm{conv}\Omega}$,
 agreeing with the original function on $T_\Omega$. Uniqueness of the extension,
 elementary openness and convexity of tubes, and the equivalence between convexity of
 the base and the domain-of-holomorphy property of the tube are proved as well. The
@@ -1068,7 +1075,7 @@ is reached by reindexing from $\mathbb R^{\{1,\dots,n\}}$.
 
 ## J. Plurisubharmonic functions, the Levi form, and pseudoconvexity
 
-### 58. Subharmonic functions of one variable — Proved
+### 58. Subharmonic functions of one variable
 
 A real function on an open subset of $\mathbb C$ is subharmonic if it is upper
 semicontinuous and satisfies the local submean inequality: at each point and for all
@@ -1087,7 +1094,7 @@ Consequently a continuous function whose center value lies below the center valu
 every such harmonic polynomial majorant satisfies the submean inequality, and continuous
 subharmonic functions satisfy the submean inequality on every closed disc in their domain.
 
-### 59. The Laplacian criterion — Proved
+### 59. The Laplacian criterion
 
 For a `C²` function of one complex variable, the circle average of radius $r$ differs
 from the center value by $r^2/4$ times the Laplacian up to $o(r^2)$, uniformly through a
@@ -1098,7 +1105,7 @@ function with nonnegative Laplacian on an open set is subharmonic. The last step
 by a small multiple of the squared distance, whose Laplacian is $4$, and uses the submean
 inequality on closed discs. The Laplacian is Mathlib's Laplacian on $\mathbb C$.
 
-### 60. Plurisubharmonic functions and the Levi form — Proved
+### 60. Plurisubharmonic functions and the Levi form
 
 A real function on an open subset of a complex normed space is plurisubharmonic if it is
 upper semicontinuous and its restriction to every complex line is subharmonic. Sums,
@@ -1113,7 +1120,7 @@ on $(iw,iw)$; it is one quarter of the Laplacian of the slice $t\mapsto f(a+tw)$
 $t=0$. A `C²` function on an open set is plurisubharmonic exactly when its Levi form is
 positive semidefinite at every point.
 
-### 61. Pseudoconvexity of domains of holomorphy — Proved
+### 61. Pseudoconvexity of domains of holomorphy
 
 On a domain of holomorphy in $\mathbb C^n$ with the sup norm, $-\log\delta$ is
 plurisubharmonic, where $\delta$ is the distance to the complement (Hörmander 2.6.5). The
@@ -1133,7 +1140,7 @@ a Hartogs cylinder over an open preconnected base contained in the set has its f
 cylinder contained in the set. The converse implications, from pseudoconvexity back to
 the domain-of-holomorphy property, form the Levi problem and are outside the present scope.
 
-### 62. Levi convex boundaries and Levi's theorem — Proved
+### 62. Levi convex boundaries and Levi's theorem
 
 A local `C²` defining function for an open set $U$ at a boundary point $p$ is a `C²`
 function $\rho$ on an open neighborhood $V$ of $p$ with $\rho(p)=0$, $d\rho(p)\neq0$, and
@@ -1163,10 +1170,10 @@ form along a complex line. The boundary circle is then deeper inside $U$ than th
 fixed multiple of $r^2$, while the center lies in the holomorphic hull of the circle by the
 maximum modulus principle; Thullen's weighted radius bound contradicts this.
 
-### 63. Levi form under holomorphic maps and the Kontinuitätssatz — Proved
+### 63. Levi form under holomorphic maps and the Kontinuitätssatz
 
 For a `C²` function $g$ and a holomorphic map $\Phi$, the Levi form obeys the chain rule
-$\operatorname{Lev}(g\circ\Phi)(a,w)=\operatorname{Lev}(g)(\Phi(a),\Phi'(a)w)$. The
+$\mathrm{Lev}(g\circ\Phi)(a,w)=\mathrm{Lev}(g)(\Phi(a),\Phi'(a)w)$. The
 second-derivative term of $\Phi$ cancels because the real second derivative of a holomorphic
 map is complex bilinear (it is the restriction of scalars of the complex second derivative).
 Consequently `C²` plurisubharmonic functions compose with holomorphic maps to `C²`
@@ -1184,7 +1191,7 @@ its boundary circle, and Thullen's radius bound keeps the discs at least as far 
 complement as the compact set of boundary circles. The affine continuity principle of item 61
 follows.
 
-### 64. Independence of the defining function and local peak functions — Proved
+### 64. Independence of the defining function and local peak functions
 
 Two local `C²` defining functions of an open set at the same boundary point have positively
 proportional derivatives, and on tangent vectors their second derivatives are proportional
@@ -1202,8 +1209,8 @@ function makes the Levi form positive definite on the whole space; the constant 
 sequential compactness argument on the unit sphere. The complex bilinear part of the real
 Hessian is a bounded complex bilinear map, so the Levi polynomial
 $F(z)=\partial\rho(p)(z-p)+Q(z-p)$ is entire, vanishes at $p$, and by the second-order Taylor
-expansion satisfies $\operatorname{Re}F(z)\le\tilde\rho(z)-\tfrac c2\|z-p\|^2$ near $p$
-(Range, Proposition 2.16). Hence $\operatorname{Re}F<0$ on the set near $p$, and $1/F$ is a
+expansion satisfies $\mathrm{Re}F(z)\le\tilde\rho(z)-\tfrac c2\|z-p\|^2$ near $p$
+(Range, Proposition 2.16). Hence $\mathrm{Re}F<0$ on the set near $p$, and $1/F$ is a
 holomorphic function on the set near $p$ whose modulus tends to infinity at $p$. The
 normalized local peak function is $\exp F$: its value at $p$ is one and its modulus is
 strictly less than one at every other nearby point on the closed side $\rho\le0$. The step from peak functions to the domain-of-holomorphy property of a local piece
@@ -1211,14 +1218,14 @@ is not taken; it is the non-elementary comparison of weak and strong domains of 
 
 ## K. Runge pairs, Runge domains, and polynomial hulls
 
-### 65. Runge pairs, Runge domains, and the polynomial hull — Proved
+### 65. Runge pairs, Runge domains, and the polynomial hull
 
 A pair of sets $U\subseteq V$ is a Runge pair if every holomorphic function on $U$ is
 approximated within $\varepsilon$ on every compact subset of $U$ by a holomorphic function on
 $V$; an open subset of $\mathbb C^n$ is a Runge domain if the approximants are polynomials.
 Runge pairs are reflexive and transitive, and on an open set the compact-set formulation is
 equivalent to locally uniform convergence of a sequence of approximants, using a compact
-exhaustion $\overline B(0,k)\cap\{\operatorname{dist}(\cdot,U^c)\ge 1/(k+1)\}$.
+exhaustion $\overline B(0,k)\cap\{\mathrm{dist}(\cdot,U^c)\ge 1/(k+1)\}$.
 
 Entire functions on $\mathbb C^n$ are uniform limits on compact sets of partial sums of their
 Taylor series, which are polynomials. Hence the polynomial hull of a compact set, defined by
