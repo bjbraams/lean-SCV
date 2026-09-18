@@ -24,8 +24,3 @@ root = "Main"
 name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.34.0"
-
-[[require]]
-name = "doc-gen4"
-scope = "leanprover"
-rev = "v4.34.0"

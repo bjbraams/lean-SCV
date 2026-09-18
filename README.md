@@ -48,18 +48,6 @@ To check both Palomar modules:
 The Challenge build reports the 67 intentional `sorry` placeholders. These build checks
 are separate from Palomar's Comparator and independent kernel verification.
 
-Documentation can be generated with the `doc-gen4` dependency declared in the lakefile.
-To include the project bibliography while keeping its source at the repository root:
-
-```sh
-DOCGEN_SRC=vscode lake build Main:docs
-lake exe doc-gen4 bibPrepass SCVReferences.bib
-lake exe doc-gen4 fromDb .lake/build/api-docs.db SeveralComplexVariables
-```
-
-The last command regenerates the HTML from the documentation database using the project
-bibliography. This avoids requiring a documentation-source directory under the library.
-
 ## Documentation
 
 - [SCVMainTheorems.md](SCVMainTheorems.md): definitions, conventions, and the catalogue of
