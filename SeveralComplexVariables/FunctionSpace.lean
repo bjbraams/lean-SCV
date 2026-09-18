@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Topology.Algebra.UniformConvergence
 public import Mathlib.Topology.ContinuousMap.Algebra
 public import Mathlib.Topology.UniformSpace.CompactConvergence
 public import SeveralComplexVariables.LocallyUniform
@@ -73,6 +74,17 @@ def holomorphicSubmodule (U : TopologicalSpace.Opens (ι → ℂ)) : Submodule �
 /-- Holomorphic maps on an open domain, with the induced compact-open topology and uniformity. -/
 abbrev HolomorphicMap (U : TopologicalSpace.Opens (ι → ℂ)) (F : Type*)
     [NormedAddCommGroup F] [NormedSpace ℂ F] := ↥(holomorphicSubmodule (F := F) U)
+
+/-- Subtraction is uniformly continuous for the compact-open uniformity on holomorphic maps. -/
+instance (U : TopologicalSpace.Opens (ι → ℂ)) : IsUniformAddGroup (HolomorphicMap U F) where
+  uniformContinuous_sub := by
+    apply isUniformEmbedding_subtype_val.uniformContinuous_iff.mpr
+    apply ContinuousMap.isUniformEmbedding_toUniformOnFunIsCompact.uniformContinuous_iff.mpr
+    have h : UniformContinuous (fun f : HolomorphicMap U F =>
+        ContinuousMap.toUniformOnFunIsCompact f.val) :=
+      ContinuousMap.isUniformEmbedding_toUniformOnFunIsCompact.uniformContinuous.comp
+        uniformContinuous_subtype_val
+    exact (h.comp uniformContinuous_fst).sub (h.comp uniformContinuous_snd)
 
 variable [CompleteSpace F]
 

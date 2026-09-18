@@ -18,7 +18,7 @@ extension to its geometric logarithmic hull, even if it does not contain the ori
 The hull here includes zero coordinates. This is extension between subsets of ℂⁿ;
 no abstract envelope or Riemann domain is constructed.
 
-The general Laurent expansion is pending; its conversion to power-series extension is proved.
+Laurent expansion gives power-series extension to logarithmic and complete Reinhardt hulls.
 The geometric inclusion of the complete hull in the logarithmic hull for open Reinhardt
 sets containing zero is proved independently of Laurent expansion.
 Analyticity of the extended sums follows
@@ -112,7 +112,7 @@ theorem analyticOnNhd_taylorSum_logarithmicReinhardtHull {U : Set (Fin n → ℂ
 /-- **Power-series extension from a Reinhardt domain meeting each coordinate hyperplane.**
 The points on different hyperplanes need not coincide. The proof eliminates negative
 Laurent coefficients and uses geometric convexity of the convergence domain; it depends
-on the pending Laurent expansion theorem. -/
+on the Laurent expansion theorem. -/
 theorem exists_powerSeries_extension_of_meets_coordinateHyperplanes
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U)
     (hmeet : ∀ i, ∃ z ∈ U, z i = 0) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U) :
@@ -157,7 +157,7 @@ theorem exists_powerSeries_extension_of_meets_coordinateHyperplanes
   exact (hs.congr_fun (fun m => (hterm m z).symm)).tsum_eq
 
 /-- Theorem 2.8.2: extension to the logarithmic hull when every coordinate hyperplane is met.
-Depends on the pending Laurent expansion, and allows Banach-valued functions. -/
+Depends on the Laurent expansion, and allows Banach-valued functions. -/
 theorem exists_extension_logarithmicReinhardtHull_of_meets_coordinateHyperplanes
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U)
     (hmeet : ∀ i, ∃ z ∈ U, z i = 0) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U) :
@@ -166,7 +166,7 @@ theorem exists_extension_logarithmicReinhardtHull_of_meets_coordinateHyperplanes
   exact ⟨powerSeriesSum c, (analyticOnNhd_powerSeriesSum c).mono hD, he⟩
 
 /-- Corollary 2.5.2: a connected Reinhardt domain containing zero admits extension to its
-logarithmic hull. Depends on the pending Laurent expansion. -/
+logarithmic hull. Depends on the Laurent expansion. -/
 theorem exists_extension_logarithmicReinhardtHull_of_zero_mem
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U)
     (hzero : 0 ∈ U) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U) :
@@ -218,7 +218,7 @@ theorem completeReinhardtHull_subset_logarithmicReinhardtHull
   exact he ▸ hm
 
 /-- Theorem 2.5.1: extension to the complete Reinhardt hull, obtained by restricting the
-logarithmic-hull extension. Depends on the pending Laurent expansion. -/
+logarithmic-hull extension. Depends on the Laurent expansion. -/
 theorem exists_extension_completeReinhardtHull
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U)
     (hzero : 0 ∈ U) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U) :

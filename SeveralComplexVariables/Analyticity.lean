@@ -19,7 +19,9 @@ This file proves the several-complex-variables theorem that a complex
 Fréchet-differentiable map on an open subset of a finite-dimensional complex normed space is
 analytic. The general theorem uses coordinates only inside its proof. The file is a temporary
 project home for material ultimately intended for a Mathlib location such as
-`Mathlib.Analysis.Complex.SeveralVariables.Basic`.
+`Mathlib.Analysis.Complex.SeveralVariables.Analyticity`. It builds on the
+polydisc Cauchy-series and Osgood theorems; the underlying predicates are Mathlib
+definitions.
 
 ## Main results
 

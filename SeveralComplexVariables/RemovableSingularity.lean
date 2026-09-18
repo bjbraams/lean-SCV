@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.ZeroSets.Basic
 public import SeveralComplexVariables.RemovableSingularity.Local
 public import SeveralComplexVariables.RemovableSingularity.Gluing

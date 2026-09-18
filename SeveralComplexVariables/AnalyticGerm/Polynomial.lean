@@ -125,15 +125,6 @@ theorem polynomialHom_injective : Function.Injective (polynomialHom (E := E)) :=
   have hz := hker (p - q) (by simp [h])
   exact sub_eq_zero.mp hz
 
-/-- A regular irreducible polynomial gives an irreducible germ if it vanishes at the
-origin. This corrects the missing nonunit hypothesis in Lemma 1.8.1(b).
-Pending proof: preparation of a nonunit factor and polynomial-quotient comparison. -/
-theorem irreducible_polynomialHom [FiniteDimensional ℂ E]
-    (p : Polynomial (AnalyticGerm (0 : E))) (hp : Irreducible p)
-    (hreg : orderInLastVariable (polynomialHom p) ≠ ⊤)
-    (hzero : eval 0 (polynomialHom p) = 0) : Irreducible (polynomialHom p) := by
-  sorry
-
 /-- A monic divisor of a distinguished polynomial is distinguished. Reduction modulo the
 maximal ideal makes it a monic divisor of a power of `X`, hence itself a power of `X`. -/
 theorem isDistinguishedAt_of_monic_dvd {p w : Polynomial (AnalyticGerm (0 : E))}
@@ -188,5 +179,24 @@ theorem exists_distinguished_factors (p q : Polynomial (AnalyticGerm (0 : E)))
     exact dvd_mul_right _ _
   · rw [← he]
     exact dvd_mul_left _ _
+
+/-- The product of two distinguished polynomials is distinguished, of the sum of their
+degrees. Reduction modulo the maximal ideal sends the product to a product of powers of
+`X`, hence to a power of `X` of the total degree. -/
+theorem isDistinguishedAt_mul {p q : Polynomial (AnalyticGerm (0 : E))}
+    (hp : p.IsDistinguishedAt (IsLocalRing.maximalIdeal _))
+    (hq : q.IsDistinguishedAt (IsLocalRing.maximalIdeal _)) :
+    (p * q).IsDistinguishedAt (IsLocalRing.maximalIdeal _) := by
+  have hpq : (p * q).Monic := hp.monic.mul hq.monic
+  have hdeg : (p * q).natDegree = p.natDegree + q.natDegree := hp.monic.natDegree_mul hq.monic
+  refine ⟨⟨fun {j} hj => ?_⟩, hpq⟩
+  have he : (p * q).map (Ideal.Quotient.mk (IsLocalRing.maximalIdeal (AnalyticGerm (0 : E)))) =
+      Polynomial.X ^ (p * q).natDegree := by
+    rw [Polynomial.map_mul, hp.map_eq_X_pow, hq.map_eq_X_pow, hdeg, pow_add]
+  have hc := congrArg (fun r => Polynomial.coeff r j) he
+  have hz : (Ideal.Quotient.mk (IsLocalRing.maximalIdeal (AnalyticGerm (0 : E)))) ((p * q).coeff j)
+      = 0 := by
+    simpa only [Polynomial.coeff_map, Polynomial.coeff_X_pow, ite_eq_right hj.ne] using hc
+  exact Ideal.Quotient.eq_zero_iff_mem.mp hz
 
 end SeveralComplexVariables.AnalyticGerm

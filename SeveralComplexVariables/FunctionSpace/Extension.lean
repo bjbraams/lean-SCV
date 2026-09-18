@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.FunctionSpace
+public import SeveralComplexVariables.FunctionSpace.OpenMapping
 public import SeveralComplexVariables.IdentityPrinciple
 public import SeveralComplexVariables.CommonExtension
 
@@ -14,8 +15,8 @@ public import SeveralComplexVariables.CommonExtension
 
 Restriction is a continuous linear map, injective from a connected larger domain when
 the smaller domain is nonempty. When it is surjective, its inverse is continuous for the
-compact-open topology. This last assertion is a pending Fréchet open-mapping argument;
-the spaces are not given a global supremum norm.
+compact-open topology, by the Fréchet open-mapping argument for complete metrizable
+topological vector spaces.
 Reference: Scheidemann (2005), Proposition 2.1.3 and Exercise 2.1.13.
 -/
 
@@ -85,14 +86,29 @@ theorem holomorphicRestrict_injective_of_subset_closure (hVU : V ≤ U)
   simpa only [openExtension_coe] using hAll z.property
 
 /-- Surjective restriction is a continuous linear equivalence under the identity-theorem
-hypotheses. Proof pending: the Fréchet open-mapping theorem for these complete metrizable
-compact-open spaces. Banach-valued targets need not be finite dimensional. -/
+hypotheses, by the open-mapping theorem for complete metrizable compact-open spaces.
+Banach-valued targets need not be finite dimensional. -/
 theorem exists_holomorphicRestrictionEquiv [CompleteSpace F] (hVU : V ≤ U)
     (hc : IsPreconnected (U : Set (ι → ℂ))) (hne : (V : Set (ι → ℂ)).Nonempty)
     (hs : Function.Surjective (holomorphicRestrict (F := F) hVU)) :
     ∃ e : HolomorphicMap U F ≃L[ℂ] HolomorphicMap V F,
       (e : HolomorphicMap U F → HolomorphicMap V F) = holomorphicRestrict hVU := by
-  sorry
+  let : LocallyCompactSpace U := U.isOpen.locallyCompactSpace
+  let : LocallyCompactSpace V := V.isOpen.locallyCompactSpace
+  have : (uniformity C(U, F)).IsCountablyGenerated := inferInstance
+  have : (uniformity C(V, F)).IsCountablyGenerated := inferInstance
+  have : (uniformity (HolomorphicMap U F)).IsCountablyGenerated :=
+    Filter.comap.isCountablyGenerated _ _
+  have : (uniformity (HolomorphicMap V F)).IsCountablyGenerated :=
+    Filter.comap.isCountablyGenerated _ _
+  let : PseudoMetricSpace (HolomorphicMap U F) := UniformSpace.pseudoMetricSpace _
+  let : PseudoMetricSpace (HolomorphicMap V F) := UniformSpace.pseudoMetricSpace _
+  let e := LinearEquiv.ofBijective (holomorphicRestrictCLM (F := F) hVU).toLinearMap
+    ⟨holomorphicRestrict_injective hVU hc hne, hs⟩
+  have hopen := isOpenMap_of_surjective_complete (holomorphicRestrictCLM (F := F) hVU) hs
+  exact ⟨ContinuousLinearEquiv.ofIsHomeomorph e
+    ⟨continuous_holomorphicRestrict hVU,
+      hopen, e.bijective⟩, rfl⟩
 
 /-- Scalar holomorphic functions form a subalgebra of continuous functions. -/
 @[expose, reducible]
@@ -138,7 +154,7 @@ def holomorphicRestrictionAlgEquiv (hVU : V ≤ U)
     ⟨holomorphicRestrict_injective hVU hc hne, hs⟩
 
 /-- The scalar algebra equivalence is continuous in both directions for the compact-open
-topology. Inverse continuity depends on the pending Fréchet open-mapping step. -/
+topology, using the Fréchet open-mapping theorem for inverse continuity. -/
 theorem continuous_holomorphicRestrictionAlgEquiv (hVU : V ≤ U)
     (hc : IsPreconnected (U : Set (ι → ℂ))) (hne : (V : Set (ι → ℂ)).Nonempty)
     (hs : Function.Surjective (holomorphicRestrict (F := ℂ) hVU)) :

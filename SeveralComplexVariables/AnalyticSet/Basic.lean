@@ -5,8 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Basic
-public import SeveralComplexVariables.Biholomorphic
+public import Mathlib.Analysis.Analytic.Constructions
+public import Mathlib.Analysis.Complex.Basic
 
 /-!
 # Analytic subsets of open complex domains
@@ -14,8 +14,12 @@ public import SeveralComplexVariables.Biholomorphic
 An analytic subset is locally the common zero set of finitely many scalar analytic
 functions. Equations are required near every point of the ambient set, so relative
 closedness follows. The local neighborhood requirement also implies that the ambient
-domain is open. No connectedness,
-nonemptiness, or positive dimension is built in. Empty families define the whole domain.
+domain is open. No connectedness, nonemptiness, or positive dimension is built in.
+Empty families define the whole domain.
+
+Holomorphic defining equations and biholomorphic transport are treated separately in
+`SeveralComplexVariables.AnalyticSet.Holomorphic`. This file uses analytic predicates
+directly and does not depend on the SCV holomorphy–analyticity equivalence.
 
 References: Range I §3.2; Fritzsche–Grauert I §8; Scheidemann §4.1.
 No abstract analytic spaces or sheaf structures are introduced.
@@ -87,14 +91,6 @@ theorem isAnalyticSet_zeroSet_pi {ι : Type*} [Fintype ι] {U : Set E} (hU : IsO
     refine ⟨hzU, ?_⟩
     funext i
     exact hsz (fun z => f z i) (Finset.mem_image.mpr ⟨i, Finset.mem_univ i, rfl⟩)
-
-/-- Holomorphic finite-coordinate equations on an open finite-dimensional domain define
-an analytic subset, using Mathlib's equivalence of holomorphy and analyticity. -/
-theorem isAnalyticSet_zeroSet_pi_of_differentiableOn [FiniteDimensional ℂ E]
-    {ι : Type*} [Fintype ι] {U : Set E} (hU : IsOpen U)
-    {f : E → (ι → ℂ)} (hf : DifferentiableOn ℂ f U) :
-    IsAnalyticSet U (U ∩ f ⁻¹' {0}) :=
-  isAnalyticSet_zeroSet_pi hU (hf.analyticOnNhd_finiteDimensional hU)
 
 /-- The whole open domain is analytic, using no equations. -/
 theorem isAnalyticSet_self {U : Set E} (hU : IsOpen U) : IsAnalyticSet U U := by
@@ -222,20 +218,5 @@ theorem IsAnalyticSet.prod {U A : Set E} {V B : Set F} (hA : IsAnalyticSet U A)
       ⟨⟨hA.subset hzA, hB.subset hzB⟩, hzB⟩⟩
   · rintro ⟨⟨_, hzA⟩, ⟨_, hzB⟩⟩
     exact ⟨hzA, hzB⟩
-
-/-- Biholomorphic changes of ambient coordinates preserve analytic subsets. -/
-theorem IsAnalyticSet.image_biholomorphic [FiniteDimensional ℂ E] [FiniteDimensional ℂ F]
-    {e : OpenPartialHomeomorph E F} (he : IsBiholomorphic e)
-    {A : Set E} (hA : IsAnalyticSet e.source A) : IsAnalyticSet e.target (e '' A) := by
-  let := FiniteDimensional.complete ℂ E
-  have h := hA.preimage e.open_target
-    (he.2.analyticOnNhd_finiteDimensional e.open_target) e.symm.mapsTo
-  convert h using 1
-  ext y
-  constructor
-  · rintro ⟨x, hx, rfl⟩
-    exact ⟨e.map_source (hA.subset hx), by simpa [e.left_inv (hA.subset hx)] using hx⟩
-  · rintro ⟨hy, hx⟩
-    exact ⟨e.symm y, hx, e.right_inv hy⟩
 
 end SeveralComplexVariables

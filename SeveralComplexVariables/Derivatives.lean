@@ -9,7 +9,7 @@ public import Mathlib.Analysis.Calculus.Deriv.Pi
 public import Mathlib.Analysis.Calculus.FDeriv.Analytic
 public import Mathlib.Analysis.Calculus.FDeriv.Symmetric
 public import Mathlib.LinearAlgebra.Matrix.ToLin
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
 
 /-!
 # Coordinate derivatives of holomorphic functions
@@ -69,6 +69,16 @@ theorem partialDeriv_sub {f g : (ι → ℂ) → F} {z : ι → ℂ}
     partialDeriv i (f - g) z = partialDeriv i f z - partialDeriv i g z := by
   exact deriv_sub (hasDerivAt_update_of_differentiableAt hf i).differentiableAt
     (hasDerivAt_update_of_differentiableAt hg i).differentiableAt
+
+/-- Coordinate differentiation of a product of scalar functions follows the ordinary
+product rule, holding the other coordinates fixed. -/
+theorem partialDeriv_mul {f g : (ι → ℂ) → ℂ} {z : ι → ℂ}
+    (hf : DifferentiableAt ℂ f z) (hg : DifferentiableAt ℂ g z) (i : ι) :
+    partialDeriv i (f * g) z = partialDeriv i f z * g z + f z * partialDeriv i g z := by
+  have hf' := hasDerivAt_update_of_differentiableAt hf i
+  have hg' := hasDerivAt_update_of_differentiableAt hg i
+  have h := deriv_fun_mul hf'.differentiableAt hg'.differentiableAt
+  simpa [partialDeriv, update_eq_self] using h
 
 /-- Holomorphy restricts to each coordinate slice. -/
 theorem _root_.AnalyticOnNhd.analyticAt_update {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}
@@ -183,6 +193,112 @@ theorem iteratedPartialDeriv_finset_sum {α : Type*} {U : Set (ι → ℂ)}
     rw [partialDeriv_congr heq i]
     exact partialDeriv_finset_sum t
       (fun a ha => ((hf a ha).iteratedPartialDeriv hU is z hz).differentiableAt) i
+
+/-- Pascal's rule reindexes a sum of consecutive terms into the next row of binomial
+coefficients: the combinatorial core of the Leibniz rule for iterated derivatives. -/
+private theorem sum_choose_shift (k : ℕ) (X : ℕ → ℂ) :
+    (∑ j ∈ Finset.range (k + 1), (k.choose j : ℂ) * (X (j + 1) + X j)) =
+      ∑ j ∈ Finset.range (k + 2), ((k + 1).choose j : ℂ) * X j := by
+  have hzero : (k.choose (k + 1) : ℂ) * X (k + 1) = 0 := by simp
+  have hstep1 : ∑ j ∈ Finset.range (k + 1), (k.choose j : ℂ) * X j =
+      X 0 + ∑ j ∈ Finset.range (k + 1), (k.choose (j + 1) : ℂ) * X (j + 1) := by
+    rw [Finset.sum_range_succ' (fun j => (k.choose j : ℂ) * X j) k]
+    simp only [Nat.choose_zero_right, Nat.cast_one, one_mul]
+    rw [Finset.sum_range_succ (fun j => (k.choose (j + 1) : ℂ) * X (j + 1)) k, hzero, add_zero]
+    ring
+  have hpeel : ∑ j ∈ Finset.range (k + 2), ((k + 1).choose j : ℂ) * X j =
+      X 0 + ∑ j ∈ Finset.range (k + 1), ((k + 1).choose (j + 1) : ℂ) * X (j + 1) := by
+    rw [Finset.sum_range_succ' (fun j => ((k + 1).choose j : ℂ) * X j) (k + 1)]
+    simp only [Nat.choose_zero_right, Nat.cast_one, one_mul]
+    ring
+  rw [hpeel]
+  have hpascal : ∀ j ∈ Finset.range (k + 1),
+      ((k + 1).choose (j + 1) : ℂ) * X (j + 1) =
+      (k.choose j : ℂ) * X (j + 1) + (k.choose (j + 1) : ℂ) * X (j + 1) := by
+    intro j _
+    rw [Nat.choose_succ_succ', Nat.cast_add, add_mul]
+  rw [Finset.sum_congr rfl hpascal, Finset.sum_add_distrib]
+  have hexpand : ∀ j ∈ Finset.range (k + 1), (k.choose j : ℂ) * (X (j + 1) + X j) =
+      (k.choose j : ℂ) * X (j + 1) + (k.choose j : ℂ) * X j := fun j _ => by ring
+  rw [Finset.sum_congr rfl hexpand, Finset.sum_add_distrib, hstep1]
+  ring
+
+/-- Coordinate differentiation of a scalar multiple follows the ordinary constant-multiple
+rule, holding the other coordinates fixed. -/
+theorem partialDeriv_const_mul {f : (ι → ℂ) → ℂ} {z : ι → ℂ} (c : ℂ)
+    (hf : DifferentiableAt ℂ f z) (i : ι) :
+    partialDeriv i (fun w => c * f w) z = c * partialDeriv i f z :=
+  deriv_const_mul c (hasDerivAt_update_of_differentiableAt hf i).differentiableAt
+
+/-- Repeated differentiation of a product of scalar functions in a single coordinate
+follows the ordinary Leibniz binomial rule, since each step is the ordinary product rule. -/
+theorem iteratedPartialDeriv_replicate_mul {U : Set (ι → ℂ)} {f g : (ι → ℂ) → ℂ}
+    (hf : AnalyticOnNhd ℂ f U) (hg : AnalyticOnNhd ℂ g U) (hU : IsOpen U) (i : ι) (k : ℕ) :
+    EqOn (iteratedPartialDeriv (List.replicate k i) (f * g))
+      (fun z => ∑ j ∈ Finset.range (k + 1), (k.choose j : ℂ) *
+        (iteratedPartialDeriv (List.replicate j i) f z *
+          iteratedPartialDeriv (List.replicate (k - j) i) g z)) U := by
+  induction k with
+  | zero => intro z hz; simp [iteratedPartialDeriv]
+  | succ k ih =>
+    intro z hz
+    have hstep : iteratedPartialDeriv (List.replicate (k + 1) i) (f * g) z =
+        partialDeriv i (iteratedPartialDeriv (List.replicate k i) (f * g)) z := rfl
+    rw [hstep]
+    have heq : iteratedPartialDeriv (List.replicate k i) (f * g) =ᶠ[𝓝 z]
+        (fun z => ∑ j ∈ Finset.range (k + 1), (k.choose j : ℂ) *
+          (iteratedPartialDeriv (List.replicate j i) f z *
+            iteratedPartialDeriv (List.replicate (k - j) i) g z)) :=
+      (hU.eventually_mem hz).mono (fun w hw => ih hw)
+    rw [partialDeriv_congr heq i]
+    have hAdiff : ∀ j, DifferentiableAt ℂ (iteratedPartialDeriv (List.replicate j i) f) z :=
+      fun j => (hf.iteratedPartialDeriv hU (List.replicate j i) z hz).differentiableAt
+    have hBdiff : ∀ j, DifferentiableAt ℂ (iteratedPartialDeriv (List.replicate j i) g) z :=
+      fun j => (hg.iteratedPartialDeriv hU (List.replicate j i) z hz).differentiableAt
+    have hsum := partialDeriv_finset_sum (F := ℂ)
+      (f := fun j (w : ι → ℂ) => (k.choose j : ℂ) *
+        (iteratedPartialDeriv (List.replicate j i) f w *
+          iteratedPartialDeriv (List.replicate (k - j) i) g w))
+      (Finset.range (k + 1)) (fun j _ => ((hAdiff j).mul (hBdiff (k - j))).const_mul _) i
+    rw [hsum]
+    have hterm : ∀ j ∈ Finset.range (k + 1),
+        partialDeriv i (fun z => (k.choose j : ℂ) * (iteratedPartialDeriv
+          (List.replicate j i) f z * iteratedPartialDeriv (List.replicate (k - j) i) g z)) z =
+        (k.choose j : ℂ) * (iteratedPartialDeriv (List.replicate (j + 1) i) f z *
+            iteratedPartialDeriv (List.replicate (k - j) i) g z +
+          iteratedPartialDeriv (List.replicate j i) f z *
+            iteratedPartialDeriv (List.replicate (k - j + 1) i) g z) := by
+      intro j _
+      have hcm := partialDeriv_const_mul
+        (f := fun w => iteratedPartialDeriv (List.replicate j i) f w *
+          iteratedPartialDeriv (List.replicate (k - j) i) g w)
+        (k.choose j : ℂ) ((hAdiff j).mul (hBdiff (k - j))) i
+      rw [hcm]
+      have hpm : partialDeriv i (fun w => iteratedPartialDeriv (List.replicate j i) f w *
+          iteratedPartialDeriv (List.replicate (k - j) i) g w) z =
+          partialDeriv i (iteratedPartialDeriv (List.replicate j i) f) z *
+            iteratedPartialDeriv (List.replicate (k - j) i) g z +
+          iteratedPartialDeriv (List.replicate j i) f z *
+            partialDeriv i (iteratedPartialDeriv (List.replicate (k - j) i) g) z :=
+        partialDeriv_mul (hAdiff j) (hBdiff (k - j)) i
+      rw [hpm]
+      congr 2
+    rw [Finset.sum_congr rfl hterm]
+    set X : ℕ → ℂ := fun m => iteratedPartialDeriv (List.replicate m i) f z *
+      iteratedPartialDeriv (List.replicate (k + 1 - m) i) g z with hXdef
+    have hgoal : ∑ j ∈ Finset.range (k + 1), (k.choose j : ℂ) *
+        (iteratedPartialDeriv (List.replicate (j + 1) i) f z *
+            iteratedPartialDeriv (List.replicate (k - j) i) g z +
+          iteratedPartialDeriv (List.replicate j i) f z *
+            iteratedPartialDeriv (List.replicate (k - j + 1) i) g z) =
+        ∑ j ∈ Finset.range (k + 1), (k.choose j : ℂ) * (X (j + 1) + X j) := by
+      apply Finset.sum_congr rfl
+      intro j hj
+      simp only [Finset.mem_range] at hj
+      have e1 : k - j = k + 1 - (j + 1) := by omega
+      have e3 : k + 1 - (j + 1) + 1 = k + 1 - j := by omega
+      simp only [hXdef, e1, e3]
+    rw [hgoal, sum_choose_shift]
 
 section MultiIndex
 

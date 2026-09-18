@@ -7,6 +7,9 @@ module
 
 public import SeveralComplexVariables.HolomorphicConvexity.Hull
 public import SeveralComplexVariables.LocallyUniform
+public import SeveralComplexVariables.FunctionSpace
+public import Mathlib.Topology.Baire.CompleteMetrizable
+public import Mathlib.Topology.Baire.Lemmas
 public import Mathlib.Topology.Compactness.SigmaCompact
 
 /-!
@@ -15,7 +18,8 @@ public import Mathlib.Topology.Compactness.SigmaCompact
 Separation outside a hull can be amplified by powers to make a function arbitrarily
 small on the original set and arbitrarily large at the chosen point. This step is proved.
 The compact exhaustion is constructed by repeatedly enlarging compact sets and taking
-their holomorphic hulls. The escaping-sequence characterization remains pending. Exhaustions use Mathlib's `CompactExhaustion`
+their holomorphic hulls. The escaping-sequence characterization follows from Baire's
+theorem in the complete space of holomorphic functions. Exhaustions use Mathlib's `CompactExhaustion`
 on the open subtype, rather than a new topological structure.
 
 References: Range II §3.2; Fritzsche–Grauert II §6; Scheidemann §7.1.
@@ -116,15 +120,120 @@ the ambient domain. Its membership in the domain is a separate hypothesis. -/
 def EscapesCompactSubsets (U : Set E) (p : ℕ → E) : Prop :=
   ∀ K : Set E, IsCompact K → K ⊆ U → ∀ᶠ j in atTop, p j ∉ K
 
-/-- **Escaping-sequence characterization of holomorphic convexity.** Proof pending:
-construct a normally convergent separating series; conversely extract an escaping
-sequence from a noncompact hull. -/
+/-- A Baire argument turns functions tending to zero in the compact-open topology,
+but arbitrarily large somewhere on a sequence, into one function unbounded there. -/
+private theorem exists_unbounded_of_small_functions
+    (V : TopologicalSpace.Opens (ι → ℂ)) (p : ℕ → V)
+    (hsmall : ∀ M : ℝ, ∃ F : ℕ → HolomorphicMap V ℂ,
+      Tendsto F atTop (𝓝 0) ∧ ∀ n, ∃ j, M < ‖(F n).val (p j)‖) :
+    ∃ f : HolomorphicMap V ℂ, ¬ BddAbove (range (fun j => ‖f.val (p j)‖)) := by
+  let : LocallyCompactSpace V := V.isOpen.locallyCompactSpace
+  have : (uniformity C(V, ℂ)).IsCountablyGenerated := inferInstance
+  have : (uniformity (HolomorphicMap V ℂ)).IsCountablyGenerated :=
+    Filter.comap.isCountablyGenerated _ _
+  have : TopologicalSpace.IsCompletelyPseudoMetrizableSpace (HolomorphicMap V ℂ) :=
+    .of_completeSpace_pseudometrizable
+  let : BaireSpace (HolomorphicMap V ℂ) := BaireSpace.of_completelyPseudoMetrizable
+  by_contra! hb
+  let A (n : ℕ) : Set (HolomorphicMap V ℂ) := {f | ∀ j, ‖f.val (p j)‖ ≤ n}
+  have hclosed (n : ℕ) : IsClosed (A n) := by
+    simp only [A, ofPred_forall]
+    exact isClosed_iInter fun j => isClosed_le
+      (continuous_holomorphicMap_eval V (p j)).norm continuous_const
+  have hcover : ⋃ n, A n = univ := by
+    apply iUnion_eq_univ_iff.mpr
+    intro f
+    obtain ⟨M, hM⟩ := hb f
+    obtain ⟨n, hn⟩ := exists_nat_ge M
+    exact ⟨n, fun j => (hM (mem_range_self j)).trans hn⟩
+  obtain ⟨N, g, hg⟩ := nonempty_interior_of_iUnion_of_closed hclosed hcover
+  have hgA : g ∈ A N := interior_subset hg
+  obtain ⟨F, hlim, hlarge⟩ := hsmall (2 * (N : ℝ))
+  have hlim' : Tendsto (fun n => g + F n) atTop (𝓝 g) := by
+    simpa only [add_zero] using tendsto_const_nhds.add hlim
+  obtain ⟨n, hn⟩ := (hlim'.eventually (mem_interior_iff_mem_nhds.mp hg)).exists
+  obtain ⟨j, hj⟩ := hlarge n
+  have hsum : ‖g.val (p j) + (F n).val (p j)‖ ≤ N := hn j
+  have hgn := hgA j
+  have hnorm := norm_sub_le (g.val (p j) + (F n).val (p j)) (g.val (p j))
+  simp only [add_sub_cancel_left] at hnorm
+  linarith
+
+/-- **Escaping-sequence characterization of holomorphic convexity.** Baire's theorem
+and small separating functions give an unbounded holomorphic function on any escaping
+sequence; conversely, a noncompact hull contains an escaping sequence. -/
 theorem isHolomorphicallyConvex_iff_unbounded_on_escaping_sequences
     {U : Set (ι → ℂ)} (ho : IsOpen U) :
     IsHolomorphicallyConvex U ↔
       ∀ p : ℕ → (ι → ℂ), (∀ j, p j ∈ U) → EscapesCompactSubsets U p →
         ∃ f : (ι → ℂ) → ℂ, AnalyticOnNhd ℂ f U ∧
           ¬ BddAbove (Set.range (fun j => ‖f (p j)‖)) := by
-  sorry
+  classical
+  let V : TopologicalSpace.Opens (ι → ℂ) := ⟨U, ho⟩
+  let : LocallyCompactSpace V := ho.locallyCompactSpace
+  let K := CompactExhaustion.choice V
+  let C (n : ℕ) : Set (ι → ℂ) := Subtype.val '' K n
+  have hC (n : ℕ) : IsCompact (C n) := (K.isCompact n).image continuous_subtype_val
+  have hCU (n : ℕ) : C n ⊆ U := by
+    rintro _ ⟨z, _, rfl⟩
+    exact z.property
+  have hcofinal {S : Set (ι → ℂ)} (hS : IsCompact S) (hSU : S ⊆ U) :
+      ∃ n, S ⊆ C n := by
+    have he : Subtype.val '' ((Subtype.val : V → (ι → ℂ)) ⁻¹' S) = S :=
+      image_preimage_eq_of_subset (by intro z hz; exact ⟨⟨z, hSU hz⟩, rfl⟩)
+    have hc : IsCompact ((Subtype.val : V → (ι → ℂ)) ⁻¹' S) :=
+      Topology.IsEmbedding.subtypeVal.isCompact_iff.mpr (he.symm ▸ hS)
+    obtain ⟨n, hn⟩ := K.exists_superset_of_isCompact hc
+    exact ⟨n, fun z hz => ⟨⟨z, hSU hz⟩, hn hz, rfl⟩⟩
+  constructor
+  · intro hconv p hp hescape
+    obtain ⟨g, hg⟩ := exists_unbounded_of_small_functions V (fun j => ⟨p j, hp j⟩) (by
+      intro M
+      have hsep (n : ℕ) : ∃ f : (ι → ℂ) → ℂ, AnalyticOnNhd ℂ f U ∧
+          (∀ z ∈ C n, ‖f z‖ < 1 / ((n : ℝ) + 1)) ∧ ∃ j, M < ‖f (p j)‖ := by
+        obtain ⟨j, hj⟩ := (hescape (holomorphicHull U (C n))
+          (hconv _ (hC n) (hCU n)) (holomorphicHull_subset _ _)).exists
+        obtain ⟨f, hf, hs, hl⟩ := exists_small_large_separator (hp j) hj
+          (by positivity : 0 < 1 / ((n : ℝ) + 1)) (M)
+        exact ⟨f, hf, hs, j, hl⟩
+      choose f hf hs j hj using hsep
+      let F (n : ℕ) : HolomorphicMap V ℂ :=
+        ⟨⟨fun z => f n z, (hf n).continuousOn.domRestrict⟩,
+          (hf n).congr ho (fun z hz => by rw [openExtension_apply V _ hz]; rfl)⟩
+      have hlim : Tendsto F atTop (𝓝 0) := by
+        rw [holomorphicMap_tendsto_iff, tendstoLocallyUniformlyOn_iff_forall_isCompact V.isOpen]
+        intro S hSU hS
+        obtain ⟨m, hm⟩ := hcofinal hS hSU
+        rw [Metric.tendstoUniformlyOn_iff]
+        intro ε hε
+        have ht := (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ)).eventually
+          (gt_mem_nhds hε)
+        filter_upwards [eventually_ge_atTop m, ht] with n hn hεn
+        intro z hz
+        rw [openExtension_apply V _ (hSU hz), openExtension_apply V _ (hSU hz)]
+        change dist (0 : ℂ) (f n z) < ε
+        rw [dist_zero_left]
+        exact (hs n z (image_mono (K.subset hn) (hm hz))).trans hεn
+      exact ⟨F, hlim, fun n => ⟨j n, hj n⟩⟩)
+    refine ⟨openExtension V g.val, g.property, ?_⟩
+    simpa only [openExtension_apply V _ (hp _)] using hg
+  · intro hseq S hS hSU
+    by_contra hn
+    have hex (n : ℕ) : ∃ z ∈ holomorphicHull U S, z ∉ C n := by
+      by_contra hh
+      apply hn
+      apply isCompact_holomorphicHull_of_subset_compact (hC n) (hCU n)
+      simpa only [not_exists, not_and, not_not, subset_def] using hh
+    choose p hp hnC using hex
+    have hpU (n : ℕ) : p n ∈ U := (hp n).1
+    have he : EscapesCompactSubsets U p := by
+      intro T hT hTU
+      obtain ⟨n, hn⟩ := hcofinal hT hTU
+      filter_upwards [eventually_ge_atTop n] with m hm hpm
+      exact hnC m (image_mono (K.subset hm) (hn hpm))
+    obtain ⟨f, hf, hnf⟩ := hseq p hpU he
+    obtain ⟨M, hM⟩ := hS.exists_bound_of_continuousOn (hf.continuousOn.mono hSU)
+    apply hnf
+    exact ⟨M, by rintro _ ⟨n, rfl⟩; exact (hp n).2 f hf M hM⟩
 
 end SeveralComplexVariables

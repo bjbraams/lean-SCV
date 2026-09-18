@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.Derivatives
 public import Mathlib.Analysis.Calculus.ImplicitContDiff
 

@@ -5,9 +5,10 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.HartogsDomain
 public import SeveralComplexVariables.HartogsContinuation
+public import SeveralComplexVariables.CompactHole
 public import Mathlib.Analysis.Normed.Module.Connected
 
 /-!
@@ -15,7 +16,8 @@ public import Mathlib.Analysis.Normed.Module.Connected
 
 This file develops the geometry of a standard Hartogs figure and uniqueness of its analytic
 extensions. Extension from the figure follows from Hartogs continuation over a connected base.
-Extension across general compact holes still has a pending proof.
+Extension across general compact holes is deduced from the product-space theorem of
+`CompactHole`, proved by Ehrenpreis' method, by a choice of linear coordinates.
 Separate analyticity is treated in `SeparateAnalytic`.
 
 References: Boas (2013), Section 2.7; Scheidemann (2005), Exercise 2.1.7 and Section 2.3;
@@ -110,17 +112,53 @@ end Figure
 
 /-- **Hartogs' compact-hole extension theorem.** In complex dimension at least two, a
 holomorphic function extends across a compact subset if its complement in the domain is
-connected. No boundedness of the function near the hole is required. Proof pending.
+connected. No boundedness of the function near the hole is required.
 
 The dimension and connected-complement hypotheses are essential. The open domain itself
 need not be bounded, and an empty domain or empty compact set is allowed. -/
 theorem exists_analyticOnNhd_extension_of_isCompact
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     (hdim : 2 ≤ Module.finrank ℂ E) {U K : Set E}
-    (hU : IsOpen U) (hconn : IsPreconnected U) (hK : IsCompact K) (hKU : K ⊆ U)
+    (hU : IsOpen U) (_hconn : IsPreconnected U) (hK : IsCompact K) (hKU : K ⊆ U)
     (hcompl : IsPreconnected (U \ K)) {f : E → F}
     (hf : AnalyticOnNhd ℂ f (U \ K)) :
     ∃ g : E → F, AnalyticOnNhd ℂ g U ∧ EqOn g f (U \ K) := by
-  sorry
+  obtain ⟨k, hk⟩ : ∃ k, Module.finrank ℂ E = k + 2 := ⟨Module.finrank ℂ E - 2, by omega⟩
+  let b := Module.finBasisOfFinrankEq ℂ E hk
+  let e₂ : (Fin (k + 2) → ℂ) ≃L[ℂ] ℂ × (Fin (k + 1) → ℂ) :=
+    (Fin.consLinearEquiv ℂ (fun _ : Fin (k + 1).succ => ℂ)).symm.toContinuousLinearEquiv
+  let e : E ≃L[ℂ] ℂ × (Fin (k + 1) → ℂ) := b.equivFunL.trans e₂
+  set D' : Set (ℂ × (Fin (k + 1) → ℂ)) := e.symm ⁻¹' U with hD'
+  set K' : Set (ℂ × (Fin (k + 1) → ℂ)) := e.symm ⁻¹' K with hK'
+  have himg : ∀ s : Set E, e.symm ⁻¹' s = e '' s := fun s => by
+    ext w
+    constructor
+    · intro hw
+      exact ⟨e.symm w, hw, e.apply_symm_apply w⟩
+    · rintro ⟨z, hz, rfl⟩
+      simpa using hz
+  have hD'o : IsOpen D' := hU.preimage e.symm.continuous
+  have hK'c : IsCompact K' := by
+    rw [hK', himg]
+    exact hK.image e.continuous
+  have hK'D' : K' ⊆ D' := fun w hw => hKU hw
+  have hconn' : IsPreconnected (D' \ K') := by
+    have : D' \ K' = e '' (U \ K) := by rw [← himg]; rfl
+    rw [this]
+    exact hcompl.image e e.continuous.continuousOn
+  have hf' : AnalyticOnNhd ℂ (f ∘ e.symm) (D' \ K') :=
+    hf.comp (e.symm.toContinuousLinearMap.analyticOnNhd _) fun w hw => hw
+  obtain ⟨g', hg', hg'f⟩ :=
+    exists_analyticOnNhd_extension_of_isCompact_prod hD'o hK'c hK'D' hconn' hf'
+  refine ⟨g' ∘ e, hg'.comp (e.toContinuousLinearMap.analyticOnNhd _) fun z hz => ?_, ?_⟩
+  · show e.symm (e z) ∈ U
+    simpa using hz
+  · intro z hz
+    have hz' : e z ∈ D' \ K' := by
+      refine ⟨?_, ?_⟩ <;> simp only [hD', hK', mem_preimage, e.symm_apply_apply]
+      · exact hz.1
+      · exact hz.2
+    have := hg'f hz'
+    simpa using this
 
 end SeveralComplexVariables

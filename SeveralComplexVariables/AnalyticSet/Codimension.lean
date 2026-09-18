@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.AnalyticSet.Removable
+public import SeveralComplexVariables.AnalyticSet.Hartogs
 
 /-!
 # Complex slices and removal in codimension at least two
@@ -15,9 +15,9 @@ complex linear `q`-plane on which each point of the subset is an isolated inters
 We retain the pointwise slice witness instead of introducing a general dimension theory.
 The empty set satisfies every bound; at a point the bound cannot exceed ambient dimension.
 
-The second Riemann extension theorem is reduced to automatic local boundedness across
-analytic sets admitting isolated two-dimensional slices. That analytic step is pending.
-Existence and uniqueness thereafter use the proved first Riemann extension theorem.
+Hartogs figures around isolated two-dimensional slices give local holomorphic extensions,
+and hence automatic local boundedness across the analytic set. The first Riemann extension
+theorem then gives the global second Riemann extension theorem.
 Reference: Scheidemann 4.1.4 and 4.2.3.
 -/
 
@@ -103,16 +103,33 @@ theorem HasComplexSliceCodimensionAtLeast.interior_eq_empty {A : Set E} {q : ℕ
   intro a ha
   exact (h a (interior_subset ha)).not_mem_interior hq ha
 
-/-- **Automatic local boundedness in codimension at least two.** This is the pending
-analytic step of the second Riemann extension theorem, obtained by Hartogs continuation
-on transverse two-dimensional slices. It allows arbitrary complex Banach targets. -/
+/-- **Automatic local boundedness in codimension at least two.** Hartogs continuation
+around isolated two-dimensional slices gives a local holomorphic extension, whose
+continuity supplies the bound. This allows arbitrary complex Banach targets. -/
 theorem IsAnalyticSet.locally_bounded_of_codimension_two [FiniteDimensional ℂ E]
     {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
     {U A : Set E} (hA : IsAnalyticSet U A) (hcodim : HasComplexSliceCodimensionAtLeast A 2)
     {f : E → F} (hf : AnalyticOnNhd ℂ f (U \ A)) :
     ∀ a ∈ A, ∃ r : ℝ, 0 < r ∧ ∃ C : ℝ,
       ∀ z ∈ ball a r ∩ (U \ A), ‖f z‖ ≤ C := by
-  sorry
+  intro a ha
+  obtain ⟨L, _, hisol⟩ := hcodim a ha
+  let e := (ContinuousLinearEquiv.finTwoArrow ℂ ℂ).symm
+  have hisol' : ∀ᶠ p in 𝓝 (0 : ℂ × ℂ), a + (L.comp e.toContinuousLinearMap) p ∈ A → p = 0 := by
+    have ht : Tendsto e (𝓝 (0 : ℂ × ℂ)) (𝓝 0) := by
+      simpa using e.continuous.tendsto (0 : ℂ × ℂ)
+    filter_upwards [ht.eventually hisol] with p hp hpA
+    apply e.injective
+    simpa using hp hpA
+  obtain ⟨r, hr, g, hg, heq⟩ := hA.exists_local_extension_of_isolated_two_slice
+    (hA.subset ha) (L.comp e.toContinuousLinearMap) hisol' hf
+  have hb : ∀ᶠ z in 𝓝 a, ‖g z‖ < ‖g a‖ + 1 :=
+    ((hg a (mem_ball_self hr)).continuousAt.norm).eventually_lt_const (by linarith)
+  obtain ⟨δ, hδ, hδsub⟩ := Metric.mem_nhds_iff.mp (inter_mem (ball_mem_nhds a hr) hb)
+  refine ⟨δ, hδ, ‖g a‖ + 1, fun z hz => ?_⟩
+  have hz' := hδsub hz.1
+  rw [← heq ⟨hz'.1, hz.2.2⟩]
+  exact hz'.2.le
 
 /-- **Second Riemann extension theorem.** No boundedness or connectedness assumption
 is imposed. The proof depends on automatic local boundedness in codimension two. -/
@@ -125,7 +142,7 @@ theorem IsAnalyticSet.exists_extension_of_codimension_two [FiniteDimensional ℂ
     (hA.locally_bounded_of_codimension_two hcodim hf)
 
 /-- Extensions in the second Riemann theorem are unique on the ambient domain.
-This uniqueness proof is independent of the pending existence argument. -/
+This uniqueness proof uses density and does not require the existence argument. -/
 theorem IsAnalyticSet.extension_unique_of_codimension_two
     {F : Type*} [TopologicalSpace F] [T2Space F] {U A : Set E}
     (hA : IsAnalyticSet U A) (hcodim : HasComplexSliceCodimensionAtLeast A 2)

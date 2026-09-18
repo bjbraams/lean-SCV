@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
 public import Mathlib.Analysis.Normed.Group.Bounded
 
 /-!

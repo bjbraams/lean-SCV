@@ -14,8 +14,8 @@ public import Mathlib.Analysis.Complex.CauchyIntegral
 /-!
 # Rigidity of biholomorphic maps
 
-Equality of first jets and circular-domain linearity are reduced to the pending Cartan
-uniqueness theorem. The independent analytic step uses Cauchy's derivative formula to
+Equality of first jets and circular-domain linearity follow from Cartan's uniqueness
+theorem. The independent analytic step uses Cauchy's derivative formula to
 show that a rotation-equivariant holomorphic map is linear. Equality is asserted on the
 source, not for arbitrary ambient representatives outside it.
 Reference: Scheidemann (2005), Section 3.3.

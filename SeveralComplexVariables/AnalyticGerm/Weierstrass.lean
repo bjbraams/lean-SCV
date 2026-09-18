@@ -214,14 +214,191 @@ theorem exists_polynomial_division_quotient [FiniteDimensional ℂ E]
   apply exists_polynomial_quotient (p - r) w hw q
   rw [map_sub, h, add_sub_cancel_right]
 
-/-- A distinguished polynomial is irreducible exactly when its analytic germ is.
-Pending proof: preparation of germ factors and normalization of polynomial factors.
-Degree zero is allowed: both sides are then false. -/
+/-- Irreducibility transfers backward across a left unit multiplier: if `p = u * q` with
+`u` a unit and `p` irreducible, then `q` is irreducible too. -/
+theorem Irreducible.of_mul_isUnit_left {M : Type*} [Monoid M] [IsDedekindFiniteMonoid M]
+    {p q u : M} (hu : IsUnit u) (hpqu : p = u * q) (hp : Irreducible p) : Irreducible q := by
+  constructor
+  · intro hqu
+    exact hp.not_isUnit (hpqu ▸ hu.mul hqu)
+  · intro a b hab
+    rcases hp.isUnit_or_isUnit
+        (show p = (u * a) * b by rw [hpqu, hab]; exact (mul_assoc u a b).symm) with h1 | h2
+    · exact Or.inl (isUnit_of_mul_isUnit_right h1)
+    · exact Or.inr h2
+
+/-- A distinguished polynomial of positive degree that is irreducible has irreducible
+image. Any factorization of the image has orders adding to the degree; a factor of
+positive order would prepare to a nonunit distinguished polynomial, and comparing the
+resulting polynomial factorization of `w` with irreducibility of `w` forces the other
+factor to be a unit, contradicting positivity of both orders. -/
+theorem irreducible_polynomialHom_of_isDistinguishedAt [FiniteDimensional ℂ E]
+    {w : Polynomial (AnalyticGerm (0 : E))}
+    (hw : w.IsDistinguishedAt (IsLocalRing.maximalIdeal _)) (hd : w.natDegree ≠ 0)
+    (hirr : Irreducible w) : Irreducible (polynomialHom w) := by
+  have hworder : orderInLastVariable (polynomialHom w) = (w.natDegree : ℕ∞) :=
+    orderInLastVariable_polynomialHom_of_isDistinguishedAt hw
+  constructor
+  · rw [isUnit_iff_orderInLastVariable_eq_zero, hworder]
+    exact_mod_cast hd
+  · intro A B hAB
+    have horder : orderInLastVariable A + orderInLastVariable B = (w.natDegree : ℕ∞) := by
+      rw [← orderInLastVariable_mul, ← hAB, hworder]
+    rcases eq_or_ne (orderInLastVariable A) 0 with hA0 | hA0
+    · exact Or.inl ((isUnit_iff_orderInLastVariable_eq_zero A).mpr hA0)
+    rcases eq_or_ne (orderInLastVariable B) 0 with hB0 | hB0
+    · exact Or.inr ((isUnit_iff_orderInLastVariable_eq_zero B).mpr hB0)
+    exfalso
+    have hAfin : orderInLastVariable A ≠ ⊤ := by
+      intro h; rw [h] at horder; simp at horder
+    have hBfin : orderInLastVariable B ≠ ⊤ := by
+      intro h; rw [h] at horder; simp at horder
+    lift orderInLastVariable A to ℕ using hAfin with dA hdA
+    lift orderInLastVariable B to ℕ using hBfin with dB hdB
+    have hdA0 : dA ≠ 0 := by exact_mod_cast hA0
+    have hdB0 : dB ≠ 0 := by exact_mod_cast hB0
+    obtain ⟨⟨uA, wA⟩, ⟨hwAdist, hwAdeg, hAeq⟩, -⟩ := existsUnique_preparation A hdA.symm
+    obtain ⟨⟨uB, wB⟩, ⟨hwBdist, hwBdeg, hBeq⟩, -⟩ := existsUnique_preparation B hdB.symm
+    simp only at hwAdist hwAdeg hAeq hwBdist hwBdeg hBeq
+    have heq2 : polynomialHom w = ((uA : AnalyticGerm (0 : E × ℂ)) * uB) *
+        polynomialHom (wA * wB) := by
+      rw [hAB, hAeq, hBeq, map_mul]; ring
+    obtain ⟨q, hq⟩ := exists_polynomial_quotient w (wA * wB) (isDistinguishedAt_mul hwAdist hwBdist)
+      ((uA : AnalyticGerm (0 : E × ℂ)) * uB) heq2
+    have heq3 : w = (q * wA) * wB := by
+      apply polynomialHom_injective
+      rw [heq2, ← hq]
+      simp only [map_mul]
+      ring
+    have hwAnu : ¬ IsUnit wA := fun h =>
+      hdA0 (by rw [← hwAdeg]; exact Polynomial.natDegree_eq_zero_of_isUnit h)
+    have hwBnu : ¬ IsUnit wB := fun h =>
+      hdB0 (by rw [← hwBdeg]; exact Polynomial.natDegree_eq_zero_of_isUnit h)
+    rcases hirr.isUnit_or_isUnit heq3 with hqwA | hwBu
+    · exact hwAnu (isUnit_of_mul_isUnit_right hqwA)
+    · exact hwBnu hwBu
+
+/-- A distinguished polynomial is irreducible exactly when its analytic germ is. Degree
+zero is allowed: `w = 1` and both sides are then false. Positive degree splits into the
+forward direction above and, for the converse, comparing a germ factorization against a
+distinguished normalization (Lemma 1.8.2) of any polynomial factorization. -/
 theorem irreducible_polynomialHom_iff [FiniteDimensional ℂ E]
     (w : Polynomial (AnalyticGerm (0 : E)))
     (hw : w.IsDistinguishedAt (IsLocalRing.maximalIdeal _)) :
     Irreducible (polynomialHom w) ↔ Irreducible w := by
-  sorry
+  rcases eq_or_ne w.natDegree 0 with hd0 | hd0
+  · have hw1 : w = 1 := Polynomial.eq_one_of_monic_natDegree_zero hw.monic hd0
+    subst hw1
+    simp only [map_one]
+    exact ⟨fun h => absurd isUnit_one h.not_isUnit, fun h => absurd isUnit_one h.not_isUnit⟩
+  · refine ⟨fun hirrHom => ⟨fun hu => hirrHom.not_isUnit (hu.map (polynomialHom (E := E))),
+      fun p q hpq => ?_⟩, fun hirr => irreducible_polynomialHom_of_isDistinguishedAt hw hd0 hirr⟩
+    obtain ⟨u, hup, huq⟩ := exists_distinguished_factors p q (hpq ▸ hw)
+    have hp'q' : Polynomial.C (u : AnalyticGerm (0 : E)) * p *
+        (Polynomial.C (↑u⁻¹ : AnalyticGerm (0 : E)) * q) = w := by
+      rw [hpq]
+      calc
+        _ = Polynomial.C (u : AnalyticGerm (0 : E)) *
+            Polynomial.C (↑u⁻¹ : AnalyticGerm (0 : E)) * (p * q) := by ring
+        _ = _ := by rw [← Polynomial.C_mul]; simp
+    have hhom : polynomialHom w = polynomialHom (Polynomial.C (u : AnalyticGerm (0 : E)) * p) *
+        polynomialHom (Polynomial.C (↑u⁻¹ : AnalyticGerm (0 : E)) * q) := by
+      rw [← map_mul, hp'q']
+    rcases hirrHom.isUnit_or_isUnit hhom with h1 | h2
+    · left
+      have hord : orderInLastVariable
+          (polynomialHom (Polynomial.C (u : AnalyticGerm (0 : E)) * p)) = 0 :=
+        (isUnit_iff_orderInLastVariable_eq_zero _).mp h1
+      rw [orderInLastVariable_polynomialHom_of_isDistinguishedAt hup] at hord
+      have hdeg0 : (Polynomial.C (u : AnalyticGerm (0 : E)) * p).natDegree = 0 := by
+        exact_mod_cast hord
+      have h1' : Polynomial.C (u : AnalyticGerm (0 : E)) * p = 1 :=
+        Polynomial.eq_one_of_monic_natDegree_zero hup.monic hdeg0
+      have hp1 : p = Polynomial.C (↑u⁻¹ : AnalyticGerm (0 : E)) := by
+        have hc := congrArg (fun r => Polynomial.C (↑u⁻¹ : AnalyticGerm (0 : E)) * r) h1'
+        simpa [← mul_assoc, ← Polynomial.C_mul] using hc
+      rw [hp1]
+      exact Polynomial.isUnit_C.mpr u⁻¹.isUnit
+    · right
+      have hord : orderInLastVariable
+          (polynomialHom (Polynomial.C (↑u⁻¹ : AnalyticGerm (0 : E)) * q)) = 0 :=
+        (isUnit_iff_orderInLastVariable_eq_zero _).mp h2
+      rw [orderInLastVariable_polynomialHom_of_isDistinguishedAt huq] at hord
+      have hdeg0 : (Polynomial.C (↑u⁻¹ : AnalyticGerm (0 : E)) * q).natDegree = 0 := by
+        exact_mod_cast hord
+      have h2' : Polynomial.C (↑u⁻¹ : AnalyticGerm (0 : E)) * q = 1 :=
+        Polynomial.eq_one_of_monic_natDegree_zero huq.monic hdeg0
+      have hq1 : q = Polynomial.C (u : AnalyticGerm (0 : E)) := by
+        have hc := congrArg (fun r => Polynomial.C (u : AnalyticGerm (0 : E)) * r) h2'
+        simpa [← mul_assoc, ← Polynomial.C_mul] using hc
+      rw [hq1]
+      exact Polynomial.isUnit_C.mpr u.isUnit
+
+/-- A common factor of two germs that is the image of a prime distinguished polynomial
+divides one of them: Weierstrass-divide each factor, reduce the product of the two
+polynomial remainders by ordinary division against the distinguishing polynomial, and
+match the resulting decomposition of the germ product against germ division uniqueness
+to reduce to primality of the distinguishing polynomial itself. -/
+theorem dvd_or_dvd_of_isDistinguishedAt [FiniteDimensional ℂ E]
+    {w : Polynomial (AnalyticGerm (0 : E))}
+    (hw : w.IsDistinguishedAt (IsLocalRing.maximalIdeal _)) (hwp : Prime w)
+    {f g : AnalyticGerm (0 : E × ℂ)} (hfg : polynomialHom w ∣ f * g) :
+    polynomialHom w ∣ f ∨ polynomialHom w ∣ g := by
+  obtain ⟨⟨qf, rf⟩, ⟨hrfdeg, hfeq⟩, -⟩ := existsUnique_division w hw f
+  obtain ⟨⟨qg, rg⟩, ⟨hrgdeg, hgeq⟩, -⟩ := existsUnique_division w hw g
+  simp only at hrfdeg hfeq hrgdeg hgeq
+  have hr0eq : rf * rg = (rf * rg) %ₘ w + w * ((rf * rg) /ₘ w) :=
+    (Polynomial.modByMonic_add_div (rf * rg) w).symm
+  have hr0deg : ((rf * rg) %ₘ w).degree < (w.natDegree : WithBot ℕ) := by
+    rw [← Polynomial.degree_eq_natDegree hw.monic.ne_zero]
+    exact Polynomial.degree_modByMonic_lt (rf * rg) hw.monic
+  set bigC : AnalyticGerm (0 : E × ℂ) :=
+    qf * qg * polynomialHom w + qf * polynomialHom rg + qg * polynomialHom rf +
+      polynomialHom ((rf * rg) /ₘ w) with hbigC_def
+  have hfg2 : f * g = bigC * polynomialHom w + polynomialHom ((rf * rg) %ₘ w) := by
+    have hmul : polynomialHom rf * polynomialHom rg = polynomialHom (rf * rg) :=
+      (map_mul polynomialHom rf rg).symm
+    have hM : polynomialHom (rf * rg) = polynomialHom ((rf * rg) %ₘ w) +
+        polynomialHom w * polynomialHom ((rf * rg) /ₘ w) := by
+      conv_lhs => rw [hr0eq]
+      rw [map_add, map_mul]
+    rw [hbigC_def, hfeq, hgeq]
+    rw [show (qf * polynomialHom w + polynomialHom rf) * (qg * polynomialHom w +
+        polynomialHom rg) = qf * qg * polynomialHom w * polynomialHom w +
+          qf * polynomialHom w * polynomialHom rg + polynomialHom rf * qg * polynomialHom w +
+            polynomialHom rf * polynomialHom rg from by ring]
+    rw [hmul, hM]; ring
+  obtain ⟨c, hc⟩ := hfg
+  obtain ⟨⟨qfg, rfg⟩, ⟨hrfgdeg, hfgeq⟩, huniqfg⟩ := existsUnique_division w hw (f * g)
+  simp only at hrfgdeg hfgeq huniqfg
+  have hzerodeg : (0 : Polynomial (AnalyticGerm (0 : E))).degree < (w.natDegree : WithBot ℕ) := by
+    rw [Polynomial.degree_zero]; exact WithBot.bot_lt_coe w.natDegree
+  have hceq : f * g = c * polynomialHom w + polynomialHom (0 : Polynomial (AnalyticGerm (0 : E))) := by
+    rw [hc, map_zero, add_zero]; ring
+  have heq1 := huniqfg (bigC, (rf * rg) %ₘ w) ⟨hr0deg, hfg2⟩
+  have heq2 := huniqfg (c, 0) ⟨hzerodeg, hceq⟩
+  have hr0 : (rf * rg) %ₘ w = 0 := ((Prod.mk.injEq ..).mp (heq1.trans heq2.symm)).2
+  have hwdvd : w ∣ rf * rg := ⟨(rf * rg) /ₘ w, hr0eq.trans (by rw [hr0, zero_add])⟩
+  rcases hwp.2.2 rf rg hwdvd with hwrf | hwrg
+  · obtain ⟨c0, hc0⟩ := hwrf
+    refine Or.inl ⟨qf + polynomialHom c0, ?_⟩
+    rw [hfeq, hc0, map_mul]; ring
+  · obtain ⟨c0, hc0⟩ := hwrg
+    refine Or.inr ⟨qg + polynomialHom c0, ?_⟩
+    rw [hgeq, hc0, map_mul]; ring
+
+/-- The image of a prime distinguished polynomial is itself prime. Non-vanishing and
+non-invertibility come from irreducibility of the image; the dividing property comes
+from `dvd_or_dvd_of_isDistinguishedAt`. -/
+theorem prime_polynomialHom_of_isDistinguishedAt [FiniteDimensional ℂ E]
+    {w : Polynomial (AnalyticGerm (0 : E))}
+    (hw : w.IsDistinguishedAt (IsLocalRing.maximalIdeal _)) (hwp : Prime w) :
+    Prime (polynomialHom w) := by
+  have hd0 : w.natDegree ≠ 0 := fun h0 =>
+    hwp.not_isUnit (Polynomial.eq_one_of_monic_natDegree_zero hw.monic h0 ▸ isUnit_one)
+  have hpolyirr : Irreducible (polynomialHom w) :=
+    irreducible_polynomialHom_of_isDistinguishedAt hw hd0 hwp.irreducible
+  exact ⟨hpolyirr.ne_zero, hpolyirr.not_isUnit, fun f g => dvd_or_dvd_of_isDistinguishedAt hw hwp⟩
 
 end AnalyticGerm
 

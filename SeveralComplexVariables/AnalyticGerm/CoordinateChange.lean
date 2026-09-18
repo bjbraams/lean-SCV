@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.AnalyticGerm
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
 public import Mathlib.Analysis.Analytic.Order
 
 /-!
@@ -52,6 +52,32 @@ def pullbackEquiv (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
       apply Germ.coe_eq.mpr
       exact .of_forall fun y => by simp [Function.comp_def])
 
+/-- Pullback equivalence along a map whose value at the source point is only known up to a
+stated equation, letting the target germ's base point be phrased as any value equal to
+`e x`. Matches `pullbackEquiv` definitionally once the equation is substituted. -/
+def pullbackEquiv_of_eq (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
+    (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) :
+    AnalyticGerm y ≃ₐ[ℂ] AnalyticGerm x :=
+  hy ▸ pullbackEquiv e x he hi
+
+/-- Applying an equation-adjusted pullback equivalence to a represented germ is
+represented by composition, matching the plain pullback. -/
+theorem pullbackEquiv_of_eq_ofAnalyticAt (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
+    (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) (g : F → ℂ)
+    (hg : AnalyticAt ℂ g y) :
+    pullbackEquiv_of_eq e x he hi hy (ofAnalyticAt g hg) =
+      ofAnalyticAt (g ∘ e) (hg.comp_of_eq he hy) := by
+  subst hy
+  rfl
+
+/-- An equation-adjusted pullback equivalence is bijective, like the plain pullback
+equivalence it matches definitionally. -/
+theorem pullbackEquiv_of_eq_bijective (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
+    (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) :
+    Function.Bijective (pullbackEquiv_of_eq e x he hi hy) := by
+  subst hy
+  exact (pullbackEquiv e x he hi).bijective
+
 /-- Continuous linear coordinate changes act contravariantly on analytic germs. -/
 def linearEquivPullback (e : E ≃L[ℂ] F) (x : E) :
     AnalyticGerm (e x) ≃ₐ[ℂ] AnalyticGerm x :=
@@ -85,6 +111,28 @@ def orderInLastVariable (φ : AnalyticGerm (0 : E × ℂ)) : ℕ∞ :=
 /-- The order of a represented germ is the order of its central scalar slice. -/
 @[simp] theorem orderInLastVariable_ofAnalyticAt (f : E × ℂ → ℂ) (hf : AnalyticAt ℂ f 0) :
     orderInLastVariable (ofAnalyticAt f hf) = analyticOrderAt (fun w : ℂ => f (0, w)) 0 := rfl
+
+/-- The central slice of a represented germ is analytic at the scalar origin. -/
+theorem analyticAt_ofAnalyticAt_central (f : E × ℂ → ℂ) (hf : AnalyticAt ℂ f 0) :
+    AnalyticAt ℂ (fun w : ℂ => f (0, w)) 0 :=
+  hf.comp_of_eq (analyticAt_const.prod analyticAt_id) rfl
+
+/-- Order along the distinguished coordinate is additive under multiplication of germs. -/
+theorem orderInLastVariable_mul (φ ψ : AnalyticGerm (0 : E × ℂ)) :
+    orderInLastVariable (φ * ψ) = orderInLastVariable φ + orderInLastVariable ψ := by
+  obtain ⟨f, hf, rfl⟩ := exists_rep φ
+  obtain ⟨g, hg, rfl⟩ := exists_rep ψ
+  rw [← ofAnalyticAt_mul]
+  simp only [orderInLastVariable_ofAnalyticAt]
+  exact analyticOrderAt_mul (analyticAt_ofAnalyticAt_central f hf)
+    (analyticAt_ofAnalyticAt_central g hg)
+
+/-- A germ is a unit exactly when it has order zero along the distinguished coordinate. -/
+theorem isUnit_iff_orderInLastVariable_eq_zero (φ : AnalyticGerm (0 : E × ℂ)) :
+    IsUnit φ ↔ orderInLastVariable φ = 0 := by
+  obtain ⟨f, hf, rfl⟩ := exists_rep φ
+  rw [isUnit_iff, eval_ofAnalyticAt, orderInLastVariable_ofAnalyticAt]
+  exact (analyticAt_ofAnalyticAt_central f hf).analyticOrderAt_eq_zero.symm
 
 end AnalyticGerm
 

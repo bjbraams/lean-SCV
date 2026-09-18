@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
 public import Mathlib.Analysis.Analytic.Uniqueness
 public import Mathlib.Analysis.LocallyConvex.Separation
 public import Mathlib.Analysis.RCLike.Extend

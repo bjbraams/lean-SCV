@@ -50,8 +50,11 @@ private theorem analyticOnNhd_fin_of_analyticOnNhd_update {d : ℕ}
 a finite product of copies of `ℂ` is jointly analytic when all of its one-coordinate restrictions
 are analytic.
 
-This is weaker than Hartogs' theorem, which drops the continuity hypothesis. Continuity is
-present in every current application in this library. -/
+This is weaker than Hartogs' theorem `analyticOnNhd_of_separately_analytic`, which drops the
+continuity hypothesis. It is the first step in the proof of that theorem, through the locally
+bounded version `analyticOnNhd_of_separately_analytic_locally_bounded`, and therefore cannot be
+derived from it. Continuity is present in every application preceding Hartogs' theorem in this
+library. -/
 theorem analyticOnNhd_pi_of_analyticOnNhd_update
     {ι : Type*} [Fintype ι] {U : Set (ι → ℂ)} {f : (ι → ℂ) → E}
     (hU : IsOpen U) (hfc : ContinuousOn f U)

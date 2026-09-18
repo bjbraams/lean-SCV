@@ -6,6 +6,8 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.LocallyUniform
+public import SeveralComplexVariables.PolydiscMeanValue
+public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 public import Mathlib.MeasureTheory.Function.L2Space
 public import Mathlib.MeasureTheory.Function.ConvergenceInMeasure
 public import Mathlib.MeasureTheory.Measure.Lebesgue.Complex
@@ -19,15 +21,15 @@ Lp classes admitting a holomorphic representative. Such a representative is uniq
 the open set. Complex Banach targets and empty coordinate types are allowed.
 
 Jakóbczak–Jarnicki, Lemma 1.4.20 and Corollary 1.4.21, motivate the local Lp estimate
-and completeness for `1 ≤ p < ∞`. The local estimate is an explicitly pending proof.
-Closedness and completeness below depend on that estimate. For Hilbert targets, the
+and completeness for `1 ≤ p < ∞`. The local estimate follows from the volume
+mean-value formula and Hölder's inequality. It yields closedness and completeness. For Hilbert targets, the
 space at `p = 2` inherits Mathlib's L2 inner product, with its convention of linearity
 in the second argument. No boundedness or connectedness of the open set is required.
 -/
 
 public section
 
-open Filter Set MeasureTheory
+open Filter Set MeasureTheory Metric
 open scoped Classical ENNReal Topology
 
 namespace SeveralComplexVariables
@@ -69,17 +71,76 @@ theorem holomorphicLp_representative_unique {U : TopologicalSpace.Opens (ι → 
 
 variable [CompleteSpace F]
 
+/-- The volume mean-value formula and Hölder's inequality bound the center value
+by the global Lp norm. Only holomorphy on the closed polydisc is needed here. -/
+theorem volume_mul_norm_le_Lp_norm (U : TopologicalSpace.Opens (ι → ℂ))
+    (p : ℝ≥0∞) [Fact (1 ≤ p)] {c : ι → ℂ} {r : ℝ} (hr : 0 < r)
+    (hBU : closedBall c r ⊆ U)
+    (u : Lp F p (volume.restrict (U : Set (ι → ℂ)))) {f : (ι → ℂ) → F}
+    (hf : AnalyticOnNhd ℂ f (closedBall c r))
+    (he : f =ᵐ[volume.restrict (U : Set (ι → ℂ))] u) :
+    volume.real (closedBall c r) * ‖f c‖ ≤
+      ‖u‖ * volume.real (closedBall c r) ^ (1 - 1 / p.toReal) := by
+  let μ := volume.restrict (closedBall c r)
+  have hmeas : AEStronglyMeasurable f μ :=
+    (hf.continuousOn.integrableOn_compact (isCompact_closedBall _ _)).aestronglyMeasurable
+  have hpu : eLpNorm f p μ ≤ eLpNorm u p (volume.restrict (U : Set (ι → ℂ))) := by
+    rw [← eLpNorm_congr_ae he]
+    exact eLpNorm_mono_measure f (Measure.restrict_mono hBU le_rfl)
+  have hvol0 := (measure_closedBall_pos (volume : Measure (ι → ℂ)) c hr).ne'
+  have hvoltop : volume (closedBall c r) ≠ ∞ := measure_closedBall_lt_top.ne
+  have hh : eLpNorm f 1 μ ≤ eLpNorm u p (volume.restrict (U : Set (ι → ℂ))) *
+      volume (closedBall c r) ^ (1 - 1 / p.toReal) := by
+    have h := eLpNorm_le_eLpNorm_mul_rpow_measure_univ (Fact.out : 1 ≤ p) hmeas
+    simp only [ENNReal.toReal_one, div_one, μ, Measure.restrict_apply_univ] at h
+    exact h.trans (mul_le_mul' hpu le_rfl)
+  have hfinite : eLpNorm u p (volume.restrict (U : Set (ι → ℂ))) *
+      volume (closedBall c r) ^ (1 - 1 / p.toReal) ≠ ∞ :=
+    ENNReal.mul_ne_top (Lp.eLpNorm_ne_top u) (ENNReal.rpow_ne_top_of_ne_zero hvol0 hvoltop)
+  have hreal := ENNReal.toReal_mono hfinite hh
+  rw [ENNReal.toReal_mul, ← ENNReal.toReal_rpow, ← Lp.norm_def] at hreal
+  calc
+    volume.real (closedBall c r) * ‖f c‖ = ‖∫ z in closedBall c r, f z‖ := by
+      rw [integral_closedBall_eq_volume_smul hf, norm_smul, Real.norm_eq_abs,
+        abs_of_nonneg (show 0 ≤ volume.real (closedBall c r) from ENNReal.toReal_nonneg)]
+    _ ≤ ∫ z in closedBall c r, ‖f z‖ := norm_integral_le_integral_norm _
+    _ = (eLpNorm f 1 μ).toReal := by
+      rw [eLpNorm_one_eq_lintegral_enorm hmeas]
+      exact integral_norm_eq_lintegral_enorm hmeas
+    _ ≤ ‖u‖ * volume.real (closedBall c r) ^ (1 - 1 / p.toReal) := hreal
+
 /-- **Local Lp estimate (Jakóbczak–Jarnicki 1.4.20).** On each compact subset of an
 open set, values of a holomorphic representative are bounded by a fixed multiple of
-the norm of its Lp class. The proof by polydisc mean values and Hölder is pending. -/
+the norm of its Lp class. A uniform polydisc radius, the volume mean-value formula,
+and Hölder's inequality give a constant independent of the representative. -/
 theorem exists_norm_le_mul_Lp_norm (U : TopologicalSpace.Opens (ι → ℂ))
-    (p : ℝ≥0∞) [Fact (1 ≤ p)] (hp : p ≠ ∞)
+    (p : ℝ≥0∞) [Fact (1 ≤ p)] (_hp : p ≠ ∞)
     {K : Set (ι → ℂ)} (hKU : K ⊆ U) (hK : IsCompact K) :
     ∃ C : ℝ, 0 < C ∧ ∀ (u : Lp F p (volume.restrict (U : Set (ι → ℂ))))
       (f : (ι → ℂ) → F), DifferentiableOn ℂ f U →
       f =ᵐ[volume.restrict (U : Set (ι → ℂ))] u →
       ∀ z ∈ K, ‖f z‖ ≤ C * ‖u‖ := by
-  sorry
+  obtain ⟨r, hr, hsub⟩ := hK.exists_cthickening_subset_open U.isOpen hKU
+  let v := volume.real (closedBall (0 : ι → ℂ) r)
+  have hv : 0 < v := ENNReal.toReal_pos
+    (measure_closedBall_pos (volume : Measure (ι → ℂ)) 0 hr).ne'
+    measure_closedBall_lt_top.ne
+  refine ⟨v ^ (1 - 1 / p.toReal) / v, div_pos (Real.rpow_pos_of_pos hv _) hv, ?_⟩
+  intro u f hf he z hz
+  have hBU : closedBall z r ⊆ U := (closedBall_subset_cthickening hz r).trans hsub
+  have hbound := volume_mul_norm_le_Lp_norm U p hr hBU u
+    ((hf.analyticOnNhd_finiteDimensional U.isOpen).mono hBU) he
+  have hvol : volume.real (closedBall z r) = v := by
+    have hpre : (fun w : ι → ℂ => z + w) ⁻¹' closedBall z r = closedBall 0 r := by
+      ext w
+      simp [mem_closedBall, dist_eq_norm]
+    dsimp [v, Measure.real]
+    rw [← hpre, measure_preimage_add]
+  rw [hvol] at hbound
+  calc
+    ‖f z‖ ≤ (‖u‖ * v ^ (1 - 1 / p.toReal)) / v :=
+      (le_div_iff₀ hv).mpr (by simpa only [mul_comm] using hbound)
+    _ = v ^ (1 - 1 / p.toReal) / v * ‖u‖ := by ring
 
 /-- An Lp-convergent sequence of holomorphic representatives converges locally uniformly
 on the open set to a holomorphic representative of its Lp limit. This uses the local

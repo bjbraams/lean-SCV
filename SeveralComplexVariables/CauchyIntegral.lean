@@ -54,6 +54,41 @@ lemma cauchyKernel_cons {n : ℕ} (x : ℂ) (y : Fin n → ℂ) (w : Fin (n + 1)
       (x - w 0)⁻¹ * ∏ i, (y i - w i.succ)⁻¹ := by
   simp [Fin.prod_univ_succ, mul_comm]
 
+/-- The one-variable Cauchy formula along the first-coordinate slice of a
+closed polydisc. All other coordinates are fixed at the evaluation point. -/
+private theorem circleIntegral_cauchyKernel_cons {n : ℕ}
+    {f : (Fin (n + 1) → ℂ) → E} {c w : Fin (n + 1) → ℂ} {R : Fin (n + 1) → ℝ}
+    (hw : ∀ i, ‖w i - c i‖ < R i)
+    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
+    (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+      AnalyticAt ℂ (fun x => f (update z i x)) (z i)) :
+    (2 * π * I : ℂ)⁻¹ •
+      (∮ x in C(c 0, R 0), (x - w 0)⁻¹ • f (Fin.cons x (w ∘ Fin.succ))) =
+        f (Fin.cons (w 0) (w ∘ Fin.succ)) := by
+  have hcons : Continuous (fun x : ℂ => (Fin.cons x (w ∘ Fin.succ) : Fin (n + 1) → ℂ)) :=
+    Continuous.finCons (A := fun _ : Fin (n + 1) => ℂ) continuous_id continuous_const
+  have hψcont : ContinuousOn (fun x => f (Fin.cons x (w ∘ Fin.succ)))
+      (closedBall (c 0) (R 0)) :=
+    hfc.comp hcons.continuousOn fun x hx =>
+      cons_mem_closedPolydiscWithRadii hx (fun i _ =>
+        mem_closedBall.2 (le_of_lt (by simpa [dist_eq_norm] using hw i.succ)))
+  have hψdiff : ∀ x ∈ ball (c 0) (R 0),
+      DifferentiableAt ℂ (fun t => f (Fin.cons t (w ∘ Fin.succ))) x := by
+    intro x hx
+    have hz : Fin.cons x (w ∘ Fin.succ) ∈ closedPolydiscWithRadii c R :=
+      cons_mem_closedPolydiscWithRadii (ball_subset_closedBall hx) fun i _ =>
+        mem_closedBall.2 (le_of_lt (by simpa [dist_eq_norm] using hw i.succ))
+    simpa [Fin.update_cons_zero] using (hfa _ hz 0).differentiableAt
+  have hcircle :
+      ((2 * π * I : ℂ)⁻¹ •
+        ∮ x in C(c 0, R 0), (x - w 0)⁻¹ • f (Fin.cons x (w ∘ Fin.succ))) =
+        f (Fin.cons (w 0) (w ∘ Fin.succ)) := by
+    have hw0 : w 0 ∈ ball (c 0) (R 0) := by simpa [dist_eq_norm] using hw 0
+    simpa using
+      two_pi_I_inv_smul_circleIntegral_sub_inv_smul_of_differentiable_on_off_countable
+        (s := (∅ : Set ℂ)) countable_empty hw0 hψcont fun x hx => hψdiff x hx.1
+  exact hcircle
+
 /-- Iterated Cauchy integral formula on a closed polydisc. -/
 theorem polydisc_cauchyWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fin n → ℂ} {R : Fin n → ℝ}
     (hR : ∀ i, 0 < R i) (hw : ∀ i, ‖w i - c i‖ < R i)
@@ -72,22 +107,12 @@ theorem polydisc_cauchyWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fi
       fun z => (∏ i, (z i - w i)⁻¹) • f z
     have hFint : TorusIntegrable F c R :=
       torusIntegrable_cauchyKernelWithRadii hR hw hfc
-    have hx_sphere : ∀ x, x ∈ sphere (c 0) (R 0) →
-        x ∈ closedBall (c 0) (R 0) ∧ x ≠ w 0 ∧ ‖x - c 0‖ = R 0 := by
-      intro x hx
-      have hxR : ‖x - c 0‖ = R 0 := by
-        rw [← dist_eq_norm]
-        exact mem_sphere.1 hx
-      refine ⟨mem_closedBall.2 (by rw [dist_eq_norm, hxR]), ?_, hxR⟩
-      intro h
-      rw [h] at hxR
-      exact (hw 0).not_ge hxR.ge
     have hinter : ∀ x ∈ sphere (c 0) (R 0),
         torusIntegral (fun y => F (Fin.cons x y)) (c ∘ Fin.succ) (R ∘ Fin.succ) =
           (x - w 0)⁻¹ • ((2 * π * I : ℂ) ^ n •
             f (Fin.cons x (w ∘ Fin.succ))) := by
       intro x hx
-      obtain ⟨hxcl, hxw, hxR⟩ := hx_sphere x hx
+      have hxcl := sphere_subset_closedBall hx
       have hgcont : ContinuousOn (fun y => f (Fin.cons x y))
           (closedPolydiscWithRadii (c ∘ Fin.succ) (R ∘ Fin.succ)) :=
         hfc.comp (continuousOn_const.finCons continuousOn_id)
@@ -123,28 +148,7 @@ theorem polydisc_cauchyWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fi
               (c ∘ Fin.succ) (R ∘ Fin.succ) := hsmul
         _ = (x - w 0)⁻¹ • ((2 * π * I : ℂ) ^ n •
               f (Fin.cons x (w ∘ Fin.succ))) := by rw [ih_int]
-    have hcons : Continuous (fun x : ℂ => (Fin.cons x (w ∘ Fin.succ) : Fin (n + 1) → ℂ)) :=
-      Continuous.finCons (A := fun _ : Fin (n + 1) => ℂ) continuous_id continuous_const
-    have hψcont : ContinuousOn (fun x => f (Fin.cons x (w ∘ Fin.succ)))
-        (closedBall (c 0) (R 0)) :=
-      hfc.comp hcons.continuousOn fun x hx =>
-        cons_mem_closedPolydiscWithRadii hx (fun i _ =>
-          mem_closedBall.2 (le_of_lt (by simpa [dist_eq_norm] using hw i.succ)))
-    have hψdiff : ∀ x ∈ ball (c 0) (R 0),
-        DifferentiableAt ℂ (fun t => f (Fin.cons t (w ∘ Fin.succ))) x := by
-      intro x hx
-      have hz : Fin.cons x (w ∘ Fin.succ) ∈ closedPolydiscWithRadii c R :=
-        cons_mem_closedPolydiscWithRadii (ball_subset_closedBall hx) fun i _ =>
-          mem_closedBall.2 (le_of_lt (by simpa [dist_eq_norm] using hw i.succ))
-      simpa [Fin.update_cons_zero] using (hfa _ hz 0).differentiableAt
-    have hcircle :
-        ((2 * π * I : ℂ)⁻¹ •
-          ∮ x in C(c 0, R 0), (x - w 0)⁻¹ • f (Fin.cons x (w ∘ Fin.succ))) =
-          f (Fin.cons (w 0) (w ∘ Fin.succ)) := by
-      have hw0 : w 0 ∈ ball (c 0) (R 0) := by simpa [dist_eq_norm] using hw 0
-      simpa using
-        two_pi_I_inv_smul_circleIntegral_sub_inv_smul_of_differentiable_on_off_countable
-          (s := (∅ : Set ℂ)) countable_empty hw0 hψcont fun x hx => hψdiff x hx.1
+    have hcircle := circleIntegral_cauchyKernel_cons hw hfc hfa
     have houter :
         torusIntegral F c R =
           (2 * π * I : ℂ) ^ n •

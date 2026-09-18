@@ -125,6 +125,36 @@ theorem polynomialHom_ofCoefficients {d : ℕ} (a : Fin d → E → ℂ)
   funext z
   simp [weierstrassPolynomial, weierstrassRemainder, Function.comp]
 
+/-- A distinguished polynomial's image is regular of order equal to its degree: the
+Weierstrass polynomial built from representatives of its coefficients has central slice
+`t ↦ t ^ d`, whose order at the origin is exactly `d`. -/
+theorem orderInLastVariable_polynomialHom_of_isDistinguishedAt
+    {w : Polynomial (AnalyticGerm (0 : E))}
+    (hw : w.IsDistinguishedAt (IsLocalRing.maximalIdeal _)) :
+    orderInLastVariable (polynomialHom w) = w.natDegree := by
+  obtain ⟨hwmon, hwcoeff0⟩ := (isDistinguishedAt_iff w).mp hw
+  set d := w.natDegree with hd_def
+  have hweq : w = ofCoefficients (fun j : Fin d => w.coeff (j : ℕ)) :=
+    eq_ofCoefficients_of_monic hwmon hd_def
+  choose a0 ha0 haeq using fun j : Fin d => exists_rep (w.coeff (j : ℕ))
+  have ha00 : ∀ j : Fin d, a0 j 0 = 0 := by
+    intro j
+    have h0 := hwcoeff0 (j : ℕ) j.isLt
+    rw [← haeq j, eval_ofAnalyticAt] at h0
+    exact h0
+  have hweq2 : w = ofCoefficients (fun j : Fin d => ofAnalyticAt (a0 j) (ha0 j)) := by
+    rw [hweq]; congr 1; funext j; exact (haeq j).symm
+  have hwhom : polynomialHom w = ofAnalyticAt (weierstrassPolynomial a0)
+      (analyticAt_weierstrassPolynomial ha0) := by
+    rw [hweq2]; exact polynomialHom_ofCoefficients a0 ha0
+  rw [hwhom, orderInLastVariable_ofAnalyticAt]
+  have hcentral : (fun t : ℂ => weierstrassPolynomial a0 (0, t)) = fun t : ℂ => t ^ d :=
+    funext (weierstrassPolynomial_central ha00)
+  rw [hcentral]
+  show analyticOrderAt ((id : ℂ → ℂ) ^ d) 0 = d
+  rw [analyticOrderAt_pow (analyticAt_id (𝕜 := ℂ)) d, analyticOrderAt_id]
+  simp
+
 /-- The polynomial in `X` of degree below `d` with prescribed coefficient germs. -/
 def remainderOfCoefficients {d : ℕ} (b : Fin d → AnalyticGerm (0 : E)) :
     Polynomial (AnalyticGerm (0 : E)) :=
@@ -175,5 +205,28 @@ theorem polynomialHom_remainderOfCoefficients {d : ℕ} (a : Fin d → E → ℂ
   congr 1
   funext z
   simp [weierstrassRemainder, Function.comp]
+
+/-- `remainderOfCoefficients` is additive in the coefficient tuple. -/
+theorem remainderOfCoefficients_add {d : ℕ} (a b : Fin d → AnalyticGerm (0 : E)) :
+    remainderOfCoefficients (a + b) = remainderOfCoefficients a + remainderOfCoefficients b := by
+  simp only [remainderOfCoefficients, Pi.add_apply, map_add, add_mul, Finset.sum_add_distrib]
+
+/-- `remainderOfCoefficients` scales by a constant-polynomial factor under a common
+germ multiplier on the coefficient tuple. -/
+theorem remainderOfCoefficients_smul {d : ℕ} (c : AnalyticGerm (0 : E))
+    (a : Fin d → AnalyticGerm (0 : E)) :
+    remainderOfCoefficients (c • a) = Polynomial.C c * remainderOfCoefficients a := by
+  simp only [remainderOfCoefficients, Pi.smul_apply, smul_eq_mul, map_mul, Finset.mul_sum,
+    mul_assoc]
+
+/-- `remainderOfCoefficients` commutes with finite sums of coefficient tuples. -/
+theorem remainderOfCoefficients_sum {d : ℕ} {ι : Type*} (s : Finset ι)
+    (v : ι → Fin d → AnalyticGerm (0 : E)) :
+    remainderOfCoefficients (∑ i ∈ s, v i) = ∑ i ∈ s, remainderOfCoefficients (v i) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp [remainderOfCoefficients]
+  | @insert i s hi ih => rw [Finset.sum_insert hi, Finset.sum_insert hi,
+      remainderOfCoefficients_add, ih]
 
 end SeveralComplexVariables.AnalyticGerm

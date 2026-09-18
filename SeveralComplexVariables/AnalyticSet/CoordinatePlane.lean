@@ -13,7 +13,7 @@ public import SeveralComplexVariables.HartogsContinuation
 
 The model subspace has two final coordinates equal to zero and arbitrary remaining
 parameters. Hartogs continuation on cylinders proves removal on any open domain,
-with Banach-valued targets, independently of the pending general analytic-set theorem.
+with Banach-valued targets, independently of the general analytic-set theorem.
 The parameter space may have dimension zero, recovering isolated-point removal in `ℂ²`.
 -/
 

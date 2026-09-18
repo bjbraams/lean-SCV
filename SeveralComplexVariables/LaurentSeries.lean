@@ -5,9 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.CauchyCoefficients
-public import SeveralComplexVariables.Reinhardt.Hull
-public import SeveralComplexVariables.LocallyUniform
+public import SeveralComplexVariables.LaurentSeries.Uniqueness
+public import SeveralComplexVariables.LaurentSeries.ProductExpansion
 
 /-!
 # Multivariable analytic Laurent series
@@ -18,8 +17,8 @@ The main expansion theorem includes coordinate hyperplanes: coefficients with ne
 exponent in a coordinate vanish when the domain meets that hyperplane. This makes the
 statement compatible with Lean's totalized integer powers at zero.
 
-The analytic expansion and uniqueness proof is pending. Its explicit consequences depend
-on that proof. References: Korevaar–Wiegerinck (2017), Theorem 2.7.1 and Lemma 2.8.1.
+The proof combines successive circle expansions, independence of coefficient tori,
+and summable local geometric bounds. References: Korevaar–Wiegerinck (2017), Theorem 2.7.1 and Lemma 2.8.1.
 -/
 
 @[expose] public noncomputable section
@@ -31,21 +30,9 @@ namespace SeveralComplexVariables
 
 variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- The Laurent coefficient obtained by integrating over a positive-radius coordinate torus. -/
-def multivariableLaurentCoeff (f : (Fin n → ℂ) → F) (r : Fin n → ℝ)
-    (m : Fin n → ℤ) : F :=
-  ((2 * π * I : ℂ) ^ n)⁻¹ •
-    torusIntegral (fun z => (∏ i, z i ^ (-m i - 1)) • f z) 0 r
-
-/-- An integer-indexed Laurent term. Negative powers at zero are totalized; the expansion
-theorem separately forces their coefficients to vanish whenever necessary. -/
-def multivariableLaurentTerm (c : (Fin n → ℤ) → F) (m : Fin n → ℤ) (z : Fin n → ℂ) : F :=
-  (∏ i, z i ^ m i) • c m
-
 /-- **Multivariable Laurent expansion on a connected Reinhardt domain.** The expansion is
 absolutely and locally uniformly convergent, its coefficients are independent of the torus,
-and they are unique. Negative exponents disappear in any coordinate whose hyperplane is met.
-Proof pending: iterated annular Cauchy formulas, contour independence, and geometric bounds. -/
+and they are unique. Negative exponents disappear in any coordinate whose hyperplane is met. -/
 theorem multivariableLaurent_expansion {U : Set (Fin n → ℂ)} (ho : IsOpen U)
     (hc : IsConnected U) (hR : IsReinhardt U) {f : (Fin n → ℂ) → F}
     (hf : AnalyticOnNhd ℂ f U) {r : Fin n → ℝ} (hr : ∀ i, 0 < r i)
@@ -59,10 +46,18 @@ theorem multivariableLaurent_expansion {U : Set (Fin n → ℂ)} (ho : IsOpen U)
     (∀ c : (Fin n → ℤ) → F,
       HasSumLocallyUniformlyOn (multivariableLaurentTerm c) f U →
       c = multivariableLaurentCoeff f r) := by
-  sorry
+  refine ⟨hasSumLocallyUniformlyOn_multivariableLaurent_of_pointwise ho hc.isPreconnected hR hf hr hrU
+    (fun z hz => hasSum_multivariableLaurent ho hc.isPreconnected hR hf hr hrU hz),
+    fun z hz => summable_norm_multivariableLaurent ho hc.isPreconnected hR hf hr hrU hz,
+    multivariableLaurentCoeff_neg_eq_zero ho hc.isPreconnected hR hf hr hrU,
+    fun s hs hsU => multivariableLaurentCoeff_eq_of_radii ho hc.isPreconnected hR hf hr hs hrU hsU,
+    fun c hs => eq_multivariableLaurentCoeff_of_hasSumLocallyUniformlyOn hf.continuousOn hr ?_ hs⟩
+  intro z hz
+  apply hR hrU
+  intro i
+  simpa [abs_of_pos (hr i)] using hz i
 
-/-- Laurent expansion converges uniformly on compact subsets of the original domain.
-This depends on the pending Laurent expansion theorem. -/
+/-- Laurent expansion converges uniformly on compact subsets of the original domain. -/
 theorem hasSumUniformlyOn_multivariableLaurent {U K : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U) {f : (Fin n → ℂ) → F}
     (hf : AnalyticOnNhd ℂ f U) {r : Fin n → ℝ} (hr : ∀ i, 0 < r i)
@@ -82,6 +77,6 @@ theorem multivariableLaurentCoeff_eq_zero_of_not_nonneg {U : Set (Fin n → ℂ)
     multivariableLaurentCoeff f r m = 0 := by
   push Not at hm
   obtain ⟨i, hi⟩ := hm
-  exact (multivariableLaurent_expansion ho hc hR hf hr hrU).2.2.1 m i (hmeet i) hi
+  exact multivariableLaurentCoeff_neg_eq_zero ho hc.isPreconnected hR hf hr hrU m i (hmeet i) hi
 
 end SeveralComplexVariables

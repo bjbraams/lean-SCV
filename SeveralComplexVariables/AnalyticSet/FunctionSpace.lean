@@ -12,8 +12,8 @@ public import SeveralComplexVariables.FunctionSpace.Extension
 # Restriction across analytic sets of codimension at least two
 
 Scheidemann's second Riemann theorem is stated as an isomorphism of holomorphic
-algebras. The forward map below is restriction. Injectivity uses density and is
-independent of the pending existence theorem; surjectivity uses that theorem.
+algebras. The forward map below is restriction. Injectivity uses density;
+surjectivity uses the proved second Riemann extension theorem.
 Disconnected and empty domains are allowed. No assertion about continuity of the
 inverse is needed for this algebraic formulation.
 -/
@@ -26,7 +26,7 @@ namespace SeveralComplexVariables
 
 /-- **Second Riemann extension theorem, algebraic form.** Restriction across an analytic
 subset of slice codimension at least two is an isomorphism of complex algebras.
-Surjectivity depends on the pending automatic-local-boundedness theorem. -/
+Surjectivity follows from automatic local boundedness and the first Riemann theorem. -/
 def analyticSetRestrictionAlgEquiv {ι : Type*} [Fintype ι]
     {U V : TopologicalSpace.Opens (ι → ℂ)} {A : Set (ι → ℂ)}
     (hA : IsAnalyticSet U A) (hcodim : HasComplexSliceCodimensionAtLeast A 2)

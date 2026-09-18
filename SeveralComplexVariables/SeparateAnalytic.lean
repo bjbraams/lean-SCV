@@ -5,36 +5,227 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
+public import SeveralComplexVariables.SeparateAnalytic.Baire
+public import SeveralComplexVariables.SeparateAnalytic.FiberExtension
 
 /-!
 # Separate analyticity
 
 Hartogs' theorem asserts joint analyticity from analyticity of all coordinate slices,
-without continuity or local boundedness assumptions. Its proof is pending. The versions
-with those extra hypotheses are proved in `Osgood` and `LocallyBounded`.
+without continuity or local boundedness assumptions. The versions with those extra
+hypotheses are proved in `Osgood` and `LocallyBounded`.
 
-References: Boas (2013), Section 2.4; Jakóbczak--Jarnicki (2021), Theorem 1.5.1.
+The proof is by induction on the number of coordinates. One coordinate is split off as a
+fiber variable. Baire's theorem and the locally bounded Osgood theorem give joint
+analyticity on a thin cylinder whose fiber disc is close to the given point. Hartogs'
+fiber extension lemma, which rests on Hartogs' growth lemma for roots of the fiber
+Taylor coefficients, then gives a local bound at the given point. The locally bounded
+Osgood theorem completes the induction step.
+
+References: Boas (2013), Section 2.4; Hörmander (1973), Theorem 2.2.8;
+Jakóbczak--Jarnicki (2021), Theorem 1.5.1.
 -/
 
-public section
+@[expose] public noncomputable section
 
-open Function Metric Set
+open Function Metric Set Filter
 open scoped Classical Topology
 
 namespace SeveralComplexVariables
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
+section Split
+
+variable (κ : Type*) [Fintype κ]
+
+/-- Splitting off the `none` coordinate of a finite coordinate space as the fiber
+variable. The remaining coordinates form the base. -/
+def optionSplit : (Option κ → ℂ) ≃L[ℂ] (κ → ℂ) × ℂ :=
+  ((LinearEquiv.piOptionEquivProd ℂ (M := fun _ : Option κ => ℂ)).trans
+    (LinearEquiv.prodComm ℂ ℂ (κ → ℂ))).toContinuousLinearEquiv
+
+variable {κ}
+
+/-- The splitting map records the base coordinates and the fiber coordinate. -/
+theorem optionSplit_apply (z : Option κ → ℂ) :
+    optionSplit κ z = (fun i => z (some i), z none) := rfl
+
+/-- The inverse splitting map reassembles a point from base and fiber coordinates. -/
+theorem optionSplit_symm_apply (z' : κ → ℂ) (w : ℂ) :
+    (optionSplit κ).symm (z', w) = fun o => o.elim w z' := by
+  rw [ContinuousLinearEquiv.symm_apply_eq]
+  rfl
+
+end Split
+
+/-- The induction step of Hartogs' theorem: one further coordinate. The hypothesis is
+Hartogs' theorem for the coordinate type `κ`. -/
+theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ]
+    (ih : ∀ {U : Set (κ → ℂ)} {g : (κ → ℂ) → F}, IsOpen U →
+      (∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => g (update z i w)) (z i)) → AnalyticOnNhd ℂ g U)
+    {U : Set (Option κ → ℂ)} {f : (Option κ → ℂ) → F} (hU : IsOpen U)
+    (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) :
+    AnalyticOnNhd ℂ f U := by
+  set L := optionSplit κ with hL
+  have hsymm : ∀ z' w, L.symm (z', w) = fun o => o.elim w z' := optionSplit_symm_apply
+  have hnone (z' : κ → ℂ) (w : ℂ) : L.symm (z', w) none = w := by rw [hsymm]; rfl
+  have hsome (z' : κ → ℂ) (w : ℂ) (i : κ) : L.symm (z', w) (some i) = z' i := by rw [hsymm]; rfl
+  have hupd_none (z' : κ → ℂ) (w v : ℂ) : update (L.symm (z', w)) none v = L.symm (z', v) := by
+    rw [hsymm, hsymm]
+    funext o
+    cases o <;> simp
+  have hupd_some (z' : κ → ℂ) (w v : ℂ) (i : κ) :
+      update (L.symm (z', w)) (some i) v = L.symm (update z' i v, w) := by
+    rw [hsymm, hsymm]
+    funext o
+    cases o with
+    | none => simp
+    | some j => by_cases hji : j = i <;> simp [hji]
+  -- analyticity of the base slices, by the induction hypothesis
+  have hslice_base (w : ℂ) :
+      AnalyticOnNhd ℂ (fun z' => f (L.symm (z', w))) {z' | L.symm (z', w) ∈ U} := by
+    apply ih (hU.preimage (by fun_prop))
+    intro z' hz' i
+    have h := hf _ hz' (some i)
+    dsimp only at h
+    rw [hsome] at h
+    convert h using 2
+    rw [hupd_some]
+  -- analyticity of the fiber slices
+  have hslice_fiber (z' : κ → ℂ) :
+      AnalyticOnNhd ℂ (fun w => f (L.symm (z', w))) {w | L.symm (z', w) ∈ U} := by
+    intro w hw
+    have h := hf _ hw none
+    rw [hnone] at h
+    convert h using 2
+    rw [hupd_none]
+  -- the decidability instance of the coordinate type is adjusted by `convert`
+  refine analyticOnNhd_of_separately_analytic_locally_bounded hU
+    (fun z hz i => by convert hf z hz i) ?_
+  intro c hc
+  obtain ⟨R, hR, hRU⟩ := nhds_basis_closedBall.mem_iff.mp (hU.mem_nhds hc)
+  set z₀ : κ → ℂ := (L c).1 with hz₀
+  set w₀ : ℂ := (L c).2 with hw₀
+  have hmem (z' : κ → ℂ) (w : ℂ) :
+      L.symm (z', w) ∈ closedBall c R ↔ z' ∈ closedBall z₀ R ∧ w ∈ closedBall w₀ R := by
+    rw [mem_closedBall, dist_pi_le_iff hR.le, Option.forall, mem_closedBall, mem_closedBall,
+      dist_pi_le_iff hR.le, hnone]
+    simp only [hsome]
+    exact and_comm
+  -- Baire: a bounded cylinder over the whole closed base ball
+  have hR2 : 0 < R / 2 := by positivity
+  obtain ⟨W, hWo, hWne, hWsub, M₁, hM₁⟩ := exists_open_bounded_cylinder_of_separately_continuous
+    (X := ℂ) (Y := κ → ℂ) (f := fun w z' => f (L.symm (z', w))) isOpen_ball
+    (nonempty_ball.mpr hR2) (isCompact_closedBall z₀ R)
+    (fun z' hz' => (hslice_fiber z').continuousOn.mono fun w hw => hRU ((hmem z' w).mpr
+      ⟨hz', ball_subset_closedBall (ball_subset_ball (half_le_self hR.le) hw)⟩))
+    (fun w hw => (hslice_base w).continuousOn.mono fun z' hz' => hRU ((hmem z' w).mpr
+      ⟨hz', ball_subset_closedBall (ball_subset_ball (half_le_self hR.le) hw)⟩))
+  obtain ⟨b, hb⟩ := hWne
+  obtain ⟨ε₁, hε₁, hbW⟩ := nhds_basis_closedBall.mem_iff.mp (hWo.mem_nhds hb)
+  have hbw₀ : dist b w₀ < R / 2 := mem_ball.mp (hWsub hb)
+  -- Osgood: joint analyticity on the bounded cylinder
+  set Ω := L ⁻¹' (ball z₀ R ×ˢ W) with hΩ
+  have hΩo : IsOpen Ω := (isOpen_ball.prod hWo).preimage L.continuous
+  have hΩU : Ω ⊆ U := by
+    intro z hz
+    have := (hmem (L z).1 (L z).2).mpr ⟨ball_subset_closedBall hz.1,
+      ball_subset_closedBall (ball_subset_ball (half_le_self hR.le) (hWsub hz.2))⟩
+    rw [Prod.mk.eta, L.symm_apply_apply] at this
+    exact hRU this
+  have hfΩ : AnalyticOnNhd ℂ f Ω := by
+    refine analyticOnNhd_of_separately_analytic_locally_bounded hΩo
+      (fun z hz i => by convert hf z (hΩU hz) i) ?_
+    intro z hz
+    refine ⟨M₁, Filter.mem_of_superset (hΩo.mem_nhds hz) fun y hy => ?_⟩
+    have := hM₁ (L y).2 hy.2 (L y).1 (ball_subset_closedBall hy.1)
+    rwa [Prod.mk.eta, L.symm_apply_apply] at this
+  -- Hartogs' fiber extension lemma in product coordinates
+  have hg1 : AnalyticOnNhd ℂ (f ∘ L.symm) (ball z₀ R ×ˢ ball b ε₁) := by
+    intro q hq
+    have hq' : L.symm q ∈ Ω := by
+      show L (L.symm q) ∈ ball z₀ R ×ˢ W
+      rw [L.apply_symm_apply]
+      exact ⟨hq.1, hbW (ball_subset_closedBall hq.2)⟩
+    exact (hfΩ _ hq').comp_of_eq (L.symm.analyticAt q) rfl
+  have hg2 : ∀ z' ∈ ball z₀ R,
+      AnalyticOnNhd ℂ (fun w => (f ∘ L.symm) (z', w)) (ball b (R - dist b w₀)) := by
+    intro z' hz'
+    apply (hslice_fiber z').mono
+    intro w hw
+    apply hRU
+    rw [hmem]
+    refine ⟨ball_subset_closedBall hz', ?_⟩
+    rw [mem_closedBall]
+    have := mem_ball.mp hw
+    calc dist w w₀ ≤ dist w b + dist b w₀ := dist_triangle _ _ _
+      _ ≤ R := by linarith
+  have hw₀ : w₀ ∈ ball b (R - dist b w₀) := by
+    rw [mem_ball, dist_comm]
+    linarith
+  obtain ⟨M, hM⟩ := exists_eventually_norm_le_of_fiber_analytic isOpen_ball hε₁ hg1 hg2
+    (mem_ball_self hR) hw₀
+  refine ⟨M, ?_⟩
+  have := (L.continuous.tendsto c).eventually hM
+  simpa only [Function.comp_def, L.symm_apply_apply] using this
+
+omit [CompleteSpace F] in
+/-- Hartogs' theorem transports along a bijection of coordinate types. -/
+theorem analyticOnNhd_of_separately_analytic_of_equiv {α β : Type*} [Fintype α] [Fintype β]
+    (e : α ≃ β)
+    (hα : ∀ {U : Set (α → ℂ)} {g : (α → ℂ) → F}, IsOpen U →
+      (∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => g (update z i w)) (z i)) → AnalyticOnNhd ℂ g U)
+    {U : Set (β → ℂ)} {f : (β → ℂ) → F} (hU : IsOpen U)
+    (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) :
+    AnalyticOnNhd ℂ f U := by
+  let L : (α → ℂ) ≃L[ℂ] (β → ℂ) := ContinuousLinearEquiv.piCongrLeft ℂ (fun _ : β => ℂ) e
+  have hL_apply (z : α → ℂ) (j : α) : L z (e j) = z j :=
+    Equiv.piCongrLeft_apply_apply (fun _ : β => ℂ) e z j
+  have hL_update (z : α → ℂ) (j : α) (w : ℂ) : L (update z j w) = update (L z) (e j) w := by
+    funext i
+    obtain ⟨k, rfl⟩ := e.surjective i
+    by_cases hkj : k = j
+    · subst k
+      simp [hL_apply]
+    · have hek : e k ≠ e j := fun he => hkj (e.injective he)
+      simp [hkj, hek, hL_apply]
+  have hg : AnalyticOnNhd ℂ (f ∘ L) (L ⁻¹' U) := by
+    apply hα (hU.preimage L.continuous)
+    intro z hz j
+    have h := hf (L z) hz (e j)
+    rw [← hL_apply z j]
+    convert h using 2
+    simp only [Function.comp_apply, hL_update]
+  intro z hz
+  have hzV : L.symm z ∈ L ⁻¹' U := by
+    show L (L.symm z) ∈ U
+    simpa
+  have := (hg _ hzV).comp_of_eq (L.symm.analyticAt z) rfl
+  simpa only [Function.comp_def, L.apply_symm_apply] using this
+
 /-- **Hartogs' separate-holomorphy theorem.** On an open finite complex coordinate domain,
 analyticity of every coordinate slice implies joint analyticity, with no continuity or local
-boundedness hypothesis. Proof pending; the versions with those extra hypotheses are already
-proved in `Osgood` and `LocallyBounded`. Empty and singleton coordinate types are included. -/
+boundedness hypothesis. Empty and singleton coordinate types are included. -/
 theorem analyticOnNhd_of_separately_analytic
     {ι : Type*} [Fintype ι] {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}
     (hU : IsOpen U)
     (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) :
     AnalyticOnNhd ℂ f U := by
-  sorry
+  revert U f
+  refine Fintype.induction_empty_option
+    (P := fun ι _ => ∀ {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}, IsOpen U →
+      (∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) → AnalyticOnNhd ℂ f U)
+    ?_ ?_ ?_ ι
+  · intro α β _ e hα U f hU hf
+    let _ : Fintype α := Fintype.ofEquiv β e.symm
+    exact analyticOnNhd_of_separately_analytic_of_equiv e (fun hU hf => hα hU hf) hU hf
+  · intro U f hU hf
+    exact analyticOnNhd_of_separately_analytic_locally_bounded hU hf fun c _ =>
+      ⟨‖f c‖, .of_forall fun z => by rw [Subsingleton.elim z c]⟩
+  · intro α _ ih U f hU hf
+    exact analyticOnNhd_of_separately_analytic_option (fun hU hf => ih hU hf) hU
+      (fun z hz i => by convert hf z hz i)
 
 end SeveralComplexVariables

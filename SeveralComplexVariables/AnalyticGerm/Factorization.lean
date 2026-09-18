@@ -38,12 +38,47 @@ theorem not_isCoprime_of_eval_eq_zero {f g : AnalyticGerm x}
   have he := congrArg (eval x) h
   simp [hf, hg] at he
 
-/-- Irreducible analytic germs are prime in finite dimension. Pending proof:
-induction on dimension, coordinate normalization, Weierstrass preparation, and
-comparison with factorization of polynomials over the lower-dimensional germ ring. -/
+/-- Irreducible germs on `n` complex coordinates are prime, by induction using
+`prime_of_irreducible_of_baseUFD`. Dimension zero has no irreducible elements, since the
+germ ring there is a field. -/
+theorem prime_of_irreducible_coordinates (n : ℕ) :
+    ∀ {f : AnalyticGerm (0 : Fin n → ℂ)}, Irreducible f → Prime f := by
+  induction n with
+  | zero =>
+      intro f hf
+      exfalso
+      set e := equivComplexOfSubsingleton (0 : Fin 0 → ℂ)
+      have hf' : Irreducible (e f) := hf.map e
+      rcases eq_or_ne (e f) 0 with h0 | h0
+      · rw [h0] at hf'
+        exact (hf'.isUnit_or_isUnit (by ring)).elim not_isUnit_zero not_isUnit_zero
+      · exact hf'.not_isUnit (isUnit_iff_ne_zero.mpr h0)
+  | succ n ih =>
+      intro f hf
+      have : UniqueFactorizationMonoid (AnalyticGerm (0 : Fin n → ℂ)) :=
+        { irreducible_iff_prime := ⟨ih, Prime.irreducible⟩ }
+      let e : (Fin (n + 1) → ℂ) ≃ₗ[ℂ] (Fin n → ℂ) × ℂ :=
+        (LinearEquiv.piCongrLeft ℂ (fun _ => ℂ) (finSuccEquiv n)).trans
+          ((LinearEquiv.piOptionEquivProd ℂ).trans (LinearEquiv.prodComm ℂ _ _))
+      set eqv : AnalyticGerm (0 : Fin (n + 1) → ℂ) ≃ₐ[ℂ] AnalyticGerm (0 : (Fin n → ℂ) × ℂ) :=
+        (linearEquivPullbackZero e.toContinuousLinearEquiv).symm with heqv
+      have hfe : Irreducible (eqv f) := hf.map eqv
+      have hpe : Prime (eqv f) := prime_of_irreducible_of_baseUFD hfe
+      exact (MulEquiv.prime_iff eqv).mp hpe
+
+/-- Irreducible analytic germs are prime in finite dimension: transport to the origin
+of a coordinate presentation using the induction on dimension above. -/
 theorem prime_of_irreducible [FiniteDimensional ℂ E] {f : AnalyticGerm x}
     (hf : Irreducible f) : Prime f := by
-  sorry
+  let e := (Module.finBasis ℂ E).equivFunL
+  set eqv0 : AnalyticGerm (0 : E) ≃ₐ[ℂ] AnalyticGerm (0 : Fin (Module.finrank ℂ E) → ℂ) :=
+    (linearEquivPullbackZero e).symm with heqv0
+  set eqvx : AnalyticGerm x ≃ₐ[ℂ] AnalyticGerm (0 : E) := translateEquiv x with heqvx
+  have hf1 : Irreducible (eqvx f) := hf.map eqvx
+  have hf2 : Irreducible (eqv0 (eqvx f)) := hf1.map eqv0
+  have hp2 : Prime (eqv0 (eqvx f)) := prime_of_irreducible_coordinates _ hf2
+  have hp1 : Prime (eqvx f) := (MulEquiv.prime_iff eqv0).mp hp2
+  exact (MulEquiv.prime_iff eqvx).mp hp1
 
 /-- The finite-dimensional analytic germ ring is a unique factorization domain.
 This instance depends on the pending Noetherian induction step and prime-germ lemma. -/

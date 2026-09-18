@@ -131,7 +131,11 @@ theorem exists_lipschitzOnWith_of_separately_analytic_locally_bounded
 variable [CompleteSpace F]
 
 /-- **Locally bounded Osgood theorem.** Joint continuity need not be assumed when a
-separately holomorphic map is locally bounded on its open domain. -/
+separately holomorphic map is locally bounded on its open domain.
+
+This is weaker than Hartogs' theorem `analyticOnNhd_of_separately_analytic`, which drops the
+local boundedness hypothesis. It is a step in the proof of that theorem, applied after Baire's
+theorem provides local bounds, and therefore cannot be derived from it. -/
 theorem analyticOnNhd_of_separately_analytic_locally_bounded
     {U : Set (ι → ℂ)} {f : (ι → ℂ) → F} (hU : IsOpen U)
     (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i))

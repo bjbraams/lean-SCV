@@ -5,180 +5,101 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Reinhardt
-public import Mathlib.RingTheory.MvPowerSeries.Basic
-public import Mathlib.Analysis.Normed.Group.InfiniteSum
+public import SeveralComplexVariables.PowerSeriesConvergence.Basic
+public import SeveralComplexVariables.Reinhardt.Extension
+public import SeveralComplexVariables.Reinhardt.HolomorphicConvexity
+public import SeveralComplexVariables.CartanThullen
 
 /-!
-# Domains of absolute convergence of multivariable power series
+# Characterization of power-series convergence domains
 
-For coefficients indexed by Mathlib's finitely supported multi-indices, the absolute
-convergence set records summability of the norms of the individual monomial terms. Its
-interior is the convergence domain, following Boas (2013), Sections 2.1--2.2. Boundary
-convergence is deliberately not included in the definition of the domain.
-
-The absolute-convergence set and its interior are complete Reinhardt and logarithmically
-convex. The proofs apply to normed-group-valued coefficients; a complex Banach target is
-needed only to deduce summability of the actual vector-valued terms. Convexity follows by
-comparing terms at logarithmic interpolates with arithmetic averages, using convexity of exp.
-
-The converse in Boas's Theorem 1 (attributed there to Hartogs) is an explicitly pending
-scalar existence theorem, for bounded or unbounded domains. It is distinct from separate
-analyticity and Hartogs extension. Empty coordinate index types are included; nonemptiness
-is required of a prescribed domain, but a general series may have empty convergence domain.
+An open complete logarithmically convex Reinhardt domain is holomorphically convex,
+by monomial separation. Cartan–Thullen supplies a function with precisely that domain
+of existence. Its Taylor series at zero has the prescribed convergence domain.
 -/
 
 @[expose] public noncomputable section
 
 open Set
-open scoped BigOperators
+open scoped Classical Topology
 
 namespace SeveralComplexVariables
 
-variable {ι E : Type*} [Fintype ι] [NormedAddCommGroup E]
+variable {ι : Type*} [Fintype ι]
 
-/-- The absolute-convergence set of a power series centred at zero. The product records the
-norm of the monomial, so no scalar action or completeness of the coefficient space is needed. -/
-def powerSeriesAbsConvergenceSet (c : MvPowerSeries ι E) : Set (ι → ℂ) :=
-  {z | Summable (fun m : ι →₀ ℕ => ‖c m‖ * ∏ i, ‖z i‖ ^ m i)}
+/-- Changing coordinate labels transports the convergence domain of a coefficient family. -/
+theorem powerSeriesConvergenceDomain_domCongr {κ : Type*} [Fintype κ]
+    (e : ι ≃ κ) (c : MvPowerSeries κ ℂ) :
+    powerSeriesConvergenceDomain (fun m => c (Finsupp.domCongr e m)) =
+      (Homeomorph.piCongrLeft (Y := fun _ : κ => ℂ) e) ⁻¹' powerSeriesConvergenceDomain c := by
+  let H := Homeomorph.piCongrLeft (Y := fun _ : κ => ℂ) e
+  have he : powerSeriesAbsConvergenceSet (fun m => c (Finsupp.domCongr e m)) =
+      H ⁻¹' powerSeriesAbsConvergenceSet c := by
+    ext z
+    change Summable (fun m : ι →₀ ℕ => ‖c (Finsupp.domCongr e m)‖ * ∏ i, ‖z i‖ ^ m i) ↔
+      Summable (fun m : κ →₀ ℕ => ‖c m‖ * ∏ i, ‖H z i‖ ^ m i)
+    rw [← (Finsupp.domCongr e).toEquiv.summable_iff]
+    apply summable_congr
+    intro m
+    congr 1
+    rw [← e.prod_comp]
+    simp [H, Homeomorph.piCongrLeft, Equiv.piCongrLeft, Finsupp.domCongr_apply,
+      Finsupp.equivMapDomain_apply]
+  change interior (powerSeriesAbsConvergenceSet _) = H ⁻¹' interior (powerSeriesAbsConvergenceSet c)
+  rw [he, H.preimage_interior]
 
-/-- The convergence domain is the interior of the absolute-convergence set. -/
-def powerSeriesConvergenceDomain (c : MvPowerSeries ι E) : Set (ι → ℂ) :=
-  interior (powerSeriesAbsConvergenceSet c)
-
-/-- For complex normed coefficients the defining summability condition is exactly absolute
-convergence of the vector-valued monomial terms. -/
-theorem mem_powerSeriesAbsConvergenceSet_iff [NormedSpace ℂ E]
-    {c : MvPowerSeries ι E} {z : ι → ℂ} :
-    z ∈ powerSeriesAbsConvergenceSet c ↔
-      Summable (fun m : ι →₀ ℕ => ‖(∏ i, z i ^ m i) • c m‖) := by
-  simp [powerSeriesAbsConvergenceSet, norm_smul, norm_prod, norm_pow, mul_comm]
-
-/-- Every formal series converges absolutely at zero, since only its constant term survives.
-This does not assert that its convergence domain is nonempty. -/
-theorem zero_mem_powerSeriesAbsConvergenceSet (c : MvPowerSeries ι E) :
-    0 ∈ powerSeriesAbsConvergenceSet c := by
-  classical
-  apply summable_of_ne_finset_zero (s := {0})
-  intro m hm
-  have hm0 : m ≠ 0 := by simpa using hm
-  obtain ⟨i, hi⟩ := Finsupp.ne_iff.mp hm0
-  have hterm : ‖(0 : ι → ℂ) i‖ ^ m i = 0 := by
-    simpa using (zero_pow hi : (0 : ℝ) ^ m i = 0)
-  rw [Finset.prod_eq_zero (Finset.mem_univ i) hterm, mul_zero]
-
-/-- A power-series convergence domain is open by definition, and may be empty. -/
-theorem isOpen_powerSeriesConvergenceDomain (c : MvPowerSeries ι E) :
-    IsOpen (powerSeriesConvergenceDomain c) := isOpen_interior
-
-/-- Membership of the convergence domain implies absolute convergence. -/
-theorem powerSeriesConvergenceDomain_subset (c : MvPowerSeries ι E) :
-    powerSeriesConvergenceDomain c ⊆ powerSeriesAbsConvergenceSet c := interior_subset
-
-/-- Decreasing coordinate moduli preserves absolute convergence. -/
-theorem isCompleteReinhardt_powerSeriesAbsConvergenceSet (c : MvPowerSeries ι E) :
-    IsCompleteReinhardt (powerSeriesAbsConvergenceSet c) := by
-  intro z hz w hw
-  apply hz.of_nonneg_of_le
-  · intro m
-    positivity
-  · intro m
-    apply mul_le_mul_of_nonneg_left _ (norm_nonneg _)
-    exact Finset.prod_le_prod₀ (fun i _ => by positivity)
-      (fun i _ => pow_le_pow_left₀ (norm_nonneg _) (hw i) _)
-
-/-- The convergence domain is complete Reinhardt, including at coordinate hyperplanes. -/
-theorem isCompleteReinhardt_powerSeriesConvergenceDomain (c : MvPowerSeries ι E) :
-    IsCompleteReinhardt (powerSeriesConvergenceDomain c) :=
-  (isCompleteReinhardt_powerSeriesAbsConvergenceSet c).interior
-
-/-- A power-series convergence domain has independent coordinate rotation symmetry. -/
-theorem isReinhardt_powerSeriesConvergenceDomain (c : MvPowerSeries ι E) :
-    IsReinhardt (powerSeriesConvergenceDomain c) :=
-  (isCompleteReinhardt_powerSeriesConvergenceDomain c).isReinhardt
-
-/-- A nonempty convergence domain is path connected. -/
-theorem isPathConnected_powerSeriesConvergenceDomain (c : MvPowerSeries ι E)
-    (hne : (powerSeriesConvergenceDomain c).Nonempty) :
-    IsPathConnected (powerSeriesConvergenceDomain c) :=
-  (isCompleteReinhardt_powerSeriesConvergenceDomain c).isPathConnected hne
-
-/-- In logarithmic coordinates the modulus of a monomial is an exponential of a linear form. -/
-theorem prod_norm_exp_pow (x : ι → ℝ) (m : ι →₀ ℕ) :
-    (∏ i, ‖(Real.exp (x i) : ℂ)‖ ^ m i) = Real.exp (∑ i, (m i : ℝ) * x i) := by
-  simp [Real.exp_sum, Real.exp_nat_mul]
-
-/-- Absolute convergence has a convex logarithmic image, by termwise convexity of exp
-and comparison of nonnegative series. -/
-theorem isLogarithmicallyConvex_powerSeriesAbsConvergenceSet (c : MvPowerSeries ι E) :
-    IsLogarithmicallyConvex (powerSeriesAbsConvergenceSet c) := by
-  intro x hx y hy a b ha hb hab
-  change Summable (fun m : ι →₀ ℕ =>
-    ‖c m‖ * ∏ i, ‖(Real.exp ((a • x + b • y) i) : ℂ)‖ ^ m i)
-  have hx' : Summable (fun m : ι →₀ ℕ => ‖c m‖ * Real.exp (∑ i, (m i : ℝ) * x i)) := by
-    simpa only [logarithmicImage, mem_ofPred_eq, powerSeriesAbsConvergenceSet,
-      prod_norm_exp_pow] using hx
-  have hy' : Summable (fun m : ι →₀ ℕ => ‖c m‖ * Real.exp (∑ i, (m i : ℝ) * y i)) := by
-    simpa only [logarithmicImage, mem_ofPred_eq, powerSeriesAbsConvergenceSet,
-      prod_norm_exp_pow] using hy
-  apply ((hx'.mul_left a).add (hy'.mul_left b)).of_nonneg_of_le
-  · intro m
-    positivity
-  · intro m
-    rw [prod_norm_exp_pow]
-    have heq : (∑ i, (m i : ℝ) * (a • x + b • y) i) =
-        a * (∑ i, (m i : ℝ) * x i) + b * (∑ i, (m i : ℝ) * y i) := by
-      simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul, mul_add,
-        Finset.sum_add_distrib, Finset.mul_sum]
-      congr 1 <;> apply Finset.sum_congr rfl <;> intros <;> ring
-    rw [heq]
-    have h := mul_le_mul_of_nonneg_left
-      (convexOn_exp.2 (mem_univ (∑ i, (m i : ℝ) * x i))
-        (mem_univ (∑ i, (m i : ℝ) * y i)) ha hb hab) (norm_nonneg (c m))
-    simpa only [smul_eq_mul, mul_add, mul_left_comm] using h
-
-/-- The interior of the absolute-convergence set is logarithmically convex. -/
-theorem isLogarithmicallyConvex_powerSeriesConvergenceDomain (c : MvPowerSeries ι E) :
-    IsLogarithmicallyConvex (powerSeriesConvergenceDomain c) :=
-  (isLogarithmicallyConvex_powerSeriesAbsConvergenceSet c).interior
-    (isCompleteReinhardt_powerSeriesAbsConvergenceSet c)
-
-/-- Absolute convergence implies summability of the vector-valued monomial terms in a
-complex Banach space. -/
-theorem summable_powerSeriesTerms [NormedSpace ℂ E] [CompleteSpace E]
-    {c : MvPowerSeries ι E} {z : ι → ℂ} (hz : z ∈ powerSeriesAbsConvergenceSet c) :
-    Summable (fun m : ι →₀ ℕ => (∏ i, z i ^ m i) • c m) := by
-  apply hz.of_norm_bounded
-  intro m
-  simp [norm_smul, norm_prod, norm_pow, mul_comm]
-
-/-- The zero series has the whole coordinate space as its convergence domain. -/
-@[simp] theorem powerSeriesConvergenceDomain_zero :
-    powerSeriesConvergenceDomain (0 : MvPowerSeries ι E) = univ := by
-  have hz (m : ι →₀ ℕ) : (0 : MvPowerSeries ι E) m = 0 := rfl
-  simp [powerSeriesConvergenceDomain, powerSeriesAbsConvergenceSet, hz]
-
-/-- With no coordinates, every series has the whole singleton coordinate space as its
-convergence domain. -/
-theorem powerSeriesConvergenceDomain_of_isEmpty [IsEmpty ι] (c : MvPowerSeries ι E) :
-    powerSeriesConvergenceDomain c = univ := by
-  have h : powerSeriesAbsConvergenceSet c = univ := by
-    apply Set.eq_univ_of_forall
-    intro z
-    exact Summable.of_finite
-  simp [powerSeriesConvergenceDomain, h]
+/-- On finite ordered coordinates, the Taylor series of a nonextendable function realizes
+an open complete logarithmically convex Reinhardt domain. -/
+private theorem exists_powerSeriesConvergenceDomain_eq_fin {n : ℕ} {U : Set (Fin n → ℂ)}
+    (ho : IsOpen U) (hne : U.Nonempty) (hc : IsCompleteReinhardt U)
+    (hl : IsLogarithmicallyConvex U) :
+    ∃ c : MvPowerSeries (Fin n) ℂ, powerSeriesConvergenceDomain c = U := by
+  obtain ⟨f, hf⟩ := (isHolomorphicallyConvex_of_completeReinhardt ho hc hl).exists_domainOfExistence ho
+  obtain ⟨hUD, he⟩ := taylor_representation_completeReinhardt ho hc hf.1
+  refine ⟨taylorCoefficientsAtZero f, Subset.antisymm ?_ hUD⟩
+  exact hf.2 _ U (isOpen_powerSeriesConvergenceDomain _)
+    ((isCompleteReinhardt_powerSeriesConvergenceDomain _).isConnected (hne.mono hUD))
+    ho hne Subset.rfl hUD ⟨_, analyticOnNhd_powerSeriesSum _, he⟩
 
 /-- **Hartogs' characterization, existence direction** (Boas §2.2, Theorem 1).
 Every nonempty open complete logarithmically convex Reinhardt set is exactly the convergence
-domain of a scalar power series. Proof pending: Boas's elementary construction uses convex
-separation and monomial bounds, followed by an exhaustion for unbounded domains. -/
+domain of a scalar power series. Monomial separation and Cartan–Thullen give a
+nonextendable function whose Taylor series realizes the domain. -/
 theorem exists_powerSeriesConvergenceDomain_eq {U : Set (ι → ℂ)} (hU : IsOpen U)
     (hne : U.Nonempty) (hc : IsCompleteReinhardt U) (hl : IsLogarithmicallyConvex U) :
     ∃ c : MvPowerSeries ι ℂ, powerSeriesConvergenceDomain c = U := by
-  sorry
+  let e := Fintype.equivFin ι
+  let H : (Fin (Fintype.card ι) → ℂ) ≃ₜ (ι → ℂ) :=
+    { toFun := fun z i => z (e i)
+      invFun := fun z j => z (e.symm j)
+      left_inv := fun z => by ext j; simp
+      right_inv := fun z => by ext i; simp
+      continuous_toFun := continuous_pi fun i => continuous_apply (e i)
+      continuous_invFun := continuous_pi fun j => continuous_apply (e.symm j) }
+  let V := H ⁻¹' U
+  have hoV : IsOpen V := hU.preimage H.continuous
+  have hnV : V.Nonempty := by
+    obtain ⟨z, hz⟩ := hne
+    exact ⟨H.symm z, by simpa only [V, mem_preimage, H.apply_symm_apply] using hz⟩
+  have hcV : IsCompleteReinhardt V := by
+    intro z hz w hw
+    change (fun i => w (e i)) ∈ U
+    exact hc (show (fun i => z (e i)) ∈ U from hz) (fun i => hw (e i))
+  have hlV : IsLogarithmicallyConvex V := by
+    intro x hx y hy a b ha hb hab
+    exact hl (x := fun i => x (e i)) hx (y := fun i => y (e i)) hy ha hb hab
+  obtain ⟨c, hD⟩ := exists_powerSeriesConvergenceDomain_eq_fin hoV hnV hcV hlV
+  refine ⟨fun m => c (Finsupp.domCongr e m), ?_⟩
+  rw [powerSeriesConvergenceDomain_domCongr, hD]
+  ext z
+  change H ((Homeomorph.piCongrLeft (Y := fun _ : Fin (Fintype.card ι) => ℂ) e) z) ∈ U ↔ z ∈ U
+  have he : H ((Homeomorph.piCongrLeft (Y := fun _ : Fin (Fintype.card ι) => ℂ) e) z) = z := by
+    ext i
+    exact Equiv.piCongrLeft_apply_apply (fun _ : Fin (Fintype.card ι) => ℂ) e z i
+  rw [he]
 
-/-- **Hartogs' characterization of power-series convergence domains.** The forward
-geometric implication is proved; the converse depends on the pending existence theorem. -/
+/-- **Hartogs' characterization of power-series convergence domains.** For a nonempty
+open complete Reinhardt set, logarithmic convexity is exactly the existence condition. -/
 theorem isLogarithmicallyConvex_iff_exists_powerSeriesConvergenceDomain
     {U : Set (ι → ℂ)} (hU : IsOpen U) (hne : U.Nonempty) (hc : IsCompleteReinhardt U) :
     IsLogarithmicallyConvex U ↔

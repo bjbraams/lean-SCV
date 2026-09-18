@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.PowerSeriesConvergence
+public import SeveralComplexVariables.PowerSeriesConvergence.Basic
 public import SeveralComplexVariables.Reinhardt.Hull
 public import SeveralComplexVariables.LocallyUniform
 

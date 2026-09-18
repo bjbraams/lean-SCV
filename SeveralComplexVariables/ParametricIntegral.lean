@@ -5,14 +5,14 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Basic
+public import SeveralComplexVariables.Analyticity
 public import Mathlib.Analysis.Calculus.ParametricIntegral
 
 /-!
 # Analytic dependence of integrals on several complex parameters
 
 This file combines Mathlib's dominated differentiation-under-the-integral API with
-finite-dimensional complex analyticity from `SeveralComplexVariables.Basic`. A compact-domain
+finite-dimensional complex analyticity from `SeveralComplexVariables.Analyticity`. A compact-domain
 criterion derives the required domination from joint continuity of the pointwise derivative.
 
 The parameter space in the analyticity criterion is an arbitrary finite-dimensional complex

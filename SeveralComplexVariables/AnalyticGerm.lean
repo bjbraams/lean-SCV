@@ -184,6 +184,21 @@ def pullback (f : E → F) (hf : AnalyticAt ℂ f x) :
     (g : F → ℂ) (hg : AnalyticAt ℂ g (f x)) :
     pullback f hf (ofAnalyticAt g hg) = ofAnalyticAt (g ∘ f) (hg.comp hf) := rfl
 
+/-- Pullback along a map whose value at the source point is only known up to a stated
+equation, letting the target germ's base point be phrased as any value equal to `f x`.
+Matches `pullback` definitionally once the equation is substituted. -/
+def pullback_of_eq (f : E → F) (hf : AnalyticAt ℂ f x) {y : F} (hy : f x = y) :
+    AnalyticGerm y →ₐ[ℂ] AnalyticGerm x :=
+  hy ▸ pullback f hf
+
+/-- Pullback along an equation-adjusted map of a represented germ is represented by
+composition. -/
+@[simp] theorem pullback_of_eq_ofAnalyticAt (f : E → F) (hf : AnalyticAt ℂ f x) {y : F}
+    (hy : f x = y) (g : F → ℂ) (hg : AnalyticAt ℂ g y) :
+    pullback_of_eq f hf hy (ofAnalyticAt g hg) = ofAnalyticAt (g ∘ f) (hg.comp_of_eq hf hy) := by
+  subst hy
+  rfl
+
 /-- Evaluation commutes with pullback at the corresponding base points. -/
 @[simp] theorem eval_pullback (f : E → F) (hf : AnalyticAt ℂ f x)
     (φ : AnalyticGerm (f x)) : eval x (pullback f hf φ) = eval (f x) φ := by

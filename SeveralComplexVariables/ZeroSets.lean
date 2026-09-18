@@ -6,13 +6,15 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.ZeroSets.Basic
+public import SeveralComplexVariables.ZeroSets.Local
 public import SeveralComplexVariables.IsolatedSingularity
 
 /-!
 # Zero sets in several complex variables
 
-The identity-principle consequences in `ZeroSets.Basic` are re-exported here. Isolated
-scalar zeros are excluded by the proved puncture-removal theorem applied to the reciprocal.
+The identity-principle consequences in `ZeroSets.Basic` and the local zero-set comparison
+theorems in `ZeroSets.Local` are re-exported here. Isolated scalar zeros are excluded by
+the proved puncture-removal theorem applied to the reciprocal.
 
 Reference: Jakóbczak--Jarnicki (2021), Corollary 2.1.3.
 -/

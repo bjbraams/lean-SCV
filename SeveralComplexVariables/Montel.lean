@@ -17,7 +17,9 @@ public import Mathlib.Topology.UniformSpace.Ascoli
 A family of holomorphic maps which is bounded uniformly on each compact subset of its
 domain is equicontinuous. For finite-dimensional targets it has compact closure in the
 compact-open topology. Compactness is supplied by Mathlib's Arzelà–Ascoli theorem.
-Vitali convergence follows from this compactness and the identity theorem: pointwise
+For uniformly bounded sequences, a subsequence theorem is also provided on arbitrary
+finite-dimensional complex source spaces. Vitali convergence follows from compactness
+and the identity theorem: pointwise
 convergence on a nonempty open subset determines every cluster limit uniquely.
 -/
 
@@ -177,6 +179,48 @@ theorem vitali_theorem [FiniteDimensional ℂ F] {D V : Set (ι → ℂ)}
   refine ⟨openExtension U g.val, g.property.differentiableOn, ?_⟩
   exact (holomorphicMap_tendsto_iff.mp hg).congr
     (fun n z hz => hs n z hz)
+
+/-- A uniformly bounded holomorphic sequence on a finite-dimensional complex space has
+a locally uniformly convergent subsequence, with holomorphic limit. -/
+theorem exists_subseq_tendstoLocallyUniformlyOn_of_uniform_bound
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
+    [FiniteDimensional ℂ F] {U : Set E} (hU : IsOpen U) {f : ℕ → E → F}
+    (hf : ∀ n, AnalyticOnNhd ℂ (f n) U) {M : ℝ}
+    (hM : ∀ n z, z ∈ U → ‖f n z‖ ≤ M) :
+    ∃ (g : E → F) (φ : ℕ → ℕ), StrictMono φ ∧ AnalyticOnNhd ℂ g U ∧
+      TendstoLocallyUniformlyOn (fun n => f (φ n)) g atTop U := by
+  let e := (Module.finBasis ℂ E).equivFunL
+  let V : TopologicalSpace.Opens (Fin (Module.finrank ℂ E) → ℂ) :=
+    ⟨e.symm ⁻¹' U, hU.preimage e.symm.continuous⟩
+  let : LocallyCompactSpace V := V.isOpen.locallyCompactSpace
+  have hA (n) : AnalyticOnNhd ℂ (f n ∘ e.symm) V :=
+    (hf n).comp (e.symm.toContinuousLinearMap.analyticOnNhd _) (fun _ hz => hz)
+  let G (n : ℕ) : HolomorphicMap V F :=
+    ⟨⟨fun z => f n (e.symm z), (hA n).continuousOn.domRestrict⟩,
+      (hA n).congr V.isOpen (fun z hz => by rw [openExtension_apply V _ hz]; rfl)⟩
+  have hc : IsCompact (closure (range G)) :=
+    isCompact_closure_of_holomorphic_bounded_on_compacts (by
+      intro K hKV _
+      refine ⟨M, ?_⟩
+      rintro _ ⟨n, rfl⟩ z hz
+      rw [openExtension_apply V _ (hKV hz)]
+      exact hM n _ (hKV hz))
+  have : (uniformity C(V, F)).IsCountablyGenerated := inferInstance
+  have : (uniformity (HolomorphicMap V F)).IsCountablyGenerated :=
+    Filter.comap.isCountablyGenerated _ _
+  have hm : ∀ᶠ n in atTop, G n ∈ closure (range G) :=
+    .of_forall fun n => subset_closure (mem_range_self n)
+  obtain ⟨g, _, hg⟩ := hc.exists_mapClusterPt_of_frequently hm.frequently
+  obtain ⟨φ, hφ, hlim⟩ := hg.tendsto_subseq
+  let g' : E → F := fun z => openExtension V g.val (e z)
+  have hmaps : MapsTo e U V := fun z hz => by simpa [V] using hz
+  refine ⟨g', φ, hφ, g.property.comp (e.toContinuousLinearMap.analyticOnNhd U) hmaps, ?_⟩
+  have hl := (holomorphicMap_tendsto_iff.mp hlim).comp e hmaps e.continuous.continuousOn
+  apply hl.congr
+  intro n z hz
+  simp only [Function.comp_apply, openExtension_apply V _ (hmaps hz), G]
+  change f (φ n) (e.symm (e z)) = f (φ n) z
+  rw [e.symm_apply_apply]
 
 end SeveralComplexVariables
 

@@ -5,15 +5,17 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Biholomorphic
+public import SeveralComplexVariables.InjectiveMapping.CriticalSet
 
 /-!
 # Injective holomorphic maps in equal dimensions
 
 An injective holomorphic map between equal-dimensional finite-dimensional complex
 spaces has invertible derivative and is biholomorphic onto its open image.
-No connectedness or nonemptiness is required. The nonsingularity theorem is pending;
-the global inverse construction below is derived from it and the proved inverse theorem.
+No connectedness or nonemptiness is required. The critical-set argument proves
+nonsingularity; the inverse mapping theorem then gives the global inverse onto the image.
+Supporting modules separate one-variable nonsingularity, immersion points, the
+codimension-one reduction, and exclusion of the critical set.
 
 Reference: Fritzsche–Grauert I, Theorem 8.5 and Corollary 8.6.
 -/
@@ -31,11 +33,38 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 /-- An injective holomorphic map in equal dimensions has invertible complex derivative.
 Equal dimensions are essential: an injective parametrization of a cusp can have zero derivative.
-The analytic nonsingularity argument remains to be proved. -/
+The proof includes dimension zero and arbitrary finite-dimensional complex normed spaces. -/
 theorem isInvertible_fderiv_of_injOn (hdim : Module.finrank ℂ E = Module.finrank ℂ F)
     {U : Set E} (hU : IsOpen U) {f : E → F} (hf : DifferentiableOn ℂ f U)
     (hi : InjOn f U) {a : E} (ha : a ∈ U) : (fderiv ℂ f a).IsInvertible := by
-  sorry
+  let n := Module.finrank ℂ E
+  let A : E ≃L[ℂ] (Fin n → ℂ) := (Module.finBasis ℂ E).equivFunL
+  let B : F ≃L[ℂ] (Fin n → ℂ) := ContinuousLinearEquiv.ofFinrankEq (by simpa [n] using hdim.symm)
+  let g := B ∘ f ∘ A.symm
+  let V := A.symm ⁻¹' U
+  have hV : IsOpen V := hU.preimage A.symm.continuous
+  have hg : DifferentiableOn ℂ g V :=
+    B.differentiable.comp_differentiableOn
+      (hf.comp A.symm.differentiable.differentiableOn (fun _ hz => hz))
+  have hgi : InjOn g V := by
+    intro z hz w hw he
+    apply A.symm.injective
+    exact hi hz hw (B.injective he)
+  have haV : A a ∈ V := by simpa [V]
+  obtain ⟨T, hT⟩ := isInvertible_fderiv_of_injOn_coordinates hV hg hgi haV
+  have hda : fderiv ℂ g (A a) =
+      B.toContinuousLinearMap.comp ((fderiv ℂ f a).comp A.symm.toContinuousLinearMap) := by
+    have hfa : HasFDerivAt f (fderiv ℂ f a) (A.symm (A a)) := by
+      simpa only [A.symm_apply_apply] using
+        ((hf a ha).differentiableAt (hU.mem_nhds ha)).hasFDerivAt
+    exact (B.hasFDerivAt.comp (A a) (hfa.comp (A a) A.symm.hasFDerivAt)).fderiv
+  refine ⟨A.trans (T.trans B.symm), ?_⟩
+  ext v
+  change B.symm (T (A v)) = (fderiv ℂ f a) v
+  apply B.injective
+  have he := DFunLike.congr_fun hT (A v)
+  simpa only [hda, ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
+    A.symm_apply_apply, B.apply_symm_apply] using he
 
 /-- An injective holomorphic map between equal-dimensional spaces gives a biholomorphic
 map with source exactly `U` and target exactly its image. This follows from nonsingularity. -/

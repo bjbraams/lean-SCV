@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.AnalyticSet.Basic
+public import SeveralComplexVariables.AnalyticSet.Holomorphic
 public import SeveralComplexVariables.AnalyticSet.Removable
 public import SeveralComplexVariables.AnalyticSet.Regular
 public import SeveralComplexVariables.AnalyticSet.Codimension
@@ -17,9 +18,10 @@ public import SeveralComplexVariables.AnalyticSet.FunctionSpace
 
 Local finite equations, elementary set operations, regular points, and slice codimension
 support classical extension theory. The first Riemann theorem and coordinate-subspace
-removal and full-rank flattening are proved. Regular points on nonempty hypersurfaces and
-automatic local boundedness in codimension two remain pending; the general second Riemann
-theorem and its algebraic restriction formulation depend on the latter.
+removal, full-rank flattening, and existence of regular points on nonempty proper
+hypersurfaces are proved. Hartogs continuation around isolated two-dimensional slices
+proves automatic local boundedness, the general second Riemann theorem, and its
+algebraic restriction formulation.
 
 Sources: Range I §3.2; Fritzsche–Grauert I §8; Scheidemann Chapter 4.
 Irreducible decomposition, arbitrary infinite systems of equations, sheaf methods, and
