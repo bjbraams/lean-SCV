@@ -5,28 +5,28 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.SeparateAnalytic.MeanValue
 public import Mathlib.MeasureTheory.Integral.DominatedConvergence
 public import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
+public import SeveralComplexVariables.SeparateAnalytic.MeanValue
 
 /-!
 # Hartogs' lemma for powers of holomorphic norms
 
-Under a common upper bound, pointwise eventual bounds for positive powers of
-holomorphic norms become uniform on a neighborhood of each point. The exponents
-may vary with the sequence, so the result applies to roots of Taylor coefficients.
-The domain is a closed ball in a finite-dimensional complex normed space carrying an
-additive Haar volume, such as a finite complex coordinate space.
+Under a common upper bound, pointwise eventual bounds for positive powers of holomorphic norms
+become uniform on a neighborhood of each point. The exponents may vary with the sequence, so the
+result applies to roots of Taylor coefficients. The domain is a closed ball in a
+finite-dimensional complex normed space carrying an additive Haar volume, such as a finite
+complex coordinate space.
 
-The proof combines dominated convergence for the positive excess above the
-limiting bound with the ball submean inequality. A ball centered at a nearby point
-fits inside a fixed ball; nonnegativity bounds its integral by the fixed integral.
+The proof combines dominated convergence for the positive excess above the limiting bound with
+the ball submean inequality. A ball centered at a nearby point fits inside a fixed ball;
+nonnegativity bounds its integral by the fixed integral.
 
 ## Main results
 
-`eventually_norm_rpow_lt_on_ball` is Hartogs' lemma: a pointwise eventual bound on
-positive powers of holomorphic norms becomes uniform on a neighborhood of each
-point. `exists_radius_area_bound` produces a nearby ball of controlled volume.
+`eventually_norm_rpow_lt_on_ball` is Hartogs' lemma: a pointwise eventual bound on positive
+powers of holomorphic norms becomes uniform on a neighborhood of each point.
+`exists_radius_area_bound` produces a nearby ball of controlled volume.
 -/
 
 public section
@@ -40,8 +40,8 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimension
   [MeasureSpace E] [BorelSpace E] [(volume : Measure E).IsAddHaarMeasure]
 
 omit [NormedSpace ℂ E] [FiniteDimensional ℂ E] in
-/-- On a compact set, a uniformly bounded-above sequence of continuous functions
-with pointwise eventual upper bound `A` has the corresponding integral upper bound. -/
+/-- On a compact set, a uniformly bounded-above sequence of continuous functions with pointwise
+eventual upper bound `A` has the corresponding integral upper bound. -/
 theorem eventually_integral_lt_of_pointwise_eventually_le
     {K : Set E} {u : ℕ → E → ℝ} {A B ε : ℝ} (hK : IsCompact K)
     (hu : ∀ n, ContinuousOn (u n) K) (hB : ∀ n, ∀ z ∈ K, u n z ≤ B)
@@ -85,8 +85,8 @@ private theorem real_volume_closedBall (c : E) {R : ℝ} (hR : 0 ≤ R) :
 
 omit [NormedSpace ℂ E] [FiniteDimensional ℂ E] [MeasureSpace E] [BorelSpace E]
   [(volume : Measure E).IsAddHaarMeasure] in
-/-- A slightly smaller ball retains enough volume to absorb an arbitrarily small
-increase in an average bound. -/
+/-- A slightly smaller ball retains enough volume to absorb an arbitrarily small increase in an
+average bound. -/
 private theorem exists_radius_area_bound {R A ε v : ℝ} (d : ℕ) (hR : 0 < R)
     (hv : 0 < v) (hε : 0 < ε) :
     ∃ r ∈ Ioo 0 R, R ^ d * v * (A + ε / 2) < r ^ d * v * (A + ε) := by

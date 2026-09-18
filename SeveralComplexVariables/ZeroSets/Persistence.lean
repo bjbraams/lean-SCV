@@ -11,27 +11,26 @@ public import Mathlib.Topology.Order.Compact
 /-!
 # Persistence of zeros in holomorphic families
 
-A zero inside a disc persists under small continuous changes of a holomorphic
-function, provided the original function has no zeros on the boundary. The proof
-uses the maximum modulus principle for the reciprocal of a hypothetically
-nonvanishing perturbation; no root counting is required.
+A zero inside a disc persists under small continuous changes of a holomorphic function, provided
+the original function has no zeros on the boundary. The proof uses the maximum modulus principle
+for the reciprocal of a hypothetically nonvanishing perturbation; no root counting is required.
 
 ## Main results
 
-`exists_zero_of_norm_lt_boundary` persists a zero inside a disc under a small
-perturbation with no boundary zeros. `eventually_exists_zero_in_fiber` is
-persistence of zeros in a holomorphic family.
+`exists_zero_of_norm_lt_boundary` persists a zero inside a disc under a small perturbation with
+no boundary zeros. `eventually_exists_zero_in_fiber` is persistence of zeros in a holomorphic
+family.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
 
 namespace SeveralComplexVariables
 
-/-- A holomorphic function whose value at the center is smaller in norm than all
-its boundary values has a zero in the disc. -/
+/-- A holomorphic function whose value at the center is smaller in norm than all its boundary values
+has a zero in the disc. -/
 theorem exists_zero_of_norm_lt_boundary {f : ℂ → ℂ} {r : ℝ} (hr : 0 < r)
     (hf : DifferentiableOn ℂ f (closedBall 0 r))
     (hlt : ∀ z ∈ sphere 0 r, ‖f 0‖ < ‖f z‖) :
@@ -54,9 +53,8 @@ theorem exists_zero_of_norm_lt_boundary {f : ℂ → ℂ} {r : ℝ} (hr : 0 < r)
   have hstrict := (inv_lt_inv₀ ((hpos.le).trans_lt (hlt z hz)) hpos).2 (hlt z hz)
   exact (not_le_of_gt hstrict) (by simpa [Function.comp_def, norm_inv] using hle)
 
-/-- A zero of a continuously varying holomorphic function persists in nearby
-fibers if a closed disc in the initial fiber has no boundary zeros. The parameter
-space only needs a topology. -/
+/-- A zero of a continuously varying holomorphic function persists in nearby fibers if a closed disc
+in the initial fiber has no boundary zeros. The parameter space only needs a topology. -/
 theorem eventually_exists_zero_in_fiber {X : Type*} [TopologicalSpace X]
     {W : Set (X × ℂ)} (hW : IsOpen W) {f : X × ℂ → ℂ}
     (hf : ContinuousOn f W)

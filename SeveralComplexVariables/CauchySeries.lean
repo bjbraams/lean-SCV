@@ -23,18 +23,41 @@ Apply Mathlib's `HasFPowerSeriesOnBall.tendstoLocallyUniformlyOn` and
 convergence and geometric remainder bounds on smaller polydiscs. Individual mixed coefficients
 and radius independence are developed in `CauchyCoefficients`; the separate-radius multi-index
 expansion, its uniform convergence and remainder estimates are in `PolydiscTaylor`.
+
+## Main definitions
+
+* `multiIndexMonomial`: The continuous multilinear monomial associated to a multi-index of total
+  degree `n`.
+* `polydiscCauchyCoeff`: The multi-index Cauchy coefficient of a vector-valued function on a
+  polydisc.
+* `polydiscCauchySeries`: The formal multilinear series obtained by grouping the polydisc Cauchy
+  coefficients by total degree.
+
+## Main results
+
+* `hasSum_polydiscCauchySeries`: The Cauchy series converges to the function at every point of the
+  open polydisc.
+* `hasFPowerSeriesOnBall_polydiscCauchy_full`: The Cauchy series represents the function on the full
+  open supremum-norm ball, not just the half-radius ball needed by the original Osgood proof.
+* `hasFPowerSeriesOnBall_polydiscCauchy`: A continuous, separately analytic function on a closed
+  polydisc is represented on the concentric polydisc of half the radius by its multivariable Cauchy
+  series.
+* `polydiscCauchySeries_diag_eq_iteratedFDeriv`: On the diagonal, the Cauchy series is the usual
+  Taylor series of iterated Fréchet derivatives.
 -/
 
-@[expose] public section
+public section
 
 open Complex Filter Function MeasureTheory Metric Set
-open scoped Classical ENNReal NNReal Real Topology
+open scoped ENNReal NNReal Real Topology
 
 namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
-/-! ### Multi-index Cauchy series -/
+/-!
+### Multi-index Cauchy series
+-/
 
 /-- The continuous multilinear monomial associated to a multi-index of total degree `n`. -/
 noncomputable def multiIndexMonomial {d n : ℕ} (m : Fin d → ℕ)
@@ -143,7 +166,7 @@ private theorem hasSum_antidiagonalTuple_geometric {K : Type*} [NormedField K] [
   exact he.sigma hfin
 
 /-- The multi-index Cauchy coefficient of a vector-valued function on a polydisc. -/
-noncomputable def polydiscCauchyCoeff {d : ℕ} (f : (Fin d → ℂ) → E)
+@[expose] noncomputable def polydiscCauchyCoeff {d : ℕ} (f : (Fin d → ℂ) → E)
     (c : Fin d → ℂ) (R : ℝ) (m : Fin d → ℕ) : E :=
   ((2 * π * I : ℂ) ^ d)⁻¹ • torusIntegral
     (fun z => (∏ i, (z i - c i)⁻¹ ^ (m i + 1)) • f z) c (fun _ => R)
@@ -167,11 +190,11 @@ theorem polydiscCauchySeries_apply {d n : ℕ} (f : (Fin d → ℂ) → E)
   simp [polydiscCauchySeries, multiIndexMonomial_apply]
 
 omit [CompleteSpace E] in
-/-- Cauchy's coefficient estimate for the multi-index coefficients of a bounded function on a
-closed polydisc. -/
+/-- Cauchy's coefficient estimate for the multi-index coefficients of a bounded function on a closed
+polydisc. -/
 theorem norm_polydiscCauchyCoeff_le {d : ℕ} {f : (Fin d → ℂ) → E}
     {c : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (m : Fin d → ℕ) :
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) (m : Fin d → ℕ) :
     ‖polydiscCauchyCoeff f c R m‖ ≤ M * R⁻¹ ^ (∑ i, m i) := by
   have hM0 : 0 ≤ M := (norm_nonneg (f c)).trans (hM c (by
     intro i _
@@ -186,10 +209,10 @@ theorem norm_polydiscCauchyCoeff_le {d : ℕ} {f : (Fin d → ℂ) → E}
       ‖∏ i, (torusMap c (fun _ => R) θ i - c i)⁻¹ ^ (m i + 1)‖ *
           ‖f (torusMap c (fun _ => R) θ)‖
           ≤ ‖∏ i, (torusMap c (fun _ => R) θ i - c i)⁻¹ ^ (m i + 1)‖ * M :=
-        mul_le_mul_of_nonneg_left (hM _ (torusMap_mem_closedPolydisc hR.le θ))
+        mul_le_mul_of_nonneg_left (hM _ (torusMap_mem_closedPolydisc (fun _ => hR.le) θ))
           (norm_nonneg _)
       _ = M * R⁻¹ ^ (∑ i, (m i + 1)) := by
-        simp only [norm_prod, norm_pow, norm_inv, torusMap_coord_norm hR.le]
+        simp only [norm_prod, norm_pow, norm_inv, norm_torusMap_sub (fun _ => hR.le)]
         rw [Finset.prod_pow_eq_pow_sum]
         ring
   · simp only [norm_inv, norm_pow, norm_mul, norm_ofNat, norm_real, norm_I, mul_one,
@@ -208,7 +231,7 @@ omit [CompleteSpace E] in
 /-- Cauchy estimate for the homogeneous terms of the polydisc Cauchy series. -/
 private theorem norm_polydiscCauchySeries_mul_pow_le {d : ℕ} {f : (Fin d → ℂ) → E}
     {c : Fin d → ℂ} {R M r : ℝ} (hR : 0 < R) (hr : 0 ≤ r)
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (n : ℕ) :
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) (n : ℕ) :
     ‖polydiscCauchySeries f c R n‖ * r ^ n ≤
       M * ∑ m : Finset.Nat.antidiagonalTuple d n,
         ∏ i, (r * R⁻¹) ^ (m : Fin d → ℕ) i := by
@@ -257,7 +280,7 @@ omit [CompleteSpace E] in
 private theorem summable_norm_polydiscCauchySeries_mul_pow {d : ℕ}
     {f : (Fin d → ℂ) → E} {c : Fin d → ℂ} {R M r : ℝ} (hR : 0 < R)
     (hr : 0 ≤ r) (hrR : r < R)
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) :
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) :
     Summable fun n => ‖polydiscCauchySeries f c R n‖ * r ^ n := by
   have hq0 : 0 ≤ r * R⁻¹ := mul_nonneg hr (inv_nonneg.mpr hR.le)
   have hq1 : r * R⁻¹ < 1 := by
@@ -393,24 +416,24 @@ omit [CompleteSpace E] in
 /-- Each monomial summand of the Cauchy kernel expansion is torus integrable. -/
 private theorem torusIntegrable_polydiscCauchySummand {d : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R : ℝ} (hR : 0 < R)
-    (hfc : ContinuousOn f (closedPolydisc c R)) (m : Fin d → ℕ) :
+    (hfc : ContinuousOn f (closedPolydisc c (fun _ => R))) (m : Fin d → ℕ) :
     TorusIntegrable (fun z => ((∏ i, h i ^ m i) *
       ∏ i, (z i - c i)⁻¹ ^ (m i + 1)) • f z) c (fun _ => R) := by
   have hfθ : ContinuousOn (fun θ => f (torusMap c (fun _ => R) θ))
       (Icc (0 : Fin d → ℝ) fun _ => 2 * π) :=
-    hfc.comp (continuous_torusMap c R).continuousOn
-      (fun θ _ => torusMap_mem_closedPolydisc hR.le θ)
+    hfc.comp (continuous_torusMap_const c R).continuousOn
+      (fun θ _ => torusMap_mem_closedPolydisc (fun _ => hR.le) θ)
   have hscalar : ContinuousOn (fun θ : Fin d → ℝ =>
       (∏ i, h i ^ m i) *
         ∏ i, (torusMap c (fun _ => R) θ i - c i)⁻¹ ^ (m i + 1))
       (Icc (0 : Fin d → ℝ) fun _ => 2 * π) := by
     refine continuousOn_const.mul (continuousOn_finsetProd _ fun i _ => ?_)
-    refine (((((continuous_apply i).comp (continuous_torusMap c R)).continuousOn).sub
+    refine (((((continuous_apply i).comp (continuous_torusMap_const c R)).continuousOn).sub
       continuousOn_const).inv₀ ?_).pow _
     intro θ _
     apply sub_ne_zero.mpr
     intro heq
-    have := torusMap_coord_norm (c := c) hR.le θ i
+    have := norm_torusMap_sub (c := c) (fun _ => hR.le) θ i
     have heq' : torusMap c (fun _ => R) θ i = c i := by
       simpa only [Function.comp_apply] using heq
     rw [heq', sub_self, norm_zero] at this
@@ -421,12 +444,12 @@ omit [CompleteSpace E] in
 /-- Each homogeneous term of the Cauchy kernel expansion is torus integrable. -/
 private theorem torusIntegrable_polydiscCauchyTerm {d n : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R : ℝ} (hR : 0 < R)
-    (hfc : ContinuousOn f (closedPolydisc c R)) :
+    (hfc : ContinuousOn f (closedPolydisc c (fun _ => R))) :
     TorusIntegrable (polydiscCauchyTerm f c h n) c (fun _ => R) := by
   have hfθ : ContinuousOn (fun θ => f (torusMap c (fun _ => R) θ))
       (Icc (0 : Fin d → ℝ) fun _ => 2 * π) :=
-    hfc.comp (continuous_torusMap c R).continuousOn
-      (fun θ _ => torusMap_mem_closedPolydisc hR.le θ)
+    hfc.comp (continuous_torusMap_const c R).continuousOn
+      (fun θ _ => torusMap_mem_closedPolydisc (fun _ => hR.le) θ)
   have hscalar : ContinuousOn (fun θ : Fin d → ℝ =>
       ∑ m : Finset.Nat.antidiagonalTuple d n,
         (∏ i, h i ^ (m : Fin d → ℕ) i) *
@@ -435,12 +458,12 @@ private theorem torusIntegrable_polydiscCauchyTerm {d n : ℕ}
       (Icc (0 : Fin d → ℝ) fun _ => 2 * π) := by
     refine continuousOn_finsetSum _ fun m _ =>
       continuousOn_const.mul (continuousOn_finsetProd _ fun i _ => ?_)
-    refine (((((continuous_apply i).comp (continuous_torusMap c R)).continuousOn).sub
+    refine (((((continuous_apply i).comp (continuous_torusMap_const c R)).continuousOn).sub
       continuousOn_const).inv₀ ?_).pow _
     intro θ _
     apply sub_ne_zero.mpr
     intro heq
-    have := torusMap_coord_norm (c := c) hR.le θ i
+    have := norm_torusMap_sub (c := c) (fun _ => hR.le) θ i
     have heq' : torusMap c (fun _ => R) θ i = c i := by
       simpa only [Function.comp_apply] using heq
     rw [heq', sub_self, norm_zero] at this
@@ -451,7 +474,7 @@ omit [CompleteSpace E] in
 /-- Bound for the homogeneous Cauchy terms on the distinguished boundary. -/
 private theorem norm_polydiscCauchyTerm_le {d n : ℕ} {f : (Fin d → ℂ) → E}
     {c h : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (θ : Fin d → ℝ) :
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) (θ : Fin d → ℝ) :
     ‖polydiscCauchyTerm f c h n (torusMap c (fun _ => R) θ)‖ ≤
       (M * R⁻¹ ^ d) * ∑ m : Finset.Nat.antidiagonalTuple d n,
         ∏ i, (‖h i‖ * R⁻¹) ^ (m : Fin d → ℕ) i := by
@@ -471,14 +494,14 @@ private theorem norm_polydiscCauchyTerm_le {d n : ℕ} {f : (Fin d → ℂ) → 
                 ((m : Fin d → ℕ) i + 1)‖) * M := by
           gcongr
           · exact norm_sum_le _ _
-          · exact hM _ (torusMap_mem_closedPolydisc hR.le θ)
+          · exact hM _ (torusMap_mem_closedPolydisc (fun _ => hR.le) θ)
     _ = (M * R⁻¹ ^ d) * ∑ m : Finset.Nat.antidiagonalTuple d n,
           ∏ i, (‖h i‖ * R⁻¹) ^ (m : Fin d → ℕ) i := by
         rw [Finset.mul_sum, Finset.sum_mul]
         apply Finset.sum_congr rfl
         intro m _
         simp only [norm_mul, norm_prod, norm_pow, norm_inv,
-          torusMap_coord_norm hR.le]
+          norm_torusMap_sub (fun _ => hR.le)]
         simp_rw [pow_succ, mul_pow]
         simp only [Finset.prod_mul_distrib, Finset.prod_const, Finset.card_univ,
           Fintype.card_fin]
@@ -488,7 +511,7 @@ omit [CompleteSpace E] in
 /-- A term of the Cauchy series, evaluated on a diagonal, is a torus integral. -/
 private theorem polydiscCauchySeries_apply_eq_torusIntegral {d n : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R : ℝ} (hR : 0 < R)
-    (hfc : ContinuousOn f (closedPolydisc c R)) :
+    (hfc : ContinuousOn f (closedPolydisc c (fun _ => R))) :
     polydiscCauchySeries f c R n (fun _ => h) =
       ((2 * π * I : ℂ) ^ d)⁻¹ •
         torusIntegral (polydiscCauchyTerm f c h n) c (fun _ => R) := by
@@ -533,8 +556,8 @@ omit [CompleteSpace E] in
 /-- The polydisc Cauchy series sums to the Cauchy integral. -/
 private theorem hasSum_polydiscCauchySeries_integral {d : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
-    (hh : ∀ i, ‖h i‖ < R) (hfc : ContinuousOn f (closedPolydisc c R))
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) :
+    (hh : ∀ i, ‖h i‖ < R) (hfc : ContinuousOn f (closedPolydisc c (fun _ => R)))
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) :
     HasSum (fun n => polydiscCauchySeries f c R n (fun _ => h))
       (((2 * π * I : ℂ) ^ d)⁻¹ • torusIntegral
         (fun z => (∏ i, (z i - (c + h) i)⁻¹) • f z) c (fun _ => R)) := by
@@ -569,12 +592,12 @@ private theorem hasSum_polydiscCauchySeries_integral {d : ℕ}
     (fun θ => by
       have hz : ∀ i, torusMap c (fun _ => R) θ i ≠ c i := by
         intro i heq
-        have := torusMap_coord_norm (c := c) hR.le θ i
+        have := norm_torusMap_sub (c := c) (fun _ => hR.le) θ i
         rw [heq, sub_self, norm_zero] at this
         exact hR.ne' this.symm
       have hk := hasSum_polydiscCauchyKernel
         (z := torusMap c (fun _ => R) θ) (c := c) (h := h) hz (fun i => by
-          rw [torusMap_coord_norm (c := c) hR.le θ i]
+          rw [norm_torusMap_sub (c := c) (fun _ => hR.le) θ i]
           exact hh i)
       simpa [polydiscCauchyTerm] using
         hk.smul_const (f (torusMap c (fun _ => R) θ)))
@@ -584,22 +607,23 @@ private theorem hasSum_polydiscCauchySeries_integral {d : ℕ}
 /-- The Cauchy series converges to the function at every point of the open polydisc. -/
 theorem hasSum_polydiscCauchySeries {d : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
-    (hh : ∀ i, ‖h i‖ < R) (hfc : ContinuousOn f (closedPolydisc c R))
-    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
+    (hh : ∀ i, ‖h i‖ < R) (hfc : ContinuousOn f (closedPolydisc c (fun _ => R)))
+    (hfa : ∀ z ∈ closedPolydisc c (fun _ => R), ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i))
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) :
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) :
     HasSum (fun n => polydiscCauchySeries f c R n (fun _ => h)) (f (c + h)) := by
   have H := hasSum_polydiscCauchySeries_integral hR hh hfc hM
-  rwa [polydisc_cauchy hR (fun i => by simpa using hh i) hfc hfa] at H
+  rwa [two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul_const hR
+    (fun i => by simpa using hh i) hfc hfa] at H
 
-/-- The Cauchy series represents the function on the full open supremum-norm ball,
-not just the half-radius ball needed by the original Osgood proof. -/
+/-- The Cauchy series represents the function on the full open supremum-norm ball, not just the
+half-radius ball needed by the original Osgood proof. -/
 theorem hasFPowerSeriesOnBall_polydiscCauchy_full {d : ℕ}
     {f : (Fin d → ℂ) → E} {c : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
-    (hfc : ContinuousOn f (closedPolydisc c R))
-    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c (fun _ => R)))
+    (hfa : ∀ z ∈ closedPolydisc c (fun _ => R), ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i))
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) :
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) :
     HasFPowerSeriesOnBall f (polydiscCauchySeries f c R) c (ENNReal.ofReal R) := by
   refine ⟨?_, ENNReal.ofReal_pos.mpr hR, ?_⟩
   · apply le_of_forall_lt_imp_le_of_dense
@@ -620,28 +644,28 @@ theorem hasFPowerSeriesOnBall_polydiscCauchy_full {d : ℕ}
     exact hasSum_polydiscCauchySeries hR
       (fun i => (norm_le_pi_norm h i).trans_lt hh) hfc hfa hM
 
-/-- A continuous, separately analytic function on a closed polydisc is represented on the
-concentric polydisc of half the radius by its multivariable Cauchy series. -/
+/-- A continuous, separately analytic function on a closed polydisc is represented on the concentric
+polydisc of half the radius by its multivariable Cauchy series. -/
 theorem hasFPowerSeriesOnBall_polydiscCauchy {d : ℕ}
     {f : (Fin d → ℂ) → E} {c : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
-    (hfc : ContinuousOn f (closedPolydisc c R))
-    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c (fun _ => R)))
+    (hfa : ∀ z ∈ closedPolydisc c (fun _ => R), ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i))
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) :
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) :
     HasFPowerSeriesOnBall f (polydiscCauchySeries f c R) c
       (ENNReal.ofReal (R / 2)) := by
   exact (hasFPowerSeriesOnBall_polydiscCauchy_full hR hfc hfa hM).mono
     (ENNReal.ofReal_pos.mpr (by positivity))
     (ENNReal.ofReal_le_ofReal (by linarith))
 
-/-- On the diagonal, the Cauchy series is the usual Taylor series of iterated Fréchet
-derivatives. This uses Mathlib's general coefficient theorem, not a new derivative theory. -/
+/-- On the diagonal, the Cauchy series is the usual Taylor series of iterated Fréchet derivatives.
+This uses Mathlib's general coefficient theorem, not a new derivative theory. -/
 theorem polydiscCauchySeries_diag_eq_iteratedFDeriv {d : ℕ}
     {f : (Fin d → ℂ) → E} {c : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
-    (hfc : ContinuousOn f (closedPolydisc c R))
-    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c (fun _ => R)))
+    (hfa : ∀ z ∈ closedPolydisc c (fun _ => R), ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i))
-    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (n : ℕ) (v : Fin d → ℂ) :
+    (hM : ∀ z ∈ closedPolydisc c (fun _ => R), ‖f z‖ ≤ M) (n : ℕ) (v : Fin d → ℂ) :
     polydiscCauchySeries f c R n (fun _ => v) =
       (n.factorial : ℂ)⁻¹ • iteratedFDeriv ℂ n f c (fun _ => v) := by
   have h := hasFPowerSeriesOnBall_polydiscCauchy_full hR hfc hfa hM

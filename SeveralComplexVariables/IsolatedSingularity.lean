@@ -11,15 +11,19 @@ public import SeveralComplexVariables.SphericalShell
 # Removal of isolated singularities
 
 An arbitrary finite-dimensional complex normed source is reduced by a continuous linear
-coordinate equivalence to the proved punctured-polydisc theorem. The extension is then
-glued to the original function. No boundedness hypothesis is imposed near the puncture.
-Reference: Scheidemann (2005), Corollary 2.3.2.
+coordinate equivalence to the proved punctured-polydisc theorem. The extension is then glued to
+the original function. No boundedness hypothesis is imposed near the puncture. Reference:
+[Scheidemann][Scheidemann2005] (2005), Corollary 2.3.2.
 
 ## Main results
 
-`exists_extension_punctured_open` removes an isolated singularity of a Banach-valued
-holomorphic map on an open set in complex dimension at least two, without a local
-boundedness hypothesis.
+`exists_analyticOnNhd_extension_diff_singleton` removes an isolated singularity of a Banach-valued
+holomorphic map on an open set in complex dimension at least two, without a local boundedness
+hypothesis.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public noncomputable section
@@ -29,9 +33,9 @@ open scoped Topology
 
 namespace SeveralComplexVariables
 
-/-- An isolated singularity is removable on any open set in complex dimension at least two.
-The target is any complex Banach space, and the domain need not be connected. -/
-theorem exists_extension_punctured_open
+/-- An isolated singularity is removable on any open set in complex dimension at least two. The
+target is any complex Banach space, and the domain need not be connected. -/
+theorem exists_analyticOnNhd_extension_diff_singleton
     {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
     (hdim : 2 ≤ Module.finrank ℂ E) {U : Set E} (ho : IsOpen U)

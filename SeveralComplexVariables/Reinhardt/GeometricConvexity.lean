@@ -5,25 +5,52 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Reinhardt
 public import Mathlib.Analysis.MeanInequalities
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Topology.Homeomorph.Lemmas
+public import SeveralComplexVariables.Reinhardt
 
 /-!
 # Geometric convexity including zero coordinates
 
-Geometric combinations of nonnegative radius vectors include coordinate hyperplanes.
-Weights are nonnegative and sum to one, as in `Convex`. Mathlib's convention `0 ^ 0 = 1`
-gives the expected endpoints. The old logarithmic-image predicate remains unchanged.
-Reinhardt symmetry, openness, and completeness are separate assumptions.
-Positive geometric interpolation is an open map, including on coordinate hyperplanes.
-Consequently, interiors preserve geometric convexity and geometric convex hulls preserve openness.
+Geometric combinations of nonnegative radius vectors include coordinate hyperplanes. Weights are
+nonnegative and sum to one, as in `Convex`. Mathlib's convention `0 ^ 0 = 1` gives the expected
+endpoints. The old logarithmic-image predicate remains unchanged. Reinhardt symmetry, openness,
+and completeness are separate assumptions. Positive geometric interpolation is an open map,
+including on coordinate hyperplanes. Consequently, interiors preserve geometric convexity and
+geometric convex hulls preserve openness.
 
-Reference: Korevaar–Wiegerinck (2017), §2.2, Definition 2.2.3.
+Reference: [Korevaar–Wiegerinck][KorevaarWiegerinck2017] (2017), §2.2, Definition 2.2.3.
+
+## Main definitions
+
+* `geometricCombination`: Coordinatewise weighted geometric combination of nonnegative radii.
+* `IsGeometricallyConvex`: Closure under geometric combinations, including zero coordinates and
+  endpoint weights.
+* `geometricConvexHull`: The geometric convex hull, with zero coordinates included.
+* `modulusTrace`: The modulus trace of a complex coordinate set, with values in nonnegative radii.
+* `HasGeometricallyConvexModuli`: Logarithmic convexity including zero coordinates is geometric
+  convexity of the trace.
+
+## Main results
+
+* `isGeometricallyConvex_geometricConvexHull`: The geometric convex hull is geometrically convex.
+* `geometricConvexHull_min`: Minimality of the geometric convex hull.
+* `isOpenMap_geometricCombination`: Positive weighted geometric interpolation is an open map on
+  pairs of radius vectors.
+* `IsGeometricallyConvex.interior`: The interior of a geometrically convex set of radii is
+  geometrically convex.
+* `isOpen_geometricConvexHull`: The geometric convex hull of an open set of nonnegative radii is
+  open.
+* `HasGeometricallyConvexModuli.isLogarithmicallyConvex`: Strong logarithmic convexity implies
+  convexity of the positive logarithmic image.
+
+## References
+
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter
 open scoped NNReal Topology
@@ -33,11 +60,11 @@ namespace SeveralComplexVariables
 variable {ι : Type*}
 
 /-- Coordinatewise weighted geometric combination of nonnegative radii. -/
-def geometricCombination (a b : ℝ) (r s : ι → ℝ≥0) : ι → ℝ≥0 :=
+@[expose] def geometricCombination (a b : ℝ) (r s : ι → ℝ≥0) : ι → ℝ≥0 :=
   fun i => r i ^ a * s i ^ b
 
 /-- Closure under geometric combinations, including zero coordinates and endpoint weights. -/
-def IsGeometricallyConvex (S : Set (ι → ℝ≥0)) : Prop :=
+@[expose] def IsGeometricallyConvex (S : Set (ι → ℝ≥0)) : Prop :=
   ∀ ⦃r⦄, r ∈ S → ∀ ⦃s⦄, s ∈ S → ∀ ⦃a b : ℝ⦄,
     0 ≤ a → 0 ≤ b → a + b = 1 → geometricCombination a b r s ∈ S
 
@@ -84,7 +111,7 @@ theorem isGeometricallyConvex_sInter {A : Set (Set (ι → ℝ≥0))}
     (mem_sInter.mp hs S hS) ha hb hab
 
 /-- The geometric convex hull, with zero coordinates included. -/
-def geometricConvexHull (S : Set (ι → ℝ≥0)) : Set (ι → ℝ≥0) :=
+@[expose] def geometricConvexHull (S : Set (ι → ℝ≥0)) : Set (ι → ℝ≥0) :=
   ⋂₀ {T | S ⊆ T ∧ IsGeometricallyConvex T}
 
 /-- Every set is contained in its geometric convex hull. -/
@@ -195,16 +222,16 @@ theorem isOpen_geometricConvexHull {S : Set (ι → ℝ≥0)} (hS : IsOpen S) :
   (isGeometricallyConvex_singleton r).geometricConvexHull_eq
 
 /-- The modulus trace of a complex coordinate set, with values in nonnegative radii. -/
-def modulusTrace (U : Set (ι → ℂ)) : Set (ι → ℝ≥0) :=
+@[expose] def modulusTrace (U : Set (ι → ℂ)) : Set (ι → ℝ≥0) :=
   (fun z i => ‖z i‖₊) '' U
 
-/-- Logarithmic convexity including zero coordinates is geometric convexity of the trace.
-This does not impose Reinhardt symmetry, openness, or completeness. -/
-def HasGeometricallyConvexModuli (U : Set (ι → ℂ)) : Prop :=
+/-- Logarithmic convexity including zero coordinates is geometric convexity of the trace. This does
+not impose Reinhardt symmetry, openness, or completeness. -/
+@[expose] def HasGeometricallyConvexModuli (U : Set (ι → ℂ)) : Prop :=
   IsGeometricallyConvex (modulusTrace U)
 
-/-- For a Reinhardt set, a radius vector belongs to the trace exactly when its positive
-real representative belongs to the set. -/
+/-- For a Reinhardt set, a radius vector belongs to the trace exactly when its positive real
+representative belongs to the set. -/
 theorem IsReinhardt.mem_modulusTrace_iff {U : Set (ι → ℂ)} (hU : IsReinhardt U)
     {r : ι → ℝ≥0} : r ∈ modulusTrace U ↔ (fun i => (r i : ℂ)) ∈ U := by
   constructor

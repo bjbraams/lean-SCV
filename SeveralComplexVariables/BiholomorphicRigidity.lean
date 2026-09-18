@@ -5,27 +5,31 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Complex.CauchyIntegral
 public import SeveralComplexVariables.Biholomorphic
 public import SeveralComplexVariables.CartanUniqueness
 public import SeveralComplexVariables.Circular
 public import SeveralComplexVariables.IdentityPrinciple
-public import Mathlib.Analysis.Complex.CauchyIntegral
 
 /-!
 # Rigidity of biholomorphic maps
 
-Equality of first jets and circular-domain linearity follow from Cartan's uniqueness
-theorem. The independent analytic step uses Cauchy's derivative formula to
-show that a rotation-equivariant holomorphic map is linear. Equality is asserted on the
-source, not for arbitrary ambient representatives outside it.
-Reference: Scheidemann (2005), Section 3.3.
+Equality of first jets and circular-domain linearity follow from Cartan's uniqueness theorem.
+The independent analytic step uses Cauchy's derivative formula to show that a
+rotation-equivariant holomorphic map is linear. Equality is asserted on the source, not for
+arbitrary ambient representatives outside it. Reference: [Scheidemann][Scheidemann2005] (2005),
+Section 3.3.
 
 ## Main results
 
 `IsBiholomorphic.eqOn_of_value_fderiv_eq` is rigidity from equality of 1-jets.
-`IsBiholomorphic.exists_linearEquiv_of_circular` is linearity of a biholomorphism
-of circular domains fixing the origin. `eqOn_fderiv_of_circle_equivariant` is the
-analytic step that a rotation-equivariant holomorphic map is linear.
+`IsBiholomorphic.exists_linearEquiv_of_circular` is linearity of a biholomorphism of circular
+domains fixing the origin. `eqOn_fderiv_of_circle_equivariant` is the analytic step that a
+rotation-equivariant holomorphic map is linear.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public section
@@ -40,9 +44,9 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [FiniteDimensional ℂ E] [FiniteDimensional ℂ F]
 
 omit [FiniteDimensional ℂ F] in
-/-- Two biholomorphisms with the same source and target are determined by their value
-and derivative at one point of a bounded connected source. Depends on Cartan uniqueness;
-boundedness of the target is unnecessary. -/
+/-- Two biholomorphisms with the same source and target are determined by their value and derivative
+at one point of a bounded connected source. Depends on Cartan uniqueness; boundedness of the
+target is unnecessary. -/
 theorem IsBiholomorphic.eqOn_of_value_fderiv_eq
     {e e' : OpenPartialHomeomorph E F} (he : IsBiholomorphic e) (he' : IsBiholomorphic e')
     (hs : e'.source = e.source) (ht : e'.target = e.target)
@@ -61,7 +65,7 @@ theorem IsBiholomorphic.eqOn_of_value_fderiv_eq
       ((hd' a ha).differentiableAt (e.open_source.mem_nhds ha)), hv, hd]
     exact he.fderiv_symm_comp ha
   have hid := eqOn_id_of_mapsTo_of_fderiv_eq_id e.open_source hc hb
-    (hcomp.analyticOnNhd_finiteDimensional e.open_source)
+    (hcomp.analyticOnNhd_of_finiteDimensional e.open_source)
     (fun x hx => e.symm.map_source (hmem hx)) ha
     (by simp [hv, e.left_inv ha]) hder
   intro x hx
@@ -69,16 +73,16 @@ theorem IsBiholomorphic.eqOn_of_value_fderiv_eq
   simpa only [Function.comp_apply, e.right_inv (hmem hx), id_eq] using h
 
 omit [FiniteDimensional ℂ F] in
-/-- A holomorphic map commuting with complex rotations agrees with its derivative at zero
-on a preconnected neighborhood of zero. Cauchy's derivative formula on scalar slices
-proves local equality, and the identity theorem propagates it. -/
+/-- A holomorphic map commuting with complex rotations agrees with its derivative at zero on a
+preconnected neighborhood of zero. Cauchy's derivative formula on scalar slices proves local
+equality, and the identity theorem propagates it. -/
 theorem eqOn_fderiv_of_circle_equivariant [CompleteSpace F] {U : Set E} (ho : IsOpen U)
     (hc : IsPreconnected U) (hzero : (0 : E) ∈ U) {f : E → F}
     (hf : DifferentiableOn ℂ f U)
     (hrot : ∀ z ∈ U, ∀ c : ℂ, ‖c‖ = 1 → f (c • z) = c • f z) :
     EqOn f (fderiv ℂ f 0) U := by
   obtain ⟨r, hr, hsub⟩ := Metric.mem_nhds_iff.mp (ho.mem_nhds hzero)
-  apply identity_theorem ho hc hf (fderiv ℂ f 0).differentiable.differentiableOn
+  apply eqOn_of_holomorphic_of_eqOn ho hc hf (fderiv ℂ f 0).differentiable.differentiableOn
     isOpen_ball ⟨0, mem_ball_self hr⟩ hsub
   intro z hz
   have hcz (c : ℂ) (hc : c ∈ closedBall 0 1) : c • z ∈ U := by
@@ -110,9 +114,8 @@ theorem eqOn_fderiv_of_circle_equivariant [CompleteSpace F] {U : Set E} (ho : Is
   exact (smul_right_injective F Complex.two_pi_I_ne_zero heq).symm
 
 omit [FiniteDimensional ℂ F] in
-/-- Origin-preserving biholomorphisms of circular domains commute with rotations.
-This follows from Cartan uniqueness on the bounded source; boundedness of the target
-is unnecessary. -/
+/-- Origin-preserving biholomorphisms of circular domains commute with rotations. This follows from
+Cartan uniqueness on the bounded source; boundedness of the target is unnecessary. -/
 theorem IsBiholomorphic.map_smul_of_circular
     {e : OpenPartialHomeomorph E F} (he : IsBiholomorphic e)
     (hc : IsPreconnected e.source) (hb : Bornology.IsBounded e.source)
@@ -142,21 +145,21 @@ theorem IsBiholomorphic.map_smul_of_circular
       simpa [hfix] using (he.symm.differentiableAt (e.map_source hzero)).hasFDerivAt
     simpa [g, Function.comp_def, he.fderiv_symm_comp hzero] using hinv.comp 0 hinner
   have hid := eqOn_id_of_mapsTo_of_fderiv_eq_id e.open_source hc hb
-    (hdiff.analyticOnNhd_finiteDimensional e.open_source)
+    (hdiff.analyticOnNhd_of_finiteDimensional e.open_source)
     (fun x hx => e.symm.map_source (hmem hx)) hzero
     (by simp [g, hfix, hi0]) hd.fderiv
   have heq : c⁻¹ • e (c • z) = e z := by
     simpa only [g, e.right_inv (hmem hz), id_eq] using congrArg e (hid hz)
   simpa [hcn] using congrArg (fun y : F => c • y) heq
 
-/-- An origin-preserving biholomorphism between bounded circular domains agrees with an
+/-- An origin-preserving biholomorphism between circular domains with bounded source agrees with an
 invertible complex-linear map. Cartan uniqueness gives rotation equivariance, and Cauchy's
-derivative formula eliminates the nonlinear terms. Zero-dimensional spaces
-are included; membership of zero supplies nonemptiness. -/
+derivative formula eliminates the nonlinear terms. Zero-dimensional spaces are included;
+membership of zero supplies nonemptiness. -/
 theorem IsBiholomorphic.exists_linearEquiv_of_circular
     {e : OpenPartialHomeomorph E F} (he : IsBiholomorphic e)
     (hc : IsPreconnected e.source) (hb : Bornology.IsBounded e.source)
-    (_hb' : Bornology.IsBounded e.target) (hrot : IsCircular e.source)
+    (hrot : IsCircular e.source)
     (hrot' : IsCircular e.target) (hzero : (0 : E) ∈ e.source) (hfix : e 0 = 0) :
       ∃ L : E ≃L[ℂ] F, EqOn e L e.source := by
   let := FiniteDimensional.complete ℂ F

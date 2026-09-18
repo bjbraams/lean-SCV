@@ -5,36 +5,43 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.HolomorphicConvexity.BoundaryDistance
-public import Mathlib.Analysis.Normed.Module.Connected
 public import Mathlib.Analysis.Normed.Module.Ball.Pointwise
+public import Mathlib.Analysis.Normed.Module.Connected
+public import Mathlib.Analysis.Normed.Module.HahnBanach
 public import SeveralComplexVariables.DomainOfHolomorphy
+public import SeveralComplexVariables.HolomorphicConvexity.BoundaryDistance
 public import SeveralComplexVariables.PolydiscTaylor
 public import SeveralComplexVariables.PowerSeriesConvergence.Analytic
-public import Mathlib.Analysis.Normed.Module.HahnBanach
 
 /-!
 # Thullen's lemma and the boundary distance of holomorphic hulls
 
-Cauchy bounds on compact families of smaller balls control Taylor coefficients weighted
-by powers of a scalar holomorphic radius. These bounds transfer to the holomorphic hull,
-for Banach-valued functions by norming functionals, and give Taylor continuation on the
-indicated polydisc. Agreement is asserted near the center, not on unrelated components of
-the overlap. This proves radius preservation, exact hull boundary distance, and holomorphic
-convexity for domains of holomorphy.
+Cauchy bounds on compact families of smaller balls control Taylor coefficients weighted by
+powers of a scalar holomorphic radius. These bounds transfer to the holomorphic hull, for
+Banach-valued functions by norming functionals, and give Taylor continuation on the indicated
+polydisc. Agreement is asserted near the center, not on unrelated components of the overlap.
+This proves radius preservation, exact hull boundary distance, and holomorphic convexity for
+domains of holomorphy.
 
-References: Scheidemann §6.2 and §7.3; Hörmander §2.5; Korevaar–Wiegerinck §6.4.
+References: [Scheidemann][Scheidemann2005] §6.2 and §7.3; [Hörmander][Hormander1973] §2.5;
+[Korevaar–Wiegerinck][KorevaarWiegerinck2017] §6.4.
 
 ## Main results
 
 `taylor_continuation_on_holomorphicHull` is Thullen's Taylor continuation lemma for
-Banach-valued functions. `IsDomainOfHolomorphy.holomorphic_radius_bound` is the
-weighted radius bound. `IsDomainOfHolomorphy.hasHolomorphicHullRadiusProperty` and
+Banach-valued functions. `IsDomainOfHolomorphy.holomorphic_radius_bound` is the weighted radius
+bound. `IsDomainOfHolomorphy.hasHolomorphicHullRadiusProperty` and
 `hasHolomorphicHullDistanceProperty` are the hull-radius and boundary-distance forms.
 `IsDomainOfHolomorphy.isHolomorphicallyConvex` is the forward Cartan–Thullen implication.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology ENNReal Pointwise
@@ -43,34 +50,27 @@ namespace SeveralComplexVariables
 
 variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- Mixed derivative bounds transfer to the holomorphic hull of the set on which they
-hold, for Banach-valued functions. This elementary step is independent of the Taylor
-continuation theorem. -/
+/-- Mixed derivative bounds transfer to the holomorphic hull of the set on which they hold, for
+Banach-valued functions. This elementary step is independent of the Taylor continuation theorem. -/
 theorem norm_multiIndexDeriv_le_on_holomorphicHull {U K : Set (Fin n → ℂ)}
     (ho : IsOpen U) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U)
     (m : Fin n → ℕ) {M : ℝ} (hM : ∀ z ∈ K, ‖multiIndexDeriv m f z‖ ≤ M) :
     ∀ z ∈ holomorphicHull U K, ‖multiIndexDeriv m f z‖ ≤ M :=
   norm_le_on_holomorphicHull_vector (hf.iteratedPartialDeriv ho (multiIndexList m)) hM
 
-/-- The Taylor sum of a Banach-valued function centered at an arbitrary point, using the
-normalized multivariate Taylor coefficients. -/
-def taylorSumAt (f : (Fin n → ℂ) → F) (a z : Fin n → ℂ) : F :=
+/-- The Taylor sum of a Banach-valued function centered at an arbitrary point, using the normalized
+multivariate Taylor coefficients. -/
+@[expose] def taylorSumAt (f : (Fin n → ℂ) → F) (a z : Fin n → ℂ) : F :=
   powerSeriesSum (holomorphicTaylorSeries f a) (z - a)
 
 omit [CompleteSpace F] in
 /-- Separate analyticity on a closed polydisc from joint analyticity. -/
 theorem analyticAt_update_of_analyticOnNhd_closedPolydisc {f : (Fin n → ℂ) → F}
-    {a : Fin n → ℂ} {r : ℝ} (hA : AnalyticOnNhd ℂ f (closedPolydiscWithRadii a (fun _ => r))) :
-    ∀ z ∈ closedPolydiscWithRadii a (fun _ => r), ∀ i,
+    {a : Fin n → ℂ} {r : ℝ} (hA : AnalyticOnNhd ℂ f (closedPolydisc a (fun _ => r))) :
+    ∀ z ∈ closedPolydisc a (fun _ => r), ∀ i,
       AnalyticAt ℂ (fun v => f (Function.update z i v)) (z i) := by
   intro z hz i
-  convert hA.analyticAt_update hz i using 1
-  funext v
-  congr 1
-  funext j
-  by_cases hj : j = i
-  · subst j; simp
-  · simp [Function.update, hj]
+  exact hA.analyticAt_update hz i
 
 /-- A bound on a closed coordinate ball bounds each normalized Taylor coefficient. -/
 theorem norm_taylorCoeff_le {U : Set (Fin n → ℂ)}
@@ -78,9 +78,9 @@ theorem norm_taylorCoeff_le {U : Set (Fin n → ℂ)}
     {a : Fin n → ℂ} {r M : ℝ} (hr : 0 < r) (hball : closedBall a r ⊆ U)
     (hM : ∀ z ∈ closedBall a r, ‖f z‖ ≤ M) (m : Fin n →₀ ℕ) :
     ‖holomorphicTaylorSeries f a m‖ ≤ M * ∏ i, r⁻¹ ^ m i := by
-  have he : closedPolydiscWithRadii a (fun _ => r) = closedBall a r := by
-    rw [closedPolydiscWithRadii_const, closedPolydisc_eq_closedBall hr.le]
-  have hA : AnalyticOnNhd ℂ f (closedPolydiscWithRadii a (fun _ => r)) :=
+  have he : closedPolydisc a (fun _ => r) = closedBall a r := by
+    rw [closedPolydisc_eq_closedBall hr.le]
+  have hA : AnalyticOnNhd ℂ f (closedPolydisc a (fun _ => r)) :=
     hf.mono (he ▸ hball)
   rw [coeff_holomorphicTaylorSeries (fun _ => hr) hA.continuousOn
     (analyticAt_update_of_analyticOnNhd_closedPolydisc hA)]
@@ -94,10 +94,10 @@ theorem taylorSumAt_eventuallyEq {f : (Fin n → ℂ) → F} {a : Fin n → ℂ}
     (show ‖f a‖ < ‖f a‖ + 1 by linarith)
   obtain ⟨r, hr, hball⟩ := Metric.mem_nhds_iff.mp (hf.eventually_analyticAt.and hb)
   have hr₂ : 0 < r / 2 := half_pos hr
-  have hsub : closedPolydiscWithRadii a (fun _ => r / 2) ⊆ ball a r := by
-    rw [closedPolydiscWithRadii_const, closedPolydisc_eq_closedBall hr₂.le]
+  have hsub : closedPolydisc a (fun _ => r / 2) ⊆ ball a r := by
+    rw [closedPolydisc_eq_closedBall hr₂.le]
     exact closedBall_subset_ball (half_lt_self hr)
-  have hA : AnalyticOnNhd ℂ f (closedPolydiscWithRadii a (fun _ => r / 2)) :=
+  have hA : AnalyticOnNhd ℂ f (closedPolydisc a (fun _ => r / 2)) :=
     fun z hz => (hball (hsub hz)).1
   have hs := analyticAt_update_of_analyticOnNhd_closedPolydisc hA
   filter_upwards [ball_mem_nhds a hr₂] with z hz
@@ -257,8 +257,8 @@ theorem exists_continuation_ball_of_mem_holomorphicHull {U K : Set (Fin n → �
     (q := fun _ => (r : ℂ)) analyticOnNhd_const hf (by simpa only [hnorm] using hball) ha
   exact ⟨taylorSumAt f a, by simpa only [hnorm] using h.1, h.2.1⟩
 
-/-- On a domain of holomorphy, a ball supporting continuation of every germ at its center
-must lie in the domain. The overlap is chosen uniformly, independently of the function. -/
+/-- On a domain of holomorphy, a ball supporting continuation of every germ at its center must lie
+in the domain. The overlap is chosen uniformly, independently of the function. -/
 theorem IsDomainOfHolomorphy.ball_subset_of_continuation {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) {a : Fin n → ℂ} (ha : a ∈ U)
     {r : ℝ} (hr : 0 < r)
@@ -275,8 +275,8 @@ theorem IsDomainOfHolomorphy.ball_subset_of_continuation {U : Set (Fin n → ℂ
   exact ⟨g, hg, (hg.mono hWV).eqOn_of_preconnected_of_eventuallyEq
     (hf.mono hWU) isPreconnected_ball haW heq⟩
 
-/-- A domain of holomorphy preserves every radius bound supplied by a holomorphic
-function on a compact set, by Thullen's continuation lemma. -/
+/-- A domain of holomorphy preserves every radius bound supplied by a holomorphic function on a
+compact set, by Thullen's continuation lemma. -/
 theorem IsDomainOfHolomorphy.holomorphic_radius_bound {U K : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) (hK : IsCompact K) (hKU : K ⊆ U)
     {q : (Fin n → ℂ) → ℂ} (hq : AnalyticOnNhd ℂ q U)
@@ -297,16 +297,30 @@ theorem IsDomainOfHolomorphy.hasHolomorphicHullRadiusProperty {U : Set (Fin n �
   exact hU.ball_subset_of_continuation ho ha.1 hr fun _ hf =>
     exists_continuation_ball_of_mem_holomorphicHull ho hK hKU hr hball ha hf
 
-/-- The boundary distance of a compact holomorphic hull equals that of the original
-compact set in a domain of holomorphy. -/
+/-- The boundary distance of a compact holomorphic hull equals that of the original compact set in a
+domain of holomorphy. -/
 theorem IsDomainOfHolomorphy.hasHolomorphicHullDistanceProperty {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : HasHolomorphicHullDistanceProperty U :=
   (hU.hasHolomorphicHullRadiusProperty ho).hasHolomorphicHullDistanceProperty
 
 /-- **Cartan–Thullen, forward implication.** A domain of holomorphy is holomorphically
-convex, by Thullen's Taylor continuation lemma and the hull-radius criterion. -/
-theorem IsDomainOfHolomorphy.isHolomorphicallyConvex {U : Set (Fin n → ℂ)}
+convex, by Thullen's Taylor continuation lemma and the hull-radius criterion. This coordinate
+case supplies the proof for general finite-dimensional spaces below. -/
+private theorem IsDomainOfHolomorphy.isHolomorphicallyConvex_fin {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : IsHolomorphicallyConvex U :=
   (hU.hasHolomorphicHullRadiusProperty ho).isHolomorphicallyConvex ho
+
+/-- **Cartan–Thullen, forward implication.** An open domain of holomorphy in any
+finite-dimensional complex normed space is holomorphically convex. Linear transport of hull
+compactness is used here; no invariance of numerical boundary distance is asserted. -/
+theorem IsDomainOfHolomorphy.isHolomorphicallyConvex
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
+    {U : Set E} (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) :
+    IsHolomorphicallyConvex U := by
+  let L := (Module.finBasis ℂ E).equivFunL
+  have h := (hU.image_equiv L).isHolomorphicallyConvex_fin
+    (L.toHomeomorph.isOpenMap U ho)
+  simpa only [Set.image_image, Function.comp_def, L.symm_apply_apply, Set.image_id'] using
+    h.image_equiv L.symm
 
 end SeveralComplexVariables

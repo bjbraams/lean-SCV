@@ -5,29 +5,49 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Reinhardt
-public import Mathlib.RingTheory.MvPowerSeries.Basic
 public import Mathlib.Analysis.Normed.Group.InfiniteSum
+public import Mathlib.RingTheory.MvPowerSeries.Basic
+public import SeveralComplexVariables.Reinhardt
 
 /-!
 # Domains of absolute convergence of multivariable power series
 
-For coefficients indexed by Mathlib's finitely supported multi-indices, the absolute
-convergence set records summability of the norms of the individual monomial terms. Its
-interior is the convergence domain, following Boas (2013), Sections 2.1--2.2. Boundary
-convergence is deliberately not included in the definition of the domain.
+For coefficients indexed by Mathlib's finitely supported multi-indices, the absolute convergence
+set records summability of the norms of the individual monomial terms. Its interior is the
+convergence domain, following [Boas][Boas2013] (2013), Sections 2.1--2.2. Boundary convergence
+is deliberately not included in the definition of the domain.
 
-The absolute-convergence set and its interior are complete Reinhardt and logarithmically
-convex. The proofs apply to normed-group-valued coefficients; a complex Banach target is
-needed only to deduce summability of the actual vector-valued terms. Convexity follows by
-comparing terms at logarithmic interpolates with arithmetic averages, using convexity of exp.
+The absolute-convergence set and its interior are complete Reinhardt and logarithmically convex.
+The proofs apply to normed-group-valued coefficients; a complex Banach target is needed only to
+deduce summability of the actual vector-valued terms. Convexity follows by comparing terms at
+logarithmic interpolates with arithmetic averages, using convexity of exp.
 
-The existence converse is proved in `SeveralComplexVariables.PowerSeriesConvergence`.
-Empty coordinate index types are included; nonemptiness is required of a prescribed
-domain, but a general series may have empty convergence domain.
+The existence converse is proved in `SeveralComplexVariables.PowerSeriesConvergence`. Empty
+coordinate index types are included; nonemptiness is required of a prescribed domain, but a
+general series may have empty convergence domain.
+
+## Main definitions
+
+* `powerSeriesAbsConvergenceSet`: The absolute-convergence set of a power series centred at zero.
+* `powerSeriesConvergenceDomain`: The convergence domain is the interior of the absolute-convergence
+  set.
+
+## Main results
+
+* `isOpen_powerSeriesConvergenceDomain`: A power-series convergence domain is open by definition,
+  and may be empty.
+* `isCompleteReinhardt_powerSeriesConvergenceDomain`: The convergence domain is complete Reinhardt,
+  including at coordinate hyperplanes.
+* `isLogarithmicallyConvex_powerSeriesConvergenceDomain`: The interior of the absolute-convergence
+  set is logarithmically convex.
+* `isPathConnected_powerSeriesConvergenceDomain`: A nonempty convergence domain is path connected.
+
+## References
+
+* [H. P. Boas, *Lecture Notes on Several Complex Variables*][Boas2013]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set
 open scoped BigOperators
@@ -36,13 +56,13 @@ namespace SeveralComplexVariables
 
 variable {ι E : Type*} [Fintype ι] [NormedAddCommGroup E]
 
-/-- The absolute-convergence set of a power series centred at zero. The product records the
-norm of the monomial, so no scalar action or completeness of the coefficient space is needed. -/
-def powerSeriesAbsConvergenceSet (c : MvPowerSeries ι E) : Set (ι → ℂ) :=
+/-- The absolute-convergence set of a power series centred at zero. The product records the norm of
+the monomial, so no scalar action or completeness of the coefficient space is needed. -/
+@[expose] def powerSeriesAbsConvergenceSet (c : MvPowerSeries ι E) : Set (ι → ℂ) :=
   {z | Summable (fun m : ι →₀ ℕ => ‖c m‖ * ∏ i, ‖z i‖ ^ m i)}
 
 /-- The convergence domain is the interior of the absolute-convergence set. -/
-def powerSeriesConvergenceDomain (c : MvPowerSeries ι E) : Set (ι → ℂ) :=
+@[expose] def powerSeriesConvergenceDomain (c : MvPowerSeries ι E) : Set (ι → ℂ) :=
   interior (powerSeriesAbsConvergenceSet c)
 
 /-- For complex normed coefficients the defining summability condition is exactly absolute
@@ -53,8 +73,8 @@ theorem mem_powerSeriesAbsConvergenceSet_iff [NormedSpace ℂ E]
       Summable (fun m : ι →₀ ℕ => ‖(∏ i, z i ^ m i) • c m‖) := by
   simp [powerSeriesAbsConvergenceSet, norm_smul, norm_prod, norm_pow, mul_comm]
 
-/-- Every formal series converges absolutely at zero, since only its constant term survives.
-This does not assert that its convergence domain is nonempty. -/
+/-- Every formal series converges absolutely at zero, since only its constant term survives. This
+does not assert that its convergence domain is nonempty. -/
 theorem zero_mem_powerSeriesAbsConvergenceSet (c : MvPowerSeries ι E) :
     0 ∈ powerSeriesAbsConvergenceSet c := by
   classical
@@ -107,8 +127,8 @@ theorem prod_norm_exp_pow (x : ι → ℝ) (m : ι →₀ ℕ) :
     (∏ i, ‖(Real.exp (x i) : ℂ)‖ ^ m i) = Real.exp (∑ i, (m i : ℝ) * x i) := by
   simp [Real.exp_sum, Real.exp_nat_mul]
 
-/-- Absolute convergence has a convex logarithmic image, by termwise convexity of exp
-and comparison of nonnegative series. -/
+/-- Absolute convergence has a convex logarithmic image, by termwise convexity of exp and comparison
+of nonnegative series. -/
 theorem isLogarithmicallyConvex_powerSeriesAbsConvergenceSet (c : MvPowerSeries ι E) :
     IsLogarithmicallyConvex (powerSeriesAbsConvergenceSet c) := by
   intro x hx y hy a b ha hb hab
@@ -142,8 +162,8 @@ theorem isLogarithmicallyConvex_powerSeriesConvergenceDomain (c : MvPowerSeries 
   (isLogarithmicallyConvex_powerSeriesAbsConvergenceSet c).interior
     (isCompleteReinhardt_powerSeriesAbsConvergenceSet c)
 
-/-- Absolute convergence implies summability of the vector-valued monomial terms in a
-complex Banach space. -/
+/-- Absolute convergence implies summability of the vector-valued monomial terms in a complex Banach
+space. -/
 theorem summable_powerSeriesTerms [NormedSpace ℂ E] [CompleteSpace E]
     {c : MvPowerSeries ι E} {z : ι → ℂ} (hz : z ∈ powerSeriesAbsConvergenceSet c) :
     Summable (fun m : ι →₀ ℕ => (∏ i, z i ^ m i) • c m) := by
@@ -157,8 +177,8 @@ theorem summable_powerSeriesTerms [NormedSpace ℂ E] [CompleteSpace E]
   have hz (m : ι →₀ ℕ) : (0 : MvPowerSeries ι E) m = 0 := rfl
   simp [powerSeriesConvergenceDomain, powerSeriesAbsConvergenceSet, hz]
 
-/-- With no coordinates, every series has the whole singleton coordinate space as its
-convergence domain. -/
+/-- With no coordinates, every series has the whole singleton coordinate space as its convergence
+domain. -/
 theorem powerSeriesConvergenceDomain_of_isEmpty [IsEmpty ι] (c : MvPowerSeries ι E) :
     powerSeriesConvergenceDomain c = univ := by
   have h : powerSeriesAbsConvergenceSet c = univ := by

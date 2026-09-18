@@ -10,19 +10,18 @@ public import SeveralComplexVariables.LaurentSeries.Iterated
 /-!
 # Laurent coefficients on products of circular domains
 
-Circle coefficients are analytic in the remaining coordinates. Iteration therefore
-proves independence of the coordinate radii on products of connected circular domains.
+Circle coefficients are analytic in the remaining coordinates. Iteration therefore proves
+independence of the coordinate radii on products of connected circular domains.
 
 ## Main results
 
-`analyticOnNhd_circleLaurentCoeff_cons` is holomorphy of a circle coefficient in the
-remaining coordinates. `multivariableLaurentCoeff_eq_on_product` is independence of
-radii on a product of connected circular domains.
-`multivariableLaurentCoeff_neg_on_product` vanishes negative exponents in a factor
-that is a disc.
+`analyticOnNhd_circleLaurentCoeff_cons` is holomorphy of a circle coefficient in the remaining
+coordinates. `multivariableLaurentCoeff_eq_on_product` is independence of radii on a product of
+connected circular domains. `multivariableLaurentCoeff_neg_on_product` vanishes negative
+exponents in a factor that is a disc.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set Metric Function
 open scoped Real Topology
@@ -85,7 +84,7 @@ theorem multivariableLaurentCoeff_eq_on_product {V : Fin n → Set ℂ}
   | succ n ih =>
     have hcont (t : Fin (n + 1) → ℝ) (ht : ∀ i, 0 < t i) (htV : ∀ i, (t i : ℂ) ∈ V i) :
         Continuous (fun θ => f (torusMap 0 t θ)) :=
-      hf.continuousOn.comp_continuous (continuous_torusMapWithRadii 0 t)
+      hf.continuousOn.comp_continuous (continuous_torusMap 0 t)
         (torusMap_mem_product hrot ht htV)
     funext m
     rw [multivariableLaurentCoeff_succ hs (hcont s hs hsV),
@@ -125,7 +124,7 @@ theorem multivariableLaurentCoeff_neg_on_product {V : Fin n → Set ℂ}
   | zero => exact Fin.elim0 i
   | succ n ih =>
     have hcont : Continuous (fun θ => f (torusMap 0 r θ)) :=
-      hf.continuousOn.comp_continuous (continuous_torusMapWithRadii 0 r)
+      hf.continuousOn.comp_continuous (continuous_torusMap 0 r)
         (torusMap_mem_product hrot hr hrV)
     rw [multivariableLaurentCoeff_succ hr hcont]
     cases i using Fin.cases with

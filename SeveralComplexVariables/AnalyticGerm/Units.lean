@@ -5,24 +5,24 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.AnalyticGerm
 public import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
+public import SeveralComplexVariables.AnalyticGerm
 
 /-!
 # Roots of unit germs
 
-Every scalar analytic unit germ has an analytic root of each positive integral degree.
-We normalize the value to one before using Mathlib's analytic complex power function;
-no global choice of logarithm on the domain is required. These elementary local facts
-are used, for example, when absorbing units into irreducible factorizations.
+Every scalar analytic unit germ has an analytic root of each positive integral degree. We
+normalize the value to one before using Mathlib's analytic complex power function; no global
+choice of logarithm on the domain is required. These elementary local facts are used, for
+example, when absorbing units into irreducible factorizations.
 
 ## Main results
 
-`exists_isUnit_pow_eq` produces an analytic unit root of each positive integral
-degree. `exists_analyticAt_pow_eq` is the corresponding statement for representatives.
+`exists_isUnit_pow_eq` produces an analytic unit root of each positive integral degree.
+`exists_analyticAt_pow_eq` is the corresponding statement for representatives.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Filter
 open scoped Topology
@@ -45,8 +45,8 @@ theorem exists_analyticAt_pow_eq {f : E → ℂ} (hf : AnalyticAt ℂ f x)
     exact mul_div_cancel₀ _ hx
 
 /-- Every unit germ has an `n`-th root which is itself a unit, for `n ≠ 0`. -/
-theorem exists_isUnit_pow_eq (u : AnalyticGerm x) (hu : IsUnit u)
-    {n : ℕ} (hn : n ≠ 0) : ∃ v : AnalyticGerm x, IsUnit v ∧ v ^ n = u := by
+theorem exists_isUnit_pow_eq (u : AnalyticGerm ℂ x) (hu : IsUnit u)
+    {n : ℕ} (hn : n ≠ 0) : ∃ v : AnalyticGerm ℂ x, IsUnit v ∧ v ^ n = u := by
   obtain ⟨f, hf, rfl⟩ := exists_rep u
   obtain ⟨g, hg, he⟩ := exists_analyticAt_pow_eq hf ((isUnit_iff _).mp hu) hn
   have hp : ofAnalyticAt g hg ^ n = ofAnalyticAt f hf := by

@@ -12,25 +12,42 @@ public import SeveralComplexVariables.SeparateAnalytic.FiberExtension
 /-!
 # Separate analyticity
 
-Hartogs' theorem asserts joint analyticity from analyticity of all coordinate slices,
-without continuity or local boundedness assumptions. The versions with those extra
-hypotheses are proved in `Osgood` and `LocallyBounded`.
+Hartogs' theorem asserts joint analyticity from analyticity of all coordinate slices, without
+continuity or local boundedness assumptions. The versions with those extra hypotheses are proved
+in `Osgood` and `LocallyBounded`.
 
-The proof is by induction on the number of coordinates. One coordinate is split off as a
-fiber variable. Baire's theorem and the locally bounded Osgood theorem give joint
-analyticity on a thin cylinder whose fiber disc is close to the given point. Hartogs'
-fiber extension lemma, which rests on Hartogs' growth lemma for roots of the fiber
-Taylor coefficients, then gives a local bound at the given point. The locally bounded
-Osgood theorem completes the induction step.
+The proof is by induction on the number of coordinates. One coordinate is split off as a fiber
+variable. Baire's theorem and the locally bounded Osgood theorem give joint analyticity on a
+thin cylinder whose fiber disc is close to the given point. Hartogs' fiber extension lemma,
+which rests on Hartogs' growth lemma for roots of the fiber Taylor coefficients, then gives a
+local bound at the given point. The locally bounded Osgood theorem completes the induction step.
 
-References: Boas (2013), Section 2.4; Hörmander (1973), Theorem 2.2.8;
-Jakóbczak--Jarnicki (2021), Theorem 1.5.1.
+References: [Boas][Boas2013] (2013), Section 2.4; [Hörmander][Hormander1973] (1973), Theorem
+2.2.8; [Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Theorem 1.5.1.
+
+## Main definitions
+
+* `optionSplit`: Splitting off the `none` coordinate of a finite coordinate space as the fiber
+  variable.
+
+## Main results
+
+* `analyticOnNhd_of_separately_analytic`: **Hartogs' separate-holomorphy theorem.** On an open
+  finite complex coordinate domain, analyticity of every coordinate slice implies joint analyticity,
+  with no continuity or local boundedness hypothesis.
+
+## References
+
+* [H. P. Boas, *Lecture Notes on Several Complex Variables*][Boas2013]
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Function Metric Set Filter
-open scoped Classical Topology
+open scoped Topology
 
 namespace SeveralComplexVariables
 
@@ -38,20 +55,22 @@ variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F
 
 section Split
 
-variable (κ : Type*) [Fintype κ]
+variable (κ : Type*) [Fintype κ] [DecidableEq κ]
 
-/-- Splitting off the `none` coordinate of a finite coordinate space as the fiber
-variable. The remaining coordinates form the base. -/
-def optionSplit : (Option κ → ℂ) ≃L[ℂ] (κ → ℂ) × ℂ :=
+/-- Splitting off the `none` coordinate of a finite coordinate space as the fiber variable. The
+remaining coordinates form the base. -/
+@[expose] def optionSplit : (Option κ → ℂ) ≃L[ℂ] (κ → ℂ) × ℂ :=
   ((LinearEquiv.piOptionEquivProd ℂ (M := fun _ : Option κ => ℂ)).trans
     (LinearEquiv.prodComm ℂ ℂ (κ → ℂ))).toContinuousLinearEquiv
 
 variable {κ}
 
+omit [DecidableEq κ] in
 /-- The splitting map records the base coordinates and the fiber coordinate. -/
 theorem optionSplit_apply (z : Option κ → ℂ) :
     optionSplit κ z = (fun i => z (some i), z none) := rfl
 
+omit [DecidableEq κ] in
 /-- The inverse splitting map reassembles a point from base and fiber coordinates. -/
 theorem optionSplit_symm_apply (z' : κ → ℂ) (w : ℂ) :
     (optionSplit κ).symm (z', w) = fun o => o.elim w z' := by
@@ -76,6 +95,7 @@ theorem optionSplit_symm_update_some (z' : κ → ℂ) (w v : ℂ) (i : κ) :
   | none => simp
   | some j => by_cases hji : j = i <;> simp [hji, update]
 
+omit [DecidableEq κ] in
 /-- Closed balls in the product coordinates are products of closed balls. -/
 theorem optionSplit_symm_mem_closedBall {c : Option κ → ℂ} {R : ℝ} (hR : 0 ≤ R)
     (z' : κ → ℂ) (w : ℂ) :
@@ -91,9 +111,9 @@ theorem optionSplit_symm_mem_closedBall {c : Option κ → ℂ} {R : ℝ} (hR : 
 
 end Split
 
-/-- The induction step of Hartogs' theorem: one further coordinate. The hypothesis is
-Hartogs' theorem for the coordinate type `κ`. -/
-theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ]
+/-- The induction step of Hartogs' theorem: one further coordinate. The hypothesis is Hartogs'
+theorem for the coordinate type `κ`. -/
+theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ] [DecidableEq κ]
     (ih : ∀ {U : Set (κ → ℂ)} {g : (κ → ℂ) → F}, IsOpen U →
       (∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => g (update z i w)) (z i)) → AnalyticOnNhd ℂ g U)
     {U : Set (Option κ → ℂ)} {f : (Option κ → ℂ) → F} (hU : IsOpen U)
@@ -189,8 +209,8 @@ theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ]
 
 omit [CompleteSpace F] in
 /-- Hartogs' theorem transports along a bijection of coordinate types. -/
-theorem analyticOnNhd_of_separately_analytic_of_equiv {α β : Type*} [Fintype α] [Fintype β]
-    (e : α ≃ β)
+theorem analyticOnNhd_of_separately_analytic_of_equiv {α β : Type*}
+    [Fintype α] [DecidableEq α] [Fintype β] [DecidableEq β] (e : α ≃ β)
     (hα : ∀ {U : Set (α → ℂ)} {g : (α → ℂ) → F}, IsOpen U →
       (∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => g (update z i w)) (z i)) → AnalyticOnNhd ℂ g U)
     {U : Set (β → ℂ)} {f : (β → ℂ) → F} (hU : IsOpen U)
@@ -225,22 +245,26 @@ theorem analyticOnNhd_of_separately_analytic_of_equiv {α β : Type*} [Fintype �
 analyticity of every coordinate slice implies joint analyticity, with no continuity or local
 boundedness hypothesis. Empty and singleton coordinate types are included. -/
 theorem analyticOnNhd_of_separately_analytic
-    {ι : Type*} [Fintype ι] {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}
+    {ι : Type*} [Fintype ι] [DecidableEq ι] {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}
     (hU : IsOpen U)
     (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) :
     AnalyticOnNhd ℂ f U := by
-  revert U f
+  suffices H : ∀ [DecidableEq ι] {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}, IsOpen U →
+      (∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) → AnalyticOnNhd ℂ f U from
+    H hU hf
   refine Fintype.induction_empty_option
-    (P := fun ι _ => ∀ {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}, IsOpen U →
+    (P := fun ι _ => ∀ [DecidableEq ι] {U : Set (ι → ℂ)} {f : (ι → ℂ) → F}, IsOpen U →
       (∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) → AnalyticOnNhd ℂ f U)
     ?_ ?_ ?_ ι
-  · intro α β _ e hα U f hU hf
+  · intro α β _ e hα _ U f hU hf
+    classical
     let _ : Fintype α := Fintype.ofEquiv β e.symm
     exact analyticOnNhd_of_separately_analytic_of_equiv e (fun hU hf => hα hU hf) hU hf
-  · intro U f hU hf
+  · intro _ U f hU hf
     exact analyticOnNhd_of_separately_analytic_locally_bounded hU hf fun c _ =>
       ⟨‖f c‖, .of_forall fun z => by rw [Subsingleton.elim z c]⟩
-  · intro α _ ih U f hU hf
+  · intro α _ ih _ U f hU hf
+    classical
     exact analyticOnNhd_of_separately_analytic_option (fun hU hf => ih hU hf) hU
       (fun z hz i => by convert hf z hz i)
 

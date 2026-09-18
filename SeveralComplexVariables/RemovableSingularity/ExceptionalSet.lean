@@ -10,22 +10,27 @@ public import SeveralComplexVariables.RemovableSingularity
 /-!
 # Riemann extension across locally contained exceptional sets
 
-An exceptional set is locally contained in analytic zero sets if near each point
-of the open domain it lies in the zero set of a nonzero scalar analytic germ.
-This is the condition called “thin” in Jakóbczak–Jarnicki §2.1. Closedness is a
-separate assumption, expressed by openness of the complement within the open domain.
-Subsets and finite unions satisfy the local containment condition.
+An exceptional set is locally contained in analytic zero sets if near each point of the open
+domain it lies in the zero set of a nonzero scalar analytic germ. This is the condition called
+“thin” in [Jakóbczak–Jarnicki][JakobczakJarnicki2021] §2.1. Closedness is a separate assumption,
+expressed by openness of the complement within the open domain. Subsets and finite unions
+satisfy the local containment condition.
 
-Locally bounded Banach-valued analytic functions extend uniquely across such sets.
-The proof restricts to a locally containing zero set, applies Riemann extension,
-then recovers agreement on the larger original domain by density and continuity.
+Locally bounded Banach-valued analytic functions extend uniquely across such sets. The proof
+restricts to a locally containing zero set, applies Riemann extension, then recovers agreement
+on the larger original domain by density and continuity.
 
 ## Main results
 
-`LocallyContainedInAnalyticZeroSet` is the thinness predicate: near every point of
-the open domain, the set lies in a proper scalar analytic zero set.
-`exists_analyticOnNhd_extension_across_locallyContainedZeroSet` is Riemann extension
-across such a set for locally bounded Banach-valued maps.
+`LocallyContainedInAnalyticZeroSet` is the thinness predicate: near every point of the open domain,
+the set lies in a proper scalar analytic zero set.
+`exists_analyticOnNhd_extension_across_locallyContainedZeroSet` is Riemann extension across such a
+set for locally bounded Banach-valued maps.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
 public section
@@ -37,11 +42,20 @@ namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- Near every point of `U`, the set `S` lies in the zero set of a nonzero scalar
-analytic germ. This predicate does not impose relative closedness or connectedness. -/
+/-- Near every point of `U`, the set `S` lies in the zero set of a nonzero scalar analytic germ. The
+local neighborhoods imply openness of `U`; relative closedness of `S` and connectedness are not
+imposed. -/
 @[expose] def LocallyContainedInAnalyticZeroSet (U S : Set E) : Prop :=
   ∀ a ∈ U, ∃ (V : Set E) (g : E → ℂ), IsOpen V ∧ a ∈ V ∧ V ⊆ U ∧
     AnalyticOnNhd ℂ g V ∧ (¬ g =ᶠ[𝓝 a] 0) ∧ V ∩ S ⊆ g ⁻¹' {0}
+
+/-- Local containment provides an open neighborhood inside the ambient domain at every point. -/
+theorem LocallyContainedInAnalyticZeroSet.isOpen {U S : Set E}
+    (h : LocallyContainedInAnalyticZeroSet U S) : IsOpen U := by
+  rw [isOpen_iff_mem_nhds]
+  intro a ha
+  obtain ⟨V, g, hV, haV, hVU, _⟩ := h a ha
+  exact Filter.mem_of_superset (hV.mem_nhds haV) hVU
 
 /-- A subset inherits local containment in analytic zero sets. -/
 theorem LocallyContainedInAnalyticZeroSet.mono {U S T : Set E}
@@ -60,8 +74,8 @@ theorem locallyContainedInAnalyticZeroSet_empty {U : Set E} (hU : IsOpen U) :
   have he := h.self_of_nhds
   simp at he
 
-/-- The union of two locally contained exceptional sets is locally contained, using
-the product of their local defining functions. -/
+/-- The union of two locally contained exceptional sets is locally contained, using the product of
+their local defining functions. -/
 theorem LocallyContainedInAnalyticZeroSet.union {U S T : Set E}
     (hS : LocallyContainedInAnalyticZeroSet U S) (hT : LocallyContainedInAnalyticZeroSet U T) :
     LocallyContainedInAnalyticZeroSet U (S ∪ T) := by
@@ -97,8 +111,8 @@ theorem LocallyContainedInAnalyticZeroSet.subset_closure {U S : Set E}
   · exact False.elim (not_lt_of_ge (hnone z ⟨hVU hz, hzs⟩)
       (by simpa [dist_comm] using hzr))
 
-/-- Extensions across a locally contained exceptional set are unique on the domain,
-with no assumptions on their values outside the domain. -/
+/-- Extensions across a locally contained exceptional set are unique on the domain, with no
+assumptions on their values outside the domain. -/
 theorem LocallyContainedInAnalyticZeroSet.extension_unique
     {F : Type*} [TopologicalSpace F] [T2Space F] {U S : Set E}
     (h : LocallyContainedInAnalyticZeroSet U S) {f f₁ f₂ : E → F}
@@ -111,7 +125,7 @@ is expressed by `IsOpen (U \ S)`. Local bounds control values on the complement.
 The domain may be disconnected and the target may be any complex Banach space. -/
 theorem exists_analyticOnNhd_extension_across_locallyContainedZeroSet
     [FiniteDimensional ℂ E] {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
-    [CompleteSpace F] {U S : Set E} (_hU : IsOpen U) (hUS : IsOpen (U \ S))
+    [CompleteSpace F] {U S : Set E} (hUS : IsOpen (U \ S))
     (hS : LocallyContainedInAnalyticZeroSet U S) {f : E → F}
     (hf : AnalyticOnNhd ℂ f (U \ S))
     (hb : ∀ a ∈ U, ∃ r : ℝ, 0 < r ∧ ∃ C : ℝ,

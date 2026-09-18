@@ -5,45 +5,54 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.CauchyIntegral
 public import Mathlib.Analysis.Complex.MeanValue
-public import Mathlib.MeasureTheory.Measure.Haar.InnerProductSpace
-public import Mathlib.MeasureTheory.Measure.Lebesgue.Complex
 public import Mathlib.MeasureTheory.Constructions.Pi
 public import Mathlib.MeasureTheory.Integral.Prod
+public import Mathlib.MeasureTheory.Measure.Haar.InnerProductSpace
+public import Mathlib.MeasureTheory.Measure.Lebesgue.Complex
+public import SeveralComplexVariables.CauchyIntegral
 
 /-!
 # Torus and volume mean values on polydiscs
 
-The fixed-radius torus average of a holomorphic function equals its value at the center,
-for every valid radius. This is the plain Bochner-integral average, with no residual
-Jacobian factor: the complex contour normalization in `torusIntegral` cancels exactly at
-the center. Averaging common complex rotations and applying Fubini also gives the
-volume mean-value formula on equal-radius polydiscs. This formula supports the local
-`Lp` estimate on holomorphic function spaces. Arbitrary finite coordinate types,
-including the empty type, are allowed in the volume formula.
+The fixed-radius torus average of a holomorphic function equals its value at the center, for
+every valid radius. This is the plain Bochner-integral average, with no residual Jacobian
+factor: the complex contour normalization in `torusIntegral` cancels exactly at the center.
+Averaging common complex rotations and applying Fubini also gives the volume mean-value formula
+on equal-radius polydiscs. This formula supports the local `Lp` estimate on holomorphic function
+spaces. Arbitrary finite coordinate types, including the empty type, are allowed in the volume
+formula.
+
+## Main results
+
+* `torusAverage_eq_center`: At the center of a polydisc, the fixed-radius torus average is a plain
+  Bochner-integral average of the function over the angle cube, with no Jacobian residue.
+* `integral_closedBall_zero_eq_volume_smul`: Averaging a holomorphic function over an equal-radius
+  polydisc centered at zero returns its center value times the volume.
+* `integral_closedBall_eq_volume_smul`: The volume mean-value formula on an equal-radius polydisc
+  with arbitrary center.
 -/
 
-@[expose] public section
+public section
 
 open Complex Filter Function MeasureTheory Metric Set
-open scoped Classical ENNReal NNReal Real Topology
+open scoped ENNReal NNReal Real Topology
 
 namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
-/-- At the center of a polydisc, the fixed-radius torus average is a plain Bochner-integral
-average of the function over the angle cube, with no Jacobian residue. -/
+/-- At the center of a polydisc, the fixed-radius torus average is a plain Bochner-integral average
+of the function over the angle cube, with no Jacobian residue. -/
 theorem torusAverage_eq_center {d : ℕ} {f : (Fin d → ℂ) → E} {c : Fin d → ℂ} {R : Fin d → ℝ}
     (hR : ∀ i, 0 < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i)) :
     ∫ θ in Set.Icc (0 : Fin d → ℝ) (fun _ => 2 * π), f (torusMap c R θ) =
       (2 * π : ℂ) ^ d • f c := by
   have hw : ∀ i, ‖c i - c i‖ < R i := fun i => by simpa using hR i
-  have hkey := polydisc_cauchyWithRadii hR hw hfc hfa
+  have hkey := two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul hR hw hfc hfa
   rw [torusIntegral] at hkey
   have hkernel : Set.EqOn
       (fun θ : Fin d → ℝ => (∏ i, (R i : ℂ) * Complex.exp ((θ i : ℂ) * I) * I) •
@@ -97,9 +106,9 @@ private theorem integral_closedBall_smul {ι : Type*} [Fintype ι]
   simpa only [hpre] using
     hm.setIntegral_preimage_emb ePi.measurableEmbedding f (closedBall 0 r)
 
-/-- Averaging a holomorphic function over an equal-radius polydisc centered at zero
-returns its center value times the volume. The proof averages common complex
-rotations and uses Fubini; it also applies when the coordinate type is empty. -/
+/-- Averaging a holomorphic function over an equal-radius polydisc centered at zero returns its
+center value times the volume. The proof averages common complex rotations and uses Fubini; it
+also applies when the coordinate type is empty. -/
 theorem integral_closedBall_zero_eq_volume_smul {ι : Type*} [Fintype ι]
     {f : (ι → ℂ) → E} {r : ℝ}
     (hf : AnalyticOnNhd ℂ f (closedBall 0 r)) :
@@ -150,8 +159,8 @@ theorem integral_closedBall_zero_eq_volume_smul {ι : Type*} [Fintype ι]
   rw [hleft, hright] at hswap
   exact (smul_right_injective E Real.two_pi_pos.ne' hswap).symm
 
-/-- The volume mean-value formula on an equal-radius polydisc with arbitrary center.
-The norm on the finite coordinate space is the supremum norm. -/
+/-- The volume mean-value formula on an equal-radius polydisc with arbitrary center. The norm on the
+finite coordinate space is the supremum norm. -/
 theorem integral_closedBall_eq_volume_smul {ι : Type*} [Fintype ι]
     {f : (ι → ℂ) → E} {c : ι → ℂ} {r : ℝ}
     (hf : AnalyticOnNhd ℂ f (closedBall c r)) :

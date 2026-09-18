@@ -5,24 +5,23 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Polydisc
 public import Mathlib.Analysis.Normed.Module.Connected
+public import SeveralComplexVariables.Polydisc
 
 /-!
 # Circular product neighborhoods in Reinhardt sets
 
-An open Reinhardt set contains a product of connected circular domains around
-each point, including points on coordinate hyperplanes.
+An open Reinhardt set contains a product of connected circular domains around each point,
+including points on coordinate hyperplanes.
 
 ## Main results
 
-`IsReinhardt.exists_circular_product_neighborhood` produces such a product
-neighborhood of any point. `isConnected_complex_annulus` and
-`isConnected_norm_preimage_ball` record connectedness of the circular factors,
-including degenerate annuli that meet a coordinate hyperplane.
+`IsReinhardt.exists_circular_product_neighborhood` produces such a product neighborhood of any
+point. `isConnected_complex_annulus` and `isConnected_norm_preimage_ball` record connectedness
+of the circular factors, including degenerate annuli that meet a coordinate hyperplane.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set Metric
 open scoped Topology
@@ -65,8 +64,8 @@ theorem isConnected_norm_preimage_ball {a δ : ℝ} (ha : 0 ≤ a) (hδ : 0 < δ
     rw [he]
     exact isConnected_complex_annulus (by linarith) (by linarith)
 
-/-- Every point of an open Reinhardt set has a circular product neighborhood with
-connected factors. The factors containing zero are discs. -/
+/-- Every point of an open Reinhardt set has a circular product neighborhood with connected factors.
+The factors containing zero are discs. -/
 theorem IsReinhardt.exists_circular_product_neighborhood {n : ℕ} {U : Set (Fin n → ℂ)}
     (hR : IsReinhardt U) (ho : IsOpen U) {z : Fin n → ℂ} (hz : z ∈ U) :
     ∃ V : Fin n → Set ℂ,
@@ -90,8 +89,8 @@ theorem IsReinhardt.exists_circular_product_neighborhood {n : ℕ} {U : Set (Fin
     rw [dist_eq_norm, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
     simpa only [V, mem_preimage, mem_ball, Real.dist_eq] using hw i (mem_univ _)
 
-/-- Choose inner and outer coefficient circles and stricter evaluation bounds.
-At zero only the upper evaluation bound is required. -/
+/-- Choose inner and outer coefficient circles and stricter evaluation bounds. At zero only the
+upper evaluation bound is required. -/
 theorem exists_circular_radii_bounds {V : Set ℂ} (ho : IsOpen V)
     (hrot : ∀ z ∈ V, ∀ w : ℂ, ‖w‖ = ‖z‖ → w ∈ V) {z : ℂ} (hz : z ∈ V) :
     ∃ a b t T : ℝ, 0 < a ∧ a < t ∧ 0 < T ∧ T < b ∧

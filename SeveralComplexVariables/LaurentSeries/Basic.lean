@@ -5,28 +5,28 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.MeasureTheory.Integral.Pi
 public import SeveralComplexVariables.LaurentSeries.OneVariable
 public import SeveralComplexVariables.Polydisc
-public import Mathlib.MeasureTheory.Integral.Pi
 
 /-!
 # Torus coefficients for Laurent series
 
-Integer-indexed coefficients are defined by integration on a coordinate torus.
-Their bounds and their action on monomials do not require a Laurent expansion theorem.
-Negative powers are written `z i ^ (-m i - 1)` in the integrand; this is compatible with
-Lean's totalized integer powers at zero once the torus avoids the coordinate hyperplanes.
+Integer-indexed coefficients are defined by integration on a coordinate torus. Their bounds and
+their action on monomials do not require a Laurent expansion theorem. Negative powers are
+written `z i ^ (-m i - 1)` in the integrand; this is compatible with Lean's totalized integer
+powers at zero once the torus avoids the coordinate hyperplanes.
 
 ## Main results
 
-`multivariableLaurentCoeff` is the coefficient of multi-index `m` on the torus of radii
-`r`. `multivariableLaurentTerm` is the corresponding monomial term.
-`norm_multivariableLaurentCoeff_le` is the Cauchy bound.
-`multivariableLaurentCoeff_monomial` evaluates the coefficient on a monomial.
-`multivariableLaurentCoeff_fin_one` recovers the one-variable `circleLaurentCoeff`.
+`multivariableLaurentCoeff` is the coefficient of multi-index `m` on the torus of radii `r`.
+`multivariableLaurentTerm` is the corresponding monomial term.
+`norm_multivariableLaurentCoeff_le` is the Cauchy bound. `multivariableLaurentCoeff_monomial`
+evaluates the coefficient on a monomial. `multivariableLaurentCoeff_fin_one` recovers the
+one-variable `circleLaurentCoeff`.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set MeasureTheory Metric
 open scoped Real Topology
@@ -36,7 +36,7 @@ namespace SeveralComplexVariables
 variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 /-- The Laurent coefficient obtained by integrating over a positive-radius coordinate torus. -/
-def multivariableLaurentCoeff (f : (Fin n → ℂ) → F) (r : Fin n → ℝ)
+@[expose] def multivariableLaurentCoeff (f : (Fin n → ℂ) → F) (r : Fin n → ℝ)
     (m : Fin n → ℤ) : F :=
   ((2 * π * I : ℂ) ^ n)⁻¹ •
     torusIntegral (fun z => (∏ i, z i ^ (-m i - 1)) • f z) 0 r
@@ -48,9 +48,9 @@ theorem multivariableLaurentCoeff_fin_one (f : ℂ → F) (r : ℝ) (k : ℤ) :
       circleLaurentCoeff f r k := by
   simp [multivariableLaurentCoeff, torusIntegral_dim1, circleLaurentCoeff]
 
-/-- An integer-indexed Laurent term. Negative powers at zero are totalized; the expansion
-theorem separately forces their coefficients to vanish whenever necessary. -/
-def multivariableLaurentTerm (c : (Fin n → ℤ) → F) (m : Fin n → ℤ) (z : Fin n → ℂ) : F :=
+/-- An integer-indexed Laurent term. Negative powers at zero are totalized; the expansion theorem
+separately forces their coefficients to vanish whenever necessary. -/
+@[expose] def multivariableLaurentTerm (c : (Fin n → ℤ) → F) (m : Fin n → ℤ) (z : Fin n → ℂ) : F :=
   (∏ i, z i ^ m i) • c m
 
 omit [CompleteSpace F] in
@@ -165,7 +165,7 @@ theorem continuous_laurentMonomial_smul_torus {f : (Fin n → ℂ) → F} {r : F
   apply Continuous.smul _ hf
   apply continuous_finsetProd
   intro i _
-  exact ((continuous_apply i).comp (continuous_torusMapWithRadii 0 r)).zpow₀ _
+  exact ((continuous_apply i).comp (continuous_torusMap 0 r)).zpow₀ _
     (fun θ => Or.inl (by simp [torusMap, (hr i).ne']))
 
 omit [CompleteSpace F] in
@@ -173,7 +173,8 @@ omit [CompleteSpace F] in
 theorem torusIntegrable_laurentKernel {f : (Fin n → ℂ) → F} {r : Fin n → ℝ}
     (hr : ∀ i, 0 < r i) (hf : Continuous (fun θ => f (torusMap 0 r θ))) (m : Fin n → ℤ) :
     TorusIntegrable (fun z => (∏ i, z i ^ (-m i - 1)) • f z) 0 r :=
-  ((continuous_laurentMonomial_smul_torus hr hf (fun i => -m i - 1)).continuousOn).integrableOn_compact
+  ((continuous_laurentMonomial_smul_torus hr hf (fun i => -m i -
+    1)).continuousOn).integrableOn_compact
     isCompact_Icc
 
 omit [CompleteSpace F] in

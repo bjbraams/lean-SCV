@@ -5,23 +5,23 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.RemovableSingularity.OneVariable
 public import SeveralComplexVariables.RemovableSingularity.Cauchy
 public import SeveralComplexVariables.RemovableSingularity.Geometry
+public import SeveralComplexVariables.RemovableSingularity.OneVariable
 
 /-!
 # Local Riemann extension in finite-dimensional complex spaces
 
-Translate a fixed small complex circle through nearby points and integrate the
-original function along it. The circle avoids the defining zero set. One-variable
-removability identifies the integral with the original function off the zero set;
-parameter-dependent integration proves joint analyticity. The target is a complex
-Banach space, and no Weierstrass or Hartogs extension theorem is used.
+Translate a fixed small complex circle through nearby points and integrate the original function
+along it. The circle avoids the defining zero set. One-variable removability identifies the
+integral with the original function off the zero set; parameter-dependent integration proves
+joint analyticity. The target is a complex Banach space, and no Weierstrass or Hartogs extension
+theorem is used.
 
 ## Main results
 
-`exists_local_extension_zeroSet_of_bounded` is local Riemann extension across a
-scalar zero set for a locally bounded Banach-valued holomorphic map.
+`exists_local_extension_zeroSet_of_bounded` is local Riemann extension across a scalar zero set
+for a locally bounded Banach-valued holomorphic map.
 -/
 
 public noncomputable section
@@ -34,8 +34,8 @@ namespace SeveralComplexVariables
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- A bounded analytic function off a scalar zero set admits a local analytic extension
-at every point where the defining germ is nonzero. The neighborhood need not be connected. -/
+/-- A bounded analytic function off a scalar zero set admits a local analytic extension at every
+point where the defining germ is nonzero. The neighborhood need not be connected. -/
 theorem exists_local_extension_zeroSet_of_bounded
     {U : Set E} (hU : IsOpen U) {g : E → ℂ} (hg : AnalyticOnNhd ℂ g U)
     {a : E} (ha : a ∈ U) (hne : ¬ g =ᶠ[𝓝 a] 0)
@@ -87,7 +87,8 @@ theorem exists_local_extension_zeroSet_of_bounded
       refine ⟨1, zero_lt_one, C, ?_⟩
       intro w hw
       exact hb _ ⟨hdisc z hz.1 w (ball_subset_closedBall hw.2.1), hw.2.2⟩)
-  have hcauchy := Complex.two_pi_I_inv_smul_circleIntegral_sub_inv_smul_of_differentiable_on_off_countable
+  have hcauchy :=
+    Complex.two_pi_I_inv_smul_circleIntegral_sub_inv_smul_of_differentiable_on_off_countable
     (f := fsl) countable_empty (mem_ball_self hr)
     (hfsl.continuousOn.mono (closedBall_subset_ball hrR))
     (fun w hw => (hfsl w (ball_subset_ball hrR.le hw.1)).differentiableAt)

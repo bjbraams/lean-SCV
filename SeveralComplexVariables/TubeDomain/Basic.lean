@@ -5,38 +5,42 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.Analysis.Normed.Module.Connected
-public import Mathlib.Analysis.Convex.Topology
 public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.Analysis.Convex.Topology
+public import Mathlib.Analysis.Normed.Module.Connected
 public import Mathlib.Topology.Connected.PathConnected
 
 /-!
 # Tube domains: definition and elementary geometry
 
-The tube over a real base consists of complex points whose real parts belong to that
-base. This file contains the definition, the real and imaginary coordinate projections,
-and elementary facts: tubes over open, convex or preconnected bases are open, convex or
-preconnected, tubes are invariant under imaginary translations, and sup-norm balls around
-a point of a tube lie in the tube when the corresponding real ball lies in the base.
+The tube over a real base consists of complex points whose real parts belong to that base. This
+file contains the definition, the real and imaginary coordinate projections, and elementary
+facts: tubes over open, convex or preconnected bases are open, convex or preconnected, tubes are
+invariant under imaginary translations, and sup-norm balls around a point of a tube lie in the
+tube when the corresponding real ball lies in the base.
 
-References: Scheidemann §6.1; Hörmander §2.5, Definition 2.5.9.
+References: [Scheidemann][Scheidemann2005] §6.1; [Hörmander][Hormander1973] §2.5, Definition
+2.5.9.
 
 ## Notation
 
-`tubeDomain Ω` is the set of points of `ι → ℂ` whose real parts lie in `Ω`.
-`rePi`, `imPi`, and `ofRealPi` are the real-part, imaginary-part, and
-complexification maps.
+`tubeDomain Ω` is the set of points of `ι → ℂ` whose real parts lie in `Ω`. `rePi`, `imPi`, and
+`ofRealPi` are the real-part, imaginary-part, and complexification maps.
 
 ## Main results
 
-`isOpen_tubeDomain`, `convex_tubeDomain`, and `isPreconnected_tubeDomain` transport
-openness, convexity, and preconnectedness from the base. `tubeDomain_union` and
-`tubeDomain_inter` commute with unions and intersections.
-`ball_subset_tubeDomain` places a sup-norm ball in the tube when the corresponding
-real ball lies in the base.
+`isOpen_tubeDomain`, `convex_tubeDomain`, and `isPreconnected_tubeDomain` transport openness,
+convexity, and preconnectedness from the base. `tubeDomain_union` and `tubeDomain_inter` commute
+with unions and intersections. `ball_subset_tubeDomain` places a sup-norm ball in the tube when
+the corresponding real ball lies in the base.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Complex
 open scoped Topology
@@ -46,17 +50,17 @@ namespace SeveralComplexVariables
 variable {ι : Type*}
 
 /-- The tube over a real coordinate set; imaginary coordinates are unrestricted. -/
-def tubeDomain (Ω : Set (ι → ℝ)) : Set (ι → ℂ) :=
+@[expose] def tubeDomain (Ω : Set (ι → ℝ)) : Set (ι → ℂ) :=
   {z | (fun i => (z i).re) ∈ Ω}
 
 /-- The real part of a complex coordinate vector. -/
-def rePi (z : ι → ℂ) : ι → ℝ := fun i => (z i).re
+@[expose] def rePi (z : ι → ℂ) : ι → ℝ := fun i => (z i).re
 
 /-- The imaginary part of a complex coordinate vector. -/
-def imPi (z : ι → ℂ) : ι → ℝ := fun i => (z i).im
+@[expose] def imPi (z : ι → ℂ) : ι → ℝ := fun i => (z i).im
 
 /-- A real coordinate vector as a complex coordinate vector. -/
-def ofRealPi (x : ι → ℝ) : ι → ℂ := fun i => (x i : ℂ)
+@[expose] def ofRealPi (x : ι → ℝ) : ι → ℂ := fun i => (x i : ℂ)
 
 /-- Membership in a tube is membership of the real part in the base. -/
 theorem mem_tubeDomain {Ω : Set (ι → ℝ)} {z : ι → ℂ} : z ∈ tubeDomain Ω ↔ rePi z ∈ Ω := Iff.rfl
@@ -209,8 +213,8 @@ theorem norm_rePi_le (z : ι → ℂ) : ‖rePi z‖ ≤ ‖z‖ := by
   intro i
   exact (Complex.abs_re_le_norm (z i)).trans (norm_le_pi_norm z i)
 
-/-- A sup-norm ball around a point of a tube lies in the tube when the real ball around its
-real part lies in the base. -/
+/-- A sup-norm ball around a point of a tube lies in the tube when the real ball around its real
+part lies in the base. -/
 theorem ball_subset_tubeDomain {Ω : Set (ι → ℝ)} {z : ι → ℂ} {r : ℝ}
     (h : Metric.ball (rePi z) r ⊆ Ω) : Metric.ball z r ⊆ tubeDomain Ω := by
   intro w hw

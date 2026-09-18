@@ -11,18 +11,18 @@ public import SeveralComplexVariables.LocallyUniform
 /-!
 # Uniqueness of analytic Laurent expansions
 
-Uniform convergence on one positive coordinate torus permits coefficient extraction.
-The coefficients of a locally uniformly convergent Laurent series are therefore unique,
+Uniform convergence on one positive coordinate torus permits coefficient extraction. The
+coefficients of a locally uniformly convergent Laurent series are therefore unique,
 independently of the existence theorem and without a connectedness hypothesis.
 
 ## Main results
 
-`tendsto_multivariableLaurentCoeff` extracts coefficients from uniform convergence
-on a torus. `eq_multivariableLaurentCoeff_of_hasSumLocallyUniformlyOn` is uniqueness
-of the coefficient family of a locally uniformly convergent expansion.
+`tendsto_multivariableLaurentCoeff` extracts coefficients from uniform convergence on a torus.
+`eq_multivariableLaurentCoeff_of_hasSumLocallyUniformlyOn` is uniqueness of the coefficient
+family of a locally uniformly convergent expansion.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set MeasureTheory Metric Filter
 open scoped Real Topology
@@ -69,8 +69,8 @@ theorem multivariableLaurentCoeff_sum_terms (c : (Fin n → ℤ) → F)
   change (∑ k ∈ s, multivariableLaurentCoeff (fun z => (∏ i, z i ^ k i) • c k) r m) = _
   simp [multivariableLaurentCoeff_monomial r hr]
 
-/-- A locally uniformly convergent Laurent expansion has the torus integral coefficients.
-Only continuity of the limit and containment of a positive torus are needed. -/
+/-- A locally uniformly convergent Laurent expansion has the torus integral coefficients. Only
+continuity of the limit and containment of a positive torus are needed. -/
 theorem eq_multivariableLaurentCoeff_of_hasSumLocallyUniformlyOn
     {U : Set (Fin n → ℂ)} {f : (Fin n → ℂ) → F} (hf : ContinuousOn f U)
     {r : Fin n → ℝ} (hr : ∀ i, 0 < r i)
@@ -86,7 +86,7 @@ theorem eq_multivariableLaurentCoeff_of_hasSumLocallyUniformlyOn
     intro i
     simp [torusMap, abs_of_pos (hr i)]
   have hfc : Continuous (fun θ => f (torusMap 0 r θ)) :=
-    hf.comp_continuous (continuous_torusMapWithRadii 0 r) (fun θ => hTU' (htor θ))
+    hf.comp_continuous (continuous_torusMap 0 r) (fun θ => hTU' (htor θ))
   have hcont (s : Finset (Fin n → ℤ)) :
       Continuous (fun θ => ∑ k ∈ s, multivariableLaurentTerm c k (torusMap 0 r θ)) :=
     continuous_finsetSum s (fun k _ =>

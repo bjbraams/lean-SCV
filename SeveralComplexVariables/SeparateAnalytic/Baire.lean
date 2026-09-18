@@ -5,36 +5,40 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.LocallyBounded
 public import Mathlib.Topology.Baire.Lemmas
+public import SeveralComplexVariables.LocallyBounded
 
 /-!
 # The Baire step in Hartogs' separate-analyticity theorem
 
-A separately continuous function on a product with a compact second factor is
-uniformly bounded on some open cylinder. For separately analytic functions of two
-complex variables, locally bounded Osgood then gives joint analyticity on that
-cylinder, retaining the entire interior of the second factor.
+A separately continuous function on a product with a compact second factor is uniformly bounded
+on some open cylinder. For separately analytic functions of two complex variables, locally
+bounded Osgood then gives joint analyticity on that cylinder, retaining the entire interior of
+the second factor.
 
-This is the initial cylinder in the proof of Hartogs' theorem in Boas (2013),
+This is the initial cylinder in the proof of Hartogs' theorem in [Boas][Boas2013] (2013),
 Section 2.4. No joint continuity or boundedness is assumed.
 
 ## Main results
 
-`exists_open_bounded_cylinder_of_separately_continuous` produces an open cylinder
-of uniform boundedness. `exists_analytic_cylinder_of_separately_analytic` is joint
-analyticity on that cylinder for separately analytic functions of two variables.
+`exists_open_bounded_cylinder_of_separately_continuous` produces an open cylinder of uniform
+boundedness. `exists_analytic_cylinder_of_separately_analytic` is joint analyticity on that
+cylinder for separately analytic functions of two variables.
+
+## References
+
+* [H. P. Boas, *Lecture Notes on Several Complex Variables*][Boas2013]
 -/
 
 public section
 
 open Filter Function Metric Set
-open scoped Classical Topology
+open scoped Topology
 
 namespace SeveralComplexVariables
 
-/-- Baire's theorem gives a uniform bound on an open cylinder from separate
-continuity and compactness of the second factor. The compact set may be empty. -/
+/-- Baire's theorem gives a uniform bound on an open cylinder from separate continuity and
+compactness of the second factor. The compact set may be empty. -/
 theorem exists_open_bounded_cylinder_of_separately_continuous
     {X Y F : Type*} [TopologicalSpace X] [BaireSpace X] [TopologicalSpace Y]
     [NormedAddCommGroup F] {U : Set X} {K : Set Y} {f : X → Y → F}
@@ -64,8 +68,8 @@ theorem exists_open_bounded_cylinder_of_separately_continuous
   · rintro _ ⟨x, hx, rfl⟩ y hy
     exact interior_subset hx y hy
 
-/-- A separately analytic function on a two-variable cylinder is jointly analytic
-on a smaller nonempty base times the entire open fiber disc. Only the base shrinks. -/
+/-- A separately analytic function on a two-variable cylinder is jointly analytic on a smaller
+nonempty base times the entire open fiber disc. Only the base shrinks. -/
 theorem exists_analytic_cylinder_of_separately_analytic
     {U : Set ℂ} {c : ℂ} {R : ℝ} {F : Type*}
     [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
@@ -107,8 +111,8 @@ theorem exists_analytic_cylinder_of_separately_analytic
   have he : ![w 0, w 1] = w := by ext i; fin_cases i <;> rfl
   simpa only [he] using hM (w 0) hw.1 (w 1) (ball_subset_closedBall hw.2)
 
-/-- A separately analytic function of two complex variables has a point of joint
-analyticity in every nonempty open part of its domain. -/
+/-- A separately analytic function of two complex variables has a point of joint analyticity in
+every nonempty open part of its domain. -/
 theorem exists_analyticAt_of_separately_analytic_fin_two
     {U : Set (Fin 2 → ℂ)} {F : Type*}
     [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
@@ -131,8 +135,8 @@ theorem exists_analyticAt_of_separately_analytic_fin_two
     ⟨hx, mem_ball_self hR⟩
   exact ⟨![x, a 1], hprod (hVB hx) (mem_closedBall_self hR.le), hfa _ hz⟩
 
-/-- The locus of joint analyticity of a separately analytic two-variable function
-is a dense open subset of its open domain. -/
+/-- The locus of joint analyticity of a separately analytic two-variable function is a dense open
+subset of its open domain. -/
 theorem dense_isOpen_analyticAt_of_separately_analytic_fin_two
     {U : Set (Fin 2 → ℂ)} {F : Type*}
     [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]

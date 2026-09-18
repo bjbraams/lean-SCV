@@ -5,24 +5,32 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.HolomorphicConvexity.Hull
 public import SeveralComplexVariables.Biholomorphic
+public import SeveralComplexVariables.HolomorphicConvexity.Hull
 
 /-!
 # Products and biholomorphic transport of holomorphic convexity
 
-Products preserve holomorphic convexity. Biholomorphic maps transport relative hulls
-exactly and preserve holomorphic convexity of their open source and target. These results
-are proved directly from the hull definition and compactness; they do not depend on
-Cartan–Thullen or any analytic continuation placeholder.
+Products preserve holomorphic convexity. Biholomorphic maps transport relative hulls exactly and
+preserve holomorphic convexity of their open source and target. These results are proved
+directly from the hull definition and compactness; they do not depend on Cartan–Thullen.
 
-References: Range II §3.3; Scheidemann §7.1; Jakóbczak–Jarnicki §2.7.
+References: [Range][Range1986] II §3.3; [Scheidemann][Scheidemann2005] §7.1;
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021] §2.7.
 
 ## Main results
 
-`IsHolomorphicallyConvex.prod` is stability under products.
-`IsBiholomorphic.image_holomorphicHull` transports relative hulls.
-`IsBiholomorphic.isHolomorphicallyConvex_iff` is invariance of holomorphic convexity.
+`IsHolomorphicallyConvex.prod` is stability under products. `IsBiholomorphic.image_holomorphicHull`
+transports relative hulls. `IsBiholomorphic.isHolomorphicallyConvex_iff` is invariance of
+holomorphic convexity.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public section
@@ -58,8 +66,8 @@ theorem IsBiholomorphic.image_holomorphicHull {e : OpenPartialHomeomorph E F}
     e '' holomorphicHull e.source K = holomorphicHull e.target (e '' K) := by
   let := FiniteDimensional.complete ℂ E
   let := FiniteDimensional.complete ℂ F
-  have hf := he.1.analyticOnNhd_finiteDimensional e.open_source
-  have hg := he.2.analyticOnNhd_finiteDimensional e.open_target
+  have hf := he.1.analyticOnNhd_of_finiteDimensional e.open_source
+  have hg := he.2.analyticOnNhd_of_finiteDimensional e.open_target
   have hback : e.symm '' (e '' K) = K := by
     ext x
     constructor
@@ -82,8 +90,8 @@ theorem IsBiholomorphic.isHolomorphicallyConvex_source {e : OpenPartialHomeomorp
   intro K hK hKU
   let := FiniteDimensional.complete ℂ E
   let := FiniteDimensional.complete ℂ F
-  have hf := he.1.analyticOnNhd_finiteDimensional e.open_source
-  have hg := he.2.analyticOnNhd_finiteDimensional e.open_target
+  have hf := he.1.analyticOnNhd_of_finiteDimensional e.open_source
+  have hg := he.2.analyticOnNhd_of_finiteDimensional e.open_target
   have himage : e '' K ⊆ e.target := by
     rintro _ ⟨z, hz, rfl⟩
     exact e.map_source (hKU hz)

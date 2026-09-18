@@ -5,25 +5,25 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Normed.Ring.InfiniteSum
 public import SeveralComplexVariables.LaurentSeries.Coefficients
 public import SeveralComplexVariables.LocallyUniform
-public import Mathlib.Analysis.Normed.Ring.InfiniteSum
 
 /-!
 # Normal convergence of Laurent coefficient families
 
-Inner and outer coefficient tori bound the two halves of each coordinate series
-by geometric sequences. Their finite products give summable local majorants.
+Inner and outer coefficient tori bound the two halves of each coordinate series by geometric
+sequences. Their finite products give summable local majorants.
 
 ## Main results
 
-`exists_local_laurent_majorant` produces a geometric bound from inner and outer
-tori. `summable_norm_multivariableLaurent` is absolute summability of the terms.
-`hasSumLocallyUniformlyOn_multivariableLaurent_of_pointwise` upgrades a pointwise
-summable expansion to locally uniform convergence.
+`exists_local_laurent_majorant` produces a geometric bound from inner and outer tori.
+`summable_norm_multivariableLaurent` is absolute summability of the terms.
+`hasSumLocallyUniformlyOn_multivariableLaurent_of_pointwise` upgrades a pointwise summable
+expansion to locally uniform convergence.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set Metric Filter
 open scoped Real Topology
@@ -51,7 +51,7 @@ private theorem summable_two_sided_geometric {p q : ℝ}
 
 /-- A scalar Laurent factor is controlled by its inner or outer geometric ratio. -/
 private theorem zpow_mul_corner_le {a b t T u : ℝ}
-    (ha : 0 < a) (hb : 0 < b) (ht : 0 < t) (_hT : 0 ≤ T) (hu : 0 ≤ u)
+    (ha : 0 < a) (hb : 0 < b) (ht : 0 < t) (hu : 0 ≤ u)
     (huT : u ≤ T) (k : ℤ) (htu : k < 0 → t ≤ u) :
     u ^ k * (if k < 0 then a else b) ^ (-k) ≤
       Int.rec (fun n => (T / b) ^ n) (fun n => (a / t) ^ (n + 1)) k := by
@@ -107,7 +107,7 @@ private theorem norm_laurentTerm_le_geometric {c : (Fin n → ℤ) → F}
           · exact (ha i).le
           · exact (hb i).le
         · intro i _
-          exact zpow_mul_corner_le (ha i) (hb i) (ht i) (hT i) (norm_nonneg _) (hwT i) (m i)
+          exact zpow_mul_corner_le (ha i) (hb i) (ht i) (norm_nonneg _) (hwT i) (m i)
             (fun hm => htw i (fun hi => hbad ⟨i, hi, hm⟩))
 
 omit [NormedSpace ℂ F] in
@@ -208,12 +208,14 @@ theorem summable_norm_multivariableLaurent {U : Set (Fin n → ℂ)}
   obtain ⟨N, hN, _, B, hB, hb⟩ := exists_local_laurent_majorant ho hc hR hf hr hrU hz
   exact hB.of_nonneg_of_le (fun _ => norm_nonneg _) (fun m => hb m z (mem_of_mem_nhds hN))
 
-/-- Pointwise Laurent expansion with torus coefficients automatically converges locally uniformly. -/
+/-- Pointwise Laurent expansion with torus coefficients automatically converges locally
+uniformly. -/
 theorem hasSumLocallyUniformlyOn_multivariableLaurent_of_pointwise {U : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hc : IsPreconnected U) (hR : IsReinhardt U)
     {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U)
     {r : Fin n → ℝ} (hr : ∀ i, 0 < r i) (hrU : (fun i => (r i : ℂ)) ∈ U)
-    (hsum : ∀ z ∈ U, HasSum (fun m => multivariableLaurentTerm (multivariableLaurentCoeff f r) m z) (f z)) :
+    (hsum : ∀ z ∈ U, HasSum (fun m => multivariableLaurentTerm (multivariableLaurentCoeff f r) m
+      z) (f z)) :
     HasSumLocallyUniformlyOn (multivariableLaurentTerm (multivariableLaurentCoeff f r)) f U := by
   apply hasSumLocallyUniformlyOn_of_of_forall_exists_nhds
   intro z hz

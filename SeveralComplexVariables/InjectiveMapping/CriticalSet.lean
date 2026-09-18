@@ -5,30 +5,30 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.AnalyticSet.Regular
 public import SeveralComplexVariables.InjectiveMapping.CorankOne
 public import SeveralComplexVariables.InjectiveMapping.Immersion
-public import SeveralComplexVariables.AnalyticSet.Regular
 
 /-!
 # Excluding critical points of injective holomorphic maps
 
-The critical set cannot have a regular hypersurface point: restriction to that
-hypersurface has an immersion point, where an invertible transverse minor forces
-nonsingularity. The Jacobian determinant is not identically zero, and any nonempty
-zero set of it has a regular hypersurface point. Thus the critical set is empty.
+The critical set cannot have a regular hypersurface point: restriction to that hypersurface has
+an immersion point, where an invertible transverse minor forces nonsingularity. The Jacobian
+determinant is not identically zero, and any nonempty zero set of it has a regular hypersurface
+point. Thus the critical set is empty.
 
 ## Main results
 
-`not_isRegularAnalyticSetAt_criticalSet` excludes a regular hypersurface point of
-the critical set. `analyticOnNhd_det_complexJacobian` is holomorphy of the Jacobian
-determinant. `isInvertible_fderiv_of_injOn_coordinates` is nonsingularity in
-coordinates, by emptiness of that critical set.
+`not_isRegularAnalyticSetAt_criticalSet` excludes a regular hypersurface point of the critical
+set. `analyticOnNhd_det_complexJacobian` is holomorphy of the Jacobian determinant.
+`isInvertible_fderiv_of_injOn_coordinates` is nonsingularity in coordinates, by emptiness of
+that critical set.
 -/
 
 public noncomputable section
 
 open Set Filter Function Metric
-open scoped Classical Topology
+open scoped Topology
 
 namespace SeveralComplexVariables
 
@@ -78,7 +78,7 @@ theorem not_isRegularAnalyticSetAt_criticalSet
     (hAU (hxA z hz)) S hS hP (by rwa [← hd]))
 
 /-- The determinant of the complex Jacobian is analytic on a holomorphic map's open domain. -/
-theorem analyticOnNhd_det_complexJacobian {ι : Type*} [Fintype ι]
+theorem analyticOnNhd_det_complexJacobian {ι : Type*} [Fintype ι] [DecidableEq ι]
     {U : Set (ι → ℂ)} (hU : IsOpen U) {f : (ι → ℂ) → (ι → ℂ)}
     (hf : AnalyticOnNhd ℂ f U) : AnalyticOnNhd ℂ (fun z => (complexJacobian f z).det) U := by
   classical
@@ -104,7 +104,7 @@ theorem isInvertible_fderiv_of_injOn_coordinates {ι : Type*} [Fintype ι]
   have hfV := hf.mono hball
   let J := fun z => (complexJacobian f z).det
   have hJ : AnalyticOnNhd ℂ J V :=
-    analyticOnNhd_det_complexJacobian hV (hfV.analyticOnNhd_finiteDimensional hV)
+    analyticOnNhd_det_complexJacobian hV (hfV.analyticOnNhd_of_finiteDimensional hV)
   obtain ⟨b, hb, hbi⟩ := exists_injective_fderiv_of_injOn hV ⟨a, haV⟩ hfV (hi.mono hball)
   have hJb : J b ≠ 0 := (det_complexJacobian_ne_zero_iff
     ((hfV b hb).differentiableAt (hV.mem_nhds hb))).mpr

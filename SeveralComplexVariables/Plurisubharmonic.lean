@@ -5,27 +5,56 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Subharmonic
 public import Mathlib.Analysis.Normed.Module.Convex
+public import SeveralComplexVariables.Subharmonic
 
 /-!
 # Plurisubharmonic functions
 
-A real function on an open subset of a complex normed space is plurisubharmonic if it is
-upper semicontinuous and its restriction to every complex line is subharmonic, in the local
-submean sense of `Subharmonic`. This file proves closure under sums, nonnegative multiples,
-maxima and complex affine substitutions, shows that continuous convex functions are
-plurisubharmonic, and gives the holomorphic examples: real parts, positive powers of norms,
-and logarithms of nonvanishing moduli of holomorphic functions.
+A real function on an open subset of a complex normed space is plurisubharmonic if it is upper
+semicontinuous and its restriction to every complex line is subharmonic, in the local submean
+sense of `Subharmonic`. This file proves closure under sums, nonnegative multiples, maxima and
+complex affine substitutions, shows that continuous convex functions are plurisubharmonic, and
+gives the holomorphic examples: real parts, positive powers of norms, and logarithms of
+nonvanishing moduli of holomorphic functions.
 
 Only real-valued functions are considered. The characterization of `C²` plurisubharmonic
 functions through the Levi form is proved in `LeviForm`.
 
-References: Fritzsche–Grauert (2002), Chapter II, Section 2; Hörmander (1973),
-Definition 2.6.1; Range (1986), Chapter II, Section 5.
+References: [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Section 2;
+[Hörmander][Hormander1973] (1973), Definition 2.6.1; [Range][Range1986] (1986), Chapter II,
+Section 5.
+
+## Main definitions
+
+* `PlurisubharmonicOn`: A real function is plurisubharmonic on a set if it is upper semicontinuous
+  there and its restriction to every complex line is subharmonic on the corresponding parameter set.
+
+## Main results
+
+* `PlurisubharmonicOn.add`: Sums of plurisubharmonic functions are plurisubharmonic.
+* `PlurisubharmonicOn.sup`: The pointwise maximum of two plurisubharmonic functions is
+  plurisubharmonic.
+* `PlurisubharmonicOn.comp_affine`: Plurisubharmonicity is preserved by complex affine
+  substitutions.
+* `ConvexOn.plurisubharmonicOn`: A continuous convex function on an open set is plurisubharmonic.
+* `plurisubharmonicOn_norm`: The norm is plurisubharmonic.
+* `AnalyticOnNhd.plurisubharmonicOn_re`: Real parts of holomorphic functions are plurisubharmonic.
+* `AnalyticOnNhd.plurisubharmonicOn_norm_rpow`: Positive powers of the norm of a holomorphic map are
+  plurisubharmonic.
+* `AnalyticOnNhd.plurisubharmonicOn_log_norm`: The logarithm of the modulus of a nonvanishing
+  holomorphic function is plurisubharmonic.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
-@[expose] public section
+public section
 
 open Filter Metric Set Real
 open scoped Topology
@@ -36,7 +65,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 /-- A real function is plurisubharmonic on a set if it is upper semicontinuous there and its
 restriction to every complex line is subharmonic on the corresponding parameter set. -/
-def PlurisubharmonicOn (f : E → ℝ) (U : Set E) : Prop :=
+@[expose] def PlurisubharmonicOn (f : E → ℝ) (U : Set E) : Prop :=
   UpperSemicontinuousOn f U ∧
     ∀ a ∈ U, ∀ w : E, SubharmonicOn (fun t : ℂ => f (a + t • w)) {t | a + t • w ∈ U}
 
@@ -60,13 +89,10 @@ theorem PlurisubharmonicOn.mono (h : PlurisubharmonicOn f U) (hV : V ⊆ U) :
     PlurisubharmonicOn f V :=
   ⟨h.1.mono hV, fun a ha w => (h.2 a (hV ha) w).mono fun _ ht => hV ht⟩
 
-/-- The complex line `t ↦ a + t • w` is continuous. -/
-theorem continuous_line (a w : E) : Continuous fun t : ℂ => a + t • w := by fun_prop
-
 /-- The slice of an upper semicontinuous function is upper semicontinuous. -/
 theorem upperSemicontinuousOn_slice (h : UpperSemicontinuousOn f U) (a w : E) :
     UpperSemicontinuousOn (fun t : ℂ => f (a + t • w)) {t | a + t • w ∈ U} :=
-  h.comp (continuous_line a w).continuousOn fun _ ht => ht
+  h.comp (by fun_prop : Continuous fun t : ℂ => a + t • w).continuousOn fun _ ht => ht
 
 /-- Translating the parameter of a function with the local submean property. -/
 theorem HasSubmeanAt.comp_add_right {u : ℂ → ℝ} {t₀ : ℂ}
@@ -79,8 +105,8 @@ theorem HasSubmeanAt.comp_add_right {u : ℂ → ℝ} {t₀ : ℂ}
     simpa only [hmap] using hint
   · simpa only [zero_add, circleAverage_map_add_const] using hle
 
-/-- Plurisubharmonicity follows from upper semicontinuity and the local submean property of
-the slices through each point of the domain. -/
+/-- Plurisubharmonicity follows from upper semicontinuity and the local submean property of the
+slices through each point of the domain. -/
 theorem plurisubharmonicOn_of_hasSubmeanAt (husc : UpperSemicontinuousOn f U)
     (h : ∀ a ∈ U, ∀ w : E, HasSubmeanAt (fun t : ℂ => f (a + t • w)) 0) :
     PlurisubharmonicOn f U := by
@@ -104,7 +130,7 @@ theorem PlurisubharmonicOn.add (hf : PlurisubharmonicOn f U) (hg : Plurisubharmo
 /-- Nonnegative multiples of plurisubharmonic functions are plurisubharmonic. -/
 theorem PlurisubharmonicOn.const_mul {c : ℝ} (hc : 0 ≤ c) (hf : PlurisubharmonicOn f U) :
     PlurisubharmonicOn (fun z => c * f z) U :=
-  ⟨(subharmonicOn_const_mul_usc hc hf.1), fun a ha w => (hf.2 a ha w).const_mul hc⟩
+  ⟨(hf.1.const_mul hc), fun a ha w => (hf.2 a ha w).const_mul hc⟩
 
 /-- The pointwise maximum of two plurisubharmonic functions is plurisubharmonic. -/
 theorem PlurisubharmonicOn.sup (hf : PlurisubharmonicOn f U) (hg : PlurisubharmonicOn g U) :
@@ -123,19 +149,8 @@ end Algebra
 
 section Convex
 
-/-- The circle average is invariant under the antipodal reflection of the circle. -/
-theorem circleAverage_reflect (u : ℂ → ℝ) (c : ℂ) (r : ℝ) :
-    circleAverage (fun t => u (2 * c - t)) c r = circleAverage u c r := by
-  rw [circleAverage_eq_integral_add (f := u) π, circleAverage_def]
-  congr 1
-  refine intervalIntegral.integral_congr fun θ _ => ?_
-  simp only [circleMap]
-  congr 1
-  rw [Complex.ofReal_add, add_mul, Complex.exp_add, Complex.exp_pi_mul_I]
-  ring
-
 /-- A continuous function that is convex on an open set of `ℂ` is subharmonic there. -/
-theorem SubharmonicOn.of_convexOn {u : ℂ → ℝ} {W : Set ℂ} (hW : IsOpen W)
+theorem _root_.ConvexOn.subharmonicOn {u : ℂ → ℝ} {W : Set ℂ} (hW : IsOpen W)
     (hu : ConvexOn ℝ W u) (hc : ContinuousOn u W) : SubharmonicOn u W := by
   refine ⟨hc.upperSemicontinuousOn, fun a ha => ?_⟩
   obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hW.mem_nhds ha)
@@ -168,12 +183,12 @@ theorem SubharmonicOn.of_convexOn {u : ℂ → ℝ} {W : Set ℂ} (hW : IsOpen W
   have hle := circleAverage_mono (circleIntegrable_const (u a) a r) (hi₁.add hi₂)
     (fun t ht => hmid t (by simpa [abs_of_pos hr] using ht))
   rw [circleAverage_const, circleAverage_add hi₁ hi₂, circleAverage_fun_smul,
-    circleAverage_fun_smul, circleAverage_reflect] at hle
+    circleAverage_fun_smul, Real.circleAverage_reflect] at hle
   simp only [smul_eq_mul] at hle
   linarith
 
 /-- A real convex combination of two points of a complex line, in line coordinates. -/
-theorem line_combo (a w : E) (s t : ℂ) {α β : ℝ} (hαβ : α + β = 1) :
+private theorem line_combo (a w : E) (s t : ℂ) {α β : ℝ} (hαβ : α + β = 1) :
     a + (α • s + β • t) • w = α • (a + s • w) + β • (a + t • w) := by
   have ha : a = α • a + β • a := by rw [← add_smul, hαβ, one_smul]
   conv_lhs => rw [ha]
@@ -181,21 +196,22 @@ theorem line_combo (a w : E) (s t : ℂ) {α β : ℝ} (hαβ : α + β = 1) :
   abel
 
 /-- A continuous convex function on an open set is plurisubharmonic. -/
-theorem PlurisubharmonicOn.of_convexOn (hU : IsOpen U) (hf : ConvexOn ℝ U f)
+theorem _root_.ConvexOn.plurisubharmonicOn (hU : IsOpen U) (hf : ConvexOn ℝ U f)
     (hc : ContinuousOn f U) : PlurisubharmonicOn f U := by
   refine ⟨hc.upperSemicontinuousOn, fun a ha w => ?_⟩
-  apply SubharmonicOn.of_convexOn (hU.preimage (continuous_line a w))
+  apply ConvexOn.subharmonicOn (hU.preimage (by fun_prop : Continuous fun t : ℂ => a + t • w))
   · refine ⟨fun s hs t ht α β hα hβ hαβ => ?_, fun s hs t ht α β hα hβ hαβ => ?_⟩
     · show a + (α • s + β • t) • w ∈ U
       rw [line_combo a w s t hαβ]
       exact hf.1 hs ht hα hβ hαβ
     · have := hf.2 hs ht hα hβ hαβ
       simpa only [line_combo a w s t hαβ] using this
-  · exact hc.comp (continuous_line a w).continuousOn fun _ ht => ht
+  · exact hc.comp (by fun_prop : Continuous fun t : ℂ => a + t • w).continuousOn fun _ ht => ht
 
 /-- The norm is plurisubharmonic. -/
 theorem plurisubharmonicOn_norm : PlurisubharmonicOn (fun z : E => ‖z‖) univ :=
-  PlurisubharmonicOn.of_convexOn isOpen_univ (convexOn_norm convex_univ) continuous_norm.continuousOn
+  ConvexOn.plurisubharmonicOn isOpen_univ (convexOn_norm convex_univ)
+    continuous_norm.continuousOn
 
 end Convex
 
@@ -209,25 +225,27 @@ theorem analyticOnNhd_slice {h : E → F} (hh : AnalyticOnNhd ℂ h U) (a w : E)
   (hh _ ht).comp_of_eq (analyticAt_const.add (analyticAt_id.smul analyticAt_const)) rfl
 
 /-- Real parts of holomorphic functions are plurisubharmonic. -/
-theorem PlurisubharmonicOn.re_of_analyticOnNhd {h : E → ℂ} (hh : AnalyticOnNhd ℂ h U) :
+theorem _root_.AnalyticOnNhd.plurisubharmonicOn_re {h : E → ℂ} (hh : AnalyticOnNhd ℂ h U) :
     PlurisubharmonicOn (fun z => (h z).re) U :=
   ⟨(Complex.continuous_re.comp_continuousOn hh.continuousOn).upperSemicontinuousOn,
-    fun a _ w => SubharmonicOn.re_of_analyticOnNhd (analyticOnNhd_slice hh a w)⟩
+    fun a _ w => AnalyticOnNhd.subharmonicOn_re (analyticOnNhd_slice hh a w)⟩
 
 /-- Positive powers of the norm of a holomorphic map are plurisubharmonic. -/
-theorem PlurisubharmonicOn.norm_rpow_of_analyticOnNhd (hU : IsOpen U) {h : E → F} {p : ℝ}
+theorem _root_.AnalyticOnNhd.plurisubharmonicOn_norm_rpow (hU : IsOpen U) {h : E → F} {p : ℝ}
     (hp : 0 < p) (hh : AnalyticOnNhd ℂ h U) : PlurisubharmonicOn (fun z => ‖h z‖ ^ p) U :=
   ⟨(hh.continuousOn.norm.rpow_const fun _ _ => Or.inr hp.le).upperSemicontinuousOn,
-    fun a _ w => SubharmonicOn.norm_rpow_of_analyticOnNhd (hU.preimage (continuous_line a w)) hp
+    fun a _ w => AnalyticOnNhd.subharmonicOn_norm_rpow
+      (hU.preimage (by fun_prop : Continuous fun t : ℂ => a + t • w)) hp
       (analyticOnNhd_slice hh a w)⟩
 
 /-- The logarithm of the modulus of a nonvanishing holomorphic function is plurisubharmonic. -/
-theorem PlurisubharmonicOn.log_norm_of_analyticOnNhd (hU : IsOpen U) {h : E → ℂ}
+theorem _root_.AnalyticOnNhd.plurisubharmonicOn_log_norm (hU : IsOpen U) {h : E → ℂ}
     (hh : AnalyticOnNhd ℂ h U) (hne : ∀ z ∈ U, h z ≠ 0) :
     PlurisubharmonicOn (fun z => Real.log ‖h z‖) U :=
   ⟨(ContinuousOn.log hh.continuousOn.norm fun z hz =>
       norm_ne_zero_iff.mpr (hne z hz)).upperSemicontinuousOn,
-    fun a _ w => SubharmonicOn.log_norm_of_analyticOnNhd (hU.preimage (continuous_line a w))
+    fun a _ w => AnalyticOnNhd.subharmonicOn_log_norm
+      (hU.preimage (by fun_prop : Continuous fun t : ℂ => a + t • w))
       (analyticOnNhd_slice hh a w) fun _ ht => hne _ ht⟩
 
 end Holomorphic

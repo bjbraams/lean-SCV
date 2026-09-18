@@ -5,32 +5,31 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Derivatives
 public import Mathlib.Algebra.MvPolynomial.PDeriv
 public import Mathlib.Analysis.Analytic.Polynomial
+public import SeveralComplexVariables.Derivatives
 
 /-!
 # Formal and analytic coordinate derivatives of complex polynomials
 
 The formal partial derivatives of a multivariate polynomial agree with the analytic coordinate
-derivatives of its evaluation. No finiteness assumption on the variable type is needed for
-the one-variable slice identity.
+derivatives of its evaluation. No finiteness assumption on the variable type is needed for the
+one-variable slice identity.
 
 ## Main results
 
-`hasDerivAt_eval_update` identifies `pderiv i p` with the derivative of the `i`-th
-coordinate slice of `eval`. `partialDeriv_eval` is the corresponding statement for the
-several-variable coordinate derivative `partialDeriv`.
+`hasDerivAt_eval_update` identifies `pderiv i p` with the derivative of the `i`-th coordinate
+slice of `eval`. `partialDeriv_eval` is the corresponding statement for the several-variable
+coordinate derivative `partialDeriv`.
 -/
 
-open scoped Classical
-@[expose] public noncomputable section
+public noncomputable section
 namespace MvPolynomial
 variable {ι : Type*}
 
-/-- Formal partial differentiation agrees with differentiating a coordinate slice.
-No finiteness assumption on the variable type is needed. -/
-theorem hasDerivAt_eval_update (p : MvPolynomial ι ℂ) (z : ι → ℂ) (i : ι) (x : ℂ) :
+/-- Formal partial differentiation agrees with differentiating a coordinate slice. No finiteness
+assumption on the variable type is needed. -/
+theorem hasDerivAt_eval_update [DecidableEq ι] (p : MvPolynomial ι ℂ) (z : ι → ℂ) (i : ι) (x : ℂ) :
     HasDerivAt (fun w => p.eval (Function.update z i w))
       ((pderiv i p).eval (Function.update z i x)) x := by
   induction p using MvPolynomial.induction_on with
@@ -43,7 +42,7 @@ theorem hasDerivAt_eval_update (p : MvPolynomial ι ℂ) (z : ι → ℂ) (i : �
     · simpa [pderiv_mul, h, Ne.symm h, mul_comm] using! hp.mul (hasDerivAt_const x (z j))
 
 /-- Coordinate differentiation of a polynomial is evaluation of its formal derivative. -/
-theorem partialDeriv_eval [Fintype ι] (p : MvPolynomial ι ℂ) (z : ι → ℂ) (i : ι) :
+theorem partialDeriv_eval [Fintype ι] [DecidableEq ι] (p : MvPolynomial ι ℂ) (z : ι → ℂ) (i : ι) :
     SeveralComplexVariables.partialDeriv i (fun w => p.eval w) z = (pderiv i p).eval z := by
   simpa [SeveralComplexVariables.partialDeriv] using (p.hasDerivAt_eval_update z i (z i)).deriv
 

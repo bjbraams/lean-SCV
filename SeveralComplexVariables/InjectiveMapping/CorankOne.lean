@@ -5,23 +5,22 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.InjectiveMapping.OneVariable
 public import SeveralComplexVariables.ImplicitMapping
+public import SeveralComplexVariables.InjectiveMapping.OneVariable
 
 /-!
 # Nonsingularity in the presence of an invertible transverse minor
 
-The implicit function theorem reduces an injective map to an injective scalar function
-on a one-dimensional level set. Its nonzero derivative completes an invertible minor to
-the full derivative. These results are independent of the general injective-mapping theorem.
+The implicit function theorem reduces an injective map to an injective scalar function on a
+one-dimensional level set. Its nonzero derivative completes an invertible minor to the full
+derivative. These results are independent of the general injective-mapping theorem.
 
 ## Main results
 
-`isInvertible_fderiv_of_injOn_of_invertible_partial` completes an invertible
-transverse minor. `isInvertible_fderiv_of_injOn_of_hyperplane` is the corresponding
-statement after restricting to a level hyperplane.
-`injective_of_injective_vertical_of_transverse_vector` is the one-dimensional
-reduction.
+`isInvertible_fderiv_of_injOn_of_invertible_partial` completes an invertible transverse minor.
+`isInvertible_fderiv_of_injOn_of_hyperplane` is the corresponding statement after restricting to
+a level hyperplane. `injective_of_injective_vertical_of_transverse_vector` is the
+one-dimensional reduction.
 -/
 
 public noncomputable section
@@ -137,8 +136,8 @@ theorem exists_linearEquiv_prod_extension
   simp only [map_zero, Submodule.coe_zero, zero_add]
   rfl
 
-/-- If the derivative of an injective holomorphic map is injective on a hyperplane,
-then its full derivative is invertible. -/
+/-- If the derivative of an injective holomorphic map is injective on a hyperplane, then its full
+derivative is invertible. -/
 theorem isInvertible_fderiv_of_injOn_of_hyperplane
     {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     [NormedAddCommGroup F] [NormedSpace ℂ F] [FiniteDimensional ℂ F]

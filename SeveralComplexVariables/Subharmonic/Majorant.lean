@@ -5,35 +5,51 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Subharmonic
-public import Mathlib.Analysis.Fourier.AddCircle
 public import Mathlib.Analysis.Calculus.Deriv.Polynomial
+public import Mathlib.Analysis.Fourier.AddCircle
+public import SeveralComplexVariables.Subharmonic
 
 /-!
 # Harmonic polynomial majorants and the submean inequality
 
-Real parts of complex polynomials in `(z - a) / r` are harmonic and approximate every
-continuous function on the circle of radius `r` about `a` uniformly, by density of
-trigonometric polynomials. Consequently a continuous function satisfies the submean
-inequality on a closed disc as soon as it lies below the center value of every such
-harmonic polynomial that dominates it on the boundary circle.
+Real parts of complex polynomials in `(z - a) / r` are harmonic and approximate every continuous
+function on the circle of radius `r` about `a` uniformly, by density of trigonometric
+polynomials. Consequently a continuous function satisfies the submean inequality on a closed
+disc as soon as it lies below the center value of every such harmonic polynomial that dominates
+it on the boundary circle.
 
-Combined with the maximum principle on discs, this gives the submean inequality on every
-closed disc in the domain for continuous subharmonic functions, whose definition only
-asks for the inequality on small circles.
+Combined with the maximum principle on discs, this gives the submean inequality on every closed
+disc in the domain for continuous subharmonic functions, whose definition only asks for the
+inequality on small circles.
 
-References: Fritzsche–Grauert (2002), Chapter II, Section 2; Ransford (1995), Chapter 2.
+References: [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Section 2;
+[Ransford][Ransford1995] (1995), Chapter 2.
+
+## Main results
+
+* `le_circleAverage_of_forall_polynomial_majorant`: **Harmonic-majorant criterion.** A function
+  continuous on a circle whose center value is dominated by the center value of every harmonic
+  polynomial majorant on the circle satisfies the submean inequality.
+* `SubharmonicOn.le_circleAverage_of_continuousOn`: **Submean inequality on closed discs.** A
+  continuous subharmonic function satisfies the submean inequality on every closed disc contained in
+  its domain.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [T. Ransford, *Potential Theory in the Complex Plane*][Ransford1995]
 -/
 
-@[expose] public section
+public section
 
 open Filter Metric Set Real
 open scoped Topology
 
 namespace SeveralComplexVariables
 
-/-- Every trigonometric polynomial is the sum of a polynomial and a conjugated polynomial in
-the circle variable. -/
+/-- Every trigonometric polynomial is the sum of a polynomial and a conjugated polynomial in the
+circle variable. -/
 theorem exists_polynomial_of_mem_span_fourier (ψ : C(AddCircle (2 * π), ℂ))
     (hψ : ψ ∈ Submodule.span ℂ (Set.range (fourier (T := 2 * π)))) :
     ∃ Q₁ Q₂ : Polynomial ℂ, ∀ x : AddCircle (2 * π),
@@ -68,8 +84,8 @@ theorem exists_polynomial_of_mem_span_fourier (ψ : C(AddCircle (2 * π), ℂ))
       map_mul, Complex.conj_conj]
     ring
 
-/-- Continuous functions on a circle are uniformly approximated by real parts of polynomials in
-the normalized circle variable. -/
+/-- Continuous functions on a circle are uniformly approximated by real parts of polynomials in the
+normalized circle variable. -/
 theorem exists_polynomial_re_approx {v : ℂ → ℝ} {a : ℂ} {r : ℝ} (hr : 0 < r)
     (hv : ContinuousOn v (sphere a r)) {ε : ℝ} (hε : 0 < ε) :
     ∃ Q : Polynomial ℂ, ∀ z ∈ sphere a r, |v z - (Q.eval ((z - a) / r)).re| < ε := by
@@ -114,8 +130,8 @@ theorem exists_polynomial_re_approx {v : ℂ → ℝ} {a : ℂ} {r : ℝ} (hr : 
     _ ≤ ‖φ x - ψ x‖ := Complex.abs_re_le_norm _
     _ < ε := this
 
-/-- The real part of a polynomial in the normalized circle variable has circle average equal to
-its value at the center. -/
+/-- The real part of a polynomial in the normalized circle variable has circle average equal to its
+value at the center. -/
 theorem circleAverage_re_polynomial (Q : Polynomial ℂ) (a : ℂ) {r : ℝ} (hr : 0 < r) :
     circleAverage (fun z => (Q.eval ((z - a) / r)).re) a r = (Q.eval 0).re := by
   have hd : Differentiable ℂ fun z : ℂ => Q.eval ((z - a) / r) :=
@@ -174,7 +190,7 @@ theorem SubharmonicOn.le_circleAverage_of_continuousOn {u : ℂ → ℝ} {U : Se
     fun z _ => (Q.differentiable.comp (by fun_prop)).analyticAt z
   have hw : SubharmonicOn (fun z => u z + -(Q.eval ((z - a) / r)).re) (ball a r) :=
     (hu.mono (ball_subset_closedBall.trans hsub)).add
-      (SubharmonicOn.neg_re_of_analyticOnNhd hQan)
+      (AnalyticOnNhd.subharmonicOn_neg_re hQan)
   have husc : UpperSemicontinuousOn (fun z => u z + -(Q.eval ((z - a) / r)).re)
       (closedBall a r) :=
     ((hc.mono hsub).add (Complex.continuous_re.comp

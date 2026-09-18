@@ -5,29 +5,52 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Runge
-public import SeveralComplexVariables.Reinhardt.Extension
-public import SeveralComplexVariables.CircularContinuation
 public import Mathlib.Algebra.MvPolynomial.Monad
+public import SeveralComplexVariables.CircularContinuation
+public import SeveralComplexVariables.Reinhardt.Extension
+public import SeveralComplexVariables.Runge
 
 /-!
 # Examples of Runge domains
 
 Complete Reinhardt open sets in `ℂⁿ` are Runge domains, since holomorphic functions on them are
 represented by their Taylor series at the origin, converging locally uniformly. More generally,
-circular connected open sets containing the origin are Runge domains, since holomorphic functions
-on them are locally uniform sums of their homogeneous expansions, whose terms are polynomials. In
-particular polydiscs and balls centered at the origin, and the whole space, are Runge domains.
+circular connected open sets containing the origin are Runge domains, since holomorphic
+functions on them are locally uniform sums of their homogeneous expansions, whose terms are
+polynomials. In particular polydiscs and balls centered at the origin, and the whole space, are
+Runge domains.
 
-Runge domains are transported by holomorphic maps with polynomial inverses: if `U` is Runge,
-`Φ` is holomorphic on `U` with values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with
+Runge domains are transported by holomorphic maps with polynomial inverses: if `U` is Runge, `Φ`
+is holomorphic on `U` with values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with
 `Φ ∘ Ψ = id` on `U'`, then `U'` is Runge. Translates and polynomial-automorphic images of Runge
-domains are Runge (Jakóbczak–Jarnicki, Proposition 4.3.2).
+domains are Runge ([Jakóbczak–Jarnicki][JakobczakJarnicki2021], Proposition 4.3.2).
 
-References: Hörmander (1973), Section 2.7; Jakóbczak–Jarnicki (2021), Section 4.3.
+References: [Hörmander][Hormander1973] (1973), Section 2.7;
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Section 4.3.
+
+## Main definitions
+
+* `mvPolynomialMap`: The polynomial map with components `G i`.
+
+## Main results
+
+* `IsCompleteReinhardt.isRungeDomain`: **Complete Reinhardt open sets are Runge domains** :
+  holomorphic functions are locally uniform sums of their Taylor series at the origin.
+* `IsCircular.isRungeDomain`: **Circular connected open sets containing the origin are Runge
+  domains** : holomorphic functions are locally uniform sums of their homogeneous expansions, whose
+  terms are polynomials.
+* `IsRungeDomain.transport`: **Transport of Runge domains.** If `U` is a Runge domain, `Φ` is
+  holomorphic on `U` with values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with `Φ ∘ Ψ
+  = id` on `U'`, then `U'` is a Runge domain.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Filter Function Metric Set
 open scoped Topology
@@ -43,7 +66,8 @@ sums of their Taylor series at the origin. -/
 theorem IsCompleteReinhardt.isRungeDomain {U : Set (Fin n → ℂ)} (ho : IsOpen U)
     (hc : IsCompleteReinhardt U) : IsRungeDomain U := by
   intro f hf K hK hKU ε hε
-  obtain ⟨hdom, heq⟩ := taylor_representation_completeReinhardt ho hc hf
+  obtain ⟨hdom, heq⟩
+    := IsCompleteReinhardt.subset_convergenceDomain_and_eqOn_powerSeriesSum ho hc hf
   have hsum := hasSumUniformlyOn_powerSeries (taylorCoefficientsAtZero f) hK (hKU.trans hdom)
   rw [hasSumUniformlyOn_iff_tendstoUniformlyOn, Metric.tendstoUniformlyOn_iff] at hsum
   obtain ⟨t, ht⟩ := (hsum ε hε).exists
@@ -55,9 +79,9 @@ theorem IsCompleteReinhardt.isRungeDomain {U : Set (Fin n → ℂ)} (ho : IsOpen
   simpa only [smul_eq_mul] using this
 
 /-- Polydiscs centered at the origin are Runge domains. -/
-theorem isRungeDomain_polydiscWithRadii (r : Fin n → ℝ) :
-    IsRungeDomain (polydiscWithRadii (0 : Fin n → ℂ) r) :=
-  (isCompleteReinhardt_polydiscWithRadii r).isRungeDomain (isOpen_polydiscWithRadii 0 r)
+theorem isRungeDomain_polydisc (r : Fin n → ℝ) :
+    IsRungeDomain (polydisc (0 : Fin n → ℂ) r) :=
+  (isCompleteReinhardt_polydisc r).isRungeDomain (isOpen_polydisc 0 r)
 
 /-- Balls centered at the origin are Runge domains. -/
 theorem isRungeDomain_ball (r : ℝ) : IsRungeDomain (ball (0 : Fin n → ℂ) r) := by
@@ -99,7 +123,8 @@ theorem IsCircular.isRungeDomain {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc :
     (hrot : IsCircular U) (hzero : (0 : Fin n → ℂ) ∈ U) : IsRungeDomain U := by
   intro f hf K hK hKU ε hε
   obtain ⟨p, hp⟩ := hf 0 hzero
-  have hsum := (homogeneous_expansion_balancedHull ho hc hrot hzero hf hp).1
+  have hsum :=
+    (IsCircular.hasSumLocallyUniformlyOn_homogeneousTerm_balancedHull ho hc hrot hzero hf hp).1
   rw [hasSumLocallyUniformlyOn_iff_tendstoLocallyUniformlyOn] at hsum
   have hu := (tendstoLocallyUniformlyOn_iff_tendstoUniformlyOn_of_compact hK).mp (hsum.mono hKU)
   rw [Metric.tendstoUniformlyOn_iff] at hu
@@ -115,13 +140,13 @@ end Circular
 section Transport
 
 /-- The polynomial map with components `G i`. -/
-def mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ) (z : Fin n → ℂ) : Fin n → ℂ :=
+@[expose] def mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ) (z : Fin n → ℂ) : Fin n → ℂ :=
   fun i => MvPolynomial.eval z (G i)
 
 /-- Polynomial maps are continuous. -/
 theorem continuous_mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ) :
     Continuous (mvPolynomialMap G) :=
-  continuous_pi fun i => continuous_mvPolynomial_eval (G i)
+  continuous_pi fun i => (G i).continuous_eval
 
 /-- Substitution of a polynomial map into a polynomial. -/
 theorem eval_bind₁_mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ)
@@ -156,7 +181,7 @@ theorem IsRungeDomain.image_mvPolynomialMap {U : Set (Fin n → ℂ)} (hU : IsRu
   · exact fun z _ => by
       apply analyticAt_pi_iff.mpr
       intro i
-      exact analyticOnNhd_mvPolynomial (F i) z (mem_univ z)
+      exact AnalyticOnNhd.eval_mvPolynomial (F i) z (mem_univ z)
   · rintro _ ⟨z, hz, rfl⟩
     rw [hGF]
     exact hz

@@ -5,28 +5,27 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.LocallyUniform
+public import Mathlib.Topology.Algebra.InfiniteSum.NatInt
 public import SeveralComplexVariables.HartogsDomain
 public import SeveralComplexVariables.LaurentSeries.OneVariable
-public import Mathlib.Topology.Algebra.InfiniteSum.NatInt
+public import SeveralComplexVariables.LocallyUniform
 
 /-!
 # Local estimates for Hartogs–Laurent series
 
-Compact circles inside a Hartogs set give uniform bounds for nearby fibers.
-Two such circles bound the positive and negative Laurent terms by geometric
-series. At the zero section the negative coefficients vanish. These estimates
-upgrade a pointwise fiber expansion to locally uniform convergence without
-using an admitted expansion theorem.
+Compact circles inside a Hartogs set give uniform bounds for nearby fibers. Two such circles
+bound the positive and negative Laurent terms by geometric series. At the zero section the
+negative coefficients vanish. These estimates upgrade a pointwise fiber expansion to locally
+uniform convergence.
 
 ## Main results
 
-`IsHartogs.exists_circle_bound` is a uniform bound on nearby fibers from a compact
-circle in a Hartogs set. `hasSumLocallyUniformlyOn_hartogsLaurent` upgrades a
-pointwise fiber expansion to locally uniform convergence on the Hartogs set.
+`IsHartogs.exists_circle_bound` is a uniform bound on nearby fibers from a compact circle in a
+Hartogs set. `hasSumLocallyUniformlyOn_hartogsLaurent` upgrades a pointwise fiber expansion to
+locally uniform convergence on the Hartogs set.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
@@ -114,8 +113,8 @@ private theorem hasSumUniformlyOn_of_geometric_int_bounds {X : Type*} {N : Set X
 
 variable {f : E × ℂ → F} {a : ℤ → E → F}
 
-/-- Near the zero section the positive terms have a common geometric bound and
-all negative terms vanish. -/
+/-- Near the zero section the positive terms have a common geometric bound and all negative terms
+vanish. -/
 private theorem exists_uniform_laurent_neighborhood_zero (hH : IsHartogs U) (hU : IsOpen U)
     (hf : ContinuousOn f U)
     (hcoeff : ∀ (z : E) (r : ℝ), 0 < r → (z, (r : ℂ)) ∈ U →
@@ -149,8 +148,8 @@ private theorem exists_uniform_laurent_neighborhood_zero (hH : IsHartogs U) (hU 
     have hp0 := hεsub ((ball_subset_ball (min_le_right δ ε)) hp.1.1)
     simp [hzero p.1 hp0 (Int.negSucc n) (by omega)]
 
-/-- Away from zero, circles on either side of the fiber modulus give geometric
-majorants for both halves of the Laurent series. -/
+/-- Away from zero, circles on either side of the fiber modulus give geometric majorants for both
+halves of the Laurent series. -/
 private theorem exists_uniform_laurent_neighborhood_ne_zero (hH : IsHartogs U) (hU : IsOpen U)
     (hf : ContinuousOn f U)
     (hcoeff : ∀ (z : E) (r : ℝ), 0 < r → (z, (r : ℂ)) ∈ U →
@@ -192,8 +191,8 @@ private theorem exists_uniform_laurent_neighborhood_ne_zero (hH : IsHartogs U) (
     rw [hcoeff q.1 r hr hqr]
     exact norm_circleLaurentTerm_negSucc_le hr ht (fun w hw => (hc w hw).2) hq.1.2.1.le n
 
-/-- A pointwise Hartogs–Laurent expansion with circle coefficients converges locally
-uniformly. This estimate is independent of Laurent expansion existence. -/
+/-- A pointwise Hartogs–Laurent expansion with circle coefficients converges locally uniformly. This
+estimate is independent of Laurent expansion existence. -/
 theorem hasSumLocallyUniformlyOn_hartogsLaurent (hH : IsHartogs U) (hU : IsOpen U)
     (hf : ContinuousOn f U)
     (hcoeff : ∀ (z : E) (r : ℝ), 0 < r → (z, (r : ℂ)) ∈ U →

@@ -11,20 +11,24 @@ public import SeveralComplexVariables.FunctionSpace.Extension
 /-!
 # Restriction across analytic sets of codimension at least two
 
-Scheidemann's second Riemann theorem is stated as an isomorphism of holomorphic
-algebras. The forward map below is restriction. Injectivity uses density;
-surjectivity uses the proved second Riemann extension theorem.
-Disconnected and empty domains are allowed. No assertion about continuity of the
-inverse is needed for this algebraic formulation.
+[Scheidemann][Scheidemann2005]'s second Riemann theorem is stated as an isomorphism of
+holomorphic algebras. The forward map below is restriction. Injectivity uses density;
+surjectivity uses the proved second Riemann extension theorem. Disconnected and empty domains
+are allowed. No assertion about continuity of the inverse is needed for this algebraic
+formulation.
 
 ## Main results
 
-`analyticSetRestrictionAlgEquiv` is Scheidemann's second Riemann theorem as an
-isomorphism of holomorphic algebras across an analytic set of slice codimension at
-least two. `analyticSetRestrictionAlgEquiv_apply` is restriction of representatives.
+`analyticSetRestrictionAlgEquiv` is [Scheidemann][Scheidemann2005]'s second Riemann theorem as
+an isomorphism of holomorphic algebras across an analytic set of slice codimension at least two.
+`analyticSetRestrictionAlgEquiv_apply` is restriction of representatives.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set
 
@@ -33,16 +37,17 @@ namespace SeveralComplexVariables
 /-- **Second Riemann extension theorem, algebraic form.** Restriction across an analytic
 subset of slice codimension at least two is an isomorphism of complex algebras.
 Surjectivity follows from automatic local boundedness and the first Riemann theorem. -/
-def analyticSetRestrictionAlgEquiv {ι : Type*} [Fintype ι]
-    {U V : TopologicalSpace.Opens (ι → ℂ)} {A : Set (ι → ℂ)}
+def analyticSetRestrictionAlgEquiv {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+  [FiniteDimensional ℂ E]
+    {U V : TopologicalSpace.Opens E} {A : Set E}
     (hA : IsAnalyticSet U A) (hcodim : HasComplexSliceCodimensionAtLeast A 2)
-    (hV : (V : Set (ι → ℂ)) = (U : Set (ι → ℂ)) \ A) :
+    (hV : (V : Set E) = (U : Set E) \ A) :
     HolomorphicAlgebra U ≃ₐ[ℂ] HolomorphicAlgebra V := by
   have hVU : V ≤ U := by
-    change (V : Set (ι → ℂ)) ⊆ (U : Set (ι → ℂ))
+    change (V : Set E) ⊆ (U : Set E)
     rw [hV]
     exact sdiff_subset
-  have hd : (U : Set (ι → ℂ)) ⊆ closure (V : Set (ι → ℂ)) := by
+  have hd : (U : Set E) ⊆ closure (V : Set E) := by
     rw [hV]
     exact hA.subset_closure_sdiff (hcodim.interior_eq_empty (by decide))
   have hi := holomorphicRestrict_injective_of_subset_closure (F := ℂ) hVU hd
@@ -55,13 +60,14 @@ def analyticSetRestrictionAlgEquiv {ι : Type*} [Fintype ι]
     (by simpa only [holomorphicRestrictAlgHom_coe, Function.Bijective] using And.intro hi hs)
 
 /-- The forward algebra equivalence is exactly restriction to the complement. -/
-@[simp] theorem analyticSetRestrictionAlgEquiv_apply {ι : Type*} [Fintype ι]
-    {U V : TopologicalSpace.Opens (ι → ℂ)} {A : Set (ι → ℂ)}
+@[simp] theorem analyticSetRestrictionAlgEquiv_apply {E : Type*} [NormedAddCommGroup E]
+  [NormedSpace ℂ E] [FiniteDimensional ℂ E]
+    {U V : TopologicalSpace.Opens E} {A : Set E}
     (hA : IsAnalyticSet U A) (hcodim : HasComplexSliceCodimensionAtLeast A 2)
-    (hV : (V : Set (ι → ℂ)) = (U : Set (ι → ℂ)) \ A) (f : HolomorphicAlgebra U) :
+    (hV : (V : Set E) = (U : Set E) \ A) (f : HolomorphicAlgebra U) :
     analyticSetRestrictionAlgEquiv hA hcodim hV f =
       holomorphicRestrict (show V ≤ U from by
-        change (V : Set (ι → ℂ)) ⊆ (U : Set (ι → ℂ))
+        change (V : Set E) ⊆ (U : Set E)
         rw [hV]
         exact sdiff_subset) f := by
   simp [analyticSetRestrictionAlgEquiv]

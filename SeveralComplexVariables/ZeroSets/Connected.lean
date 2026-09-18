@@ -11,17 +11,17 @@ public import SeveralComplexVariables.RemovableSingularity.ExceptionalSet
 # Connectedness of the nonvanishing locus
 
 Removing a proper scalar holomorphic zero set from a connected open subset of a
-finite-dimensional complex space leaves a connected set. Extend the bounded locally
-constant separator of a hypothetical separation and apply the identity principle.
-More generally, the same holds for relatively closed sets locally contained in proper
-analytic zero sets, by the locally bounded Riemann extension theorem.
-This consequence is kept above removability to preserve the dependency order.
+finite-dimensional complex space leaves a connected set. Extend the bounded locally constant
+separator of a hypothetical separation and apply the identity principle. More generally, the
+same holds for relatively closed sets locally contained in proper analytic zero sets, by the
+locally bounded Riemann extension theorem. This consequence is kept above removability to
+preserve the dependency order.
 
 ## Main results
 
-`isConnected_nonzero_of_analyticOnNhd` is connectedness of the nonvanishing locus
-of a nonzero scalar holomorphic function. `isConnected_sdiff_of_locallyContainedInAnalyticZeroSet`
-is the corresponding statement for a relatively closed thin exceptional set.
+`isConnected_nonzero_of_analyticOnNhd` is connectedness of the nonvanishing locus of a nonzero
+scalar holomorphic function. `isConnected_sdiff_of_locallyContainedInAnalyticZeroSet` is the
+corresponding statement for a relatively closed thin exceptional set.
 -/
 
 public section
@@ -31,11 +31,11 @@ open scoped Topology
 
 namespace SeveralComplexVariables
 
-/-- A relatively closed set locally contained in proper analytic zero sets cannot
-disconnect a connected open domain. No positive-dimension hypothesis is needed. -/
+/-- A relatively closed set locally contained in proper analytic zero sets cannot disconnect a
+connected open domain. No positive-dimension hypothesis is needed. -/
 theorem isConnected_sdiff_of_locallyContainedInAnalyticZeroSet
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
-    {U S : Set E} (hU : IsOpen U) (hc : IsConnected U)
+    {U S : Set E} (hc : IsConnected U)
     (hUS : IsOpen (U \ S)) (hS : LocallyContainedInAnalyticZeroSet U S) :
     IsConnected (U \ S) := by
   classical
@@ -73,26 +73,27 @@ theorem isConnected_sdiff_of_locallyContainedInAnalyticZeroSet
     refine ⟨1, zero_lt_one, 1, fun z _ => ?_⟩
     dsimp [f]
     split_ifs <;> simp
-  obtain ⟨F, hF, hEq⟩ := exists_analyticOnNhd_extension_across_locallyContainedZeroSet hU hUS hS hf hb
+  obtain ⟨F, hF, hEq⟩ := exists_analyticOnNhd_extension_across_locallyContainedZeroSet hUS hS hf hb
   obtain ⟨a, ha, has⟩ := hVs
   have hFone : F =ᶠ[𝓝 a] (fun _ => (1 : ℂ)) := by
     filter_upwards [hVo.mem_nhds ha, hfs a has] with z hz hfz
     exact (hEq hz).trans hfz
-  have hconst := hF.eqOn_of_preconnected_of_eventuallyEq analyticOnNhd_const hc.isPreconnected ha.1 hFone
+  have hconst := hF.eqOn_of_preconnected_of_eventuallyEq analyticOnNhd_const hc.isPreconnected
+    ha.1 hFone
   obtain ⟨b, hbV, hbt⟩ := hVt
   have hbzero : F b = 0 := (hEq hbV).trans ((hft b ⟨hbV, hbt⟩).self_of_nhds)
   have hbone : F b = 1 := hconst hbV.1
   exact zero_ne_one (hbzero.symm.trans hbone)
 
-/-- A proper holomorphic zero set cannot disconnect a connected open domain.
-No positive-dimension hypothesis is needed. -/
+/-- A proper holomorphic zero set cannot disconnect a connected open domain. No positive-dimension
+hypothesis is needed. -/
 theorem isConnected_nonzero_of_analyticOnNhd
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     {U : Set E} (hU : IsOpen U) (hc : IsPreconnected U)
     {g : E → ℂ} (hg : AnalyticOnNhd ℂ g U) (hne : ∃ z ∈ U, g z ≠ 0) :
     IsConnected (U \ g ⁻¹' {0}) := by
   obtain ⟨z, hz, hgz⟩ := hne
-  apply isConnected_sdiff_of_locallyContainedInAnalyticZeroSet hU ⟨⟨z, hz⟩, hc⟩
+  apply isConnected_sdiff_of_locallyContainedInAnalyticZeroSet ⟨⟨z, hz⟩, hc⟩
     (hg.continuousOn.isOpen_inter_preimage hU isClosed_singleton.isOpen_compl)
   apply locallyContainedInAnalyticZeroSet_zeroSet hU hg
   intro a ha hzero

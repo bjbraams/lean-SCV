@@ -5,28 +5,38 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.WeierstrassDivision.Basic
-public import SeveralComplexVariables.IdentityPrinciple
-public import SeveralComplexVariables.CauchyDerivatives
-public import SeveralComplexVariables.ContourIntegral
 public import Mathlib.Algebra.Field.GeomSum
 public import Mathlib.Analysis.Analytic.Order
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 public import Mathlib.Analysis.Complex.AbsMax
+public import SeveralComplexVariables.CauchyDerivatives
+public import SeveralComplexVariables.ContourIntegral
+public import SeveralComplexVariables.IdentityPrinciple
+public import SeveralComplexVariables.WeierstrassDivision.Basic
 
 /-!
 # Division by a coordinate power
 
-Cauchy integrals construct division by `z.2 ^ d`, with a remainder of degree
-less than `d`. We establish holomorphic dependence on the parameters,
-compatibility of the quotient at different integration radii, uniqueness,
-and the sharp quotient estimate for bounded numerators.
+Cauchy integrals construct division by `z.2 ^ d`, with a remainder of degree less than `d`. We
+establish holomorphic dependence on the parameters, compatibility of the quotient at different
+integration radii, uniqueness, and the uniform quotient estimate for bounded numerators.
 
 The main result is `coordinatePower_division`, corresponding to
-Jakóbczak–Jarnicki, Lemma 1.7.4.
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021], Lemma 1.7.4.
+
+## Main results
+
+* `coordinatePower_division`: **Coordinate-power division
+  ([Jakóbczak–Jarnicki][JakobczakJarnicki2021] 1.7.4).** Every holomorphic function on a polydisc
+  has a unique quotient and polynomial remainder on division by `w^d`.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Finset Metric Set
 open scoped Real Topology
@@ -37,8 +47,8 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 variable {ι : Type*} [Fintype ι]
 
-/-- Algebraic splitting of the Cauchy kernel into a polynomial part of degree `< d`
-and a remainder with a factor `w^d`. -/
+/-- Algebraic splitting of the Cauchy kernel into a polynomial part of degree `< d` and a remainder
+with a factor `w^d`. -/
 theorem weierstrass_kernel_identity (d : ℕ) {s w : ℂ} (hs : s ≠ 0) (hsw : s ≠ w) :
     (∑ j ∈ range d, w ^ j / s ^ (j + 1)) + w ^ d / (s ^ d * (s - w)) = (s - w)⁻¹ := by
   have hne : s - w ≠ 0 := sub_ne_zero.mpr hsw
@@ -79,8 +89,8 @@ theorem differentiableOn_snd_slice {E : Type*} [NormedAddCommGroup E] [NormedSpa
     ((differentiableAt_const z).prodMk differentiableAt_id).differentiableWithinAt
     (fun t ht => ⟨hz, ht⟩)
 
-/-- Restricting a product slice to a strictly smaller disc gives continuity up to the
-closed disc. -/
+/-- Restricting a product slice to a strictly smaller disc gives continuity up to the closed
+disc. -/
 theorem diffContOnCl_snd_slice {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     {V : Set E} {R ρ : ℝ} {g : E × ℂ → ℂ}
     (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R)) {z : E} (hz : z ∈ V)
@@ -113,8 +123,8 @@ theorem iteratedDeriv_weierstrassRemainder_const {d : ℕ} (a : Fin d → ℂ) (
       ne_of_gt (j.isLt.trans_le (le_of_not_gt hk))
     simp [hjk]
 
-/-- In coordinate-power division the remainder coefficients are the Taylor coefficients
-of the last-coordinate slice. -/
+/-- In coordinate-power division the remainder coefficients are the Taylor coefficients of the
+last-coordinate slice. -/
 theorem coeff_eq_iteratedDeriv_of_coordinatePower_division {d : ℕ}
     {V : Set (ι → ℂ)} {R : ℝ} {g q : (ι → ℂ) × ℂ → ℂ} {a : Fin d → (ι → ℂ) → ℂ}
     (h : IsWeierstrassDivisionOn (fun z => z.2 ^ d) g q a V R)
@@ -123,7 +133,7 @@ theorem coeff_eq_iteratedDeriv_of_coordinatePower_division {d : ℕ}
       iteratedDeriv (j : ℕ) (fun w => g (z, w)) 0 := by
   have hz0 : (0 : ℂ) ∈ ball 0 R := mem_ball_self hR
   have hqA : AnalyticAt ℂ (fun w => q (z, w)) 0 :=
-    ((differentiableOn_snd_slice h.quotient_holomorphic hz).analyticOnNhd_finiteDimensional
+    ((differentiableOn_snd_slice h.differentiableOn_quotient hz).analyticOnNhd_of_finiteDimensional
       isOpen_ball) _ hz0
   have hpow : AnalyticAt ℂ (fun w : ℂ => w ^ d) 0 := analyticAt_id.pow d
   have hprod : AnalyticAt ℂ (fun w => w ^ d * q (z, w)) 0 := hpow.mul hqA
@@ -158,9 +168,9 @@ theorem coeff_eq_iteratedDeriv_of_coordinatePower_division {d : ℕ}
   rw [hder, hadd, hvan _ hj, zero_add, iteratedDeriv_weierstrassRemainder_const, dite_eq_left hj]
   field_simp [Nat.cast_ne_zero.mpr (Nat.factorial_ne_zero (j : ℕ))]
 
-/-- Coordinate-power decompositions are unique: remainder coefficients are Taylor
-coefficients of the last-coordinate slice, and the quotient is then recovered from
-the identity. Continuity fills in the central fibre `w = 0`. -/
+/-- Coordinate-power decompositions are unique: remainder coefficients are Taylor coefficients of
+the last-coordinate slice, and the quotient is then recovered from the identity. Continuity
+fills in the central fibre `w = 0`. -/
 theorem unique_coordinatePower_division {d : ℕ} {V : Set (ι → ℂ)} {R : ℝ}
     {g q q' : (ι → ℂ) × ℂ → ℂ} {a a' : Fin d → (ι → ℂ) → ℂ}
     (h : IsWeierstrassDivisionOn (fun z => z.2 ^ d) g q a V R)
@@ -182,10 +192,12 @@ theorem unique_coordinatePower_division {d : ℕ} {V : Set (ι → ℂ)} {R : �
     simpa [hrem] using hid
   by_cases hw : z.2 = 0
   · have hqA : AnalyticAt ℂ (fun w => q (z.1, w)) 0 :=
-      ((differentiableOn_snd_slice h.quotient_holomorphic hz.1).analyticOnNhd_finiteDimensional
+      ((differentiableOn_snd_slice h.differentiableOn_quotient
+        hz.1).analyticOnNhd_of_finiteDimensional
         isOpen_ball) _ (mem_ball_self hR)
     have hqA' : AnalyticAt ℂ (fun w => q' (z.1, w)) 0 :=
-      ((differentiableOn_snd_slice h'.quotient_holomorphic hz.1).analyticOnNhd_finiteDimensional
+      ((differentiableOn_snd_slice h'.differentiableOn_quotient
+        hz.1).analyticOnNhd_of_finiteDimensional
         isOpen_ball) _ (mem_ball_self hR)
     have heq : (fun w => q (z.1, w)) =ᶠ[𝓝[≠] (0 : ℂ)] fun w => q' (z.1, w) := by
       have hball : ∀ᶠ w in 𝓝[≠] (0 : ℂ), w ∈ ball (0 : ℂ) R :=
@@ -222,8 +234,8 @@ theorem iteratedDeriv_snd_slice_circleIntegral
     (diffContOnCl_snd_slice hg hz hρ hρR).iteratedDeriv_eq_circleIntegral_sub_zpow_mul
       hρ n (mem_ball_self hρ)
 
-/-- The Cauchy integral of a jointly holomorphic kernel in the last coordinate remains
-holomorphic in the parameters. -/
+/-- The Cauchy integral of a jointly holomorphic kernel in the last coordinate remains holomorphic
+in the parameters. -/
 theorem analyticOnNhd_circleIntegral_snd_zpow_mul
     {V : Set (ι → ℂ)} (hV : IsOpen V) {R ρ : ℝ} {g : (ι → ℂ) × ℂ → ℂ}
     (hg : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R)) (hρ : 0 < ρ) (hρR : ρ < R) (n : ℕ) :
@@ -243,8 +255,8 @@ theorem analyticOnNhd_circleIntegral_snd_zpow_mul
   refine hI.congr hV fun z hz => ?_
   exact circleIntegral.integral_congr hρ.le fun s _ => mul_comm _ _
 
-/-- The Taylor remainder coefficients of a last-coordinate slice depend holomorphically
-on the remaining coordinates. -/
+/-- The Taylor remainder coefficients of a last-coordinate slice depend holomorphically on the
+remaining coordinates. -/
 theorem differentiableOn_iteratedDeriv_snd_slice
     {V : Set (ι → ℂ)} (hV : IsOpen V) {R : ℝ} {g : (ι → ℂ) × ℂ → ℂ}
     (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R)) (hR : 0 < R) (n : ℕ) :
@@ -253,7 +265,7 @@ theorem differentiableOn_iteratedDeriv_snd_slice
   have hρ : 0 < ρ := half_pos hR
   have hρR : ρ < R := half_lt_self hR
   have hgA : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R) :=
-    hg.analyticOnNhd_finiteDimensional (hV.prod isOpen_ball)
+    hg.analyticOnNhd_of_finiteDimensional (hV.prod isOpen_ball)
   have hI := analyticOnNhd_circleIntegral_snd_zpow_mul hV hgA hρ hρR n
   have hEq : EqOn (fun z => iteratedDeriv n (fun w => g (z, w)) 0)
       (fun z => (n.factorial : ℂ) * (2 * Real.pi * I : ℂ)⁻¹ *
@@ -263,12 +275,12 @@ theorem differentiableOn_iteratedDeriv_snd_slice
     (fun z hz => (hEq hz).symm)).differentiableOn
 
 /-- Cauchy integral representing the Weierstrass quotient for division by `w^d`. -/
-def weierstrassCauchyQuotient (d : ℕ) (g : (ι → ℂ) × ℂ → ℂ) (ρ : ℝ)
+private def weierstrassCauchyQuotient (d : ℕ) (g : (ι → ℂ) × ℂ → ℂ) (ρ : ℝ)
     (z : (ι → ℂ) × ℂ) : ℂ :=
   (2 * Real.pi * I : ℂ)⁻¹ * ∮ s in C(0, ρ), g (z.1, s) / (s ^ d * (s - z.2))
 
 /-- The Cauchy quotient is jointly holomorphic on a strictly smaller product polydisc. -/
-theorem analyticOnNhd_weierstrassCauchyQuotient
+private theorem analyticOnNhd_weierstrassCauchyQuotient
     {V : Set (ι → ℂ)} (hV : IsOpen V) {R ρ₀ ρ : ℝ} {g : (ι → ℂ) × ℂ → ℂ}
     (hg : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R))
     (hρ₀ : 0 < ρ₀) (hρ₀ρ : ρ₀ < ρ) (hρR : ρ < R) (d : ℕ) :
@@ -311,8 +323,8 @@ theorem analyticOnNhd_weierstrassCauchyQuotient
   refine hI.congr (hV.prod isOpen_ball) fun z hz => ?_
   simp [weierstrassCauchyQuotient, smul_eq_mul, H]
 
-/-- A bound of the form `M / ρ ^ n`, valid for every positive `ρ < R`, persists at `R`
-itself by continuity of the bound in `ρ`. -/
+/-- A bound of the form `M / ρ ^ n`, valid for every positive `ρ < R`, persists at `R` itself by
+continuity of the bound in `ρ`. -/
 theorem le_div_pow_of_forall_lt {M : ℝ} {R : ℝ} (hR : 0 < R) (n : ℕ) {x : ℝ}
     (h : ∀ ρ, 0 < ρ → ρ < R → x ≤ M / ρ ^ n) : x ≤ M / R ^ n := by
   have hcont : ContinuousAt (fun ρ : ℝ => M / ρ ^ n) R :=
@@ -324,9 +336,8 @@ theorem le_div_pow_of_forall_lt {M : ℝ} {R : ℝ} (hR : 0 < R) (n : ℕ) {x : 
     (eventually_gt_nhds hR).filter_mono nhdsWithin_le_nhds] with ρ hρR hρ0
   exact h ρ hρ0 hρR
 
-/-- Cauchy's estimate for the Taylor coefficients of a last-coordinate slice, uniform up
-to the boundary radius `R` even though the function is only assumed holomorphic on the
-open polydisc. -/
+/-- Cauchy's estimate for the Taylor coefficients of a last-coordinate slice, uniform up to the
+boundary radius `R` even though the function is only assumed holomorphic on the open polydisc. -/
 theorem norm_iteratedDeriv_snd_slice_le {V : Set (ι → ℂ)} {R : ℝ} {g : (ι → ℂ) × ℂ → ℂ}
     {M : ℝ} (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R)) (hR : 0 < R) {z : ι → ℂ} (hz : z ∈ V)
     (hM : ∀ w ∈ ball (0 : ℂ) R, ‖g (z, w)‖ ≤ M) (n : ℕ) :
@@ -357,8 +368,8 @@ theorem norm_iteratedDeriv_snd_slice_le {V : Set (ι → ℂ)} {R : ℝ} {g : (�
       ≤ (n.factorial : ℝ) * (M / ρ ^ n) := mul_le_mul_of_nonneg_left hkernel (by positivity)
     _ = (n.factorial : ℝ) * M / ρ ^ n := by ring
 
-/-- The Cauchy coefficient of a last-coordinate slice equals a division-kernel circle
-integral, matching the shape used by the coordinate-power kernel identity. -/
+/-- The Cauchy coefficient of a last-coordinate slice equals a division-kernel circle integral,
+matching the shape used by the coordinate-power kernel identity. -/
 theorem cauchyCoeff_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g : (ι → ℂ) × ℂ → ℂ}
     (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R)) {w : ι → ℂ} (hw : w ∈ V)
     (hρ : 0 < ρ) (hρR : ρ < R) (j : ℕ) :
@@ -376,10 +387,9 @@ theorem cauchyCoeff_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g : (ι → �
     inv_mul_cancel_left₀ (by exact_mod_cast j.factorial_ne_zero :
       ((j : ℕ).factorial : ℂ) ≠ 0)]
 
-/-- The Cauchy quotient at a fixed admissible radius solves the coordinate-power
-division identity there, with remainder coefficients given by Taylor coefficients
-of the last-coordinate slice. -/
-theorem coordinatePower_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g : (ι → ℂ) × ℂ → ℂ}
+/-- The Cauchy quotient at a fixed admissible radius solves the coordinate-power division identity
+there, with remainder coefficients given by Taylor coefficients of the last-coordinate slice. -/
+private theorem coordinatePower_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g : (ι → ℂ) × ℂ → ℂ}
     (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R)) (hρ : 0 < ρ) (hρR : ρ < R) (d : ℕ)
     {w : ι → ℂ} (hw : w ∈ V) {ζ : ℂ} (hζ : ζ ∈ ball (0 : ℂ) ρ) :
     g (w, ζ) = weierstrassRemainder
@@ -417,7 +427,8 @@ theorem coordinatePower_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g : (ι �
     intro j _
     exact ContinuousOn.div continuousOn_const (continuousOn_pow _)
       (fun s hs => pow_ne_zero _ (hne0 s hs))
-  have hcont2 : ContinuousOn (fun s => ζ ^ d / (s ^ d * (s - ζ)) * g (w, s)) (sphere (0 : ℂ) ρ) := by
+  have hcont2 : ContinuousOn (fun s => ζ ^ d / (s ^ d * (s - ζ)) * g (w, s)) (sphere (0 : ℂ) ρ) :=
+    by
     apply ContinuousOn.mul _ hcontslice
     exact ContinuousOn.div continuousOn_const
       ((continuousOn_pow _).mul (continuousOn_id.sub continuousOn_const))
@@ -450,7 +461,8 @@ theorem coordinatePower_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g : (ι �
   rw [hsum, hquot, mul_add] at hcauchy
   have hstep1 : (2 * Real.pi * I : ℂ)⁻¹ *
         ∑ j ∈ range d, ζ ^ j * ∮ s in C(0, ρ), g (w, s) / s ^ (j + 1) =
-      ∑ j ∈ range d, (((j : ℕ).factorial : ℂ)⁻¹ * iteratedDeriv j (fun s => g (w, s)) 0) * ζ ^ j := by
+      ∑ j ∈ range d, (((j : ℕ).factorial : ℂ)⁻¹ * iteratedDeriv j (fun s => g (w, s)) 0) * ζ ^ j
+        := by
     rw [Finset.mul_sum]
     exact Finset.sum_congr rfl fun j _ => by
       rw [mul_left_comm, cauchyCoeff_eq_of_lt hg hw hρ hρR j, mul_comm]
@@ -460,9 +472,9 @@ theorem coordinatePower_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g : (ι �
       iteratedDeriv j (fun s => g (w, s)) 0 * ζ ^ j)]
   ring
 
-/-- The Cauchy quotient at two admissible radii agrees at every nonzero point where
-both are defined. -/
-theorem weierstrassCauchyQuotient_eq_of_ne {V : Set (ι → ℂ)} {R ρ₁ ρ₂ : ℝ}
+/-- The Cauchy quotient at two admissible radii agrees at every nonzero point where both are
+defined. -/
+private theorem weierstrassCauchyQuotient_eq_of_ne {V : Set (ι → ℂ)} {R ρ₁ ρ₂ : ℝ}
     {g : (ι → ℂ) × ℂ → ℂ} (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R))
     (hρ₁ : 0 < ρ₁) (hρ₁R : ρ₁ < R) (hρ₂ : 0 < ρ₂) (hρ₂R : ρ₂ < R) (d : ℕ)
     {w : ι → ℂ} (hw : w ∈ V) {ζ : ℂ} (hζ0 : ζ ≠ 0)
@@ -478,7 +490,7 @@ theorem weierstrassCauchyQuotient_eq_of_ne {V : Set (ι → ℂ)} {R ρ₁ ρ₂
   exact mul_left_cancel₀ (pow_ne_zero d hζ0) heq
 
 /-- The Cauchy quotient at two admissible radii agrees wherever both are defined. -/
-theorem weierstrassCauchyQuotient_eq_of_lt {V : Set (ι → ℂ)} (hV : IsOpen V) {R ρ₁ ρ₂ : ℝ}
+private theorem weierstrassCauchyQuotient_eq_of_lt {V : Set (ι → ℂ)} (hV : IsOpen V) {R ρ₁ ρ₂ : ℝ}
     {g : (ι → ℂ) × ℂ → ℂ} (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R))
     (hρ₁ : 0 < ρ₁) (hρ₁R : ρ₁ < R) (hρ₂ : 0 < ρ₂) (hρ₂R : ρ₂ < R) (d : ℕ)
     {w : ι → ℂ} (hw : w ∈ V) {ζ : ℂ} (hζ₁ : ζ ∈ ball (0 : ℂ) ρ₁) (hζ₂ : ζ ∈ ball (0 : ℂ) ρ₂) :
@@ -493,7 +505,7 @@ theorem weierstrassCauchyQuotient_eq_of_lt {V : Set (ι → ℂ)} (hV : IsOpen V
     have hρ₀ρ₂ : ρ₀ < ρ₂ :=
       calc ρ₀ ≤ ρ₂ / 2 := by rw [hρ₀def]; gcongr; exact min_le_right ρ₁ ρ₂
         _ < ρ₂ := by linarith
-    have hgA : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R) := hg.analyticOnNhd_finiteDimensional
+    have hgA : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R) := hg.analyticOnNhd_of_finiteDimensional
       (hV.prod isOpen_ball)
     have hA1 : AnalyticOnNhd ℂ (fun ζ' => weierstrassCauchyQuotient d g ρ₁ (w, ζ')) (ball 0 ρ₀) :=
       fun ζ' hζ' => ((analyticOnNhd_weierstrassCauchyQuotient hV hgA hρ₀pos hρ₀ρ₁ hρ₁R d)
@@ -519,11 +531,9 @@ theorem weierstrassCauchyQuotient_eq_of_lt {V : Set (ι → ℂ)} (hV : IsOpen V
     exact tendsto_nhds_unique (hlim1.congr' heqn) hlim2
   · exact weierstrassCauchyQuotient_eq_of_ne hg hρ₁ hρ₁R hρ₂ hρ₂R d hw hζ0 hζ₁ hζ₂
 
-/-- The **sharp coordinate-power quotient bound**: the Cauchy quotient at radius `ρ` is
-bounded by `(d+1) M / ρ ^ d` throughout the disc, using a bound `M` on the numerator over
-the whole domain. The proof compares the numerator to its degree-`< d` Taylor polynomial,
-bounded by `(d+1) M` via Cauchy's estimate, then applies the maximum modulus principle to
-the quotient itself and lets the comparison radius approach `ρ`. -/
+/-- Subtracting the Taylor polynomial of degree less than `d` from a function bounded by `M` gives a
+numerator bounded by `(d + 1) * M`. The triangle inequality and Cauchy's coefficient bounds
+control each of the `d` remainder terms on the smaller disc. -/
 theorem norm_sub_weierstrassRemainder_iteratedDeriv_le {V : Set (ι → ℂ)} {R ρ M : ℝ}
     {g : (ι → ℂ) × ℂ → ℂ} (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R)) (hρR : ρ < R) (d : ℕ)
     (hM : ∀ z ∈ V ×ˢ ball (0 : ℂ) R, ‖g z‖ ≤ M) {w : ι → ℂ} (hw : w ∈ V) {ζ' : ℂ}
@@ -573,12 +583,12 @@ theorem norm_sub_weierstrassRemainder_iteratedDeriv_le {V : Set (ι → ℂ)} {R
     _ ≤ M + (d : ℝ) * M := add_le_add hgb hrem
     _ = ((d + 1 : ℕ) : ℝ) * M := by push_cast; ring
 
-/-- The **sharp coordinate-power quotient bound**: the Cauchy quotient at radius `ρ` is
-bounded by `(d+1) M / ρ ^ d` throughout the disc, using a bound `M` on the numerator over
-the whole domain. The proof compares the numerator to its degree-`< d` Taylor polynomial,
-bounded by `(d+1) M` via `norm_sub_weierstrassRemainder_iteratedDeriv_le`, then applies the
-maximum modulus principle to the quotient itself and lets the comparison radius approach `ρ`. -/
-theorem norm_weierstrassCauchyQuotient_le {V : Set (ι → ℂ)} (hV : IsOpen V) {R ρ M : ℝ}
+/-- The **uniform coordinate-power quotient bound**: the Cauchy quotient at radius `ρ` is bounded by
+`(d+1) M / ρ ^ d` throughout the disc, using a bound `M` on the numerator over the whole domain.
+The proof compares the numerator to its degree-`< d` Taylor polynomial, bounded by `(d+1) M` via
+`norm_sub_weierstrassRemainder_iteratedDeriv_le`, then applies the maximum modulus principle to
+the quotient itself and lets the comparison radius approach `ρ`. -/
+private theorem norm_weierstrassCauchyQuotient_le {V : Set (ι → ℂ)} (hV : IsOpen V) {R ρ M : ℝ}
     {g : (ι → ℂ) × ℂ → ℂ} (hg : DifferentiableOn ℂ g (V ×ˢ ball 0 R))
     (hρ : 0 < ρ) (hρR : ρ < R) (d : ℕ)
     (hM : ∀ z ∈ V ×ˢ ball (0 : ℂ) R, ‖g z‖ ≤ M) {w : ι → ℂ} (hw : w ∈ V) {ζ0 : ℂ}
@@ -586,7 +596,7 @@ theorem norm_weierstrassCauchyQuotient_le {V : Set (ι → ℂ)} (hV : IsOpen V)
     ‖weierstrassCauchyQuotient d g ρ (w, ζ0)‖ ≤ ((d + 1 : ℕ) : ℝ) * M / ρ ^ d := by
   have hR0 : 0 < R := hρ.trans hρR
   have hMnn : 0 ≤ M := (norm_nonneg _).trans (hM (w, 0) ⟨hw, mem_ball_self hR0⟩)
-  have hgA : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R) := hg.analyticOnNhd_finiteDimensional
+  have hgA : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R) := hg.analyticOnNhd_of_finiteDimensional
     (hV.prod isOpen_ball)
   have hψ : ∀ ζ' : ℂ, ζ' ∈ ball (0 : ℂ) ρ →
       ‖g (w, ζ') - weierstrassRemainder (d := d) (fun j v => ((j : ℕ).factorial : ℂ)⁻¹ *
@@ -639,26 +649,27 @@ theorem norm_weierstrassCauchyQuotient_le {V : Set (ι → ℂ)} (hV : IsOpen V)
     mem_nhdsWithin_of_mem_nhds (eventually_gt_nhds hζ0ρ)] with ρ' hρ'ρ hρ'ζ0
   exact hqbound ρ' hρ'ζ0 hρ'ρ
 
-/-- **Coordinate-power division (Jakóbczak–Jarnicki 1.7.4).** Every holomorphic function
+/-- **Coordinate-power division ([Jakóbczak–Jarnicki][JakobczakJarnicki2021] 1.7.4).** Every
+holomorphic function
 on a polydisc has a unique quotient and polynomial remainder on division by `w^d`.
 The quotient estimate applies whenever the numerator is bounded. Uniqueness follows
 from the coordinate-power uniqueness theorem above.
 Empty parameter index types and `d = 0` are included. -/
 theorem coordinatePower_division (d : ℕ) {r : ι → ℝ} {R : ℝ} (hR : 0 < R)
     {g : (ι → ℂ) × ℂ → ℂ}
-    (hg : DifferentiableOn ℂ g (polydiscWithRadii 0 r ×ˢ ball 0 R)) :
+    (hg : DifferentiableOn ℂ g (polydisc 0 r ×ˢ ball 0 R)) :
     ∃ q : (ι → ℂ) × ℂ → ℂ, ∃ a : Fin d → (ι → ℂ) → ℂ,
-      IsWeierstrassDivisionOn (fun z => z.2 ^ d) g q a (polydiscWithRadii 0 r) R ∧
+      IsWeierstrassDivisionOn (fun z => z.2 ^ d) g q a (polydisc 0 r) R ∧
       (∀ M : ℝ, 0 ≤ M →
-        (∀ z ∈ polydiscWithRadii 0 r ×ˢ ball 0 R, ‖g z‖ ≤ M) →
-        ∀ z ∈ polydiscWithRadii 0 r ×ˢ ball 0 R, ‖q z‖ ≤ ((d + 1 : ℕ) : ℝ) / R ^ d * M) ∧
+        (∀ z ∈ polydisc 0 r ×ˢ ball 0 R, ‖g z‖ ≤ M) →
+        ∀ z ∈ polydisc 0 r ×ˢ ball 0 R, ‖q z‖ ≤ ((d + 1 : ℕ) : ℝ) / R ^ d * M) ∧
       (∀ q' a', IsWeierstrassDivisionOn (fun z => z.2 ^ d) g q' a'
-          (polydiscWithRadii 0 r) R →
-        EqOn q q' (polydiscWithRadii 0 r ×ˢ ball 0 R) ∧
-        ∀ j, EqOn (a j) (a' j) (polydiscWithRadii 0 r)) := by
-  set V := polydiscWithRadii (0 : ι → ℂ) r with hVdef
-  have hVo : IsOpen V := isOpen_polydiscWithRadii _ _
-  have hgA : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R) := hg.analyticOnNhd_finiteDimensional
+          (polydisc 0 r) R →
+        EqOn q q' (polydisc 0 r ×ˢ ball 0 R) ∧
+        ∀ j, EqOn (a j) (a' j) (polydisc 0 r)) := by
+  set V := polydisc (0 : ι → ℂ) r with hVdef
+  have hVo : IsOpen V := isOpen_polydisc _ _
+  have hgA : AnalyticOnNhd ℂ g (V ×ˢ ball 0 R) := hg.analyticOnNhd_of_finiteDimensional
     (hVo.prod isOpen_ball)
   set a : Fin d → (ι → ℂ) → ℂ := fun j w =>
     ((j : ℕ).factorial : ℂ)⁻¹ * iteratedDeriv (j : ℕ) (fun s => g (w, s)) 0 with hadef

@@ -10,27 +10,32 @@ public import SeveralComplexVariables.InjectiveMapping.CriticalSet
 /-!
 # Injective holomorphic maps in equal dimensions
 
-An injective holomorphic map between equal-dimensional finite-dimensional complex
-spaces has invertible derivative and is biholomorphic onto its open image.
-No connectedness or nonemptiness is required. The critical-set argument proves
-nonsingularity; the inverse mapping theorem then gives the global inverse onto the image.
-Supporting modules separate one-variable nonsingularity, immersion points, the
-codimension-one reduction, and exclusion of the critical set.
+An injective holomorphic map between equal-dimensional finite-dimensional complex spaces has
+invertible derivative and is biholomorphic onto its open image. No connectedness or nonemptiness
+is required. The critical-set argument proves nonsingularity; the inverse mapping theorem then
+gives the global inverse onto the image. Supporting modules separate one-variable
+nonsingularity, immersion points, the codimension-one reduction, and exclusion of the critical
+set.
 
-Reference: Fritzsche–Grauert I, Theorem 8.5 and Corollary 8.6.
+Reference: [Fritzsche–Grauert][FritzscheGrauert2002] I, Theorem 8.5 and Corollary 8.6.
 
 ## Main results
 
-`isInvertible_fderiv_of_injOn` is nonsingularity of an injective holomorphic map
-in equal dimensions. `exists_biholomorphic_of_injOn` produces a biholomorphism onto
-the image. `isOpen_image_of_holomorphic_injOn` is openness of the image.
-`det_complexJacobian_ne_zero_of_injOn` is the Jacobian form in coordinates.
+`isInvertible_fderiv_of_injOn` is nonsingularity of an injective holomorphic map in equal
+dimensions. `exists_biholomorphic_of_injOn` produces a biholomorphism onto the image.
+`isOpen_image_of_holomorphic_injOn` is openness of the image. `det_complexJacobian_ne_zero_of_injOn`
+is the Jacobian form in coordinates.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
 -/
 
 public noncomputable section
 
 open Set Filter
-open scoped Classical Topology
+open scoped Topology
 
 namespace SeveralComplexVariables
 
@@ -38,9 +43,9 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F]
   [FiniteDimensional ℂ E] [FiniteDimensional ℂ F]
 
-/-- An injective holomorphic map in equal dimensions has invertible complex derivative.
-Equal dimensions are essential: an injective parametrization of a cusp can have zero derivative.
-The proof includes dimension zero and arbitrary finite-dimensional complex normed spaces. -/
+/-- An injective holomorphic map in equal dimensions has invertible complex derivative. Equal
+dimensions are essential: an injective parametrization of a cusp can have zero derivative. The
+proof includes dimension zero and arbitrary finite-dimensional complex normed spaces. -/
 theorem isInvertible_fderiv_of_injOn (hdim : Module.finrank ℂ E = Module.finrank ℂ F)
     {U : Set E} (hU : IsOpen U) {f : E → F} (hf : DifferentiableOn ℂ f U)
     (hi : InjOn f U) {a : E} (ha : a ∈ U) : (fderiv ℂ f a).IsInvertible := by
@@ -73,8 +78,8 @@ theorem isInvertible_fderiv_of_injOn (hdim : Module.finrank ℂ E = Module.finra
   simpa only [hda, ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
     A.symm_apply_apply, B.apply_symm_apply] using he
 
-/-- An injective holomorphic map between equal-dimensional spaces gives a biholomorphic
-map with source exactly `U` and target exactly its image. This follows from nonsingularity. -/
+/-- An injective holomorphic map between equal-dimensional spaces gives a biholomorphic map with
+source exactly `U` and target exactly its image. This follows from nonsingularity. -/
 theorem exists_biholomorphic_of_injOn (hdim : Module.finrank ℂ E = Module.finrank ℂ F)
     {U : Set E} (hU : IsOpen U) {f : E → F} (hf : DifferentiableOn ℂ f U)
     (hi : InjOn f U) :
@@ -127,7 +132,7 @@ theorem isOpen_image_of_holomorphic_injOn (hdim : Module.finrank ℂ E = Module.
   exact ht ▸ e.open_target
 
 /-- The coordinate Jacobian determinant of an injective holomorphic map never vanishes. -/
-theorem det_complexJacobian_ne_zero_of_injOn {ι : Type*} [Fintype ι]
+theorem det_complexJacobian_ne_zero_of_injOn {ι : Type*} [Fintype ι] [DecidableEq ι]
     {U : Set (ι → ℂ)} (hU : IsOpen U) {f : (ι → ℂ) → (ι → ℂ)}
     (hf : DifferentiableOn ℂ f U) (hi : InjOn f U) {a : ι → ℂ} (ha : a ∈ U) :
     (complexJacobian f a).det ≠ 0 :=

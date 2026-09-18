@@ -5,24 +5,23 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.ZeroSets.Basic
 public import Mathlib.Analysis.Analytic.IsolatedZeros
 public import Mathlib.Topology.Compactness.Compact
+public import SeveralComplexVariables.ZeroSets.Basic
 
 /-!
 # Circles avoiding an analytic zero set
 
-A nonzero analytic germ admits a complex line on which it is not identically zero.
-A small circle on that line avoids its zeros. Compactness then gives a fixed circle
-that continues to avoid the zeros under small translations of its centre. A slightly
-larger closed disc remains in the original open domain. No preparation or division
-theorem is used.
+A nonzero analytic germ admits a complex line on which it is not identically zero. A small
+circle on that line avoids its zeros. Compactness then gives a fixed circle that continues to
+avoid the zeros under small translations of its centre. A slightly larger closed disc remains in
+the original open domain. No preparation or division theorem is used.
 
 ## Main results
 
-`exists_nonzero_line_of_analyticAt` produces a complex line on which a nonzero germ
-is not identically zero. `exists_translated_circle_avoiding_zeroSet` produces a
-circle that continues to avoid the zeros under small translations of its centre.
+`exists_nonzero_line_of_analyticAt` produces a complex line on which a nonzero germ is not
+identically zero. `exists_translated_circle_avoiding_zeroSet` produces a circle that continues
+to avoid the zeros under small translations of its centre.
 -/
 
 public section
@@ -60,9 +59,9 @@ theorem exists_nonzero_line_of_analyticAt {g : E → ℂ} {a : E}
     exact hgb (by simpa [v] using he h1)
   · exact ⟨0, fun h => hga (by simpa using h.self_of_nhds)⟩
 
-/-- A fixed translated circle avoids the zero set for all nearby centres, while a
-larger closed disc stays in the original domain. This also permits the zero direction
-when the defining function is already nonzero at the centre. -/
+/-- A fixed translated circle avoids the zero set for all nearby centres, while a larger closed disc
+stays in the original domain. This also permits the zero direction when the defining function is
+already nonzero at the centre. -/
 theorem exists_translated_circle_avoiding_zeroSet {U : Set E} (hU : IsOpen U)
     {g : E → ℂ} (hg : AnalyticOnNhd ℂ g U) {a : E} (ha : a ∈ U)
     (hne : ¬ g =ᶠ[𝓝 a] 0) :
@@ -100,7 +99,11 @@ theorem exists_translated_circle_avoiding_zeroSet {U : Set E} (hU : IsOpen U)
       rcases hz with rfl
       have hwδ : w ∈ ball (0 : ℂ) δ :=
         mem_ball.mpr ((mem_sphere.mp hw).trans_lt (hrR.trans hRd))
-      exact ⟨(hd hwδ).1, (hd hwδ).2 (by intro h; have heq := mem_sphere.mp hw; simp [h] at heq; linarith)⟩)
+      refine ⟨(hd hwδ).1, (hd hwδ).2 ?_⟩
+      intro h
+      have heq := mem_sphere.mp hw
+      simp [h] at heq
+      linarith)
   refine ⟨v, r, R, V₁ ∩ V₂, hr, hrR, hV₁.inter hV₂,
     ⟨ha₁ (mem_singleton a), ha₂ (mem_singleton a)⟩, ?_, ?_⟩
   · intro z hz w hw

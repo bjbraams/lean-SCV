@@ -12,33 +12,49 @@ public import SeveralComplexVariables.ParametricIntegral
 /-!
 # Mixed Cauchy coefficients
 
-Higher Cauchy kernels on polydiscs with separate radii. Differentiating the evaluation
-point raises the corresponding kernel exponent; the integration contour remains fixed.
-This identifies every mixed derivative with the multi-index factorial times its Cauchy
-coefficient, proves independence from the contour radii, and yields the sharp mixed-derivative
-Cauchy estimate. `PolydiscTaylor` uses these coefficients for convergent Taylor expansions.
+Higher Cauchy kernels on polydiscs with separate radii. Differentiating the evaluation point
+raises the corresponding kernel exponent; the integration contour remains fixed. This identifies
+every mixed derivative with the multi-index factorial times its Cauchy coefficient, proves
+independence from the contour radii, and yields the sharp mixed-derivative Cauchy estimate.
+`PolydiscTaylor` uses these coefficients for convergent Taylor expansions.
+
+## Main definitions
+
+* `cauchyKernel`: The higher Cauchy kernel of multi-index `m`.
+* `cauchyTransform`: The higher Cauchy transform with a fixed contour and variable evaluation point.
+* `polydiscCauchyCoeffWithRadii`: Multi-index Cauchy coefficients for a polydisc with separate
+  radii.
+
+## Main results
+
+* `multiIndexDeriv_eq_factorial_smul_cauchyCoeff`: Mixed derivatives at the center are multi-index
+  factorials times the Cauchy coefficients.
+* `polydiscCauchyCoeffWithRadii_eq_of_radii`: Changing the positive contour radii does not change
+  the Cauchy coefficients.
+* `norm_multiIndexDeriv_le`: Cauchy's estimate for every mixed derivative, with the usual
+  multi-index factorial and a separate radius in each coordinate.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Function MeasureTheory Metric Set
-open scoped Classical Real Topology
+open scoped Real Topology
 
 namespace SeveralComplexVariables
 
 variable {d : ℕ} {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 /-- The higher Cauchy kernel of multi-index `m`. -/
-def cauchyKernel (m : Fin d → ℕ) (w z : Fin d → ℂ) : ℂ :=
+@[expose] def cauchyKernel (m : Fin d → ℕ) (w z : Fin d → ℂ) : ℂ :=
   ∏ i, (z i - w i)⁻¹ ^ (m i + 1)
 
 /-- The higher Cauchy transform with a fixed contour and variable evaluation point. -/
-def cauchyTransform (f : (Fin d → ℂ) → E) (c : Fin d → ℂ) (R : Fin d → ℝ)
+@[expose] def cauchyTransform (f : (Fin d → ℂ) → E) (c : Fin d → ℂ) (R : Fin d → ℝ)
     (m : Fin d → ℕ) (w : Fin d → ℂ) : E :=
   ((2 * π * I : ℂ) ^ d)⁻¹ • torusIntegral (fun z => cauchyKernel m w z • f z) c R
 
 /-- Multi-index Cauchy coefficients for a polydisc with separate radii. -/
-def polydiscCauchyCoeffWithRadii (f : (Fin d → ℂ) → E) (c : Fin d → ℂ)
+@[expose] def polydiscCauchyCoeffWithRadii (f : (Fin d → ℂ) → E) (c : Fin d → ℂ)
     (R : Fin d → ℝ) (m : Fin d → ℕ) : E := cauchyTransform f c R m c
 
 /-- Separate-radius coefficients recover the original equal-radius coefficients. -/
@@ -78,19 +94,19 @@ theorem hasDerivAt_cauchyKernel_update (m : Fin d → ℕ) (w z : Fin d → ℂ)
 /-- Cauchy's multi-index coefficient estimate with one radius for each coordinate. -/
 theorem norm_polydiscCauchyCoeffWithRadii_le {f : (Fin d → ℂ) → E}
     {c : Fin d → ℂ} {R : Fin d → ℝ} {M : ℝ} (hR : ∀ i, 0 < R i)
-    (hM : ∀ z ∈ closedPolydiscWithRadii c R, ‖f z‖ ≤ M) (m : Fin d → ℕ) :
+    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (m : Fin d → ℕ) :
     ‖polydiscCauchyCoeffWithRadii f c R m‖ ≤ M * ∏ i, (R i)⁻¹ ^ m i := by
   have hker (θ : Fin d → ℝ) : ‖cauchyKernel m c (torusMap c R θ)‖ =
       ∏ i, (R i)⁻¹ ^ (m i + 1) := by
     simp only [cauchyKernel, norm_prod, norm_pow, norm_inv,
-      torusMap_coord_normWithRadii (fun i => (hR i).le)]
+      norm_torusMap_sub (fun i => (hR i).le)]
   rw [polydiscCauchyCoeffWithRadii, cauchyTransform, norm_smul]
   refine (mul_le_mul_of_nonneg_left (norm_torusIntegral_le_of_norm_le_const
     (C := M * ∏ i, (R i)⁻¹ ^ (m i + 1)) ?_) (norm_nonneg _)).trans_eq ?_
   · intro θ
     rw [norm_smul, hker]
     exact (mul_le_mul_of_nonneg_left
-      (hM _ (torusMap_mem_closedPolydiscWithRadii (fun i => (hR i).le) θ))
+      (hM _ (torusMap_mem_closedPolydisc (fun i => (hR i).le) θ))
       (Finset.prod_nonneg fun i _ => pow_nonneg (inv_nonneg.mpr (hR i).le) _)).trans_eq
         (mul_comm _ _)
   · simp only [norm_inv, norm_pow, norm_mul, norm_ofNat, norm_real, norm_I, mul_one,
@@ -109,31 +125,31 @@ theorem norm_polydiscCauchyCoeffWithRadii_le {f : (Fin d → ℂ) → E}
 
 variable [CompleteSpace E]
 
-/-- Higher Cauchy kernels are jointly continuous in the interior evaluation point and
-the contour parameter. -/
+/-- Higher Cauchy kernels are jointly continuous in the interior evaluation point and the contour
+parameter. -/
 theorem continuousOn_cauchyKernel_torus {c : Fin d → ℂ} {R : Fin d → ℝ}
     (hR : ∀ i, 0 < R i) (m : Fin d → ℕ) :
     ContinuousOn (fun p : (Fin d → ℂ) × (Fin d → ℝ) =>
-      cauchyKernel m p.1 (torusMap c R p.2)) (polydiscWithRadii c R ×ˢ univ) := by
+      cauchyKernel m p.1 (torusMap c R p.2)) (polydisc c R ×ˢ univ) := by
   apply continuousOn_finsetProd
   intro i hi
   apply ContinuousOn.pow
   apply ContinuousOn.inv₀
-  · exact ((((continuous_apply i).comp (continuous_torusMapWithRadii c R)).comp
+  · exact ((((continuous_apply i).comp (continuous_torusMap c R)).comp
       continuous_snd).sub ((continuous_apply i).comp continuous_fst)).continuousOn
   · intro p hp
-    exact sub_ne_zero.mpr (cauchyKernel_ne_zero_on_torusWithRadii hR
-      (by simpa [dist_eq_norm] using mem_polydiscWithRadii.mp hp.1 i))
+    exact sub_ne_zero.mpr (torusMap_apply_ne_of_norm_sub_lt hR
+      (by simpa [dist_eq_norm] using mem_polydisc.mp hp.1 i))
 
 omit [CompleteSpace E] in
 /-- Coordinate differentiation under the fixed-contour higher Cauchy integral. -/
 theorem hasDerivAt_cauchyTransform_update {f : (Fin d → ℂ) → E}
     {c w : Fin d → ℂ} {R : Fin d → ℝ} (hR : ∀ i, 0 < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hw : w ∈ polydiscWithRadii c R) (m : Fin d → ℕ) (i : Fin d) :
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hw : w ∈ polydisc c R) (m : Fin d → ℕ) (i : Fin d) :
     HasDerivAt (fun a => cauchyTransform f c R m (update w i a))
       ((m i + 1 : ℂ) • cauchyTransform f c R (update m i (m i + 1)) w) (w i) := by
-  let V : Set ℂ := (update w i) ⁻¹' polydiscWithRadii c R
+  let V : Set ℂ := (update w i) ⁻¹' polydisc c R
   let K : Set (Fin d → ℝ) := Icc 0 (fun _ => 2 * π)
   let J (θ : Fin d → ℝ) : ℂ := ∏ j, R j * exp (θ j * I) * I
   let G (a : ℂ) (θ : Fin d → ℝ) :=
@@ -141,7 +157,7 @@ theorem hasDerivAt_cauchyTransform_update {f : (Fin d → ℂ) → E}
   let G' (a : ℂ) (θ : Fin d → ℝ) :=
     (m i + 1 : ℂ) • J θ • cauchyKernel (update m i (m i + 1))
       (update w i a) (torusMap c R θ) • f (torusMap c R θ)
-  have hV : IsOpen V := (isOpen_polydiscWithRadii c R).preimage
+  have hV : IsOpen V := (isOpen_polydisc c R).preimage
     (continuous_const.update i continuous_id)
   have hwi : w i ∈ V := by simpa [V] using hw
   have hu : Continuous (fun p : ℂ × (Fin d → ℝ) => update w i p.1) :=
@@ -153,14 +169,14 @@ theorem hasDerivAt_cauchyTransform_update {f : (Fin d → ℂ) → E}
     intro j hj
     apply ContinuousOn.pow
     apply ContinuousOn.inv₀
-    · exact ((((continuous_apply j).comp (continuous_torusMapWithRadii c R)).comp continuous_snd).sub
+    · exact ((((continuous_apply j).comp (continuous_torusMap c R)).comp continuous_snd).sub
         ((continuous_apply j).comp hu)).continuousOn
     · intro p hp
-      exact sub_ne_zero.mpr (cauchyKernel_ne_zero_on_torusWithRadii hR
-        (by simpa [dist_eq_norm] using mem_polydiscWithRadii.mp hp.1 j))
+      exact sub_ne_zero.mpr (torusMap_apply_ne_of_norm_sub_lt hR
+        (by simpa [dist_eq_norm] using mem_polydisc.mp hp.1 j))
   have hfun : ContinuousOn (fun p : ℂ × (Fin d → ℝ) => f (torusMap c R p.2)) (V ×ˢ K) :=
-    hfc.comp ((continuous_torusMapWithRadii c R).comp continuous_snd).continuousOn
-      (fun p _ => torusMap_mem_closedPolydiscWithRadii (fun j => (hR j).le) p.2)
+    hfc.comp ((continuous_torusMap c R).comp continuous_snd).continuousOn
+      (fun p _ => torusMap_mem_closedPolydisc (fun j => (hR j).le) p.2)
   have hJ : Continuous (fun p : ℂ × (Fin d → ℝ) => J p.2) := by dsimp [J]; fun_prop
   have hG : ContinuousOn (fun p : ℂ × (Fin d → ℝ) => G p.1 p.2) (V ×ˢ K) :=
     hJ.continuousOn.smul ((hker m).smul hfun)
@@ -169,9 +185,9 @@ theorem hasDerivAt_cauchyTransform_update {f : (Fin d → ℂ) → E}
   have hd : ∀ a ∈ V, ∀ θ ∈ K, HasDerivAt (fun b => G b θ) (G' a θ) a := by
     intro a ha θ hθ
     have hp : torusMap c R θ i - a ≠ 0 := by
-      have H := sub_ne_zero.mpr (cauchyKernel_ne_zero_on_torusWithRadii
+      have H := sub_ne_zero.mpr (torusMap_apply_ne_of_norm_sub_lt
         (c := c) (θ := θ) (i := i) (w := update w i a) hR
-        (by simpa [dist_eq_norm] using mem_polydiscWithRadii.mp ha i))
+        (by simpa [dist_eq_norm] using mem_polydisc.mp ha i))
       simpa using H
     simpa only [G, G', Pi.smul_def, smul_smul, mul_assoc, mul_left_comm] using!
       ((hasDerivAt_cauchyKernel_update m w (torusMap c R θ) i a hp).smul_const
@@ -189,12 +205,13 @@ theorem hasDerivAt_cauchyTransform_update {f : (Fin d → ℂ) → E}
 
 /-- The zeroth Cauchy transform equals the original function in the open polydisc. -/
 theorem cauchyTransform_zero_eq {f : (Fin d → ℂ) → E} {c w : Fin d → ℂ} {R : Fin d → ℝ}
-    (hR : ∀ i, 0 < R i) (hw : w ∈ polydiscWithRadii c R)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+    (hR : ∀ i, 0 < R i) (hw : w ∈ polydisc c R)
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
       AnalyticAt ℂ (fun v => f (update z i v)) (z i)) : cauchyTransform f c R 0 w = f w := by
-  simpa [cauchyTransform, cauchyKernel] using polydisc_cauchyWithRadii hR
-    (fun i => by simpa [dist_eq_norm] using mem_polydiscWithRadii.mp hw i) hfc hfa
+  simpa [cauchyTransform, cauchyKernel] using two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul
+    hR
+    (fun i => by simpa [dist_eq_norm] using mem_polydisc.mp hw i) hfc hfa
 
 /-- Prepending an index to a list increments its count there and fixes the other counts. -/
 private theorem count_cons_eq_update (is : List (Fin d)) (i : Fin d) :
@@ -219,12 +236,12 @@ private theorem prod_factorial_count_cons (is : List (Fin d)) (i : Fin d) :
     _ = _ := by rw [Finset.prod_mul_distrib]; simp [mul_comm]
 
 omit [CompleteSpace E] in
-/-- Repeated coordinate differentiation of the zeroth Cauchy transform yields factorials
-times the corresponding higher Cauchy transform. -/
+/-- Repeated coordinate differentiation of the zeroth Cauchy transform yields factorials times the
+corresponding higher Cauchy transform. -/
 theorem iteratedPartialDeriv_cauchyTransform_zero {f : (Fin d → ℂ) → E}
     {c w : Fin d → ℂ} {R : Fin d → ℝ} (hR : ∀ i, 0 < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hw : w ∈ polydiscWithRadii c R) (is : List (Fin d)) :
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hw : w ∈ polydisc c R) (is : List (Fin d)) :
     iteratedPartialDeriv is (cauchyTransform f c R 0) w =
       (∏ j, ((is.count j).factorial : ℂ)) • cauchyTransform f c R (fun j => is.count j) w := by
   induction is generalizing w with
@@ -235,7 +252,7 @@ theorem iteratedPartialDeriv_cauchyTransform_zero {f : (Fin d → ℂ) → E}
         partialDeriv i (fun v => (∏ j, ((is.count j).factorial : ℂ)) •
           cauchyTransform f c R (fun j => is.count j) v) w := by
       apply partialDeriv_congr
-      filter_upwards [(isOpen_polydiscWithRadii c R).eventually_mem hw] with v hv
+      filter_upwards [(isOpen_polydisc c R).eventually_mem hw] with v hv
       exact ih hv
     rw [heq, partialDeriv]
     have H := (hasDerivAt_cauchyTransform_update hR hfc hw (fun j => is.count j) i).const_smul
@@ -244,22 +261,16 @@ theorem iteratedPartialDeriv_cauchyTransform_zero {f : (Fin d → ℂ) → E}
     simp only [Pi.smul_def, smul_smul] at HD
     rw [prod_factorial_count_cons, count_cons_eq_update]
     convert! HD using 1
-    congr 1
-    funext a
-    congr 1
-    congr 1
-    ext j
-    by_cases hji : j = i <;> simp [hji]
 
 /-- Mixed derivatives at the center are multi-index factorials times the Cauchy coefficients. -/
 theorem multiIndexDeriv_eq_factorial_smul_cauchyCoeff {f : (Fin d → ℂ) → E}
     {c : Fin d → ℂ} {R : Fin d → ℝ} (hR : ∀ i, 0 < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
       AnalyticAt ℂ (fun v => f (update z i v)) (z i)) (m : Fin d → ℕ) :
     multiIndexDeriv m f c = (∏ i, (m i).factorial : ℂ) • polydiscCauchyCoeffWithRadii f c R m := by
-  have hc : c ∈ polydiscWithRadii c R := mem_polydiscWithRadii.mpr (by simpa using hR)
-  have hcongr := iteratedPartialDeriv_congrOn (isOpen_polydiscWithRadii c R)
+  have hc : c ∈ polydisc c R := mem_polydisc.mpr (by simpa using hR)
+  have hcongr := iteratedPartialDeriv_congrOn (isOpen_polydisc c R)
     (fun z hz => (cauchyTransform_zero_eq hR hz hfc hfa).symm) (multiIndexList m) hc
   rw [multiIndexDeriv, hcongr, iteratedPartialDeriv_cauchyTransform_zero hR hfc hc]
   simp only [count_multiIndexList, polydiscCauchyCoeffWithRadii]
@@ -267,8 +278,8 @@ theorem multiIndexDeriv_eq_factorial_smul_cauchyCoeff {f : (Fin d → ℂ) → E
 /-- Cauchy coefficients are the mixed Taylor coefficients, independent of a contour choice. -/
 theorem polydiscCauchyCoeffWithRadii_eq_multiIndexDeriv {f : (Fin d → ℂ) → E}
     {c : Fin d → ℂ} {R : Fin d → ℝ} (hR : ∀ i, 0 < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
       AnalyticAt ℂ (fun v => f (update z i v)) (z i)) (m : Fin d → ℕ) :
     polydiscCauchyCoeffWithRadii f c R m =
       (∏ i, (m i).factorial : ℂ)⁻¹ • multiIndexDeriv m f c := by
@@ -279,24 +290,24 @@ theorem polydiscCauchyCoeffWithRadii_eq_multiIndexDeriv {f : (Fin d → ℂ) →
 /-- Changing the positive contour radii does not change the Cauchy coefficients. -/
 theorem polydiscCauchyCoeffWithRadii_eq_of_radii {f : (Fin d → ℂ) → E}
     {c : Fin d → ℂ} {R S : Fin d → ℝ} (hR : ∀ i, 0 < R i) (hS : ∀ i, 0 < S i)
-    (hfcR : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hfaR : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+    (hfcR : ContinuousOn f (closedPolydisc c R))
+    (hfaR : ∀ z ∈ closedPolydisc c R, ∀ i,
       AnalyticAt ℂ (fun v => f (update z i v)) (z i))
-    (hfcS : ContinuousOn f (closedPolydiscWithRadii c S))
-    (hfaS : ∀ z ∈ closedPolydiscWithRadii c S, ∀ i,
+    (hfcS : ContinuousOn f (closedPolydisc c S))
+    (hfaS : ∀ z ∈ closedPolydisc c S, ∀ i,
       AnalyticAt ℂ (fun v => f (update z i v)) (z i)) (m : Fin d → ℕ) :
     polydiscCauchyCoeffWithRadii f c R m = polydiscCauchyCoeffWithRadii f c S m := by
   rw [polydiscCauchyCoeffWithRadii_eq_multiIndexDeriv hR hfcR hfaR,
     polydiscCauchyCoeffWithRadii_eq_multiIndexDeriv hS hfcS hfaS]
 
-/-- Cauchy's estimate for every mixed derivative, with the usual multi-index factorial
-and a separate radius in each coordinate. -/
+/-- Cauchy's estimate for every mixed derivative, with the usual multi-index factorial and a
+separate radius in each coordinate. -/
 theorem norm_multiIndexDeriv_le {f : (Fin d → ℂ) → E} {c : Fin d → ℂ}
     {R : Fin d → ℝ} {M : ℝ} (hR : ∀ i, 0 < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
       AnalyticAt ℂ (fun v => f (update z i v)) (z i))
-    (hM : ∀ z ∈ closedPolydiscWithRadii c R, ‖f z‖ ≤ M) (m : Fin d → ℕ) :
+    (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (m : Fin d → ℕ) :
     ‖multiIndexDeriv m f c‖ ≤ (∏ i, ((m i).factorial : ℝ)) * (M * ∏ i, (R i)⁻¹ ^ m i) := by
   rw [multiIndexDeriv_eq_factorial_smul_cauchyCoeff hR hfc hfa, norm_smul]
   simpa only [norm_prod, norm_natCast] using

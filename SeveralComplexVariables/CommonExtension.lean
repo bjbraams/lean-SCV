@@ -5,21 +5,38 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Analyticity
 public import Mathlib.Analysis.Analytic.Uniqueness
 public import Mathlib.Analysis.LocallyConvex.Separation
 public import Mathlib.Analysis.RCLike.Extend
+public import SeveralComplexVariables.Analyticity
 
 /-!
 # Common extension domains inside a complex vector space
 
-`IsCommonAnalyticExtension U V` says that `U ⊆ V` and every scalar analytic function on
-`U` extends to `V`. It does not impose openness, connectedness, or maximality, and does
-not define an abstract envelope. Simultaneous extension cannot introduce new scalar
-values, by extending the reciprocal of a nowhere-zero function.
+`IsCommonAnalyticExtension U V` says that `U ⊆ V` and every scalar analytic function on `U`
+extends to `V`. It does not impose openness, connectedness, or maximality, and does not define
+an abstract envelope. Simultaneous extension cannot introduce new scalar values, by extending
+the reciprocal of a nowhere-zero function.
 
-Convex separation also bounds common extension domains by the real convex hull. References: Korevaar–Wiegerinck (2017),
-Proposition 2.9.2 and Corollary 2.9.3, specialized to domains in a complex normed space.
+Convex separation also bounds common extension domains by the real convex hull. References:
+[Korevaar–Wiegerinck][KorevaarWiegerinck2017] (2017), Proposition 2.9.2 and Corollary 2.9.3,
+specialized to domains in a complex normed space.
+
+## Main definitions
+
+* `IsCommonAnalyticExtension`: Every scalar analytic function on `U` extends to the larger set `V`.
+
+## Main results
+
+* `IsCommonAnalyticExtension.trans`: Common extension composes.
+* `IsCommonAnalyticExtension.image_eq`: A scalar analytic function on a connected common extension
+  domain has exactly its original range.
+* `IsCommonAnalyticExtension.subset_convexHull`: A common extension domain lies in the real convex
+  hull of the original domain.
+
+## References
+
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
 -/
 
 public section
@@ -31,14 +48,14 @@ namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- Every scalar analytic function on `U` extends to the larger set `V`. Topological
-hypotheses and maximality are separate; no extension outside the ambient space is intended. -/
-def IsCommonAnalyticExtension (U V : Set E) : Prop :=
+/-- Every scalar analytic function on `U` extends to the larger set `V`. Topological hypotheses and
+maximality are separate; no extension outside the ambient space is intended. -/
+@[expose] def IsCommonAnalyticExtension (U V : Set E) : Prop :=
   U ⊆ V ∧ ∀ f : E → ℂ, AnalyticOnNhd ℂ f U →
     ∃ g, AnalyticOnNhd ℂ g V ∧ EqOn g f U
 
-/-- Construct a common extension property from containment and extension of each scalar
-analytic function. -/
+/-- Construct a common extension property from containment and extension of each scalar analytic
+function. -/
 theorem isCommonAnalyticExtension_of_forall {U V : Set E} (hUV : U ⊆ V)
     (he : ∀ f : E → ℂ, AnalyticOnNhd ℂ f U →
       ∃ g, AnalyticOnNhd ℂ g V ∧ EqOn g f U) : IsCommonAnalyticExtension U V :=
@@ -86,8 +103,8 @@ theorem IsCommonAnalyticExtension.ne_on {U V : Set E} (h : IsCommonAnalyticExten
   have := hp₁ hz
   simp [heq] at this
 
-/-- A scalar analytic function on a connected common extension domain has exactly its
-original range. This is the Euclidean version of Proposition 2.9.2. -/
+/-- A scalar analytic function on a connected common extension domain has exactly its original
+range. This is the Euclidean version of Proposition 2.9.2. -/
 theorem IsCommonAnalyticExtension.image_eq {U V : Set E} (h : IsCommonAnalyticExtension U V)
     (ho : IsOpen U) (hne : U.Nonempty) (hc : IsPreconnected V)
     {f : E → ℂ} (hf : AnalyticOnNhd ℂ f V) : f '' V = f '' U := by
@@ -98,9 +115,9 @@ theorem IsCommonAnalyticExtension.image_eq {U V : Set E} (h : IsCommonAnalyticEx
   have hno : ∀ w ∈ U, f w ≠ f z := fun w hw he => hn ⟨w, hw, he⟩
   exact h.ne_on ho hne hc hf hno z hz rfl
 
-/-- A common extension domain lies in the real convex hull of the original domain.
-The proof uses real convex separation, complexification of the separating functional,
-and preservation of omitted values. This assertion involves no abstract envelopes. -/
+/-- A common extension domain lies in the real convex hull of the original domain. The proof uses
+real convex separation, complexification of the separating functional, and preservation of
+omitted values. This assertion involves no abstract envelopes. -/
 theorem IsCommonAnalyticExtension.subset_convexHull [FiniteDimensional ℂ E]
     {U V : Set E} (h : IsCommonAnalyticExtension U V) (ho : IsOpen U)
     (hne : U.Nonempty) (hc : IsPreconnected V) : V ⊆ convexHull ℝ U := by

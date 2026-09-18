@@ -5,27 +5,26 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.Analysis.SpecificLimits.Normed
+public import Mathlib.Topology.Algebra.IsUniformGroup.Basic
+public import Mathlib.Topology.Algebra.Module.Equiv
 public import Mathlib.Topology.Baire.CompleteMetrizable
 public import Mathlib.Topology.Baire.Lemmas
-public import Mathlib.Topology.Algebra.Module.Equiv
-public import Mathlib.Topology.Algebra.IsUniformGroup.Basic
-public import Mathlib.Analysis.SpecificLimits.Normed
-public import Mathlib.Analysis.Complex.Basic
 
 /-!
-# Open mapping for complete metrizable complex vector spaces
+# Open mapping for complete metrizable real or complex vector spaces
 
-This supplies the open-mapping argument needed for holomorphic function spaces with
-their compact-open topology. Baire's theorem first gives neighborhoods in closures of
-images; successive approximations and completeness remove the closure. The compatible
-metrics need not arise from norms and scalar multiplication need not preserve them.
+This supplies the open-mapping argument needed for holomorphic function spaces with their
+compact-open topology. Baire's theorem first gives neighborhoods in closures of images;
+successive approximations and completeness remove the closure. The compatible metrics need not
+arise from norms and scalar multiplication need not preserve them.
 
 ## Main results
 
-`isOpenMap_of_surjective_complete` is the open mapping theorem for a surjective
-continuous linear map between complete metrizable complex vector spaces.
-`image_mem_nhds_of_surjective` is the neighborhood form used for restriction
-inverses.
+`isOpenMap_of_surjective_complete` is the open mapping theorem for a surjective continuous
+linear map from a complete metrizable space to a Hausdorff metrizable Baire space. Its proof goes
+through a private neighborhood form: the image of every zero neighborhood is a zero neighborhood.
 -/
 
 public noncomputable section
@@ -33,17 +32,17 @@ public noncomputable section
 open Set Filter Metric
 open scoped Topology
 
-namespace SeveralComplexVariables
+namespace ContinuousLinearMap
 
-variable {E F : Type*} [AddCommGroup E] [Module ℂ E] [PseudoMetricSpace E]
-  [IsUniformAddGroup E] [ContinuousSMul ℂ E]
-  [AddCommGroup F] [Module ℂ F] [PseudoMetricSpace F]
-  [IsUniformAddGroup F] [ContinuousSMul ℂ F]
+variable {𝕜 E F : Type*} [RCLike 𝕜] [AddCommGroup E] [Module 𝕜 E] [PseudoMetricSpace E]
+  [IsUniformAddGroup E] [ContinuousSMul 𝕜 E]
+  [AddCommGroup F] [Module 𝕜 F] [PseudoMetricSpace F]
+  [IsUniformAddGroup F] [ContinuousSMul 𝕜 F]
 
-/-- Baire's theorem gives a neighborhood in the closure of the image of any
-zero neighborhood under a surjective continuous linear map. -/
+/-- Baire's theorem gives a neighborhood in the closure of the image of any zero neighborhood under
+a surjective continuous linear map. -/
 private theorem closure_image_mem_nhds_of_surjective [BaireSpace F]
-    (T : E →L[ℂ] F) (hs : Function.Surjective T) {W : Set E} (hW : W ∈ 𝓝 0) :
+    (T : E →L[𝕜] F) (hs : Function.Surjective T) {W : Set E} (hW : W ∈ 𝓝 0) :
     closure (T '' W) ∈ 𝓝 0 := by
   classical
   have hsub : {p : E × E | p.1 - p.2 ∈ W} ∈ 𝓝 (0, 0) :=
@@ -53,10 +52,10 @@ private theorem closure_image_mem_nhds_of_surjective [BaireSpace F]
   have hB : B ∈ 𝓝 (0 : E) := inter_mem hD hD'
   have hBW {x y : E} (hx : x ∈ B) (hy : y ∈ B) : x - y ∈ W :=
     hDD (show (x, y) ∈ D ×ˢ D' from ⟨hx.1, hy.2⟩)
-  let c (n : ℕ) : ℂ := (n + 1 : ℕ)
+  let c (n : ℕ) : 𝕜 := (n + 1 : ℕ)
   have hc (n : ℕ) : c n ≠ 0 := by dsimp [c]; exact_mod_cast Nat.succ_ne_zero n
-  let e (n : ℕ) : F ≃L[ℂ] F :=
-    ContinuousLinearEquiv.smulLeft (R₁ := ℂ) (M₁ := F) (Units.mk0 (c n) (hc n))
+  let e (n : ℕ) : F ≃L[𝕜] F :=
+    ContinuousLinearEquiv.smulLeft (R₁ := 𝕜) (M₁ := F) (Units.mk0 (c n) (hc n))
   let S := closure (T '' B)
   have hcover : ⋃ n, e n '' S = univ := by
     apply iUnion_eq_univ_iff.mpr
@@ -64,7 +63,7 @@ private theorem closure_image_mem_nhds_of_surjective [BaireSpace F]
     obtain ⟨x, rfl⟩ := hs y
     have ht : Tendsto (fun n => (c n)⁻¹ • x) atTop (𝓝 (0 : E)) := by
       simpa [c, one_div] using
-        (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℂ)).smul_const x
+        (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := 𝕜)).smul_const x
     obtain ⟨n, hn⟩ := (ht.eventually hB).exists
     refine ⟨n, T ((c n)⁻¹ • x), subset_closure ⟨_, hn, rfl⟩, ?_⟩
     simp [e, map_smul, smul_smul, hc]
@@ -87,10 +86,10 @@ private theorem closure_image_mem_nhds_of_surjective [BaireSpace F]
       exact ⟨x - x', hBW hx hx', T.map_sub x x'⟩)
   simpa only [add_sub_cancel_right] using hh
 
-/-- Completeness removes the closure from the neighborhood conclusion in the Baire
-argument by successively correcting the error with geometrically small increments. -/
+/-- Completeness removes the closure from the neighborhood conclusion in the Baire argument by
+successively correcting the error with geometrically small increments. -/
 private theorem image_mem_nhds_of_surjective [CompleteSpace E] [BaireSpace F] [T2Space F]
-    (T : E →L[ℂ] F) (hs : Function.Surjective T) {W : Set E} (hW : W ∈ 𝓝 0) :
+    (T : E →L[𝕜] F) (hs : Function.Surjective T) {W : Set E} (hW : W ∈ 𝓝 0) :
     T '' W ∈ 𝓝 0 := by
   classical
   obtain ⟨r, hr, hrW⟩ := Metric.nhds_basis_closedBall.mem_iff.mp hW
@@ -148,13 +147,13 @@ private theorem image_mem_nhds_of_surjective [CompleteSpace E] [BaireSpace F] [T
     (tendsto_const_nhds.sub (T.continuous.tendsto x |>.comp hx)) herr
   exact ⟨x, hxW, (sub_eq_zero.mp heq).symm⟩
 
-/-- A surjective continuous complex-linear map from a complete metrizable topological
-vector space to a Hausdorff metrizable Baire vector space is open. The metrics only need
-to induce the additive uniformities; they need not arise from norms. -/
+/-- A surjective continuous real- or complex-linear map from a complete metrizable topological
+vector space to a Hausdorff metrizable Baire vector space is open. The metrics only need to
+induce the additive uniformities; they need not arise from norms. -/
 theorem isOpenMap_of_surjective_complete [CompleteSpace E] [BaireSpace F] [T2Space F]
-    (T : E →L[ℂ] F) (hs : Function.Surjective T) : IsOpenMap T := by
+    (T : E →L[𝕜] F) (hs : Function.Surjective T) : IsOpenMap T := by
   apply IsTopologicalAddGroup.isOpenMap_iff_nhds_zero.mpr
   intro S hS
   exact mem_of_superset (image_mem_nhds_of_surjective T hs hS) (image_preimage_subset _ _)
 
-end SeveralComplexVariables
+end ContinuousLinearMap

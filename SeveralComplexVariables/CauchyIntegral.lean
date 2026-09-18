@@ -10,51 +10,53 @@ public import SeveralComplexVariables.Polydisc
 /-!
 # Cauchy's integral formula on a polydisc
 
-The vector-valued iterated Cauchy formula assumes continuity and coordinatewise analyticity
-on the closed polydisc. It does not depend on the several-variable Osgood theorem.
-The distinguished boundary is the coordinate torus of the closed polydisc
-`closedPolydiscWithRadii`.
+The vector-valued iterated Cauchy formula assumes continuity and coordinatewise analyticity on
+the closed polydisc. It does not depend on the several-variable Osgood theorem. The
+distinguished boundary is the coordinate torus of the closed polydisc `closedPolydisc`.
 
 ## Main results
 
-`polydisc_cauchyWithRadii` is the iterated formula with a separate radius in each
-coordinate; `polydisc_cauchy` is the equal-radius specialization.
-`torusIntegrable_cauchyKernelWithRadii` records integrability of the Cauchy kernel on
-that torus whenever the evaluation point lies in the open polydisc.
+`two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul` is the iterated formula with a separate
+radius in each coordinate; `two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul_const` is the
+equal-radius specialization. `torusIntegrable_cauchyKernelWithRadii` records integrability of the
+Cauchy kernel on that torus whenever the evaluation point lies in the open polydisc.
 -/
 
-@[expose] public section
+public section
 
 open Complex Filter Function MeasureTheory Metric Set
-open scoped Classical ENNReal NNReal Real Topology
+open scoped ENNReal NNReal Real Topology
 
 namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
-/-! ### Cauchy's formula on a polydisc -/
+/-!
+### Cauchy's formula on a polydisc
+-/
 
 omit [CompleteSpace E] in
-/-- The vector-valued Cauchy kernel of a continuous function is integrable on a torus whenever
-the evaluation point lies in the interior polydisc. -/
-theorem torusIntegrable_cauchyKernelWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fin n → ℂ} {R : Fin n → ℝ}
+/-- The vector-valued Cauchy kernel of a continuous function is integrable on a torus whenever the
+evaluation point lies in the interior polydisc. -/
+theorem torusIntegrable_cauchyKernelWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fin n → ℂ} {R :
+  Fin n → ℝ}
     (hR : ∀ i, 0 < R i) (hw : ∀ i, ‖w i - c i‖ < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R)) :
+    (hfc : ContinuousOn f (closedPolydisc c R)) :
     TorusIntegrable (fun z => (∏ i, (z i - w i)⁻¹) • f z) c R := by
   have hmaps : MapsTo (torusMap c R)
-      (Icc (0 : Fin n → ℝ) fun _ => 2 * π) (closedPolydiscWithRadii c R) :=
-    fun θ _ => torusMap_mem_closedPolydiscWithRadii (fun i => (hR i).le) θ
+      (Icc (0 : Fin n → ℝ) fun _ => 2 * π) (closedPolydisc c R) :=
+    fun θ _ => torusMap_mem_closedPolydisc (fun i => (hR i).le) θ
   have hfθ : ContinuousOn (fun θ => f (torusMap c R θ))
       (Icc (0 : Fin n → ℝ) fun _ => 2 * π) :=
-    hfc.comp (continuous_torusMapWithRadii c R).continuousOn hmaps
+    hfc.comp (continuous_torusMap c R).continuousOn hmaps
   have hker : ContinuousOn
       (fun θ : Fin n → ℝ => (∏ i, (torusMap c R θ i - w i)⁻¹))
       (Icc (0 : Fin n → ℝ) fun _ => 2 * π) := by
     refine continuousOn_finsetProd _ fun i _ => ?_
-    refine ((((continuous_apply i).comp (continuous_torusMapWithRadii c R)).continuousOn).sub
+    refine ((((continuous_apply i).comp (continuous_torusMap c R)).continuousOn).sub
       continuousOn_const).inv₀ ?_
     intro θ _
-    exact sub_ne_zero.2 (cauchyKernel_ne_zero_on_torusWithRadii hR (hw i))
+    exact sub_ne_zero.2 (torusMap_apply_ne_of_norm_sub_lt hR (hw i))
   exact (hker.smul hfθ).integrableOn_compact isCompact_Icc
 
 /-- Splitting off the first coordinate factors the finite-product Cauchy kernel. -/
@@ -63,13 +65,13 @@ theorem cauchyKernel_cons {n : ℕ} (x : ℂ) (y : Fin n → ℂ) (w : Fin (n + 
       (x - w 0)⁻¹ * ∏ i, (y i - w i.succ)⁻¹ := by
   simp [Fin.prod_univ_succ, mul_comm]
 
-/-- The one-variable Cauchy formula along the first-coordinate slice of a
-closed polydisc. All other coordinates are fixed at the evaluation point. -/
+/-- The one-variable Cauchy formula along the first-coordinate slice of a closed polydisc. All other
+coordinates are fixed at the evaluation point. -/
 private theorem circleIntegral_cauchyKernel_cons {n : ℕ}
     {f : (Fin (n + 1) → ℂ) → E} {c w : Fin (n + 1) → ℂ} {R : Fin (n + 1) → ℝ}
     (hw : ∀ i, ‖w i - c i‖ < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i)) :
     (2 * π * I : ℂ)⁻¹ •
       (∮ x in C(c 0, R 0), (x - w 0)⁻¹ • f (Fin.cons x (w ∘ Fin.succ))) =
@@ -79,13 +81,13 @@ private theorem circleIntegral_cauchyKernel_cons {n : ℕ}
   have hψcont : ContinuousOn (fun x => f (Fin.cons x (w ∘ Fin.succ)))
       (closedBall (c 0) (R 0)) :=
     hfc.comp hcons.continuousOn fun x hx =>
-      cons_mem_closedPolydiscWithRadii hx (fun i _ =>
+      cons_mem_closedPolydisc hx (fun i _ =>
         mem_closedBall.2 (le_of_lt (by simpa [dist_eq_norm] using hw i.succ)))
   have hψdiff : ∀ x ∈ ball (c 0) (R 0),
       DifferentiableAt ℂ (fun t => f (Fin.cons t (w ∘ Fin.succ))) x := by
     intro x hx
-    have hz : Fin.cons x (w ∘ Fin.succ) ∈ closedPolydiscWithRadii c R :=
-      cons_mem_closedPolydiscWithRadii (ball_subset_closedBall hx) fun i _ =>
+    have hz : Fin.cons x (w ∘ Fin.succ) ∈ closedPolydisc c R :=
+      cons_mem_closedPolydisc (ball_subset_closedBall hx) fun i _ =>
         mem_closedBall.2 (le_of_lt (by simpa [dist_eq_norm] using hw i.succ))
     simpa [Fin.update_cons_zero] using (hfa _ hz 0).differentiableAt
   have hcircle :
@@ -99,10 +101,11 @@ private theorem circleIntegral_cauchyKernel_cons {n : ℕ}
   exact hcircle
 
 /-- Iterated Cauchy integral formula on a closed polydisc. -/
-theorem polydisc_cauchyWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fin n → ℂ} {R : Fin n → ℝ}
+theorem two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul {n : ℕ} {f : (Fin n → ℂ) → E}
+    {c w : Fin n → ℂ} {R : Fin n → ℝ}
     (hR : ∀ i, 0 < R i) (hw : ∀ i, ‖w i - c i‖ < R i)
-    (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
-    (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c R))
+    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i)) :
     ((2 * π * I : ℂ) ^ n)⁻¹ •
       torusIntegral (fun z => (∏ i, (z i - w i)⁻¹) • f z) c R = f w := by
@@ -123,13 +126,13 @@ theorem polydisc_cauchyWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fi
       intro x hx
       have hxcl := sphere_subset_closedBall hx
       have hgcont : ContinuousOn (fun y => f (Fin.cons x y))
-          (closedPolydiscWithRadii (c ∘ Fin.succ) (R ∘ Fin.succ)) :=
+          (closedPolydisc (c ∘ Fin.succ) (R ∘ Fin.succ)) :=
         hfc.comp (continuousOn_const.finCons continuousOn_id)
-          (fun y hy => cons_mem_closedPolydiscWithRadii hxcl hy)
-      have hga : ∀ y ∈ closedPolydiscWithRadii (c ∘ Fin.succ) (R ∘ Fin.succ), ∀ j,
+          (fun y hy => cons_mem_closedPolydisc hxcl hy)
+      have hga : ∀ y ∈ closedPolydisc (c ∘ Fin.succ) (R ∘ Fin.succ), ∀ j,
           AnalyticAt ℂ (fun t => f (Fin.cons x (update y j t))) (y j) := by
         intro y hy j
-        have hz := cons_mem_closedPolydiscWithRadii hxcl hy
+        have hz := cons_mem_closedPolydisc hxcl hy
         simpa [Fin.cons_update] using hfa (Fin.cons x y) hz j.succ
       have hw' : ∀ i : Fin n, ‖w i.succ - c i.succ‖ < R i.succ := fun i => hw i.succ
       have ih' :=
@@ -179,19 +182,20 @@ omit [CompleteSpace E] in
 /-- Equal-radius compatibility form of Cauchy-kernel integrability. -/
 theorem torusIntegrable_cauchyKernel {n : ℕ} {f : (Fin n → ℂ) → E}
     {c w : Fin n → ℂ} {R : ℝ} (hR : 0 < R) (hw : ∀ i, ‖w i - c i‖ < R)
-    (hfc : ContinuousOn f (closedPolydisc c R)) :
+    (hfc : ContinuousOn f (closedPolydisc c (fun _ => R))) :
     TorusIntegrable (fun z => (∏ i, (z i - w i)⁻¹) • f z) c (fun _ => R) :=
   torusIntegrable_cauchyKernelWithRadii (fun _ => hR) hw hfc
 
 /-- Equal-radius compatibility form of the polydisc Cauchy formula. -/
-theorem polydisc_cauchy {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fin n → ℂ} {R : ℝ}
+theorem two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul_const {n : ℕ} {f : (Fin n → ℂ) → E}
+    {c w : Fin n → ℂ} {R : ℝ}
     (hR : 0 < R) (hw : ∀ i, ‖w i - c i‖ < R)
-    (hfc : ContinuousOn f (closedPolydisc c R))
-    (hfa : ∀ z ∈ closedPolydisc c R, ∀ i,
+    (hfc : ContinuousOn f (closedPolydisc c (fun _ => R)))
+    (hfa : ∀ z ∈ closedPolydisc c (fun _ => R), ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i)) :
     ((2 * π * I : ℂ) ^ n)⁻¹ •
       torusIntegral (fun z => (∏ i, (z i - w i)⁻¹) • f z) c (fun _ => R) = f w :=
-  polydisc_cauchyWithRadii (fun _ => hR) hw hfc hfa
+  two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul (fun _ => hR) hw hfc hfa
 
 end SeveralComplexVariables
 

@@ -5,86 +5,93 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.IdentityPrinciple
-public import SeveralComplexVariables.FunctionSpace
-public import SeveralComplexVariables.LocallyBounded
+public import Mathlib.Analysis.Complex.Schwarz
 public import Mathlib.Topology.MetricSpace.Equicontinuity
 public import Mathlib.Topology.UniformSpace.Ascoli
+public import SeveralComplexVariables.FunctionSpace
+public import SeveralComplexVariables.IdentityPrinciple
+public import SeveralComplexVariables.LocallyBounded
 
 /-!
 # Montel's and Vitali's theorems
 
-A family of holomorphic maps which is bounded uniformly on each compact subset of its
-domain is equicontinuous. For finite-dimensional targets it has compact closure in the
-compact-open topology. Compactness is supplied by Mathlib's Arzelà–Ascoli theorem.
-For uniformly bounded sequences, a subsequence theorem is also provided on arbitrary
-finite-dimensional complex source spaces. Vitali convergence follows from compactness
-and the identity theorem: pointwise
+A family of holomorphic maps which is bounded uniformly on each compact subset of its domain is
+equicontinuous. For finite-dimensional targets it has compact closure in the compact-open
+topology. Compactness is supplied by Mathlib's Arzelà–Ascoli theorem. For uniformly bounded
+sequences, a subsequence theorem is also provided on arbitrary finite-dimensional complex source
+spaces. Vitali convergence follows from compactness and the identity theorem: pointwise
 convergence on a nonempty open subset determines every cluster limit uniquely.
 
 ## Main results
 
-`equicontinuous_of_holomorphic_bounded_on_compacts` is equicontinuity of a family
-bounded on compact sets. `isCompact_closure_of_holomorphic_bounded_on_compacts` is
-Montel's theorem for finite-dimensional targets. `vitali_theorem` is Vitali
+`equicontinuous_of_holomorphic_bounded_on_compacts` is equicontinuity of a family bounded on compact
+sets. `isCompact_closure_of_holomorphic_bounded_on_compacts` is Montel's theorem for
+finite-dimensional targets. `exists_tendstoLocallyUniformlyOn_of_forall_exists_tendsto` is Vitali
 convergence from pointwise convergence on a nonempty open subset.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
 public section
 
 open Complex Filter Function Metric Set
-open scoped Classical Topology
+open scoped Topology
 
 namespace SeveralComplexVariables
 
-variable {ι F : Type*} [Fintype ι] [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
+variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+  [FiniteDimensional ℂ E] [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 omit [CompleteSpace F] in
-/-- Compact-local bounds on a holomorphic family give equicontinuity. Banach targets
-are allowed here; finite dimensionality is needed only for compactness in Montel's theorem. -/
+/-- Compact-local bounds on a holomorphic family give equicontinuity. Banach targets are allowed
+here; finite dimensionality is needed only for compactness in Montel's theorem. -/
 theorem equicontinuous_of_holomorphic_bounded_on_compacts
-    {U : TopologicalSpace.Opens (ι → ℂ)} {S : Set (HolomorphicMap U F)}
-    (hb : ∀ K ⊆ (U : Set (ι → ℂ)), IsCompact K → ∃ M : ℝ,
+    {U : TopologicalSpace.Opens E} {S : Set (HolomorphicMap U F)}
+    (hb : ∀ K ⊆ (U : Set E), IsCompact K → ∃ M : ℝ,
       ∀ f ∈ S, ∀ z ∈ K, ‖openExtension U f.val z‖ ≤ M) :
     Equicontinuous (fun f : S => (f.val.val : U → F)) := by
+  let : ProperSpace E := FiniteDimensional.proper ℂ E
   intro c
   rw [Metric.equicontinuousAt_iff]
   intro ε hε
   obtain ⟨R, hR, hRU⟩ := nhds_basis_closedBall.mem_iff.mp (U.isOpen.mem_nhds c.property)
-  obtain ⟨M, hM⟩ := hb (closedBall (c : ι → ℂ) R) hRU (isCompact_closedBall _ _)
-  let r := R / 2
-  have hr : 0 < r := by dsimp [r]; positivity
-  have htwo : 2 * r = R := by dsimp [r]; ring
-  let C : ℝ := (Fintype.card ι : ℝ) * (max M 0 / r)
-  have hC : 0 ≤ C := mul_nonneg (Nat.cast_nonneg _) (div_nonneg (le_max_right _ _) hr.le)
-  refine ⟨min r (ε / (C + 1)), lt_min hr (div_pos hε (by positivity)), ?_⟩
+  obtain ⟨M, hM⟩ := hb (closedBall (c : E) R) hRU (isCompact_closedBall _ _)
+  let C : ℝ := 2 * max M 0 / R
+  have hC : 0 ≤ C := div_nonneg (by positivity) hR.le
+  refine ⟨min R (ε / (C + 1)), lt_min hR (div_pos hε (by positivity)), ?_⟩
   intro w hw f
-  have hwr : dist (w : ι → ℂ) c < r := (lt_min_iff.mp hw).1
-  have hwe : dist (w : ι → ℂ) c < ε / (C + 1) := (lt_min_iff.mp hw).2
-  have ha : ∀ z ∈ closedBall (c : ι → ℂ) (2 * r), ∀ i,
-      AnalyticAt ℂ (fun v => openExtension U f.val.val (update z i v)) (z i) := by
-    intro z hz i
-    exact f.val.property.analyticAt_update (hRU (by simpa only [htwo] using hz)) i
-  have hbound : ∀ z ∈ closedBall (c : ι → ℂ) (2 * r),
-      ‖openExtension U f.val.val z‖ ≤ max M 0 := by
+  have hwr : dist (w : E) c < R := (lt_min_iff.mp hw).1
+  have hwe : dist (w : E) c < ε / (C + 1) := (lt_min_iff.mp hw).2
+  have hmaps : MapsTo (openExtension U f.val.val) (ball (c : E) R)
+      (closedBall (openExtension U f.val.val c) (2 * max M 0)) := by
     intro z hz
-    exact (hM f.val f.property z (by simpa only [htwo] using hz)).trans (le_max_left _ _)
-  have hn := norm_sub_le_of_separately_analytic_bounded hr ha hbound
-    (mem_closedBall_self hr.le) (mem_closedBall.mpr hwr.le)
+    rw [mem_closedBall, dist_eq_norm]
+    calc
+      ‖openExtension U f.val.val z - openExtension U f.val.val c‖ ≤
+          ‖openExtension U f.val.val z‖ + ‖openExtension U f.val.val c‖ := norm_sub_le _ _
+      _ ≤ max M 0 + max M 0 := add_le_add
+        ((hM f.val f.property z (ball_subset_closedBall hz)).trans (le_max_left _ _))
+        ((hM f.val f.property c (mem_closedBall_self hR.le)).trans (le_max_left _ _))
+      _ = 2 * max M 0 := by ring
+  have hn := dist_le_div_mul_dist_of_mapsTo_ball
+    (f.val.property.differentiableOn.mono (ball_subset_closedBall.trans hRU)) hmaps hwr
   simp only [openExtension_coe] at hn
-  rw [dist_comm, dist_eq_norm]
-  have hlt : (C + 1) * dist (w : ι → ℂ) c < ε := by
+  have hlt : (C + 1) * dist (w : E) c < ε := by
     nlinarith [(lt_div_iff₀ (by positivity : 0 < C + 1)).mp hwe]
-  have hn' : ‖f.val.val w - f.val.val c‖ ≤ C * dist (w : ι → ℂ) c := by
-    simpa only [C, dist_eq_norm] using hn
-  nlinarith [show 0 ≤ dist (w : ι → ℂ) (c : ι → ℂ) from dist_nonneg]
+  rw [dist_comm]
+  change dist (f.val.val w) (f.val.val c) < ε
+  change dist (f.val.val w) (f.val.val c) ≤ C * dist (w : E) c at hn
+  nlinarith [show 0 ≤ dist (w : E) (c : E) from dist_nonneg]
 
 /-- **Montel's theorem.** A compact-locally bounded family of holomorphic maps into a
 finite-dimensional complex normed space has compact closure in the compact-open topology. -/
 theorem isCompact_closure_of_holomorphic_bounded_on_compacts
-    [FiniteDimensional ℂ F] {U : TopologicalSpace.Opens (ι → ℂ)}
+    [FiniteDimensional ℂ F] {U : TopologicalSpace.Opens E}
     {S : Set (HolomorphicMap U F)}
-    (hb : ∀ K ⊆ (U : Set (ι → ℂ)), IsCompact K → ∃ M : ℝ,
+    (hb : ∀ K ⊆ (U : Set E), IsCompact K → ∃ M : ℝ,
       ∀ f ∈ S, ∀ z ∈ K, ‖openExtension U f.val z‖ ≤ M) : IsCompact (closure S) := by
   let := FiniteDimensional.proper ℂ F
   let := UniformOnFun.t2Space_of_covering (β := F)
@@ -101,21 +108,22 @@ theorem isCompact_closure_of_holomorphic_bounded_on_compacts
   · intro K hK
     exact (equicontinuous_of_holomorphic_bounded_on_compacts hb).equicontinuousOn K
   · intro K hK z hz
-    obtain ⟨M, hM⟩ := hb {(z : ι → ℂ)} (singleton_subset_iff.mpr z.property) isCompact_singleton
+    obtain ⟨M, hM⟩ := hb {(z : E)} (singleton_subset_iff.mpr z.property) isCompact_singleton
     refine ⟨closedBall (0 : F) (max M 0), isCompact_closedBall _ _, ?_⟩
     intro f hf
     have h := (hM f hf z (mem_singleton _)).trans (le_max_left M 0)
     simpa using h
 
-/-- **Vitali's theorem (Jakóbczak–Jarnicki 1.4.24)** in the compact-open function space.
+/-- **Vitali's theorem ([Jakóbczak–Jarnicki][JakobczakJarnicki2021] 1.4.24)** in the compact-open
+function space.
 A locally bounded sequence converging pointwise on a nonempty open subset of a
 preconnected domain converges in the whole holomorphic-map space. -/
 theorem exists_tendsto_of_holomorphic_bounded_on_compacts
-    [FiniteDimensional ℂ F] {U : TopologicalSpace.Opens (ι → ℂ)}
-    (hconn : IsPreconnected (U : Set (ι → ℂ))) (f : ℕ → HolomorphicMap U F)
-    (hb : ∀ K ⊆ (U : Set (ι → ℂ)), IsCompact K → ∃ M : ℝ,
+    [FiniteDimensional ℂ F] {U : TopologicalSpace.Opens E}
+    (hconn : IsPreconnected (U : Set E)) (f : ℕ → HolomorphicMap U F)
+    (hb : ∀ K ⊆ (U : Set E), IsCompact K → ∃ M : ℝ,
       ∀ n, ∀ z ∈ K, ‖openExtension U (f n).val z‖ ≤ M)
-    {V : Set (ι → ℂ)} (hV : IsOpen V) (hne : V.Nonempty) (hVU : V ⊆ U)
+    {V : Set E} (hV : IsOpen V) (hne : V.Nonempty) (hVU : V ⊆ U)
     (hp : ∀ z ∈ V, ∃ y : F,
       Tendsto (fun n => openExtension U (f n).val z) atTop (𝓝 y)) :
     ∃ g : HolomorphicMap U F, Tendsto f atTop (𝓝 g) := by
@@ -142,7 +150,7 @@ theorem exists_tendsto_of_holomorphic_bounded_on_compacts
     simpa only [openExtension_apply U _ (hVU hz)] using
       tendsto_nhds_unique hlim (hy'.comp hφ.tendsto_atTop)
   have heq : EqOn (openExtension U q.val) (openExtension U g.val) U :=
-    identity_theorem U.isOpen hconn q.property.differentiableOn
+    eqOn_of_holomorphic_of_eqOn U.isOpen hconn q.property.differentiableOn
       g.property.differentiableOn hV hne hVU (by
         intro z hz
         obtain ⟨y, hy⟩ := hp z hz
@@ -152,22 +160,23 @@ theorem exists_tendsto_of_holomorphic_bounded_on_compacts
   intro z
   simpa only [openExtension_coe] using heq z.property
 
-/-- **Vitali's theorem** for holomorphic functions on a finite complex coordinate space.
+/-- **Vitali's theorem** for holomorphic functions on a finite-dimensional complex normed space.
 The limit is holomorphic and convergence is locally uniform on the whole domain.
 Finite-dimensional complex targets, including scalar-valued functions, are allowed. -/
-theorem vitali_theorem [FiniteDimensional ℂ F] {D V : Set (ι → ℂ)}
-    (hD : IsOpen D) (hconn : IsPreconnected D) {f : ℕ → (ι → ℂ) → F}
+theorem exists_tendstoLocallyUniformlyOn_of_forall_exists_tendsto [FiniteDimensional ℂ F]
+    {D V : Set E}
+    (hD : IsOpen D) (hconn : IsPreconnected D) {f : ℕ → E → F}
     (hf : ∀ n, DifferentiableOn ℂ (f n) D)
     (hb : ∀ K ⊆ D, IsCompact K → ∃ M : ℝ, ∀ n, ∀ z ∈ K, ‖f n z‖ ≤ M)
     (hV : IsOpen V) (hne : V.Nonempty) (hVD : V ⊆ D)
     (hp : ∀ z ∈ V, ∃ y : F, Tendsto (fun n => f n z) atTop (𝓝 y)) :
-    ∃ g : (ι → ℂ) → F, DifferentiableOn ℂ g D ∧
+    ∃ g : E → F, DifferentiableOn ℂ g D ∧
       TendstoLocallyUniformlyOn f g atTop D := by
-  let U : TopologicalSpace.Opens (ι → ℂ) := ⟨D, hD⟩
+  let U : TopologicalSpace.Opens E := ⟨D, hD⟩
   let s : ℕ → HolomorphicMap U F := fun n =>
     ⟨⟨fun z => f n z, (hf n).continuousOn.domRestrict⟩,
       by
-        apply AnalyticOnNhd.congr hD ((hf n).analyticOnNhd_finiteDimensional hD)
+        apply AnalyticOnNhd.congr hD ((hf n).analyticOnNhd_of_finiteDimensional hD)
         intro z hz
         simp [openExtension, U, hz]
         rfl⟩
@@ -187,8 +196,8 @@ theorem vitali_theorem [FiniteDimensional ℂ F] {D V : Set (ι → ℂ)}
   exact (holomorphicMap_tendsto_iff.mp hg).congr
     (fun n z hz => hs n z hz)
 
-/-- A uniformly bounded holomorphic sequence on a finite-dimensional complex space has
-a locally uniformly convergent subsequence, with holomorphic limit. -/
+/-- A uniformly bounded holomorphic sequence on a finite-dimensional complex space has a locally
+uniformly convergent subsequence, with holomorphic limit. -/
 theorem exists_subseq_tendstoLocallyUniformlyOn_of_uniform_bound
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     [FiniteDimensional ℂ F] {U : Set E} (hU : IsOpen U) {f : ℕ → E → F}

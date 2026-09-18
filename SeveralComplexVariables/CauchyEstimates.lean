@@ -5,33 +5,32 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.Topology.MetricSpace.Thickening
 public import Mathlib.Analysis.Complex.Liouville
+public import Mathlib.Topology.MetricSpace.Thickening
 public import SeveralComplexVariables.Derivatives
 
 /-!
 # Cauchy estimates and local derivative bounds
 
-These estimates reuse the one-variable Cauchy estimate on coordinate slices. The source
-has the supremum norm, so a coordinate disc fits in the ball of the same radius.
-Derivatives are also uniformly bounded on small closed thickenings of compact subsets
-of a one-variable holomorphic domain.
+These estimates reuse the one-variable Cauchy estimate on coordinate slices. The source has the
+supremum norm, so a coordinate disc fits in the ball of the same radius. Derivatives are also
+uniformly bounded on small closed thickenings of compact subsets of a one-variable holomorphic
+domain.
 
 ## Main results
 
-`norm_partialDeriv_le` is the Cauchy estimate for a coordinate derivative on a
-polydisc. `norm_partialDeriv_le_of_slice` is the one-variable slice form.
-`AnalyticOnNhd.exists_cthickening_deriv_bound` bounds derivatives uniformly on a
-closed thickening of a compact subset of a one-variable domain.
+`norm_partialDeriv_le` is the Cauchy estimate for a coordinate derivative on a polydisc.
+`norm_partialDeriv_le_of_slice` is the one-variable slice form.
+`AnalyticOnNhd.exists_cthickening_deriv_bound` bounds derivatives uniformly on a closed
+thickening of a compact subset of a one-variable domain.
 -/
 
 public section
 
 open Complex Function Metric Set
-open scoped Classical
 
-/-- The derivative of a holomorphic function is uniformly bounded on a sufficiently small
-closed thickening of any compact subset of its open domain. -/
+/-- The derivative of a holomorphic function is uniformly bounded on a sufficiently small closed
+thickening of any compact subset of its open domain. -/
 theorem AnalyticOnNhd.exists_cthickening_deriv_bound
     {Ω K : Set ℂ} {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f Ω)
     (hΩopen : IsOpen Ω) (hK : IsCompact K) (hKΩ : K ⊆ Ω) :
@@ -51,7 +50,7 @@ theorem AnalyticOnNhd.exists_cthickening_deriv_bound
 
 namespace SeveralComplexVariables
 
-variable {ι F : Type*} [Fintype ι] [NormedAddCommGroup F] [NormedSpace ℂ F]
+variable {ι F : Type*} [Fintype ι] [DecidableEq ι] [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 /-- Updating one coordinate within its closed disc stays in the corresponding sup-norm ball. -/
 theorem update_mem_closedBall {z : ι → ℂ} {i : ι} {w : ℂ} {r : ℝ}

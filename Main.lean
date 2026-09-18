@@ -7,4 +7,9 @@ module
 
 public import SeveralComplexVariables
 
-/-! # Several Complex Variables -/
+/-!
+# Several Complex Variables
+
+This entry module imports the complete library through `SeveralComplexVariables`. The umbrella
+module summarizes its mathematical scope and groups its principal results.
+-/

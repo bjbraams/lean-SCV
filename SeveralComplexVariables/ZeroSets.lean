@@ -5,18 +5,28 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.IsolatedSingularity
 public import SeveralComplexVariables.ZeroSets.Basic
 public import SeveralComplexVariables.ZeroSets.Local
-public import SeveralComplexVariables.IsolatedSingularity
 
 /-!
 # Zero sets in several complex variables
 
 The identity-principle consequences in `ZeroSets.Basic` and the local zero-set comparison
-theorems in `ZeroSets.Local` are re-exported here. Isolated scalar zeros are excluded by
-the proved puncture-removal theorem applied to the reciprocal.
+theorems in `ZeroSets.Local` are re-exported here. Isolated scalar zeros are excluded by the
+proved puncture-removal theorem applied to the reciprocal.
 
-Reference: Jakóbczak--Jarnicki (2021), Corollary 2.1.3.
+Reference: [Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Corollary 2.1.3.
+
+## Main results
+
+* `frequently_zero_punctured_of_analyticAt`: A scalar holomorphic function in complex dimension at
+  least two cannot have an isolated zero.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
 public section
@@ -28,8 +38,8 @@ namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- A scalar holomorphic function in complex dimension at least two cannot have an isolated
-zero. See Jakóbczak--Jarnicki Corollary 2.1.3. Applying Hartogs extension to
+/-- A scalar holomorphic function in complex dimension at least two cannot have an isolated zero.
+See [Jakóbczak–Jarnicki][JakobczakJarnicki2021] Corollary 2.1.3. Applying Hartogs extension to
 the reciprocal would contradict an isolated zero. The scalar target and dimension restriction
 are essential: vector-valued maps and functions of one variable can have isolated zeros. -/
 theorem frequently_zero_punctured_of_analyticAt
@@ -44,9 +54,11 @@ theorem frequently_zero_punctured_of_analyticAt
   obtain ⟨r, hr, hball⟩ := Metric.mem_nhds_iff.mp (hf.eventually_analyticAt.and hn')
   have hfi : AnalyticOnNhd ℂ (fun z => (f z)⁻¹) (ball a r \ {a}) :=
     fun z hz => ((hball hz.1).1).inv ((hball hz.1).2 hz.2)
-  obtain ⟨g, hg, he⟩ := exists_extension_punctured_open hdim isOpen_ball (mem_ball_self hr) hfi
+  obtain ⟨g, hg, he⟩ := exists_analyticOnNhd_extension_diff_singleton hdim isOpen_ball
+    (mem_ball_self hr) hfi
   have heq : (fun z => f z * g z) =ᶠ[𝓝[≠] a] (fun _ => (1 : ℂ)) := by
-    filter_upwards [nhdsWithin_le_nhds (ball_mem_nhds a hr), eventually_mem_nhdsWithin] with z hz hza
+    filter_upwards [nhdsWithin_le_nhds (ball_mem_nhds a hr), eventually_mem_nhdsWithin] with z hz
+      hza
     rw [he ⟨hz, hza⟩]
     exact mul_inv_cancel₀ ((hball hz).2 hza)
   have hlim := (hf.continuousAt.mul (hg a (mem_ball_self hr)).continuousAt).tendsto.mono_left

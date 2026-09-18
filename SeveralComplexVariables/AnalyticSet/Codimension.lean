@@ -10,18 +10,38 @@ public import SeveralComplexVariables.AnalyticSet.Hartogs
 /-!
 # Complex slices and removal in codimension at least two
 
-Following Scheidemann §4.1, codimension at least `q` is expressed by an injective
-complex linear `q`-plane on which each point of the subset is an isolated intersection.
-We retain the pointwise slice witness instead of introducing a general dimension theory.
-The empty set satisfies every bound; at a point the bound cannot exceed ambient dimension.
+Following [Scheidemann][Scheidemann2005] §4.1, codimension at least `q` is expressed by an
+injective complex linear `q`-plane on which each point of the subset is an isolated
+intersection. We retain the pointwise slice witness instead of introducing a general dimension
+theory. The empty set satisfies every bound; at a point the bound cannot exceed ambient
+dimension.
 
-Hartogs figures around isolated two-dimensional slices give local holomorphic extensions,
-and hence automatic local boundedness across the analytic set. The first Riemann extension
-theorem then gives the global second Riemann extension theorem.
-Reference: Scheidemann 4.1.4 and 4.2.3.
+Hartogs figures around isolated two-dimensional slices give local holomorphic extensions, and
+hence automatic local boundedness across the analytic set. The first Riemann extension theorem
+then gives the global second Riemann extension theorem. Reference:
+[Scheidemann][Scheidemann2005] 4.1.4 and 4.2.3.
+
+## Main definitions
+
+* `HasIsolatedComplexSlice`: An affine complex `q`-plane through `a` meets `A` only at `a` near that
+  point.
+* `HasComplexSliceCodimensionAtLeast`: The slice formulation of complex codimension at least `q`, at
+  every point of `A`.
+
+## Main results
+
+* `IsAnalyticSet.locally_bounded_of_codimension_two`: **Automatic local boundedness in codimension
+  at least two.** Hartogs continuation around isolated two-dimensional slices gives a local
+  holomorphic extension, whose continuity supplies the bound.
+* `IsAnalyticSet.exists_extension_of_codimension_two`: **Second Riemann extension theorem.** No
+  boundedness or connectedness assumption is imposed.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
@@ -30,15 +50,15 @@ namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- An affine complex `q`-plane through `a` meets `A` only at `a` near that point.
-Membership of `a` in `A` is separate, so this predicate also applies outside `A`. -/
-def HasIsolatedComplexSlice (A : Set E) (a : E) (q : ℕ) : Prop :=
+/-- An affine complex `q`-plane through `a` meets `A` only at `a` near that point. Membership of `a`
+in `A` is separate, so this predicate also applies outside `A`. -/
+@[expose] def HasIsolatedComplexSlice (A : Set E) (a : E) (q : ℕ) : Prop :=
   ∃ L : (Fin q → ℂ) →L[ℂ] E, Function.Injective L ∧
     ∀ᶠ z in 𝓝 (0 : Fin q → ℂ), a + L z ∈ A → z = 0
 
-/-- The slice formulation of complex codimension at least `q`, at every point of `A`.
-Analyticity is a separate assumption. -/
-def HasComplexSliceCodimensionAtLeast (A : Set E) (q : ℕ) : Prop :=
+/-- The slice formulation of complex codimension at least `q`, at every point of `A`. Analyticity is
+a separate assumption. -/
+@[expose] def HasComplexSliceCodimensionAtLeast (A : Set E) (q : ℕ) : Prop :=
   ∀ a ∈ A, HasIsolatedComplexSlice A a q
 
 /-- The empty set satisfies every slice-codimension bound. -/
@@ -141,8 +161,8 @@ theorem IsAnalyticSet.exists_extension_of_codimension_two [FiniteDimensional ℂ
   hA.exists_extension_of_locally_bounded (hcodim.interior_eq_empty (by decide)) hf
     (hA.locally_bounded_of_codimension_two hcodim hf)
 
-/-- Extensions in the second Riemann theorem are unique on the ambient domain.
-This uniqueness proof uses density and does not require the existence argument. -/
+/-- Extensions in the second Riemann theorem are unique on the ambient domain. This uniqueness proof
+uses density and does not require the existence argument. -/
 theorem IsAnalyticSet.extension_unique_of_codimension_two
     {F : Type*} [TopologicalSpace F] [T2Space F] {U A : Set E}
     (hA : IsAnalyticSet U A) (hcodim : HasComplexSliceCodimensionAtLeast A 2)

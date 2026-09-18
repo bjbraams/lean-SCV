@@ -13,18 +13,41 @@ public import SeveralComplexVariables.ZeroSets.Local
 /-!
 # Regular points of analytic subsets
 
-Regularity means that local biholomorphic ambient coordinates identify the subset
-with the kernel of a surjective complex linear map. This is intrinsic to the subset:
-`z₁² = 0` and `z₁ = 0` define the same regular hyperplane. No manifold structure is used.
-The full-rank-equations criterion is proved by a linear right inverse and the
-holomorphic inverse mapping theorem. A minimal nonvanishing derivative and persistence
-of zeros prove existence of regular hypersurface points. Relative openness of the regular
-locus and relative closedness of the singular locus follow from the definition.
+Regularity means that local biholomorphic ambient coordinates identify the subset with the
+kernel of a surjective complex linear map. This is intrinsic to the subset: `z₁² = 0` and `z₁ =
+0` define the same regular hyperplane. No manifold structure is used. The full-rank-equations
+criterion is proved by a linear right inverse and the holomorphic inverse mapping theorem. A
+minimal nonvanishing derivative and persistence of zeros prove existence of regular hypersurface
+points. Relative openness of the regular locus and relative closedness of the singular locus
+follow from the definition.
 
-Reference: Fritzsche–Grauert I, 8.3–8.4; Range I §3.2.
+Reference: [Fritzsche–Grauert][FritzscheGrauert2002] I, 8.3–8.4; [Range][Range1986] I §3.2.
+
+## Main definitions
+
+* `IsRegularAnalyticSetAt`: Intrinsic regularity of codimension `q`: local biholomorphic coordinates
+  flatten `A` to the kernel of a surjective map to `ℂ^q`.
+* `analyticRegularLocus`: The regular locus includes all local codimensions, including codimension
+  zero.
+* `analyticSingularLocus`: Singular points are the points of the subset that are not regular.
+
+## Main results
+
+* `isRegularAnalyticSetAt_iff_exists_equations`: **Local coordinate characterization.** Regularity
+  is equivalent to the existence of full-rank defining equations, not a rank condition on an
+  arbitrary presentation.
+* `exists_regularPoint_zeroSet`: **Regular points of a hypersurface.** A nonempty proper scalar zero
+  set in a preconnected domain contains a regular point of codimension one.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter
 open scoped Topology
@@ -33,18 +56,18 @@ namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- Intrinsic regularity of codimension `q`: local biholomorphic coordinates flatten
-`A` to the kernel of a surjective map to `ℂ^q`. Membership in `A` is included. -/
-def IsRegularAnalyticSetAt (A : Set E) (a : E) (q : ℕ) : Prop :=
+/-- Intrinsic regularity of codimension `q`: local biholomorphic coordinates flatten `A` to the
+kernel of a surjective map to `ℂ^q`. Membership in `A` is included. -/
+@[expose] def IsRegularAnalyticSetAt (A : Set E) (a : E) (q : ℕ) : Prop :=
   a ∈ A ∧ ∃ (e : OpenPartialHomeomorph E E) (L : E →L[ℂ] (Fin q → ℂ)),
     IsBiholomorphic e ∧ a ∈ e.source ∧ Function.Surjective L ∧
       ∀ z ∈ e.source, z ∈ A ↔ L (e z) = 0
 
 /-- The regular locus includes all local codimensions, including codimension zero. -/
-def analyticRegularLocus (A : Set E) : Set E := {a | ∃ q, IsRegularAnalyticSetAt A a q}
+@[expose] def analyticRegularLocus (A : Set E) : Set E := {a | ∃ q, IsRegularAnalyticSetAt A a q}
 
 /-- Singular points are the points of the subset that are not regular. -/
-def analyticSingularLocus (A : Set E) : Set E := A \ analyticRegularLocus A
+@[expose] def analyticSingularLocus (A : Set E) : Set E := A \ analyticRegularLocus A
 
 /-- Every regular point belongs to the subset. -/
 theorem analyticRegularLocus_subset (A : Set E) : analyticRegularLocus A ⊆ A := by
@@ -65,7 +88,8 @@ theorem IsRegularAnalyticSetAt.exists_open {A : Set E} {a : E} {q : ℕ}
   obtain ⟨_, e, L, he, ha, hL, hEq⟩ := h
   exact ⟨e.source, e.open_source, ha, fun b hb => ⟨hb.2, e, L, he, hb.1, hL, hEq⟩⟩
 
-/-- The regular locus is relatively open in the subset, without any global analyticity assumption. -/
+/-- The regular locus is relatively open in the subset, without any global analyticity
+assumption. -/
 theorem isOpen_relative_analyticRegularLocus (A : Set E) :
     IsOpen {a : A | a.val ∈ analyticRegularLocus A} := by
   rw [isOpen_iff_mem_nhds]
@@ -75,7 +99,8 @@ theorem isOpen_relative_analyticRegularLocus (A : Set E) :
   intro b hb
   exact ⟨q, hreg b ⟨hb, b.property⟩⟩
 
-/-- The singular locus is relatively closed in the subset. This does not assert that it is analytic. -/
+/-- The singular locus is relatively closed in the subset. This does not assert that it is
+analytic. -/
 theorem isClosed_relative_analyticSingularLocus (A : Set E) :
     IsClosed {a : A | a.val ∈ analyticSingularLocus A} := by
   have he : {a : A | a.val ∈ analyticSingularLocus A} =
@@ -114,15 +139,15 @@ theorem IsRegularAnalyticSetAt.exists_equations [FiniteDimensional ℂ E]
   refine ⟨e.source, L ∘ e, e.open_source, ha, ?_, hEq, ?_⟩
   · intro z hz
     exact (L.analyticAt (e z)).comp
-      ((he.1.analyticOnNhd_finiteDimensional e.open_source) z hz)
+      ((he.1.analyticOnNhd_of_finiteDimensional e.open_source) z hz)
   · rw [fderiv_comp a L.differentiableAt (he.differentiableAt ha), L.fderiv]
     obtain ⟨M, hM⟩ := he.isInvertible_fderiv ha
     rw [← hM]
     exact hL.comp M.surjective
 
-/-- Full-rank local defining equations admit flattening biholomorphic coordinates.
-A linear right inverse corrects the defining map to have identity derivative, so the
-holomorphic inverse mapping theorem supplies the required coordinates. -/
+/-- Full-rank local defining equations admit flattening biholomorphic coordinates. A linear right
+inverse corrects the defining map to have identity derivative, so the holomorphic inverse
+mapping theorem supplies the required coordinates. -/
 theorem isRegularAnalyticSetAt_of_equations [FiniteDimensional ℂ E]
     {A V : Set E} {a : E} {q : ℕ} (haA : a ∈ A) (hV : IsOpen V) (haV : a ∈ V)
     {f : E → (Fin q → ℂ)} (hf : AnalyticOnNhd ℂ f V)
@@ -199,8 +224,8 @@ theorem isRegularAnalyticSetAt_of_scalar_equation [FiniteDimensional ℂ E]
     fin_cases i
     exact hz
 
-/-- A scalar zero set contained in a regular hypersurface is itself regular at
-each of its points on that hypersurface. Persistence of zeros gives local equality. -/
+/-- A scalar zero set contained in a regular hypersurface is itself regular at each of its points on
+that hypersurface. Persistence of zeros gives local equality. -/
 theorem IsRegularAnalyticSetAt.of_zeroSet_subset [FiniteDimensional ℂ E]
     {A U : Set E} {a : E} (hA : IsRegularAnalyticSetAt A a 1)
     (hU : IsOpen U) (haU : a ∈ U) {f : E → ℂ} (hf : AnalyticOnNhd ℂ f U)
@@ -226,7 +251,7 @@ theorem IsRegularAnalyticSetAt.of_zeroSet_subset [FiniteDimensional ℂ E]
   have hF : AnalyticOnNhd ℂ (f ∘ e.symm) V := by
     intro y hy
     exact (hf (e.symm y) hy.2).comp
-      ((he.2.analyticOnNhd_finiteDimensional e.open_target) y hy.1)
+      ((he.2.analyticOnNhd_of_finiteDimensional e.open_target) y hy.1)
   have hlocal := eventually_zeroSet_eq_linear_zeroSet hV hF hls hea
     (by simpa [Function.comp_def, e.left_inv hae] using hfa)
     ((hl (e a)).2 ((hEq a hae).1 haA)) (by
@@ -252,7 +277,8 @@ theorem IsRegularAnalyticSetAt.of_zeroSet_subset [FiniteDimensional ℂ E]
 
 /-- **Regular points of a hypersurface.** A nonempty proper scalar zero set in a
 preconnected domain contains a regular point of codimension one. The nonempty zero-set
-hypothesis repairs its omission in the printed Fritzsche–Grauert I, Proposition 8.4.
+hypothesis repairs its omission in the printed [Fritzsche–Grauert][FritzscheGrauert2002] I,
+Proposition 8.4.
 Choose a minimal nonvanishing derivative, straighten its preceding derivative,
 and use persistence of zeros to identify the two hypersurfaces locally. -/
 theorem exists_regularPoint_zeroSet [FiniteDimensional ℂ E]

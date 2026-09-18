@@ -5,26 +5,29 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.LaurentSeries
-public import SeveralComplexVariables.FunctionSpace
 public import Mathlib.MeasureTheory.Function.LpSpace.ContinuousFunctions
+public import SeveralComplexVariables.FunctionSpace
+public import SeveralComplexVariables.LaurentSeries
 
 /-!
 # Laurent approximation and coefficient projections
 
-Finite Laurent sums approximate holomorphic functions uniformly on compact subsets.
-The coefficient functionals are continuous independently of Laurent expansion.
-The projections, their mutual orthogonality, and convergence in the compact-open
-holomorphic space are derived from the Laurent expansion theorem.
-Only the elementary analytic consequences of Scheidemann (2005), Section 2.2, are used;
-no representation theory of compact groups is introduced.
+Finite Laurent sums approximate holomorphic functions uniformly on compact subsets. The
+coefficient functionals are continuous independently of Laurent expansion. The projections,
+their mutual orthogonality, and convergence in the compact-open holomorphic space are derived
+from the Laurent expansion theorem. Only the elementary analytic consequences of
+[Scheidemann][Scheidemann2005] (2005), Section 2.2, are used; no representation theory of
+compact groups is introduced.
 
 ## Main results
 
-`exists_finite_laurent_approximation` approximates a holomorphic function uniformly
-on a compact set by a finite Laurent sum. `exists_laurentCoeffCLM` and
-`exists_laurentTermCLM` are the continuous coefficient and term projections on the
-compact-open holomorphic space.
+`exists_finite_laurent_approximation` approximates a holomorphic function uniformly on a compact
+set by a finite Laurent sum. `exists_laurentCoeffCLM` and `exists_laurentTermCLM` are the
+continuous coefficient and term projections on the compact-open holomorphic space.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public noncomputable section
@@ -36,9 +39,9 @@ namespace SeveralComplexVariables
 
 variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- Integration on a fixed coordinate torus is a continuous linear coefficient
-functional on the compact-open space of holomorphic maps. This construction does
-not require Laurent expansion or connectedness. -/
+/-- Integration on a fixed coordinate torus is a continuous linear coefficient functional on the
+compact-open space of holomorphic maps. This construction does not require Laurent expansion or
+connectedness. -/
 theorem exists_laurentCoeffCLM (U : TopologicalSpace.Opens (Fin n → ℂ))
     (hR : IsReinhardt (U : Set (Fin n → ℂ)))
     {r : Fin n → ℝ} (hr : ∀ i, 0 < r i) (hrU : (fun i => (r i : ℂ)) ∈ U)
@@ -58,11 +61,11 @@ theorem exists_laurentCoeffCLM (U : TopologicalSpace.Opens (Fin n → ℂ))
     apply hR hrU
     intro i
     simpa only [Pi.zero_apply, sub_zero, Complex.norm_of_nonneg (hr i).le] using
-      torusMap_coord_normWithRadii (c := 0) (fun i => (hr i).le) θ i
+      norm_torusMap_sub (c := 0) (fun i => (hr i).le) θ i
   let γ : C(K, U) := ⟨fun θ => ⟨torusMap 0 r θ, htor θ⟩,
-    ((continuous_torusMapWithRadii 0 r).comp continuous_subtype_val).subtype_mk _⟩
+    ((continuous_torusMap 0 r).comp continuous_subtype_val).subtype_mk _⟩
   have hnz (θ : K) (i : Fin n) : torusMap 0 r θ i ≠ 0 :=
-    cauchyKernel_ne_zero_on_torusWithRadii (c := 0) (w := 0) hr (by simpa using hr i)
+    torusMap_apply_ne_of_norm_sub_lt (c := 0) (w := 0) hr (by simpa using hr i)
   let b : C(K, ℂ) := ⟨fun θ =>
     (∏ i, (r i : ℂ) * exp ((θ.val i : ℂ) * I) * I) *
       ∏ i, torusMap 0 r θ i ^ (-m i - 1), by
@@ -75,7 +78,7 @@ theorem exists_laurentCoeffCLM (U : TopologicalSpace.Opens (Fin n → ℂ))
             continuous_const)
     · apply continuous_finsetProd
       intro i _
-      exact ((continuous_apply i).comp ((continuous_torusMapWithRadii 0 r).comp
+      exact ((continuous_apply i).comp ((continuous_torusMap 0 r).comp
         continuous_subtype_val)).zpow₀ (-m i - 1) (fun θ => Or.inl (hnz θ i))⟩
   let T : HolomorphicMap U F →L[ℂ] C(K, F) :=
     { toFun := fun f => ⟨fun θ => b θ • f.val (γ θ),
@@ -109,8 +112,8 @@ theorem exists_laurentCoeffCLM (U : TopologicalSpace.Opens (Fin n → ℂ))
   rw [openExtension_apply U _ (htor θ)]
   exact mul_smul _ _ _
 
-/-- Each Laurent term defines a continuous operator with values in holomorphic
-maps. Vanishing of forbidden coefficients uses the Laurent expansion theorem. -/
+/-- Each Laurent term defines a continuous operator with values in holomorphic maps. Vanishing of
+forbidden coefficients uses the Laurent expansion theorem. -/
 theorem exists_laurentTermCLM (U : TopologicalSpace.Opens (Fin n → ℂ))
     (hc : IsConnected (U : Set (Fin n → ℂ))) (hR : IsReinhardt (U : Set (Fin n → ℂ)))
     {r : Fin n → ℝ} (hr : ∀ i, 0 < r i) (hrU : (fun i => (r i : ℂ)) ∈ U)
@@ -150,12 +153,13 @@ theorem exists_laurentTermCLM (U : TopologicalSpace.Opens (Fin n → ℂ))
   · push Not at hm
     obtain ⟨i, hi, z, hz, hzi⟩ := hm
     refine ⟨0, fun f w => ?_⟩
-    have hzero := (multivariableLaurent_expansion U.isOpen hc hR f.property hr hrU).2.2.1
+    have hzero := (multivariableLaurent_expansion U.isOpen hc.isPreconnected hR f.property hr
+      hrU).2.2.1
       m i ⟨z, hz, hzi⟩ hi
     simp [multivariableLaurentTerm, hzero]
 
-/-- Finite canonical Laurent sums approximate uniformly on any given compact subset.
-Depends on the Laurent expansion theorem, with no finite-dimensional target restriction. -/
+/-- Finite canonical Laurent sums approximate uniformly on any given compact subset. Depends on the
+Laurent expansion theorem, with no finite-dimensional target restriction. -/
 theorem exists_finite_laurent_approximation {U K : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U)
     {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U)
@@ -164,15 +168,14 @@ theorem exists_finite_laurent_approximation {U K : Set (Fin n → ℂ)}
     ∃ s : Finset (Fin n → ℤ), ∀ z ∈ K,
       ‖f z - ∑ m ∈ s, multivariableLaurentTerm (multivariableLaurentCoeff f r) m z‖ < ε := by
   have h := hasSumUniformlyOn_iff_tendstoUniformlyOn.mp
-    (hasSumUniformlyOn_multivariableLaurent ho hc hR hf hr hrU hK hKU)
+    (hasSumUniformlyOn_multivariableLaurent ho hc.isPreconnected hR hf hr hrU hK hKU)
   obtain ⟨s, hs⟩ := (Metric.tendstoUniformlyOn_iff.mp h ε hε).exists
   exact ⟨s, fun z hz => by simpa [dist_eq_norm] using hs z hz⟩
 
-/-- Continuous Laurent projections, their coefficient formulas, and their mutual
-orthogonality follow from continuity of torus integration, holomorphy of permitted
-monomials, and Laurent uniqueness. Terms with forbidden negative exponents are zero.
-The finite partial sums converge in the existing compact-open topology. This deduction
-depends on the Laurent expansion theorem. -/
+/-- Continuous Laurent projections, their coefficient formulas, and their mutual orthogonality
+follow from continuity of torus integration, holomorphy of permitted monomials, and Laurent
+uniqueness. Terms with forbidden negative exponents are zero. The finite partial sums converge
+in the existing compact-open topology. This deduction depends on the Laurent expansion theorem. -/
 theorem exists_laurentProjections (U : TopologicalSpace.Opens (Fin n → ℂ))
     (hc : IsConnected (U : Set (Fin n → ℂ))) (hR : IsReinhardt (U : Set (Fin n → ℂ)))
     {r : Fin n → ℝ} (hr : ∀ i, 0 < r i) (hrU : (fun i => (r i : ℂ)) ∈ U) :
@@ -201,7 +204,7 @@ theorem exists_laurentProjections (U : TopologicalSpace.Opens (Fin n → ℂ))
       · subst j
         simp only [ite_true, hP, multivariableLaurentTerm, c]
       · simp [hj, c, multivariableLaurentTerm]
-    have hcoeff := (multivariableLaurent_expansion U.isOpen hc hR
+    have hcoeff := (multivariableLaurent_expansion U.isOpen hc.isPreconnected hR
       (P k f).property hr hrU).2.2.2.2 c hs
     ext z
     rw [hP, ← hcoeff]
@@ -212,7 +215,7 @@ theorem exists_laurentProjections (U : TopologicalSpace.Opens (Fin n → ℂ))
     · simp [c, hmk, multivariableLaurentTerm]
   · intro f
     rw [holomorphicMap_tendsto_iff]
-    apply (multivariableLaurent_expansion U.isOpen hc hR f.property hr hrU).1.congr
+    apply (multivariableLaurent_expansion U.isOpen hc.isPreconnected hR f.property hr hrU).1.congr
     intro s z hz
     rw [openExtension_apply U _ hz]
     simp only [Submodule.coe_sum, ContinuousMap.sum_apply]

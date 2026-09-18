@@ -5,46 +5,66 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Calculus.IteratedDeriv.Defs
+public import Mathlib.Analysis.Complex.Liouville
+public import Mathlib.Analysis.Complex.TaylorSeries
+public import Mathlib.Topology.Algebra.InfiniteSum.UniformOn
 public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.HartogsDomain
 public import SeveralComplexVariables.HartogsLaurent
-public import Mathlib.Analysis.Calculus.IteratedDeriv.Defs
-public import Mathlib.Analysis.Complex.TaylorSeries
-public import Mathlib.Analysis.Complex.Liouville
-public import Mathlib.Topology.Algebra.InfiniteSum.UniformOn
 
 /-!
 # Hartogs–Taylor and Hartogs–Laurent expansions
 
-Functions take values in a complex Banach space, and the base is a finite-dimensional
-complex normed space (possibly zero dimensional). Taylor coefficients are the normalized
-iterated derivatives in the fiber variable at zero. On an open complete Hartogs set these
-coefficients are holomorphic on the base and the expansion converges locally uniformly.
+Functions take values in a complex Banach space, and the base is a finite-dimensional complex
+normed space (possibly zero dimensional). Taylor coefficients are the normalized iterated
+derivatives in the fiber variable at zero. On an open complete Hartogs set these coefficients
+are holomorphic on the base and the expansion converges locally uniformly.
 
-The Laurent theorem assumes Hartogs symmetry and, separately, preconnected fibers.
-Its coefficients are single-valued holomorphic functions on the projected base. Without
-the fiber assumption, coefficients need only be locally functions of the base variable;
-connectedness of the total set does not repair that issue. Thus we make explicit the
-hypothesis needed for the global-base interpretation of Range's Exercise E.1.10.
-Negative coefficients vanish on fibers containing zero. Integer powers in Lean are
-totalized at zero, so this vanishing is recorded as part of the Laurent statement.
+The Laurent theorem assumes Hartogs symmetry and, separately, preconnected fibers. Its
+coefficients are single-valued holomorphic functions on the projected base. Without the fiber
+assumption, coefficients need only be locally functions of the base variable; connectedness of
+the total set does not repair that issue. Thus we make explicit the hypothesis needed for the
+global-base interpretation of [Range][Range1986]'s Exercise E.1.10. Negative coefficients vanish
+on fibers containing zero. Integer powers in Lean are totalized at zero, so this vanishing is
+recorded as part of the Laurent statement.
 
 `HasSumLocallyUniformlyOn` uses finite subsets of the index type, including for the
 integer-indexed Laurent series. It gives unconditional pointwise convergence and uniform
 convergence on compact subsets. We use `ℤ → E → F`, rather than the algebraic `LaurentSeries`,
 whose support must be bounded below and therefore excludes general essential singularities.
-Neither theorem needs the base or the total set to be connected or nonempty.
-The Taylor theorem is proved by fiber differentiation and uniform Cauchy estimates
-on local product neighborhoods. The Laurent theorem uses the one-variable annular
-Cauchy formula, holomorphic dependence of circle coefficients, and geometric bounds
-from `LaurentSeries.OneVariable` and `HartogsLaurent`. Neither expansion depends on
-the multivariable Laurent theorem.
+Neither theorem needs the base or the total set to be connected or nonempty. The Taylor theorem
+is proved by fiber differentiation and uniform Cauchy estimates on local product neighborhoods.
+The Laurent theorem uses the one-variable annular Cauchy formula, holomorphic dependence of
+circle coefficients, and geometric bounds from `LaurentSeries.OneVariable` and `HartogsLaurent`.
+Neither expansion depends on the multivariable Laurent theorem.
 
-References: Shabat (1991), I §3.8, Theorem 1 and the Hartogs–Laurent expansion, pp. 34–36;
-Range (1986), Chapter I, E.1.9–E.1.10.
+References: [Shabat][Shabat1991] (1991), I §3.8, Theorem 1 and the Hartogs–Laurent expansion,
+pp. 34–36; [Range][Range1986] (1986), Chapter I, E.1.9–E.1.10.
+
+## Main definitions
+
+* `hartogsTaylorCoeff`: The Taylor coefficient in the distinguished fiber coordinate, centered at
+  zero.
+
+## Main results
+
+* `differentiableOn_hartogsTaylorCoeff_and_hasSumLocallyUniformlyOn`: **Hartogs–Taylor expansion.**
+  Holomorphic functions on open complete Hartogs sets have holomorphic Taylor coefficients on the
+  base and a locally uniformly convergent fiber expansion.
+* `exists_hartogsLaurent_expansion`: **Hartogs–Laurent expansion with connected nonempty fibers.**
+  The coefficients are holomorphic on the whole projected base, the series converges locally
+  uniformly, and negative coefficients vanish on every fiber containing zero.
+
+## References
+
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [B. V. Shabat, *Introduction to Complex Analysis, Part II: Functions of Several
+  Variables*][Shabat1991]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
@@ -54,7 +74,7 @@ namespace SeveralComplexVariables
 variable {E F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 /-- The Taylor coefficient in the distinguished fiber coordinate, centered at zero. -/
-def hartogsTaylorCoeff (f : E × ℂ → F) (k : ℕ) (z : E) : F :=
+@[expose] def hartogsTaylorCoeff (f : E × ℂ → F) (k : ℕ) (z : E) : F :=
   ((k.factorial : ℂ)⁻¹) • iteratedDeriv k (fun w => f (z, w)) 0
 
 /-- The constant coefficient is restriction to the zero section. -/
@@ -85,8 +105,8 @@ theorem analyticOnNhd_iteratedDeriv_fiber (hU : IsOpen U) (hf : AnalyticOnNhd �
     simpa only [iteratedDeriv_succ, g, Function.comp_def] using hd.deriv.symm
 
 omit [NormedSpace ℂ E] [FiniteDimensional ℂ E] in
-/-- Around each point of an open complete Hartogs set there is a product neighborhood
-whose closed fiber disc has strictly larger radius than the given fiber coordinate. -/
+/-- Around each point of an open complete Hartogs set there is a product neighborhood whose closed
+fiber disc has strictly larger radius than the given fiber coordinate. -/
 theorem IsCompleteHartogs.exists_product_closedBall (hH : IsCompleteHartogs U)
     (hU : IsOpen U) {p : E × ℂ} (hp : p ∈ U) :
     ∃ δ R : ℝ, 0 < δ ∧ ‖p.2‖ < R ∧
@@ -110,13 +130,14 @@ theorem IsCompleteHartogs.exists_product_closedBall (hH : IsCompleteHartogs U)
 have holomorphic Taylor coefficients on the base and a locally uniformly convergent
 fiber expansion. Local product neighborhoods and Cauchy estimates give a summable
 geometric majorant; the one-variable Taylor theorem identifies the sum. -/
-theorem hartogsTaylor_expansion (hU : IsOpen U) (hH : IsCompleteHartogs U)
+theorem differentiableOn_hartogsTaylorCoeff_and_hasSumLocallyUniformlyOn (hU : IsOpen U)
+    (hH : IsCompleteHartogs U)
     (hf : DifferentiableOn ℂ f U) :
     (∀ k, DifferentiableOn ℂ (hartogsTaylorCoeff f k) (hartogsBase U)) ∧
       HasSumLocallyUniformlyOn
         (fun k (p : E × ℂ) => p.2 ^ k • hartogsTaylorCoeff f k p.1) f U := by
   let : ProperSpace E := FiniteDimensional.proper ℂ E
-  have hA := hf.analyticOnNhd_finiteDimensional hU
+  have hA := hf.analyticOnNhd_of_finiteDimensional hU
   constructor
   · intro k z hz
     have ha := (analyticOnNhd_iteratedDeriv_fiber hU hA k) (z, 0) (hH.zero_mem_fiber hz)
@@ -158,7 +179,8 @@ theorem hartogsTaylor_expansion (hU : IsOpen U) (hH : IsCompleteHartogs U)
     have hterm (k : ℕ) (q : E × ℂ) (hq : q ∈ N) :
         ‖q.2 ^ k • hartogsTaylorCoeff f k q.1‖ ≤ C * (r / R) ^ k := by
       have hd := Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le k hR
-        ((hslice q.1 (ball_subset_closedBall hq.1)).mono closure_ball_subset_closedBall).diffContOnCl
+        ((hslice q.1 (ball_subset_closedBall hq.1)).mono
+          closure_ball_subset_closedBall).diffContOnCl
         (fun w hw => hbound (q.1, w) ⟨ball_subset_closedBall hq.1, sphere_subset_closedBall hw⟩)
       have hfact : (k.factorial : ℝ) ≠ 0 := by positivity
       have hc : ‖hartogsTaylorCoeff f k q.1‖ ≤ C / R ^ k := by
@@ -182,29 +204,36 @@ theorem hartogsTaylor_expansion (hU : IsOpen U) (hH : IsCompleteHartogs U)
     exact (tendstoUniformlyOn_tsum hsummable hterm).congr_right
       (fun q hq => (hsum q hq).tsum_eq)
 
-/-- The canonical Hartogs–Taylor coefficients are holomorphic on the projected base.
-This follows from the Taylor expansion theorem. -/
+/-- The Hartogs–Taylor expansion converges locally uniformly on an open complete Hartogs set. -/
+theorem hasSumLocallyUniformlyOn_hartogsTaylor (hU : IsOpen U) (hH : IsCompleteHartogs U)
+    (hf : DifferentiableOn ℂ f U) :
+    HasSumLocallyUniformlyOn
+      (fun k (p : E × ℂ) => p.2 ^ k • hartogsTaylorCoeff f k p.1) f U :=
+  (differentiableOn_hartogsTaylorCoeff_and_hasSumLocallyUniformlyOn hU hH hf).2
+
+/-- The canonical Hartogs–Taylor coefficients are holomorphic on the projected base. This follows
+from the Taylor expansion theorem. -/
 theorem differentiableOn_hartogsTaylorCoeff (hU : IsOpen U) (hH : IsCompleteHartogs U)
     (hf : DifferentiableOn ℂ f U) (k : ℕ) :
     DifferentiableOn ℂ (hartogsTaylorCoeff f k) (hartogsBase U) :=
-  (hartogsTaylor_expansion hU hH hf).1 k
+  (differentiableOn_hartogsTaylorCoeff_and_hasSumLocallyUniformlyOn hU hH hf).1 k
 
-/-- The Hartogs–Taylor series sums to the function at every point of the set.
-This follows from the Taylor expansion theorem. -/
+/-- The Hartogs–Taylor series sums to the function at every point of the set. This follows from the
+Taylor expansion theorem. -/
 theorem hasSum_hartogsTaylor (hU : IsOpen U) (hH : IsCompleteHartogs U)
     (hf : DifferentiableOn ℂ f U) {p : E × ℂ} (hp : p ∈ U) :
     HasSum (fun k => p.2 ^ k • hartogsTaylorCoeff f k p.1) (f p) :=
-  (hartogsTaylor_expansion hU hH hf).2.hasSum hp
+  (differentiableOn_hartogsTaylorCoeff_and_hasSumLocallyUniformlyOn hU hH hf).2.hasSum hp
 
-/-- Hartogs–Taylor sums converge uniformly on each compact subset of the set.
-This follows from the Taylor expansion theorem. -/
+/-- Hartogs–Taylor sums converge uniformly on each compact subset of the set. This follows from the
+Taylor expansion theorem. -/
 theorem tendstoUniformlyOn_hartogsTaylor (hU : IsOpen U) (hH : IsCompleteHartogs U)
     (hf : DifferentiableOn ℂ f U) {K : Set (E × ℂ)} (hK : IsCompact K) (hKU : K ⊆ U) :
     TendstoUniformlyOn
       (fun s : Finset ℕ => fun p : E × ℂ => ∑ k ∈ s, p.2 ^ k • hartogsTaylorCoeff f k p.1)
       f Filter.atTop K :=
   (tendstoLocallyUniformlyOn_iff_tendstoUniformlyOn_of_compact hK).mp
-    ((hartogsTaylor_expansion hU hH hf).2.mono hKU)
+    ((differentiableOn_hartogsTaylorCoeff_and_hasSumLocallyUniformlyOn hU hH hf).2.mono hKU)
 
 /-- **Hartogs–Laurent expansion with connected nonempty fibers.** The coefficients are
 holomorphic on the whole projected base, the series converges locally uniformly, and
@@ -219,7 +248,7 @@ theorem exists_hartogsLaurent_expansion (hU : IsOpen U) (hH : IsHartogs U)
       (∀ z, (z, 0) ∈ U → ∀ k : ℤ, k < 0 → a k z = 0) ∧
       HasSumLocallyUniformlyOn (fun k (p : E × ℂ) => p.2 ^ k • a k p.1) f U := by
   classical
-  have hA := hf.analyticOnNhd_finiteDimensional hU
+  have hA := hf.analyticOnNhd_of_finiteDimensional hU
   have hrad : ∀ z : E, ∃ r : ℝ, 0 < r ∧ (z ∈ hartogsBase U → (z, (r : ℂ)) ∈ U) := by
     intro z
     by_cases hz : z ∈ hartogsBase U
@@ -253,8 +282,8 @@ theorem exists_hartogsLaurent_expansion (hU : IsOpen U) (hH : IsHartogs U)
     exact (hcoeff y (R z) (hR z) (hc y hy (R z : ℂ) (by simp [(hR z).le])).1 k).symm
   exact ((hcoeffA z (mem_ball_self hδ)).congr heq).differentiableAt.differentiableWithinAt
 
-/-- A pointwise version of the Hartogs–Laurent expansion, retaining global holomorphic
-coefficients and their vanishing at the zero section. -/
+/-- A pointwise version of the Hartogs–Laurent expansion, retaining global holomorphic coefficients
+and their vanishing at the zero section. -/
 theorem exists_hasSum_hartogsLaurent (hU : IsOpen U) (hH : IsHartogs U)
     (hfib : HasPreconnectedFibers U) (hf : DifferentiableOn ℂ f U) :
     ∃ a : ℤ → E → F,

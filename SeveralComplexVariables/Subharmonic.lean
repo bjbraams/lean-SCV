@@ -5,51 +5,74 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.SeparateAnalytic.Submean
 public import Mathlib.Analysis.Complex.MeanValue
 public import Mathlib.MeasureTheory.Integral.CircleAverage
 public import Mathlib.Topology.Semicontinuity.Basic
+public import SeveralComplexVariables.Integral.Circle
+public import SeveralComplexVariables.SeparateAnalytic.Submean
+public import SeveralComplexVariables.Topology.UpperSemicontinuous
 
 /-!
 # Subharmonic functions of one complex variable
 
-A real-valued function on an open subset of `ℂ` is subharmonic if it is upper
-semicontinuous and satisfies the local submean inequality: at every point, for all
-sufficiently small radii the function is integrable on the circle and its value at the
-center is at most its circle average. This is the definition of Ransford, *Potential
-Theory in the Complex Plane*, Definition 2.2.1, and of Fritzsche–Grauert, Chapter II,
-Section 2, with the harmonic-majorant condition replaced by the submean inequality.
-Locality is then immediate. The submean inequality on every closed disc in the domain
-and the plurisubharmonic theory are developed in later files.
+A real-valued function on an open subset of `ℂ` is subharmonic if it is upper semicontinuous and
+satisfies the local submean inequality: at every point, for all sufficiently small radii the
+function is integrable on the circle and its value at the center is at most its circle average.
+This is the definition of [Ransford][Ransford1995], *Potential Theory in the Complex Plane*,
+Definition 2.2.1, and of [Fritzsche–Grauert][FritzscheGrauert2002], Chapter II, Section 2, with
+the harmonic-majorant condition replaced by the submean inequality. Locality is then immediate.
+The submean inequality on every closed disc in the domain and the plurisubharmonic theory are
+developed in later files.
 
 Only real-valued functions are considered; the value `-∞` is not admitted.
 
-This file proves closure under sums, nonnegative multiples and maxima, gives the
-holomorphic examples (real parts, positive powers of norms, logarithms of nonvanishing
-moduli), and proves the maximum principle: a subharmonic function on a preconnected open
-set that attains its supremum is constant, and on a disc it is bounded by its supremum
-on the boundary circle.
+This file proves closure under sums, nonnegative multiples and maxima, gives the holomorphic
+examples (real parts, positive powers of norms, logarithms of nonvanishing moduli), and proves
+the maximum principle: a subharmonic function on a preconnected open set that attains its
+supremum is constant, and on a disc it is bounded by its supremum on the boundary circle.
 
-References: Fritzsche–Grauert (2002), Chapter II, Section 2; Range (1986), Chapter II,
-Section 5; Ransford (1995), Chapter 2.
+References: [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Section 2;
+[Range][Range1986] (1986), Chapter II, Section 5; [Ransford][Ransford1995] (1995), Chapter 2.
+
+## Main definitions
+
+* `HasSubmeanAt`: The local submean property at a point: for every sufficiently small radius, the
+  function is integrable on the circle and its value at the center is bounded by its circle average.
+* `SubharmonicOn`: A real function is subharmonic on a set if it is upper semicontinuous there and
+  has the local submean property at each of its points.
+
+## Main results
+
+* `SubharmonicOn.eqOn_const_of_isMaxOn`: **Maximum principle.** A subharmonic function on a
+  preconnected open set that attains its supremum at a point is constant.
+* `SubharmonicOn.le_of_le_sphere`: **Maximum principle on a disc.** A function subharmonic on an
+  open disc and upper semicontinuous on the closed disc is bounded by any bound valid on the
+  boundary circle.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [T. Ransford, *Potential Theory in the Complex Plane*][Ransford1995]
 -/
 
-@[expose] public section
+public section
 
 open Filter MeasureTheory Metric Set Real
 open scoped Interval Topology
 
 namespace SeveralComplexVariables
 
-/-- The local submean property at a point: for every sufficiently small radius, the
-function is integrable on the circle and its value at the center is bounded by its
-circle average. -/
-def HasSubmeanAt (u : ℂ → ℝ) (a : ℂ) : Prop :=
+/-- The local submean property at a point: for every sufficiently small radius, the function is
+integrable on the circle and its value at the center is bounded by its circle average. -/
+@[expose] def HasSubmeanAt (u : ℂ → ℝ) (a : ℂ) : Prop :=
   ∀ᶠ r in 𝓝[>] (0 : ℝ), CircleIntegrable u a r ∧ u a ≤ circleAverage u a r
 
-/-- A real function is subharmonic on a set if it is upper semicontinuous there and has
-the local submean property at each of its points. The set is intended to be open. -/
-def SubharmonicOn (u : ℂ → ℝ) (U : Set ℂ) : Prop :=
+/-- A real function is subharmonic on a set if it is upper semicontinuous there and has the local
+submean property at each of its points. The set is intended to be open. -/
+@[expose] def SubharmonicOn (u : ℂ → ℝ) (U : Set ℂ) : Prop :=
   UpperSemicontinuousOn u U ∧ ∀ a ∈ U, HasSubmeanAt u a
 
 variable {u v : ℂ → ℝ} {U V : Set ℂ} {a : ℂ}
@@ -120,23 +143,10 @@ theorem HasSubmeanAt.const_mul {c : ℝ} (hc : 0 ≤ c) (hu : HasSubmeanAt u a) 
   simp only [← smul_eq_mul, circleAverage_fun_smul]
   exact smul_le_smul_of_nonneg_left hu' hc
 
-/-- Nonnegative multiples of upper semicontinuous functions are upper semicontinuous. -/
-theorem subharmonicOn_const_mul_usc {X : Type*} [TopologicalSpace X] {f : X → ℝ} {s : Set X}
-    {c : ℝ} (hc : 0 ≤ c) (hf : UpperSemicontinuousOn f s) :
-    UpperSemicontinuousOn (fun x => c * f x) s := fun z hz =>
-  (continuous_const.mul continuous_id).continuousAt.comp_upperSemicontinuousWithinAt
-    (hf z hz) (fun _ _ hxy => mul_le_mul_of_nonneg_left hxy hc)
-
 /-- Nonnegative multiples of subharmonic functions are subharmonic. -/
 theorem SubharmonicOn.const_mul {c : ℝ} (hc : 0 ≤ c) (hu : SubharmonicOn u U) :
     SubharmonicOn (fun z => c * u z) U :=
-  ⟨subharmonicOn_const_mul_usc hc hu.1, fun a ha => (hu.2 a ha).const_mul hc⟩
-
-/-- Maxima of circle-integrable functions are circle integrable. -/
-theorem CircleIntegrable.max {c : ℂ} {R : ℝ} (hu : CircleIntegrable u c R)
-    (hv : CircleIntegrable v c R) : CircleIntegrable (fun z => max (u z) (v z)) c R := by
-  rw [circleIntegrable_def] at hu hv ⊢
-  exact ⟨hu.1.sup hv.1, hu.2.sup hv.2⟩
+  ⟨hu.1.const_mul hc, fun a ha => (hu.2 a ha).const_mul hc⟩
 
 /-- The pointwise maximum preserves the local submean property. -/
 theorem HasSubmeanAt.sup (hu : HasSubmeanAt u a) (hv : HasSubmeanAt v a) :
@@ -158,8 +168,8 @@ section Holomorphic
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
 
-/-- A continuous function whose circle averages over all small circles equal its value at
-the center has the local submean property; this applies to harmonic functions. -/
+/-- A continuous function whose circle averages over all small circles equal its value at the center
+has the local submean property; this applies to harmonic functions. -/
 theorem hasSubmeanAt_of_circleAverage_eq {ρ : ℝ} (hρ : 0 < ρ) (hc : ContinuousOn u (ball a ρ))
     (h : ∀ r, 0 < r → r < ρ → circleAverage u a r = u a) : HasSubmeanAt u a :=
   hasSubmeanAt_of_forall_lt hρ fun r hr hrρ =>
@@ -176,32 +186,36 @@ theorem circleAverage_re_eq_of_analyticAt {f : ℂ → ℂ} (hf : AnalyticAt ℂ
     rw [abs_of_pos hr]
     refine DifferentiableOn.diffContOnCl ?_
     rw [closure_ball a hr.ne']
-    exact fun z hz => (han z (closedBall_subset_ball hrρ hz)).differentiableAt.differentiableWithinAt
+    exact fun z hz => (han z (closedBall_subset_ball hrρ
+      hz)).differentiableAt.differentiableWithinAt
   have hint : CircleIntegrable f a r :=
-    ((han.mono (sphere_subset_closedBall.trans (closedBall_subset_ball hrρ))).continuousOn).circleIntegrable hr.le
+    ((han.mono (sphere_subset_closedBall.trans (closedBall_subset_ball
+      hrρ))).continuousOn).circleIntegrable hr.le
   have := Complex.reCLM.circleAverage_comp_comm (f := f) (c := a) (R := r)
   simp only [Function.comp_def, Complex.reCLM_apply] at this
   rw [this hint, hd.circleAverage]
 
 /-- The real part of a holomorphic function is subharmonic. -/
-theorem SubharmonicOn.re_of_analyticOnNhd {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f U) :
+theorem _root_.AnalyticOnNhd.subharmonicOn_re {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f U) :
     SubharmonicOn (fun z => (f z).re) U := by
   refine ⟨(Complex.continuous_re.comp_continuousOn hf.continuousOn).upperSemicontinuousOn,
     fun a ha => ?_⟩
   obtain ⟨ρ, hρ, h⟩ := circleAverage_re_eq_of_analyticAt (hf a ha)
   obtain ⟨ρ', hρ', hball⟩ := Metric.mem_nhds_iff.mp (hf a ha).eventually_analyticAt
-  refine hasSubmeanAt_of_circleAverage_eq (lt_min hρ hρ') ?_ fun r hr hrρ => h r hr (hrρ.trans_le (min_le_left _ _))
+  refine hasSubmeanAt_of_circleAverage_eq (lt_min hρ hρ') ?_ fun r hr hrρ => h r hr (hrρ.trans_le
+    (min_le_left _ _))
   exact Complex.continuous_re.comp_continuousOn
     ((AnalyticOnNhd.continuousOn fun z hz => hball (ball_subset_ball (min_le_right _ _) hz)))
 
 /-- Minus the real part of a holomorphic function is subharmonic. -/
-theorem SubharmonicOn.neg_re_of_analyticOnNhd {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f U) :
+theorem _root_.AnalyticOnNhd.subharmonicOn_neg_re {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f U) :
     SubharmonicOn (fun z => -(f z).re) U := by
-  have := SubharmonicOn.re_of_analyticOnNhd (U := U) (f := fun z => -f z) (hf.neg)
+  have := AnalyticOnNhd.subharmonicOn_re (U := U) (f := fun z => -f z) (hf.neg)
   simpa using this
 
 /-- Positive powers of the norm of a holomorphic function are subharmonic. -/
-theorem SubharmonicOn.norm_rpow_of_analyticOnNhd (hU : IsOpen U) {f : ℂ → F} {p : ℝ} (hp : 0 < p)
+theorem _root_.AnalyticOnNhd.subharmonicOn_norm_rpow (hU : IsOpen U) {f : ℂ → F} {p : ℝ}
+    (hp : 0 < p)
     (hf : AnalyticOnNhd ℂ f U) : SubharmonicOn (fun z => ‖f z‖ ^ p) U := by
   refine ⟨(hf.continuousOn.norm.rpow_const fun _ _ => Or.inr hp.le).upperSemicontinuousOn,
     fun a ha => ?_⟩
@@ -213,7 +227,7 @@ theorem SubharmonicOn.norm_rpow_of_analyticOnNhd (hU : IsOpen U) {f : ℂ → F}
   exact norm_rpow_le_circleAverage hr hp (hf.mono hsub)
 
 /-- The logarithm of the modulus of a nonvanishing holomorphic function is subharmonic. -/
-theorem SubharmonicOn.log_norm_of_analyticOnNhd (hU : IsOpen U) {f : ℂ → ℂ}
+theorem _root_.AnalyticOnNhd.subharmonicOn_log_norm (hU : IsOpen U) {f : ℂ → ℂ}
     (hf : AnalyticOnNhd ℂ f U) (hne : ∀ z ∈ U, f z ≠ 0) :
     SubharmonicOn (fun z => Real.log ‖f z‖) U := by
   have hcont : ContinuousOn (fun z => Real.log ‖f z‖) U := by
@@ -229,8 +243,8 @@ end Holomorphic
 
 section MaximumPrinciple
 
-/-- A circle-integrable function bounded by `M` on a circle, upper semicontinuous there
-and strictly below `M` at one point, has circle average strictly below `M`. -/
+/-- A circle-integrable function bounded by `M` on a circle, upper semicontinuous there and strictly
+below `M` at one point, has circle average strictly below `M`. -/
 theorem circleAverage_lt_of_lt {r M : ℝ} (hr : 0 < r) (hint : CircleIntegrable u a r)
     (hle : ∀ z ∈ sphere a r, u z ≤ M) (husc : UpperSemicontinuousOn u (sphere a r))
     {z : ℂ} (hz : z ∈ sphere a r) (hlt : u z < M) : circleAverage u a r < M := by

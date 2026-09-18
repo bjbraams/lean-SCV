@@ -10,21 +10,20 @@ public import SeveralComplexVariables.AnalyticGerm.Factorization
 /-!
 # Parameter germs and restriction to a fiber
 
-Adding an unused scalar variable preserves irreducible germs. Consequently a
-nonzero parameter germ is relatively prime to every germ whose restriction to
-the scalar fiber is nonzero. This is the local algebra needed for persistence
-of relative primality.
+Adding an unused scalar variable preserves irreducible germs. Consequently a nonzero parameter
+germ is relatively prime to every germ whose restriction to the scalar fiber is nonzero. This is
+the local algebra needed for persistence of relative primality.
 
 ## Main results
 
-`basePullback` and `fiberPullback` are restriction to the parameter space and to
-the scalar fiber. `irreducible_basePullback` preserves irreducibility.
-`isRelPrime_basePullback_of_fiber_ne_zero` is relative primality of a nonzero
-parameter germ to a germ with nonzero fiber restriction.
-`eventually_fiber_ne_zero_ofAnalyticAt` is persistence of a nonzero fiber germ.
+`basePullback` pulls a parameter germ back along projection, adding an unused scalar variable;
+`fiberPullback` restricts a germ to the scalar fiber. `irreducible_basePullback` preserves
+irreducibility. `isRelPrime_basePullback_of_fiber_ne_zero` is relative primality of a nonzero
+parameter germ to a germ with nonzero fiber restriction. `eventually_fiber_ne_zero_ofAnalyticAt`
+is persistence of a nonzero fiber germ.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Filter Set Metric
 open scoped Topology
@@ -34,15 +33,15 @@ namespace SeveralComplexVariables.AnalyticGerm
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 /-- Regard a parameter germ as a germ independent of the scalar variable. -/
-def basePullback (y : E × ℂ) : AnalyticGerm y.1 →ₐ[ℂ] AnalyticGerm y :=
+@[expose] def basePullback (y : E × ℂ) : AnalyticGerm ℂ y.1 →ₐ[ℂ] AnalyticGerm ℂ y :=
   pullback Prod.fst analyticAt_fst
 
 /-- Restrict a germ to the scalar fiber through its base point. -/
-def fiberPullback (y : E × ℂ) : AnalyticGerm y →ₐ[ℂ] AnalyticGerm y.2 :=
+def fiberPullback (y : E × ℂ) : AnalyticGerm ℂ y →ₐ[ℂ] AnalyticGerm ℂ y.2 :=
   pullback (fun w : ℂ => (y.1, w)) (analyticAt_const.prod analyticAt_id)
 
 /-- A parameter germ vanishing at its base point restricts to zero on the scalar fiber. -/
-theorem fiberPullback_basePullback_eq_zero (y : E × ℂ) {p : AnalyticGerm y.1}
+theorem fiberPullback_basePullback_eq_zero (y : E × ℂ) {p : AnalyticGerm ℂ y.1}
     (hp : ¬ IsUnit p) : fiberPullback y (basePullback y p) = 0 := by
   obtain ⟨g, hg, rfl⟩ := exists_rep p
   have h0 : g y.1 = 0 := by simpa only [isUnit_iff, eval_ofAnalyticAt, not_not] using hp
@@ -52,23 +51,23 @@ theorem fiberPullback_basePullback_eq_zero (y : E × ℂ) {p : AnalyticGerm y.1}
   exact Filter.Eventually.of_forall (fun _ => h0)
 
 /-- Adding an unused scalar variable preserves irreducibility of a parameter germ. -/
-theorem irreducible_basePullback (y : E × ℂ) {p : AnalyticGerm y.1} (hp : Irreducible p) :
+theorem irreducible_basePullback (y : E × ℂ) {p : AnalyticGerm ℂ y.1} (hp : Irreducible p) :
     Irreducible (basePullback y p) := by
-  let s : AnalyticGerm y →ₐ[ℂ] AnalyticGerm y.1 :=
+  let s : AnalyticGerm ℂ y →ₐ[ℂ] AnalyticGerm ℂ y.1 :=
     pullback (fun z : E => (z, y.2)) (analyticAt_id.prod analyticAt_const)
-  have hs (q : AnalyticGerm y.1) : s (basePullback y q) = q := by
+  have hs (q : AnalyticGerm ℂ y.1) : s (basePullback y q) = q := by
     obtain ⟨g, hg, rfl⟩ := exists_rep q
     rfl
   refine ⟨fun hu => hp.not_isUnit ((isUnit_pullback_iff _ _ p).mp hu), ?_⟩
   intro a b hab
   have he : p = s a * s b := by rw [← hs p, hab, map_mul]
-  have hu (q : AnalyticGerm y) : IsUnit (s q) ↔ IsUnit q := by
+  have hu (q : AnalyticGerm ℂ y) : IsUnit (s q) ↔ IsUnit q := by
     simp only [s, isUnit_iff, eval_pullback]
   exact (hp.isUnit_or_isUnit he).imp (hu a).mp (hu b).mp
 
 /-- A nonzero parameter germ is relatively prime to a germ nonzero on its scalar fiber. -/
 theorem isRelPrime_basePullback_of_fiber_ne_zero [FiniteDimensional ℂ E]
-    (y : E × ℂ) {p : AnalyticGerm y.1} (hp : p ≠ 0) {f : AnalyticGerm y}
+    (y : E × ℂ) {p : AnalyticGerm ℂ y.1} (hp : p ≠ 0) {f : AnalyticGerm ℂ y}
     (hf : fiberPullback y f ≠ 0) : IsRelPrime (basePullback y p) f := by
   induction p using UniqueFactorizationMonoid.induction_on_prime with
   | h₁ => exact (hp rfl).elim

@@ -12,97 +12,102 @@ public import SeveralComplexVariables.Reinhardt
 /-!
 # Polydiscs and distinguished boundaries
 
-Geometry for the polydisc Cauchy formula. Equal-radius polydiscs use the supremum norm;
-these are not Euclidean balls. Origin-centred open and closed polydiscs are complete Reinhardt
-sets. Containment of the closed polydisc determined by each point's moduli characterizes the
-complete Reinhardt property.
+Geometry for the polydisc Cauchy formula. Equal-radius polydiscs use the supremum norm; these
+are not Euclidean balls. Origin-centred open and closed polydiscs are complete Reinhardt sets.
+Containment of the closed polydisc determined by each point's moduli characterizes the complete
+Reinhardt property.
 
 ## Notation
 
-`polydiscWithRadii c r` and `closedPolydiscWithRadii c r` are products of coordinate
-discs of radii `r i`. `closedPolydisc c R` is the equal-radius case, coinciding with the
-closed sup-norm ball for `0 ≤ R`. The distinguished boundary is parametrized by
-`torusMap`.
+`polydisc c r` and `closedPolydisc c r` are products of coordinate balls of radii `r i`. The
+definitions and their elementary topology allow any family of pseudo-metric spaces as factors; the
+Reinhardt and torus statements are specific to `ℂ`. The equal-radius case `r = fun _ => R` coincides
+with the sup-norm ball; see `polydisc_const_eq_ball` and `closedPolydisc_eq_closedBall`. The
+distinguished boundary is parametrized by `torusMap`.
 
 ## Main results
 
-`isCompleteReinhardt_iff_closedPolydiscWithRadii_subset` characterizes complete Reinhardt
-sets. `polydiscWithRadii_const_eq_ball` identifies equal positive radii with the open
-sup-norm ball. `closure_polydiscWithRadii` identifies the closure of a positive-radius
-open polydisc with the corresponding closed polydisc.
+`isCompleteReinhardt_iff_closedPolydisc_subset` characterizes complete Reinhardt sets.
+`polydisc_const_eq_ball` identifies equal positive radii with the open sup-norm ball.
+`closure_polydisc` identifies the closure of a positive-radius open polydisc with the
+corresponding closed polydisc.
 -/
 
-@[expose] public section
+public section
 
 open Complex Filter Function MeasureTheory Metric Set
-open scoped Classical ENNReal NNReal Real Topology
+open scoped ENNReal NNReal Real Topology
 
 namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
-/-! ### Closed polydiscs -/
+/-!
+### Closed polydiscs
+-/
 
-/-- The closed polydisc of equal radii. For `0 ≤ R` this coincides with the closed ball for the
-sup-norm. -/
-def closedPolydisc {ι : Type*} (c : ι → ℂ) (R : ℝ) : Set (ι → ℂ) :=
-  Set.pi univ fun i => closedBall (c i) R
-
-/-- An open polydisc with a separate radius in each coordinate. -/
-def polydiscWithRadii {ι : Type*} (c : ι → ℂ) (r : ι → ℝ) : Set (ι → ℂ) :=
+/-- An open polydisc with a separate radius in each coordinate: the product of the open balls
+`ball (c i) (r i)`. The factors may be any pseudo-metric spaces; the several-complex-variables
+theory uses `X i = ℂ`. -/
+@[expose] def polydisc {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    (c : ∀ i, X i) (r : ι → ℝ) : Set (∀ i, X i) :=
   Set.pi univ fun i => ball (c i) (r i)
 
-/-- A closed polydisc with a separate radius in each coordinate. -/
-def closedPolydiscWithRadii {ι : Type*} (c : ι → ℂ) (r : ι → ℝ) : Set (ι → ℂ) :=
+/-- A closed polydisc with a separate radius in each coordinate: the product of the closed balls
+`closedBall (c i) (r i)`. -/
+@[expose] def closedPolydisc {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    (c : ∀ i, X i) (r : ι → ℝ) : Set (∀ i, X i) :=
   Set.pi univ fun i => closedBall (c i) (r i)
 
 /-- Membership in a polydisc is a coordinatewise strict distance bound. -/
-@[simp] lemma mem_polydiscWithRadii {ι : Type*} {c z : ι → ℂ} {r : ι → ℝ} :
-    z ∈ polydiscWithRadii c r ↔ ∀ i, dist (z i) (c i) < r i := by
-  simp [polydiscWithRadii, mem_ball]
+@[simp] lemma mem_polydisc {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    {c z : ∀ i, X i} {r : ι → ℝ} :
+    z ∈ polydisc c r ↔ ∀ i, dist (z i) (c i) < r i := by
+  simp [polydisc, mem_ball]
 
 /-- Membership in a closed polydisc is a coordinatewise non-strict distance bound. -/
-@[simp] lemma mem_closedPolydiscWithRadii {ι : Type*} {c z : ι → ℂ} {r : ι → ℝ} :
-    z ∈ closedPolydiscWithRadii c r ↔ ∀ i, dist (z i) (c i) ≤ r i := by
-  simp [closedPolydiscWithRadii, mem_closedBall]
+@[simp] lemma mem_closedPolydisc {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    {c z : ∀ i, X i} {r : ι → ℝ} :
+    z ∈ closedPolydisc c r ↔ ∀ i, dist (z i) (c i) ≤ r i := by
+  simp [closedPolydisc, mem_closedBall]
 
 /-- Every origin-centred open polydisc is complete Reinhardt, even with nonpositive radii. -/
-theorem isCompleteReinhardt_polydiscWithRadii {ι : Type*} (r : ι → ℝ) :
-    IsCompleteReinhardt (polydiscWithRadii (0 : ι → ℂ) r) := by
+theorem isCompleteReinhardt_polydisc {ι : Type*} (r : ι → ℝ) :
+    IsCompleteReinhardt (polydisc (0 : ι → ℂ) r) := by
   intro z hz w hw
-  simp only [mem_polydiscWithRadii, Pi.zero_apply, dist_zero_right] at hz ⊢
+  simp only [mem_polydisc, Pi.zero_apply, dist_zero_right] at hz ⊢
   exact fun i => (hw i).trans_lt (hz i)
 
 /-- Every origin-centred closed polydisc is complete Reinhardt, including degenerate ones. -/
-theorem isCompleteReinhardt_closedPolydiscWithRadii {ι : Type*} (r : ι → ℝ) :
-    IsCompleteReinhardt (closedPolydiscWithRadii (0 : ι → ℂ) r) := by
+theorem isCompleteReinhardt_closedPolydisc {ι : Type*} (r : ι → ℝ) :
+    IsCompleteReinhardt (closedPolydisc (0 : ι → ℂ) r) := by
   intro z hz w hw
-  simp only [mem_closedPolydiscWithRadii, Pi.zero_apply, dist_zero_right] at hz ⊢
+  simp only [mem_closedPolydisc, Pi.zero_apply, dist_zero_right] at hz ⊢
   exact fun i => (hw i).trans (hz i)
 
 /-- Completeness means containing the closed polydisc determined by each point's moduli. -/
-theorem isCompleteReinhardt_iff_closedPolydiscWithRadii_subset {ι : Type*}
+theorem isCompleteReinhardt_iff_closedPolydisc_subset {ι : Type*}
     {U : Set (ι → ℂ)} :
     IsCompleteReinhardt U ↔
-      ∀ z ∈ U, closedPolydiscWithRadii 0 (fun i => ‖z i‖) ⊆ U := by
-  simp only [IsCompleteReinhardt, Set.subset_def, mem_closedPolydiscWithRadii,
+      ∀ z ∈ U, closedPolydisc 0 (fun i => ‖z i‖) ⊆ U := by
+  simp only [IsCompleteReinhardt, Set.subset_def, mem_closedPolydisc,
     Pi.zero_apply, dist_zero_right]
 
 /-- An origin-centred open polydisc has independent coordinate rotation symmetry. -/
-theorem isReinhardt_polydiscWithRadii {ι : Type*} (r : ι → ℝ) :
-    IsReinhardt (polydiscWithRadii (0 : ι → ℂ) r) :=
-  (isCompleteReinhardt_polydiscWithRadii r).isReinhardt
+theorem isReinhardt_polydisc {ι : Type*} (r : ι → ℝ) :
+    IsReinhardt (polydisc (0 : ι → ℂ) r) :=
+  (isCompleteReinhardt_polydisc r).isReinhardt
 
 /-- An origin-centred closed polydisc has independent coordinate rotation symmetry. -/
-theorem isReinhardt_closedPolydiscWithRadii {ι : Type*} (r : ι → ℝ) :
-    IsReinhardt (closedPolydiscWithRadii (0 : ι → ℂ) r) :=
-  (isCompleteReinhardt_closedPolydiscWithRadii r).isReinhardt
+theorem isReinhardt_closedPolydisc {ι : Type*} (r : ι → ℝ) :
+    IsReinhardt (closedPolydisc (0 : ι → ℂ) r) :=
+  (isCompleteReinhardt_closedPolydisc r).isReinhardt
 
 /-- Open origin-centred polydiscs are logarithmically convex, with arbitrary real radii. -/
-theorem isLogarithmicallyConvex_polydiscWithRadii {ι : Type*} (r : ι → ℝ) :
-    IsLogarithmicallyConvex (polydiscWithRadii (0 : ι → ℂ) r) := by
+theorem isLogarithmicallyConvex_polydisc {ι : Type*} (r : ι → ℝ) :
+    IsLogarithmicallyConvex (polydisc (0 : ι → ℂ) r) := by
   intro x hx y hy a b ha hb hab
-  simp only [logarithmicImage, Set.mem_ofPred_eq, mem_polydiscWithRadii,
+  simp only [logarithmicImage, Set.mem_ofPred_eq, mem_polydisc,
     Pi.zero_apply, dist_zero_right] at hx hy ⊢
   intro i
   have h := (convexOn_exp.convex_lt (r i))
@@ -111,10 +116,10 @@ theorem isLogarithmicallyConvex_polydiscWithRadii {ι : Type*} (r : ι → ℝ) 
     Complex.norm_of_nonneg (Real.exp_nonneg _)] using h.2
 
 /-- Closed origin-centred polydiscs are logarithmically convex, including degenerate ones. -/
-theorem isLogarithmicallyConvex_closedPolydiscWithRadii {ι : Type*} (r : ι → ℝ) :
-    IsLogarithmicallyConvex (closedPolydiscWithRadii (0 : ι → ℂ) r) := by
+theorem isLogarithmicallyConvex_closedPolydisc {ι : Type*} (r : ι → ℝ) :
+    IsLogarithmicallyConvex (closedPolydisc (0 : ι → ℂ) r) := by
   intro x hx y hy a b ha hb hab
-  simp only [logarithmicImage, Set.mem_ofPred_eq, mem_closedPolydiscWithRadii,
+  simp only [logarithmicImage, Set.mem_ofPred_eq, mem_closedPolydisc,
     Pi.zero_apply, dist_zero_right] at hx hy ⊢
   intro i
   have h := (convexOn_exp.convex_le (r i))
@@ -123,47 +128,46 @@ theorem isLogarithmicallyConvex_closedPolydiscWithRadii {ι : Type*} (r : ι →
     Complex.norm_of_nonneg (Real.exp_nonneg _)] using h.2
 
 /-- A finite-dimensional polydisc is open. -/
-theorem isOpen_polydiscWithRadii {ι : Type*} [Finite ι] (c : ι → ℂ) (r : ι → ℝ) :
-    IsOpen (polydiscWithRadii c r) := by
+theorem isOpen_polydisc {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    [Finite ι] (c : ∀ i, X i) (r : ι → ℝ) :
+    IsOpen (polydisc c r) := by
   change IsOpen (Set.pi univ fun i => ball (c i) (r i))
   exact isOpen_set_pi finite_univ (fun _ _ => isOpen_ball)
 
-/-- A closed polydisc is compact, by the product compactness theorem. -/
-theorem isCompact_closedPolydiscWithRadii {ι : Type*} (c : ι → ℂ) (r : ι → ℝ) :
-    IsCompact (closedPolydiscWithRadii c r) :=
+/-- A closed polydisc in a product of proper spaces is compact, by the product compactness
+theorem. -/
+theorem isCompact_closedPolydisc {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    [∀ i, ProperSpace (X i)] (c : ∀ i, X i) (r : ι → ℝ) :
+    IsCompact (closedPolydisc c r) :=
   isCompact_univ_pi fun i => isCompact_closedBall (c i) (r i)
 
 /-- The closure of a positive-radius polydisc is the corresponding closed polydisc. -/
-theorem closure_polydiscWithRadii {ι : Type*} (c : ι → ℂ) {r : ι → ℝ}
+theorem closure_polydisc {ι : Type*} (c : ι → ℂ) {r : ι → ℝ}
     (hr : ∀ i, 0 < r i) :
-    closure (polydiscWithRadii c r) = closedPolydiscWithRadii c r := by
-  simp only [polydiscWithRadii, closedPolydiscWithRadii, closure_pi_set,
+    closure (polydisc c r) = closedPolydisc c r := by
+  simp only [polydisc, closedPolydisc, closure_pi_set,
     closure_ball _ (ne_of_gt (hr _))]
 
-/-- Equal coordinate radii recover `closedPolydisc`. -/
-@[simp] lemma closedPolydiscWithRadii_const {ι : Type*} (c : ι → ℂ) (R : ℝ) :
-    closedPolydiscWithRadii c (fun _ => R) = closedPolydisc c R := rfl
-
 /-- In finite coordinates, equal positive radii give the open ball for the supremum norm. -/
-theorem polydiscWithRadii_const_eq_ball {ι : Type*} [Fintype ι] (c : ι → ℂ)
-    {R : ℝ} (hR : 0 < R) : polydiscWithRadii c (fun _ => R) = ball c R :=
+theorem polydisc_const_eq_ball {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    [Fintype ι] (c : ∀ i, X i) {R : ℝ} (hR : 0 < R) : polydisc c (fun _ => R) = ball c R :=
   (ball_pi c hR).symm
 
 /-- Enlarging every radius enlarges the polydisc. -/
-theorem polydiscWithRadii_mono {ι : Type*} (c : ι → ℂ) {r s : ι → ℝ}
-    (hrs : ∀ i, r i ≤ s i) : polydiscWithRadii c r ⊆ polydiscWithRadii c s := by
+theorem polydisc_mono {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    (c : ∀ i, X i) {r s : ι → ℝ} (hrs : ∀ i, r i ≤ s i) : polydisc c r ⊆ polydisc c s := by
   intro z hz
-  exact mem_polydiscWithRadii.mpr fun i => (mem_polydiscWithRadii.mp hz i).trans_le (hrs i)
+  exact mem_polydisc.mpr fun i => (mem_polydisc.mp hz i).trans_le (hrs i)
 
 /-- Strictly smaller closed coordinate discs lie in the larger open polydisc. -/
-theorem closedPolydiscWithRadii_subset_polydiscWithRadii {ι : Type*} (c : ι → ℂ)
-    {r s : ι → ℝ} (hrs : ∀ i, r i < s i) :
-    closedPolydiscWithRadii c r ⊆ polydiscWithRadii c s := by
+theorem closedPolydisc_subset_polydisc {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    (c : ∀ i, X i) {r s : ι → ℝ} (hrs : ∀ i, r i < s i) :
+    closedPolydisc c r ⊆ polydisc c s := by
   intro z hz
-  exact mem_polydiscWithRadii.mpr fun i => (mem_closedPolydiscWithRadii.mp hz i).trans_lt (hrs i)
+  exact mem_polydisc.mpr fun i => (mem_closedPolydisc.mp hz i).trans_lt (hrs i)
 
 /-- The torus parametrization with separate coordinate radii is continuous. -/
-theorem continuous_torusMapWithRadii {n : ℕ} (c : Fin n → ℂ) (r : Fin n → ℝ) :
+theorem continuous_torusMap {n : ℕ} (c : Fin n → ℂ) (r : Fin n → ℝ) :
     Continuous (torusMap c r) := by
   apply continuous_pi
   intro i
@@ -171,95 +175,55 @@ theorem continuous_torusMapWithRadii {n : ℕ} (c : Fin n → ℂ) (r : Fin n �
   fun_prop
 
 /-- Each torus coordinate has the prescribed nonnegative radius. -/
-theorem torusMap_coord_normWithRadii {n : ℕ} {c : Fin n → ℂ} {r : Fin n → ℝ}
+theorem norm_torusMap_sub {n : ℕ} {c : Fin n → ℂ} {r : Fin n → ℝ}
     (hr : ∀ i, 0 ≤ r i) (θ : Fin n → ℝ) (i : Fin n) :
     ‖torusMap c r θ i - c i‖ = r i := by
   simp [torusMap, abs_of_nonneg (hr i)]
 
 /-- A torus with nonnegative radii belongs to its closed polydisc. -/
-theorem torusMap_mem_closedPolydiscWithRadii {n : ℕ} {c : Fin n → ℂ} {r : Fin n → ℝ}
+theorem torusMap_mem_closedPolydisc {n : ℕ} {c : Fin n → ℂ} {r : Fin n → ℝ}
     (hr : ∀ i, 0 ≤ r i) (θ : Fin n → ℝ) :
-    torusMap c r θ ∈ closedPolydiscWithRadii c r := by
-  exact mem_closedPolydiscWithRadii.mpr fun i => by
-    rw [dist_eq_norm, torusMap_coord_normWithRadii hr]
+    torusMap c r θ ∈ closedPolydisc c r := by
+  exact mem_closedPolydisc.mpr fun i => by
+    rw [dist_eq_norm, norm_torusMap_sub hr]
 
 /-- A Cauchy kernel has no pole on a coordinate circle when evaluated inside the polydisc. -/
-theorem cauchyKernel_ne_zero_on_torusWithRadii {n : ℕ} {c w : Fin n → ℂ}
+theorem torusMap_apply_ne_of_norm_sub_lt {n : ℕ} {c w : Fin n → ℂ}
     {r : Fin n → ℝ} {θ : Fin n → ℝ} {i : Fin n}
     (hr : ∀ i, 0 < r i) (hw : ‖w i - c i‖ < r i) : torusMap c r θ i ≠ w i := by
   intro h
-  have H := torusMap_coord_normWithRadii (c := c) (fun j => (hr j).le) θ i
+  have H := norm_torusMap_sub (c := c) (fun j => (hr j).le) θ i
   rw [h] at H
   exact hw.ne H
 
 /-- Membership of a coordinate and the tail gives membership of the full polydisc. -/
-theorem cons_mem_closedPolydiscWithRadii {n : ℕ} {c : Fin (n + 1) → ℂ}
+theorem cons_mem_closedPolydisc {n : ℕ} {c : Fin (n + 1) → ℂ}
     {r : Fin (n + 1) → ℝ} {x : ℂ} {y : Fin n → ℂ}
     (hx : x ∈ closedBall (c 0) (r 0))
-    (hy : y ∈ closedPolydiscWithRadii (c ∘ Fin.succ) (r ∘ Fin.succ)) :
-    Fin.cons x y ∈ closedPolydiscWithRadii c r := by
+    (hy : y ∈ closedPolydisc (c ∘ Fin.succ) (r ∘ Fin.succ)) :
+    Fin.cons x y ∈ closedPolydisc c r := by
   intro i _
   refine Fin.cases ?_ ?_ i
   · simpa using hx
   · intro j
     simpa using hy j (mem_univ _)
 
-/-- Membership in an equal-radius closed polydisc is coordinatewise membership in the
-corresponding closed balls. -/
-theorem mem_closedPolydisc {n : ℕ} {c z : Fin n → ℂ} {R : ℝ} :
-    z ∈ closedPolydisc c R ↔ ∀ i, z i ∈ closedBall (c i) R := by
-  simp [closedPolydisc]
-
 /-- An equal-radius closed polydisc is the closed ball for the supremum norm. -/
-theorem closedPolydisc_eq_closedBall {n : ℕ} {c : Fin n → ℂ} {R : ℝ} (hR : 0 ≤ R) :
-    closedPolydisc c R = closedBall c R :=
+theorem closedPolydisc_eq_closedBall {ι : Type*} {X : ι → Type*} [∀ i, PseudoMetricSpace (X i)]
+    [Fintype ι] {c : ∀ i, X i} {R : ℝ} (hR : 0 ≤ R) :
+    closedPolydisc c (fun _ => R) = closedBall c R :=
   (closedBall_pi c hR).symm
 
-/-- The standard torus with nonnegative radius lies in its associated closed polydisc. -/
-theorem torusMap_mem_closedPolydisc {n : ℕ} {c : Fin n → ℂ} {R : ℝ} (hR : 0 ≤ R)
-    (θ : Fin n → ℝ) : torusMap c (fun _ => R) θ ∈ closedPolydisc c R := by
-  intro i _
-  simp [torusMap, mem_closedBall, dist_eq_norm, abs_of_nonneg hR]
-
-/-- Adjoining a point in the first coordinate ball to a point in the tail polydisc produces a
-point in the full polydisc. -/
-theorem cons_mem_closedPolydisc {n : ℕ} {c : Fin (n + 1) → ℂ} {R : ℝ} {x : ℂ}
-    {y : Fin n → ℂ} (hx : x ∈ closedBall (c 0) R)
-    (hy : y ∈ closedPolydisc (c ∘ Fin.succ) R) :
-    Fin.cons x y ∈ closedPolydisc c R := by
-  intro i _
-  refine Fin.cases ?_ ?_ i
-  · simpa [Fin.cons_zero] using hx
-  · intro j
-    simpa [Fin.cons_succ] using hy j (mem_univ _)
-
 /-- The standard equal-radius torus parametrization is continuous. -/
-theorem continuous_torusMap {n : ℕ} (c : Fin n → ℂ) (R : ℝ) :
+theorem continuous_torusMap_const {n : ℕ} (c : Fin n → ℂ) (R : ℝ) :
     Continuous (torusMap c (fun _ => R)) :=
   continuous_pi fun i => by
     simp only [torusMap]
     fun_prop
 
 /-- No natural-number power of `2 * π * I` vanishes. -/
-theorem two_pi_I_pow_ne_zero (n : ℕ) : ((2 * π * I : ℂ) ^ n) ≠ 0 :=
+theorem _root_.Complex.two_pi_I_pow_ne_zero (n : ℕ) : ((2 * π * I : ℂ) ^ n) ≠ 0 :=
   pow_ne_zero _ two_pi_I_ne_zero
-
-/-- Every coordinate of the standard equal-radius torus has the prescribed distance from its
-center. -/
-theorem torusMap_coord_norm {n : ℕ} {c : Fin n → ℂ} {R : ℝ} (hR : 0 ≤ R)
-    (θ : Fin n → ℝ) (i : Fin n) :
-    ‖torusMap c (fun _ => R) θ i - c i‖ = R := by
-  simp [torusMap, abs_of_nonneg hR]
-
-/-- A point strictly inside a coordinate disc does not meet the corresponding coordinate circle,
-so its Cauchy kernel has no pole on the torus. -/
-theorem cauchyKernel_ne_zero_on_torus {n : ℕ} {c w : Fin n → ℂ} {R : ℝ} {θ : Fin n → ℝ}
-    {i : Fin n} (hR : 0 < R) (hw : ‖w i - c i‖ < R) :
-    torusMap c (fun _ => R) θ i ≠ w i := by
-  intro h
-  have : ‖torusMap c (fun _ => R) θ i - c i‖ = R := torusMap_coord_norm hR.le θ i
-  rw [h] at this
-  exact hw.not_ge this.ge
 
 end SeveralComplexVariables
 

@@ -5,27 +5,42 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.CauchyPompeiu
 public import Mathlib.Analysis.Calculus.ParametricIntegral
 public import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 public import Mathlib.LinearAlgebra.Complex.FiniteDimensional
+public import SeveralComplexVariables.CauchyPompeiu
 
 /-!
 # The Cauchy transform in one variable with parameters
 
 For a compactly supported `C¹` function `g` on `ℂ × G`, the Cauchy transform in the first
-variable is `u(z, y) = π⁻¹ ∫ w⁻¹ • g (z - w, y)`. The kernel `w⁻¹` is locally integrable in
-the plane, so `u` is real-differentiable with derivative obtained by differentiating under the
+variable is `u(z, y) = π⁻¹ ∫ w⁻¹ • g (z - w, y)`. The kernel `w⁻¹` is locally integrable in the
+plane, so `u` is real-differentiable with derivative obtained by differentiating under the
 integral; the translation structure places the derivative on `g`. The Cauchy–Pompeiu identity
 then gives `∂u/∂\bar z = g`, and along the parameter directions the antiholomorphic part of the
 derivative of `u` is the Cauchy transform of the corresponding antiholomorphic part of the
 derivative of `g`. The transform vanishes on every slice on which `g` vanishes.
 
-References: Hörmander (1973), Theorem 1.2.2 and Theorem 2.3.1; Jakóbczak–Jarnicki (2021),
-Proposition 4.2.2.
+References: [Hörmander][Hormander1973] (1973), Theorem 1.2.2 and Theorem 2.3.1;
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Proposition 4.2.2.
+
+## Main definitions
+
+* `cauchyTransformFst`: The Cauchy transform in the first variable of a function on `ℂ × G`.
+
+## Main results
+
+* `hasFDerivAt_cauchyTransformFst`: **Differentiation of the Cauchy transform.** The derivative is
+  the Cauchy transform of the derivative.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex MeasureTheory Set Filter Metric
 open scoped Real Topology
@@ -36,7 +51,7 @@ variable {G F : Type*} [NormedAddCommGroup G] [NormedSpace ℂ G]
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 /-- The Cauchy transform in the first variable of a function on `ℂ × G`. -/
-def cauchyTransformFst (g : ℂ × G → F) (x : ℂ × G) : F :=
+@[expose] def cauchyTransformFst (g : ℂ × G → F) (x : ℂ × G) : F :=
   (π : ℂ)⁻¹ • ∫ w : ℂ, w⁻¹ • g (x - (w, 0))
 
 section Kernel
@@ -57,8 +72,8 @@ theorem integrable_indicator_closedBall_mul_inv_norm (C R : ℝ) :
     measurableSet_closedBall
 
 omit [CompleteSpace F] in
-/-- A kernel-type bound: a function of the form `w⁻¹ • h w` with `h` bounded and vanishing
-outside a closed ball is integrable. -/
+/-- A kernel-type bound: a function of the form `w⁻¹ • h w` with `h` bounded and vanishing outside a
+closed ball is integrable. -/
 theorem integrable_inv_smul_of_bound {h : ℂ → F} (hmeas : AEStronglyMeasurable h volume) {C R : ℝ}
     (hC : ∀ w, ‖h w‖ ≤ C) (hz : ∀ w, R < ‖w‖ → h w = 0) :
     Integrable fun w : ℂ => w⁻¹ • h w := by
@@ -175,7 +190,8 @@ omit [CompleteSpace F] in
 /-- The derivative of the Cauchy transform applied to a direction. -/
 theorem fderiv_cauchyTransformFst_apply (hg : ContDiff ℝ 1 g) (hs : HasCompactSupport g)
     (x₀ v : ℂ × G) :
-    fderiv ℝ (cauchyTransformFst g) x₀ v = (π : ℂ)⁻¹ • ∫ w : ℂ, w⁻¹ • fderiv ℝ g (x₀ - (w, 0)) v := by
+    fderiv ℝ (cauchyTransformFst g) x₀ v = (π : ℂ)⁻¹ • ∫ w : ℂ, w⁻¹ • fderiv ℝ g (x₀ - (w, 0)) v
+      := by
   rw [(hasFDerivAt_cauchyTransformFst hg hs x₀).fderiv, smul_apply,
     ContinuousLinearMap.integral_apply (integrable_inv_smul_fderiv_sub hg hs x₀)]
   congr 1

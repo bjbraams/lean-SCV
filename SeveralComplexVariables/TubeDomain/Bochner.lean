@@ -5,8 +5,9 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.TubeDomain.StarConvex
 public import Mathlib.Topology.Connected.LocallyPathConnected
+public import SeveralComplexVariables.Topology.Path
+public import SeveralComplexVariables.TubeDomain.StarConvex
 
 /-!
 # Bochner's tube theorem for connected bases in coordinates
@@ -16,43 +17,39 @@ base with respect to `p`, which is convex. If `Ω` were not contained in `Ã`, a
 `p` would leave `Ã` at a first point `x₁ ∈ Ω ∩ ∂Ã`. Every extension agrees with the original
 function near the path points before `x₁`, by propagation of local agreement along the path,
 hence on the tube over the convex set `Ã ∩ B(x₁, r)`. The two functions therefore define a
-holomorphic function on the tube over `Ã ∪ B(x₁, r)`, which is star-convex with respect to
-`x₁`; the star-convex case of the theorem extends it to the tube over the convex hull, which
-belongs to the family, contradicting maximality. Hence `Ω ⊆ Ã`, and the extension to the tube
-over the convex hull of `Ω` follows.
+holomorphic function on the tube over `Ã ∪ B(x₁, r)`, which is star-convex with respect to `x₁`;
+the star-convex case of the theorem extends it to the tube over the convex hull, which belongs
+to the family, contradicting maximality. Hence `Ω ⊆ Ã`, and the extension to the tube over the
+convex hull of `Ω` follows.
 
-References: Hörmander §2.5, Theorem 2.5.10 (b); Scheidemann §6.3, Theorem 6.3.1, Step 2.
+References: [Hörmander][Hormander1973] §2.5, Theorem 2.5.10 (b); [Scheidemann][Scheidemann2005]
+§6.3, Theorem 6.3.1, Step 2.
+
+## Main results
+
+* `exists_extension_tubeDomain_convexHull_fin`: **Bochner's tube theorem in coordinates.** Every
+  Banach-valued holomorphic function on the tube over an open connected base in `ℝⁿ` extends to the
+  tube over the convex hull.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric Complex
-open scoped Topology Classical
+open scoped Topology
 
 namespace SeveralComplexVariables
 
+open BochnerTube
+
 variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- First time a path starting in an open set leaves that set. -/
-theorem Path.extend_exists_first_notMem {X : Type*} [TopologicalSpace X] {x y : X}
-    (γ : Path x y) {A : Set X} (hA : IsOpen A)
-    (hx : γ.extend 0 ∈ A) (hy : γ.extend 1 ∉ A) :
-    ∃ t, t ∈ Icc (0 : ℝ) 1 ∧ γ.extend t ∉ A ∧ 0 < t ∧
-      ∀ s, 0 ≤ s → s < t → γ.extend s ∈ A := by
-  set S : Set ℝ := Icc (0 : ℝ) 1 ∩ γ.extend ⁻¹' Aᶜ
-  have hSc : IsClosed S := isClosed_Icc.inter (hA.isClosed_compl.preimage γ.continuous_extend)
-  have hSne : S.Nonempty := ⟨1, ⟨zero_le_one, le_rfl⟩, hy⟩
-  have hSbdd : BddBelow S := ⟨0, fun t ht => ht.1.1⟩
-  have hsS : sInf S ∈ S := hSc.csInf_mem hSne hSbdd
-  have hs01 : sInf S ∈ Icc (0 : ℝ) 1 := hsS.1
-  have h0S : (0 : ℝ) ∉ S := fun h => h.2 hx
-  have hs0 : 0 < sInf S := lt_of_le_of_ne hs01.1 fun h => h0S (h ▸ hsS)
-  refine ⟨sInf S, hs01, hsS.2, hs0, fun s hs0' hst => ?_⟩
-  by_contra h
-  exact notMem_of_lt_csInf hst hSbdd ⟨⟨hs0', hst.le.trans hs01.2⟩, h⟩
-
-/-- The union of an open convex set with a ball around a point of its closure is star-convex
-with respect to that point. -/
+/-- The union of an open convex set with a ball around a point of its closure is star-convex with
+respect to that point. -/
 theorem starConvex_union_ball_of_mem_closure {A : Set (Fin n → ℝ)} (hA : Convex ℝ A)
     (hAo : IsOpen A) {x : Fin n → ℝ} (hx : x ∈ closure A) {r : ℝ} (hr : 0 < r) :
     StarConvex ℝ x (A ∪ ball x r) := by

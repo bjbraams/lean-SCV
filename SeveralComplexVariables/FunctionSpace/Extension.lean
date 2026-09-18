@@ -5,28 +5,32 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.FunctionSpace
-public import SeveralComplexVariables.FunctionSpace.OpenMapping
-public import SeveralComplexVariables.IdentityPrinciple
+public import SeveralComplexVariables.Analysis.OpenMapping
 public import SeveralComplexVariables.CommonExtension
+public import SeveralComplexVariables.FunctionSpace
+public import SeveralComplexVariables.IdentityPrinciple
 
 /-!
 # Restriction and continuous extension of holomorphic maps
 
-Restriction is a continuous linear map, injective from a connected larger domain when
-the smaller domain is nonempty. When it is surjective, its inverse is continuous for the
-compact-open topology, by the Fréchet open-mapping argument for complete metrizable
-topological vector spaces.
-Reference: Scheidemann (2005), Proposition 2.1.3 and Exercise 2.1.13.
+Restriction is a continuous linear map, injective from a connected larger domain when the
+smaller domain is nonempty. When it is surjective, its inverse is continuous for the
+compact-open topology, by the Fréchet open-mapping argument for complete metrizable topological
+vector spaces. Reference: [Scheidemann][Scheidemann2005] (2005), Proposition 2.1.3 and Exercise
+2.1.13.
 
 ## Main results
 
 `holomorphicRestrictCLM` is restriction as a continuous linear map.
-`exists_holomorphicRestrictionEquiv` is a compact-open isomorphism when restriction
-is bijective. `HolomorphicAlgebra` is the scalar holomorphic algebra, with
-`holomorphicRestrictAlgHom` and `holomorphicRestrictionAlgEquiv` as the algebraic
-restriction maps. `exists_holomorphicAlgebraEquiv_of_commonExtension` is an algebra
-isomorphism from a common extension domain.
+`exists_holomorphicRestrictionEquiv` is a compact-open isomorphism when restriction is
+bijective. `HolomorphicAlgebra` is the scalar holomorphic algebra, with
+`holomorphicRestrictAlgHom` and `holomorphicRestrictionAlgEquiv` as the algebraic restriction
+maps. `exists_holomorphicAlgebraEquiv_of_commonExtension` is an algebra isomorphism from a
+common extension domain.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public noncomputable section
@@ -35,11 +39,13 @@ open Set
 
 namespace SeveralComplexVariables
 
-variable {ι F : Type*} [Fintype ι] [NormedAddCommGroup F] [NormedSpace ℂ F]
-  {U V : TopologicalSpace.Opens (ι → ℂ)}
+variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [NormedAddCommGroup F]
+  [NormedSpace ℂ F]
+  {U V : TopologicalSpace.Opens E}
 
 /-- Restriction as a continuous complex-linear operator between compact-open spaces. -/
-def holomorphicRestrictCLM (hVU : V ≤ U) : HolomorphicMap U F →L[ℂ] HolomorphicMap V F where
+@[expose] def holomorphicRestrictCLM (hVU : V ≤ U) : HolomorphicMap U F →L[ℂ] HolomorphicMap V F
+  where
   toFun := holomorphicRestrict hVU
   map_add' := by intro f g; rfl
   map_smul' := by intro c f; rfl
@@ -47,7 +53,7 @@ def holomorphicRestrictCLM (hVU : V ≤ U) : HolomorphicMap U F →L[ℂ] Holomo
 
 /-- An ambient extension theorem makes restriction surjective on the bundled spaces. -/
 theorem holomorphicRestrict_surjective (hVU : V ≤ U)
-    (hext : ∀ f : (ι → ℂ) → F, AnalyticOnNhd ℂ f V →
+    (hext : ∀ f : E → F, AnalyticOnNhd ℂ f V →
       ∃ g, AnalyticOnNhd ℂ g U ∧ EqOn g f V) :
     Function.Surjective (holomorphicRestrict (F := F) hVU) := by
   intro f
@@ -61,8 +67,8 @@ theorem holomorphicRestrict_surjective (hVU : V ≤ U)
   exact (heq z.property).trans (openExtension_coe V f.val z)
 
 /-- On a connected larger domain, restriction to a nonempty open subset is injective. -/
-theorem holomorphicRestrict_injective [CompleteSpace F] (hVU : V ≤ U)
-    (hc : IsPreconnected (U : Set (ι → ℂ))) (hne : (V : Set (ι → ℂ)).Nonempty) :
+theorem holomorphicRestrict_injective (hVU : V ≤ U)
+    (hc : IsPreconnected (U : Set E)) (hne : (V : Set E).Nonempty) :
     Function.Injective (holomorphicRestrict (F := F) hVU) := by
   intro f g he
   have hEq : EqOn (openExtension U f.val) (openExtension U g.val) V := by
@@ -70,8 +76,9 @@ theorem holomorphicRestrict_injective [CompleteSpace F] (hVU : V ≤ U)
     have h := congrArg (fun k : HolomorphicMap V F => k.val ⟨z, hz⟩) he
     rw [openExtension_apply U _ (hVU hz), openExtension_apply U _ (hVU hz)]
     exact h
-  have hAll := identity_theorem U.isOpen hc f.property.differentiableOn
-    g.property.differentiableOn V.isOpen hne hVU hEq
+  obtain ⟨z, hz⟩ := hne
+  have hAll := f.property.eqOn_of_preconnected_of_eventuallyEq g.property hc (hVU hz)
+    (Filter.mem_of_superset (V.isOpen.mem_nhds hz) hEq)
   apply Subtype.ext
   apply ContinuousMap.ext
   intro z
@@ -80,7 +87,7 @@ theorem holomorphicRestrict_injective [CompleteSpace F] (hVU : V ≤ U)
 /-- Restriction to a dense open subset is injective, without connectedness or nonemptiness
 assumptions on either domain. Continuity of the holomorphic representatives suffices. -/
 theorem holomorphicRestrict_injective_of_subset_closure (hVU : V ≤ U)
-    (hd : (U : Set (ι → ℂ)) ⊆ closure (V : Set (ι → ℂ))) :
+    (hd : (U : Set E) ⊆ closure (V : Set E)) :
     Function.Injective (holomorphicRestrict (F := F) hVU) := by
   intro f g he
   have hEq : EqOn (openExtension U f.val) (openExtension U g.val) V := by
@@ -94,14 +101,17 @@ theorem holomorphicRestrict_injective_of_subset_closure (hVU : V ≤ U)
   intro z
   simpa only [openExtension_coe] using hAll z.property
 
-/-- Surjective restriction is a continuous linear equivalence under the identity-theorem
-hypotheses, by the open-mapping theorem for complete metrizable compact-open spaces.
-Banach-valued targets need not be finite dimensional. -/
-theorem exists_holomorphicRestrictionEquiv [CompleteSpace F] (hVU : V ≤ U)
-    (hc : IsPreconnected (U : Set (ι → ℂ))) (hne : (V : Set (ι → ℂ)).Nonempty)
+/-- Surjective restriction is a continuous linear equivalence under the identity-theorem hypotheses,
+by the open-mapping theorem for complete metrizable compact-open spaces. Banach-valued targets
+need not be finite dimensional. -/
+theorem exists_holomorphicRestrictionEquiv [FiniteDimensional ℂ E] [CompleteSpace F] (hVU : V ≤ U)
+    (hc : IsPreconnected (U : Set E)) (hne : (V : Set E).Nonempty)
     (hs : Function.Surjective (holomorphicRestrict (F := F) hVU)) :
     ∃ e : HolomorphicMap U F ≃L[ℂ] HolomorphicMap V F,
       (e : HolomorphicMap U F → HolomorphicMap V F) = holomorphicRestrict hVU := by
+  let : ProperSpace E := FiniteDimensional.proper ℂ E
+  let : SecondCountableTopology E := (Module.finBasis ℂ
+    E).equivFunL.toHomeomorph.secondCountableTopology
   let : LocallyCompactSpace U := U.isOpen.locallyCompactSpace
   let : LocallyCompactSpace V := V.isOpen.locallyCompactSpace
   have : (uniformity C(U, F)).IsCountablyGenerated := inferInstance
@@ -114,14 +124,15 @@ theorem exists_holomorphicRestrictionEquiv [CompleteSpace F] (hVU : V ≤ U)
   let : PseudoMetricSpace (HolomorphicMap V F) := UniformSpace.pseudoMetricSpace _
   let e := LinearEquiv.ofBijective (holomorphicRestrictCLM (F := F) hVU).toLinearMap
     ⟨holomorphicRestrict_injective hVU hc hne, hs⟩
-  have hopen := isOpenMap_of_surjective_complete (holomorphicRestrictCLM (F := F) hVU) hs
+  have hopen := ContinuousLinearMap.isOpenMap_of_surjective_complete (holomorphicRestrictCLM (F :=
+    F) hVU) hs
   exact ⟨ContinuousLinearEquiv.ofIsHomeomorph e
     ⟨continuous_holomorphicRestrict hVU,
       hopen, e.bijective⟩, rfl⟩
 
 /-- Scalar holomorphic functions form a subalgebra of continuous functions. -/
 @[expose, reducible]
-def holomorphicSubalgebra (U : TopologicalSpace.Opens (ι → ℂ)) : Subalgebra ℂ C(U, ℂ) where
+def holomorphicSubalgebra (U : TopologicalSpace.Opens E) : Subalgebra ℂ C(U, ℂ) where
   carrier := (holomorphicSubmodule (F := ℂ) U : Set C(U, ℂ))
   zero_mem' := (holomorphicSubmodule U).zero_mem
   add_mem' := (holomorphicSubmodule U).add_mem
@@ -137,10 +148,11 @@ def holomorphicSubalgebra (U : TopologicalSpace.Opens (ι → ℂ)) : Subalgebra
     simp [openExtension_apply U _ hz]
 
 /-- The scalar holomorphic algebra has the same underlying type as the holomorphic space. -/
-abbrev HolomorphicAlgebra (U : TopologicalSpace.Opens (ι → ℂ)) := ↥(holomorphicSubalgebra U)
+abbrev HolomorphicAlgebra (U : TopologicalSpace.Opens E) : Type _ := ↥(holomorphicSubalgebra U)
 
 /-- Restriction preserves multiplication and constants as well as linear operations. -/
-@[expose] def holomorphicRestrictAlgHom (hVU : V ≤ U) : HolomorphicAlgebra U →ₐ[ℂ] HolomorphicAlgebra V where
+@[expose] def holomorphicRestrictAlgHom (hVU : V ≤ U) : HolomorphicAlgebra U →ₐ[ℂ]
+  HolomorphicAlgebra V where
   toFun := holomorphicRestrict hVU
   map_zero' := rfl
   map_one' := rfl
@@ -153,19 +165,19 @@ abbrev HolomorphicAlgebra (U : TopologicalSpace.Opens (ι → ℂ)) := ↥(holom
     (holomorphicRestrictAlgHom hVU : HolomorphicAlgebra U → HolomorphicAlgebra V) =
       holomorphicRestrict hVU := rfl
 
-/-- The algebraic restriction equivalence associated to surjectivity. Its continuity in
-both directions is supplied by `exists_holomorphicRestrictionEquiv`. -/
-def holomorphicRestrictionAlgEquiv (hVU : V ≤ U)
-    (hc : IsPreconnected (U : Set (ι → ℂ))) (hne : (V : Set (ι → ℂ)).Nonempty)
+/-- The algebraic restriction equivalence associated to surjectivity. Its continuity in both
+directions is supplied by `exists_holomorphicRestrictionEquiv`. -/
+@[expose] def holomorphicRestrictionAlgEquiv (hVU : V ≤ U)
+    (hc : IsPreconnected (U : Set E)) (hne : (V : Set E).Nonempty)
     (hs : Function.Surjective (holomorphicRestrict (F := ℂ) hVU)) :
     HolomorphicAlgebra U ≃ₐ[ℂ] HolomorphicAlgebra V :=
   AlgEquiv.ofBijective (holomorphicRestrictAlgHom hVU)
     ⟨holomorphicRestrict_injective hVU hc hne, hs⟩
 
-/-- The scalar algebra equivalence is continuous in both directions for the compact-open
-topology, using the Fréchet open-mapping theorem for inverse continuity. -/
-theorem continuous_holomorphicRestrictionAlgEquiv (hVU : V ≤ U)
-    (hc : IsPreconnected (U : Set (ι → ℂ))) (hne : (V : Set (ι → ℂ)).Nonempty)
+/-- The scalar algebra equivalence is continuous in both directions for the compact-open topology,
+using the Fréchet open-mapping theorem for inverse continuity. -/
+theorem continuous_holomorphicRestrictionAlgEquiv [FiniteDimensional ℂ E] (hVU : V ≤ U)
+    (hc : IsPreconnected (U : Set E)) (hne : (V : Set E).Nonempty)
     (hs : Function.Surjective (holomorphicRestrict (F := ℂ) hVU)) :
     Continuous (holomorphicRestrictionAlgEquiv hVU hc hne hs) ∧
       Continuous (holomorphicRestrictionAlgEquiv hVU hc hne hs).symm := by
@@ -183,11 +195,11 @@ theorem continuous_holomorphicRestrictionAlgEquiv (hVU : V ≤ U)
   rw [hsymm]
   exact e.symm.continuous
 
-/-- A common scalar extension pair gives an isomorphism of topological holomorphic algebras.
-The connected larger set and nonempty smaller set ensure uniqueness. -/
-theorem exists_holomorphicAlgebraEquiv_of_commonExtension
-    (h : IsCommonAnalyticExtension (V : Set (ι → ℂ)) (U : Set (ι → ℂ)))
-    (hc : IsPreconnected (U : Set (ι → ℂ))) (hne : (V : Set (ι → ℂ)).Nonempty) :
+/-- A common scalar extension pair gives an isomorphism of topological holomorphic algebras. The
+connected larger set and nonempty smaller set ensure uniqueness. -/
+theorem exists_holomorphicAlgebraEquiv_of_commonExtension [FiniteDimensional ℂ E]
+    (h : IsCommonAnalyticExtension (V : Set E) (U : Set E))
+    (hc : IsPreconnected (U : Set E)) (hne : (V : Set E).Nonempty) :
     ∃ e : HolomorphicAlgebra U ≃ₐ[ℂ] HolomorphicAlgebra V,
       (e : HolomorphicAlgebra U → HolomorphicAlgebra V) = holomorphicRestrict (F := ℂ) h.subset ∧
       Continuous e ∧ Continuous e.symm := by

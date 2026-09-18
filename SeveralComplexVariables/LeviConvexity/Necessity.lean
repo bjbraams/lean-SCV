@@ -5,36 +5,66 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.LeviConvexity
-public import SeveralComplexVariables.Pseudoconvexity
-public import SeveralComplexVariables.LeviConvexity.Invariance
 public import Mathlib.Analysis.Calculus.Deriv.MeanValue
+public import SeveralComplexVariables.LeviConvexity
+public import SeveralComplexVariables.LeviConvexity.Invariance
+public import SeveralComplexVariables.Pseudoconvexity
 
 /-!
 # Levi's necessary condition
 
-A domain of holomorphy in `Fin n → ℂ` with `C²` boundary is Levi pseudoconvex. This is
-E. E. Levi's theorem (Range, Theorem 2.11; Fritzsche–Grauert, Theorem 4.7, first half).
+A domain of holomorphy in any finite-dimensional complex normed space with `C²` boundary is Levi
+pseudoconvex. The proof in coordinates is transported by a continuous linear equivalence. This is E.
+E. Levi's theorem ([Range][Range1986], Theorem 2.11; [Fritzsche–Grauert][FritzscheGrauert2002],
+Theorem 4.7, first half).
 
 The proof avoids holomorphic coordinate changes. If the Levi form of a defining function `ρ`
 were negative in a complex tangent direction `w` at a boundary point `p`, the Levi polynomial
 provides a quadratic analytic disc `ζ ↦ p + ζ • w + ζ ^ 2 • c + ε • ν` tangent to the boundary
 from inside, on which `ρ` behaves like `-ε + ‖ζ‖ ^ 2 L` with `L < 0`. Its boundary circle is
-therefore much deeper inside the domain than its center. The boundary distance is comparable
-to `|ρ|` near `p`, the center lies in the holomorphic hull of the boundary circle by the
-maximum modulus principle, and Thullen's radius bound for domains of holomorphy then forces
-the center to be as deep as the circle, a contradiction for small radii.
+therefore much deeper inside the domain than its center. The boundary distance is comparable to
+`|ρ|` near `p`, the center lies in the holomorphic hull of the boundary circle by the maximum
+modulus principle, and Thullen's radius bound for domains of holomorphy then forces the center
+to be as deep as the circle, a contradiction for small radii.
 
-References: Range (1986), Chapter II, Theorems 2.9 and 2.11; Hörmander (1973), Theorem 2.6.?;
-Fritzsche–Grauert (2002), Chapter II, Theorem 4.7.
+References: [Range][Range1986] (1986), Chapter II, Theorems 2.9 and 2.11;
+[Hörmander][Hormander1973] (1973), Section 2.6; [Fritzsche–Grauert][FritzscheGrauert2002]
+(2002), Chapter II, Theorem 4.7.
+
+## Main definitions
+
+* `leviQuadratic`: The complex quadratic coefficient of a real bilinear form along a complex line.
+
+## Main results
+
+* `IsLocalDefiningFunction.exists_disc_estimate`: **Disc estimate along the Levi polynomial.** With
+  `c` cancelling the complex quadratic term and `ν` an inward direction, the defining function along
+  the disc `ζ ↦ p + ζ • w + ζ ^ 2 • c + (κ r ^ 2) • ν` is `-κ r ^ 2 + ‖ζ‖ ^ 2 L` up to `η r ^ 2`,
+  for `‖ζ‖ ≤ r` and `r` small, and the disc lies in any prescribed neighborhood of `p`.
+* `IsDomainOfHolomorphy.isLeviPseudoconvex_fin`: **Levi's theorem in coordinates.** A domain of
+  holomorphy in `Fin n → ℂ` is Levi pseudoconvex: the Levi form of every local defining function is
+  positive semidefinite on the complex tangent space at every boundary point.
+* `IsDomainOfHolomorphy.isLeviPseudoconvex`: **Levi's theorem.** A domain of holomorphy in a
+  finite-dimensional complex normed space is Levi pseudoconvex: the Levi form of every local
+  defining function is positive semidefinite on the complex tangent space at every boundary point.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Metric Set
 open scoped Topology
 
 namespace SeveralComplexVariables
+
+open TaylorBounds
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
@@ -43,7 +73,7 @@ variable {U : Set E} {p : E} {ρ : E → ℝ} {V : Set E}
 /-- An inward direction for a defining function: the real derivative equals `1`. -/
 theorem IsLocalDefiningFunction.exists_inward_direction (h : IsLocalDefiningFunction U p ρ V) :
     ∃ ν : E, fderiv ℝ ρ p ν = 1 ∧ 0 < ‖ν‖ :=
-  exists_apply_eq_one h.fderiv_ne
+  ContinuousLinearMap.exists_apply_eq_one_of_ne_zero h.fderiv_ne
 
 /-- A neighborhood of `p` on which the derivative is Lipschitz-bounded and still points inward. -/
 theorem IsLocalDefiningFunction.exists_ball_fderiv_bound_and_inward
@@ -76,7 +106,7 @@ theorem IsLocalDefiningFunction.mul_abs_le_infDist (hU : IsOpen U) (hp : p ∈ f
     (hball₀ : ball p δ₀ ⊆ {y | y ∈ V ∧ ‖fderiv ℝ ρ y‖ ≤ Lip})
     {z : E} (hz : z ∈ ball p (δ₀ / 2)) (hzU : z ∈ U)
     (hρsmall : |ρ z| < Lip * δ₀ / 2) : |ρ z| / Lip ≤ infDist z Uᶜ := by
-  have hUc : Uᶜ.Nonempty := ⟨p, notMem_of_mem_frontier hU hp⟩
+  have hUc : Uᶜ.Nonempty := ⟨p, hU.notMem_of_mem_frontier hp⟩
   have hdiff : ∀ y ∈ V, DifferentiableAt ℝ ρ y := fun y hy =>
     (h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hy)).differentiableAt (by norm_num)
   have hρz : ρ z < 0 := h.neg_of_mem (hball₀ (ball_subset_ball (half_le_self hδ₀.le) hz)).1 hzU
@@ -165,8 +195,8 @@ theorem IsLocalDefiningFunction.infDist_le_mul_abs (h : IsLocalDefiningFunction 
           abs_of_nonneg hT0]
     _ = 2 * ‖ν‖ * |ρ z| := by dsimp [T]; ring
 
-/-- Near a boundary point, a defining function is comparable to the distance to the
-complement: `c₂ * |ρ z| ≤ infDist z Uᶜ ≤ C₁ * |ρ z|` for `z ∈ U` near `p`. -/
+/-- Near a boundary point, a defining function is comparable to the distance to the complement: `c₂
+* |ρ z| ≤ infDist z Uᶜ ≤ C₁ * |ρ z|` for `z ∈ U` near `p`. -/
 theorem IsLocalDefiningFunction.exists_infDist_bounds (hU : IsOpen U) (hp : p ∈ frontier U)
     (h : IsLocalDefiningFunction U p ρ V) :
     ∃ C₁ c₂ δ : ℝ, 0 < C₁ ∧ 0 < c₂ ∧ 0 < δ ∧ ∀ z ∈ ball p δ, z ∈ U →
@@ -193,7 +223,7 @@ theorem IsLocalDefiningFunction.exists_infDist_bounds (hU : IsOpen U) (hp : p �
   · exact h.infDist_le_mul_abs hδ₀ hν0 hball₀ hzδ₀ hzU (lt_min_iff.mp hρsmall).2
 
 /-- The complex quadratic coefficient of a real bilinear form along a complex line. -/
-def leviQuadratic (B : E →L[ℝ] E →L[ℝ] ℝ) (w : E) : ℂ :=
+@[expose] def leviQuadratic (B : E →L[ℝ] E →L[ℝ] ℝ) (w : E) : ℂ :=
   (((B w w - B (I • w) (I • w)) / 4 : ℝ) : ℂ) - I / 2 * (B w (I • w) : ℝ)
 
 /-- **Disc estimate along the Levi polynomial.** With `c` cancelling the complex quadratic
@@ -214,7 +244,8 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
   -- symmetry of the second derivative
   have hev : ∀ᶠ y in 𝓝 p, HasFDerivAt ρ (fderiv ℝ ρ y) y := by
     filter_upwards [h.isOpen.mem_nhds h.mem] with y hy
-    exact ((h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hy)).differentiableAt (by norm_num)).hasFDerivAt
+    exact ((h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hy)).differentiableAt (by
+      norm_num)).hasFDerivAt
   have hBd : HasFDerivAt (fderiv ℝ ρ) B p :=
     ((hρp.fderiv_right (m := 1) (by norm_num)).differentiableAt (by norm_num)).hasFDerivAt
   have hsymm : ∀ v v', B v v' = B v' v := second_derivative_symmetric_of_eventually hev hBd
@@ -229,7 +260,7 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
   have hδt : 0 < δt := lt_min hδ' hδW
   refine ⟨min 1 (min (η / (2 * (M₁ + 1))) (δt / (2 * (M₀ + 1)))), by positivity,
     fun r hr hr₀ ζ hζ => ?_⟩
-  obtain ⟨hr1, hrM₁, hrδt⟩ := le_one_and_mul_add_le_of_le_min hη hM₀0 hM₁0 hδt hr hr₀
+  obtain ⟨hr1, hrM₁, hrδt⟩ := le_one_and_mul_add_le_of_le_min hM₀0 hM₁0 hr hr₀
   have hrδ' : r * (M₀ + 1) < δ' := hrδt.trans_le (min_le_left _ _)
   have hrδW : r * (M₀ + 1) < δW := hrδt.trans_le (min_le_right _ _)
   -- the increment and its pieces
@@ -268,7 +299,7 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
   have hℓw : complexPart ℓ w = 0 := by
     have h1 : ℓ w = 0 := hw.1
     have h2 : ℓ (I • w) = 0 := hw.2
-    simp [complexPart, h1, h2]
+    simp [complexPart_apply, h1, h2]
   have hlin : ℓ (h₁ + h₂) = (ζ ^ 2 * (-leviQuadratic B w)).re - κ * r ^ 2 := by
     rw [hh₁, hh₂, map_add, map_add, apply_smul_eq_re_mul_complexPart ℓ ζ w,
       apply_smul_eq_re_mul_complexPart ℓ (ζ ^ 2) c, hℓw, hc, map_smul, smul_eq_mul, hν]
@@ -279,7 +310,8 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
       (1 / 2 : ℝ) * B h₁ h₁ + B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂ := by
     simp only [map_add, add_apply, hsymm h₂ h₁]
     ring
-  have hquad₁ : (1 / 2 : ℝ) * B h₁ h₁ = ‖ζ‖ ^ 2 * leviForm ρ p w + (ζ ^ 2 * leviQuadratic B w).re := by
+  have hquad₁ : (1 / 2 : ℝ) * B h₁ h₁ = ‖ζ‖ ^ 2 * leviForm ρ p w + (ζ ^ 2 * leviQuadratic B w).re
+    := by
     rw [hh₁, bilinear_smul_smul_eq B (hsymm w (I • w)) ζ, leviForm_eq_fderiv, leviQuadratic]
   -- cancellation of the complex quadratic terms
   have hcancel : (ζ ^ 2 * (-leviQuadratic B w)).re + (ζ ^ 2 * leviQuadratic B w).re = 0 := by
@@ -314,7 +346,7 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
     rw [h.eq_zero, hlin, hquad, hquad₁]
     linarith [hcancel]
   rw [hkey]
-  exact taylor_remainder_add_cubic_le hr hη hM₀0 hM₁0 hrM₁ hR hcub
+  exact taylor_remainder_add_cubic_le hr hη hrM₁ hR hcub
 
 variable {n : ℕ}
 
@@ -348,7 +380,7 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
   set ℓ := fderiv ℝ ρ p
   set B := fderiv ℝ (fderiv ℝ ρ) p
   obtain ⟨c, hc⟩ := exists_complexPart_eq h.fderiv_ne (-leviQuadratic B w)
-  obtain ⟨ν0, hν0, _⟩ := exists_apply_eq_one h.fderiv_ne
+  obtain ⟨ν0, hν0, _⟩ := ContinuousLinearMap.exists_apply_eq_one_of_ne_zero h.fderiv_ne
   set ν : Fin n → ℂ := -ν0
   have hℓν : ℓ ν = -1 := by rw [map_neg, hν0]
   obtain ⟨C₁, c₂, δ, hC₁, hc₂, hδ, hdist⟩ := h.exists_infDist_bounds ho hp
@@ -427,7 +459,7 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
     (φ 0) hhull
   have hm' : ‖(m : ℂ)‖ = m := by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hm0]
   rw [hm'] at hrad
-  have hUc : Uᶜ.Nonempty := ⟨p, notMem_of_mem_frontier ho hp⟩
+  have hUc : Uᶜ.Nonempty := ⟨p, ho.notMem_of_mem_frontier hp⟩
   have hmle : m ≤ infDist (φ 0) Uᶜ := by
     by_contra hlt
     push Not at hlt

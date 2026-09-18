@@ -2,9 +2,28 @@
 version: "v0.4"
 
 project:
-  name: SCV
+  name: "Several complex variables: local theory, Hartogs phenomena, Weierstrass theory, domains of holomorphy and pseudoconvexity"
   description: >-
-    SCV.
+    A Lean 4 formalization, on top of Mathlib, of the classical function theory of several complex
+    variables on open subsets of finite-dimensional complex normed spaces, with values in complex
+    Banach spaces wherever the statements allow. The compared statements cover: Cauchy's integral
+    formula on polydiscs, Osgood's lemma, the equivalence of holomorphy and analyticity, the
+    Cauchy-Riemann equations, Cauchy estimates, the identity theorem, the maximum modulus
+    principle, holomorphic dependence of integrals and the Cauchy-Pompeiu identity; the theorems
+    of Weierstrass, Montel and Vitali and an estimate for holomorphic L^p classes; the holomorphic
+    inverse and implicit mapping theorems; Reinhardt domains, logarithmic convexity, the
+    characterization of convergence domains of power series, Laurent expansion, and continuation
+    from Reinhardt and circular domains; Hartogs-Taylor expansion, Hartogs' continuity theorem,
+    Hartogs' theorem on separate analyticity, removability of isolated singularities, the two
+    Riemann extension theorems and Hartogs' extension theorem for compact holes; elementary
+    analytic sets and their regular points; the local ring of analytic germs, Weierstrass division
+    and preparation, and the Noetherian and unique factorization properties of the germ ring;
+    injective holomorphic maps, Cartan's uniqueness theorem, linearity of biholomorphisms of
+    circular domains, transitivity of the automorphisms of the ball and the inequivalence of ball
+    and polydisc; holomorphic hulls, domains of holomorphy, Thullen's lemma, the Cartan-Thullen
+    theorem and Bochner's tube theorem; subharmonic and plurisubharmonic functions, the Levi form,
+    pseudoconvexity of domains of holomorphy, Levi's theorem and local peak functions; Runge
+    domains and polynomial hulls. All results are classical; none is claimed to be new.
   authors:
     - Bastiaan J Braams
   responsible_maintainers:
@@ -12,46 +31,487 @@ project:
   license: Apache-2.0
 
 sources:
-  - title: Lecture notes on several complex variables
+  - title: "Holomorphic Functions and Integral Representations in Several Complex Variables"
+    authors: [R. Michael Range]
+    type: book
+    id: "Graduate Texts in Mathematics 108, Springer, 1986"
+    relationship: adapts
+    location: "Chapters I and II; II.2 for the Levi form, Levi's theorem (Theorem 2.11) and the Levi polynomial (Proposition 2.16); II.3.6 for Cartan-Thullen; I.2.3-2.4 for the implicit and inverse mapping theorems"
+  - title: "An Introduction to Complex Analysis in Several Variables"
+    authors: [Lars Hörmander]
+    type: book
+    id: "2nd edition, North-Holland Mathematical Library 7, North-Holland, 1973"
+    relationship: adapts
+    location: "Chapter II: Section 2.3 (Ehrenpreis' proof of Hartogs' extension theorem), Section 2.5 (Thullen's lemma, Cartan-Thullen, Bochner's tube theorem 2.5.10), Theorem 2.6.5, Section 2.7 (Runge domains); Theorem 1.2.1 (Cauchy-Pompeiu)"
+  - title: "From Holomorphic Functions to Complex Manifolds"
+    authors: [Klaus Fritzsche, Hans Grauert]
+    type: book
+    id: "Graduate Texts in Mathematics 213, Springer, 2002"
+    relationship: adapts
+    location: "Chapter I (identity theorem I.4.10, maximum principle I.4.11, injective maps I.8.5-8.6); Chapter II, Sections 1-6; Chapter III, Sections 1-3"
+  - title: "Lectures on Holomorphic Functions of Several Complex Variables"
+    authors: [Piotr Jakóbczak, Marek Jarnicki]
+    type: other
+    id: "Jagiellonian University manuscript, 1997-2021"
+    relationship: adapts
+    location: "Chapters 1 and 2 (Weierstrass division Theorem 1.7.3, germs Section 1.8, Cartan-Thullen Section 2.7); Sections 4.2-4.3 (Hartogs' extension theorem, Runge domains)"
+  - title: "Introduction to Complex Analysis in Several Variables"
+    authors: [Volker Scheidemann]
+    type: book
+    id: "Birkhäuser, 2005"
+    relationship: adapts
+    location: "Chapters 1-7 and Sections 8.1-8.3; Chapter 6 for tube domains; Section 7.3 for Cartan-Thullen"
+  - title: "Several Complex Variables"
+    authors: [Jaap Korevaar, Jan Wiegerinck]
+    type: other
+    id: "University of Amsterdam lecture notes, version of 23 August 2017"
+    relationship: adapts
+    location: "Chapters 1-6, selectively; Section 1.7 (Runge theory), Theorem 2.6.1 (Hartogs' continuity theorem), Exercise 6.28 (prism lemma)"
+  - title: "Lecture Notes on Several Complex Variables"
     authors: [Harold P. Boas]
     type: other
-    id: Lecture notes, 2013
+    id: "Draft of 3 December 2013"
     relationship: adapts
-    location: Chapters 1–2
+    location: "Chapters 1-3 and Sections 4.1-4.2; Section 2.4 for Hartogs' extension theorem"
+  - title: "Complex Analytic Geometry: From the Localization Viewpoint"
+    authors: [Tatsuo Suwa]
+    type: book
+    id: "World Scientific, 2024"
+    relationship: adapts
+    location: "Chapter 1; Section 1.4, Propositions 1.5-1.7, for the ring of analytic germs"
+  - title: "Introduction to Complex Analysis, Part II: Functions of Several Variables"
+    authors: [Boris V. Shabat]
+    type: book
+    id: "Translations of Mathematical Monographs 110, American Mathematical Society, 1991"
+    relationship: background
+    location: "Chapter I, Section 1.2 (Hartogs domains)"
+  - title: "Tasty Bits of Several Complex Variables: A Whirlwind Tour of the Subject"
+    authors: [Jiří Lebl]
+    type: other
+    id: "Version 4.4, 31 May 2026"
+    relationship: background
+    location: "Chapters 1 and 2"
+  - title: "Potential Theory in the Complex Plane"
+    authors: [Thomas Ransford]
+    type: book
+    id: "London Mathematical Society Student Texts 28, Cambridge University Press, 1995"
+    relationship: background
+    location: "Definition of subharmonic functions by upper semicontinuity and the local submean inequality"
+
+related_formalizations:
+  - id: https://github.com/leanprover-community/mathlib4
+    relationship: builds-on
     note: >-
-      The selected SCV statements use Mathlib's differentiability and analyticity
-      predicates, including complete complex normed codomains where proved.
-      Osgood's continuity hypothesis is retained; unrestricted Hartogs is not claimed.
+      The development uses Mathlib throughout, in particular its one-variable Cauchy theory, torus
+      integrals, analytic functions, the analytic identity principle, the local maximum modulus
+      principle, circle averages and the Laplacian. Mathlib's formal Weierstrass preparation theorem
+      for power series over complete local rings is not used; the analytic division and
+      preparation theorems here are proved for convergent germs.
 
 classification:
   arxiv: [math.CV]
-  msc2020: ["32Axx"]
+  msc2020: ["32A10", "32A05", "32D05", "32D15", "32D20", "32B05", "32U05", "68V20"]
 
 status:
   scope: >-
-    See Statement.lean.
-  # Intentional Challenge placeholders are excluded from these counts.
+    The compared statements are the 67 theorems of Challenge.lean. They follow the project's
+    catalogue of main theorems (SCVMainTheorems.md, 65 items in sections A-K); the number in each
+    docstring of Challenge.lean is the catalogue item. Every item is represented except items 42
+    and 43 (factors of distinguished polynomials; comparison of polynomials over the germ ring with
+    germs), which are algebraic steps towards items 44 and 45 and would require restating a larger
+    block of definitions. An item with several assertions is represented by its principal
+    assertion. Not covered by the project: the Levi problem, the Oka-Weil theorem, the one-variable
+    Runge theorem, general Riemann domains and envelopes of holomorphy, and a dimension theory of
+    analytic sets.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: [propext, Quot.sound, Classical.choice]
+  main_results:
+    - declaration: SCV.cauchy_formula_polydisc
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 1: Cauchy's integral formula on a polydisc"
+    - declaration: SCV.osgood
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 2: Osgood's lemma"
+    - declaration: SCV.differentiableOn_iff_analyticOnNhd
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 3: Holomorphic is analytic"
+    - declaration: SCV.analyticOnNhd_iff_cauchyRiemann
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 4: Cauchy–Riemann equations"
+    - declaration: SCV.identity_theorem
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 6: Identity theorem"
+    - declaration: SCV.maximum_modulus
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 7: Maximum modulus principle"
+    - declaration: SCV.cauchy_pompeiu
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 9: Cauchy–Pompeiu identity"
+    - declaration: SCV.cauchy_estimates
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 5: Cauchy estimates"
+    - declaration: SCV.analyticOnNhd_integral
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 8: Holomorphic dependence of integrals on parameters"
+    - declaration: SCV.weierstrass_convergence
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 10: Weierstrass convergence theorem"
+    - declaration: SCV.isClosed_holomorphicMaps
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 11: Holomorphic function spaces"
+    - declaration: SCV.montel
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 12: Montel's theorem"
+    - declaration: SCV.vitali
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 13: Vitali's theorem"
+    - declaration: SCV.holomorphic_Lp_bound
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 14: Holomorphic `Lᵖ` spaces"
+    - declaration: SCV.inverse_mapping
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 15: Holomorphic inverse mapping theorem"
+    - declaration: SCV.implicit_mapping
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 16: Holomorphic implicit mapping theorem"
+    - declaration: SCV.IsCompleteReinhardt.isReinhardt_and_isPathConnected
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 17: Complete Reinhardt geometry"
+    - declaration: SCV.isLogarithmicallyConvex_iff_geometric
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 18: Logarithmic convexity including zero coordinates"
+    - declaration: SCV.convergenceDomain_properties
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 19: Convergence domains of power series"
+    - declaration: SCV.exists_powerSeries_eqOn_of_isCompleteReinhardt
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 20: Taylor representation on complete Reinhardt sets"
+    - declaration: SCV.exists_convergenceDomain_eq
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 21: Characterization of convergence domains"
+    - declaration: SCV.existsUnique_laurent_expansion
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 22: Laurent expansion on Reinhardt domains"
+    - declaration: SCV.exists_extension_completeReinhardtHull
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 23: Continuation from Reinhardt domains"
+    - declaration: SCV.exists_extension_balancedHull
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 24: Continuation from circular domains"
+    - declaration: SCV.hartogs_taylor_expansion
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 25: Hartogs–Taylor expansion"
+    - declaration: SCV.hartogs_cylinder_extension
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 26: Hartogs' continuity theorem"
+    - declaration: SCV.hartogs_separate_analyticity
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 27: Hartogs' theorem on separate analyticity"
+    - declaration: SCV.exists_extension_diff_singleton
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 28: Isolated singularities are removable"
+    - declaration: SCV.frequently_zero_punctured
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 29: Zeros are not isolated"
+    - declaration: SCV.riemann_extension_first
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 30: First Riemann extension theorem"
+    - declaration: SCV.hartogs_compact_hole
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 31: Hartogs' extension theorem (compact holes)"
+    - declaration: SCV.IsAnalyticSet.interior_eq_empty_and_isConnected_sdiff
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 32: Analytic sets are thin"
+    - declaration: SCV.isRegularAnalyticSetAt_iff_exists_equations
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 33: Regular points and full-rank equations"
+    - declaration: SCV.exists_extension_across_coordinatePlane
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 34: Removal of a coordinate plane of codimension two"
+    - declaration: SCV.riemann_extension_second
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 35: Second Riemann extension theorem"
+    - declaration: SCV.analyticGermRing_isDomain_isLocalRing
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 36: The ring of analytic germs is a local integral domain"
+    - declaration: SCV.exists_regular_coordinate_change
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 37: Coordinate normalization"
+    - declaration: SCV.taylorSeries_mul_and_eq_zero_iff
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 38: Taylor series determine germs"
+    - declaration: SCV.coordinatePower_division
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 39: Division by a power of the last coordinate"
+    - declaration: SCV.weierstrass_division
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 40: Weierstrass division theorem"
+    - declaration: SCV.weierstrass_preparation
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 41: Weierstrass preparation theorem"
+    - declaration: SCV.analyticGermRing_isNoetherianRing_ufd
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 44–45: The ring of analytic germs is Noetherian and factorial"
+    - declaration: SCV.isOpen_isRelPrime_locus
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 45: Relative primality persists"
+    - declaration: SCV.exists_regularPoint_zeroSet
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 46: Regular points of hypersurfaces"
+    - declaration: SCV.injOn_biholomorphic
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 47: Injective holomorphic maps in equal dimensions are biholomorphic"
+    - declaration: SCV.cartan_uniqueness
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 48: Cartan's uniqueness theorem"
+    - declaration: SCV.biholomorphic_circular_linear
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 49: Biholomorphisms of circular domains fixing the origin are linear"
+    - declaration: SCV.exists_ball_automorphism
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 50: The automorphisms of the unit ball of a complex inner product space act transitively"
+    - declaration: SCV.not_biholomorphic_polydisc_ball
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 50: The unit polydisc and the Euclidean unit ball are not biholomorphic"
+    - declaration: SCV.common_extension
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 51: Common extension domains"
+    - declaration: SCV.holomorphicHull_idem_and_isBounded
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 52: Holomorphic hulls"
+    - declaration: SCV.isHolomorphicallyConvex_of_completeReinhardt
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 52: Open complete logarithmically convex Reinhardt sets are holomorphically convex"
+    - declaration: SCV.isDomainOfHolomorphy_of_convex_and_pi
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 53: Elementary domains of holomorphy"
+    - declaration: SCV.isHolomorphicallyConvex_iff_escaping
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 54: Escaping sequences"
+    - declaration: SCV.isDomainOfHolomorphy_iff_hull_radius
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 55: Thullen's lemma, as a characterization"
+    - declaration: SCV.cartan_thullen
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 56: Cartan–Thullen theorem"
+    - declaration: SCV.bochner_tube
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 57: Bochner's tube theorem"
+    - declaration: SCV.SubharmonicOn.eqOn_const_of_isMaxOn
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 58: Maximum principle for subharmonic functions"
+    - declaration: SCV.subharmonicOn_iff_laplacian_nonneg
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 59: Laplacian criterion"
+    - declaration: SCV.plurisubharmonicOn_iff_leviForm_nonneg
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 60: Levi-form criterion"
+    - declaration: SCV.IsDomainOfHolomorphy.isPseudoconvex
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 61: Domains of holomorphy are pseudoconvex"
+    - declaration: SCV.IsPseudoconvex.continuity_principle
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 61: Pseudoconvex sets satisfy the continuity principle"
+    - declaration: SCV.IsDomainOfHolomorphy.isLeviPseudoconvexAt
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 62: Levi's theorem"
+    - declaration: SCV.leviForm_comp_analytic
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 63: The Levi form under holomorphic maps"
+    - declaration: SCV.isLeviPseudoconvexAt_iff_of_defining
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 64: Independence of the defining function"
+    - declaration: SCV.exists_local_peak_function
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 64: Local peak functions"
+    - declaration: SCV.runge_domains
+      file: Solution.lean
+      comparator_config: comparator.json
+      sorry_count: 0
+      note: "Catalogue item 65: Runge domains"
 
 automation:
   methods:
     - method: agent
       framework: Codex
+    - method: agent
+      framework: Claude Code
+      models: ["claude-fable-5-1"]
+      prompting_notes: >-
+        Used for a Mathlib-style review and refactoring of the library and for preparing
+        Challenge.lean, Solution.lean, comparator.json and this file.
   notes: >-
-    Human-directed, agent-assisted mathematical development, proof writing,
-    debugging, and review using Codex and Lean validation. Historical model
-    versions and per-session costs are not reconstructed here. The metadata
-    does not claim an independent human peer review.
+    Human-directed, agent-assisted mathematical development, proof writing, debugging and review,
+    validated throughout by Lean builds. The author chose the material, the conventions and the
+    sources and directed the work; coding agents wrote most of the Lean text. Historical model
+    versions and per-session costs are not reconstructed here. Challenge.lean is generated from
+    Solution.lean by the script make_challenge.py, which removes the import of the library and the
+    bridging lemmas and replaces every proof by sorry, so that the statements and definitions of
+    the two files are textually identical.
 
 fidelity:
   divergences: >-
-    To follow.
+    Statements are phrased with Mathlib's predicates rather than those of any one source.
+    (1) Holomorphic is DifferentiableOn over the complex numbers and analytic is AnalyticOnNhd; they
+    agree on open subsets of finite-dimensional spaces (item 3), and hypotheses use whichever the
+    library proves directly. (2) Coordinate spaces carry the supremum norm, so metric balls are
+    polydiscs; the hull-radius form of Thullen's lemma (item 55) is for this norm. (3) Domains are
+    not assumed connected or nonempty unless stated; dimension zero and empty index types are
+    included. (4) Holomorphic and polynomial hulls are defined through all real upper bounds
+    instead of suprema. (5) The domain-of-holomorphy property requires agreement on a fixed
+    nonempty open overlap, not on a component of the intersection. (6) Subharmonic and
+    plurisubharmonic functions are real valued: the value minus infinity is not admitted, so for
+    example log|f| is covered only for nonvanishing f. (7) Pseudoconvex means open with a continuous
+    plurisubharmonic exhaustion function; the Levi problem is not addressed. (8) The Levi condition
+    quantifies over all local C^2 defining functions, and independence of the choice is a theorem
+    (item 64). (9) The second Riemann extension theorem (item 35) assumes an explicit slice
+    condition for codimension at least two instead of a dimension theory. (10) Runge domains are
+    not required to be domains of holomorphy. (11) Montel's theorem (item 12) is compared in its
+    sequential form for a uniform bound; Laurent expansion (item 22) as existence and uniqueness of
+    the coefficient family. (12) Several theorems are more general than in the sources: Banach
+    space values, arbitrary finite-dimensional complex normed spaces, and strictly convex targets
+    in the maximum modulus principle.
 
 review:
   status: agent-reviewed
   notes: >-
-    Lean builds and declaration axiom audits have been used during development.
-    The selected Solution declarations have been checked with Lean, but an
-    official Comparator/NanoDa run and Palomar editorial review are still pending.
+    The library, Challenge.lean and Solution.lean build with Lean 4.34.0 and the pinned Mathlib
+    without errors, warnings or sorry in the library. The compared declarations use only propext,
+    Quot.sound and Classical.choice. The declarations of Challenge.lean, including all auxiliary
+    definitions, were checked to have the same types and values in the Solution environment by
+    comparing expression hashes, which emulates Comparator's declaration check. An official
+    Comparator and NanoDa run and Palomar's editorial review are pending. No independent human
+    peer review is claimed.

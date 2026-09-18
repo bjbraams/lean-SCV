@@ -5,37 +5,60 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Algebra.MvPolynomial.Funext
+public import Mathlib.Analysis.Analytic.Polynomial
+public import Mathlib.RingTheory.MvPowerSeries.Derivative
+public import Mathlib.RingTheory.MvPowerSeries.NoZeroDivisors
+public import Mathlib.RingTheory.MvPowerSeries.Trunc
 public import SeveralComplexVariables.AnalyticGerm.CoordinateChange
 public import SeveralComplexVariables.PolydiscTaylor
-public import Mathlib.RingTheory.MvPowerSeries.NoZeroDivisors
-public import Mathlib.RingTheory.MvPowerSeries.Derivative
-public import Mathlib.RingTheory.MvPowerSeries.Trunc
-public import Mathlib.Analysis.Analytic.Polynomial
-public import Mathlib.Algebra.MvPolynomial.Funext
 
 /-!
 # Total order of analytic germs
 
-The Taylor series of a scalar germ in finite complex coordinates is a Mathlib
-`MvPowerSeries`. Its `order` is the least total degree with a nonzero coefficient,
-with infinity for the zero series. This is different from order along a chosen axis.
-The empty coordinate type `Fin 0` is included.
+The Taylor series of a scalar germ in finite complex coordinates is a Mathlib `MvPowerSeries`.
+Its `order` is the least total degree with a nonzero coefficient, with infinity for the zero
+series. This is different from order along a chosen axis. The empty coordinate type `Fin 0` is
+included.
 
-The basic order characterization and sum rules use Mathlib directly. Taylor uniqueness
-and the infinite-order criterion follow from the convergent polydisc expansion.
-The product rule follows from multiplicativity of Taylor series. The coordinate chain
-rule proves that analytic pullback cannot lower order; applying this to a map and its
-inverse gives coordinate invariance. Exact total order along the last axis after a
-linear change follows Suwa, Lemma 1.2: the leading homogeneous part is a nonzero
-polynomial, hence nonvanishing at some point. An invertible shear sends the last
-basis vector to a suitable such point. These are classical local analytic facts, as in Suwa §1.4,
-rather than a development of local algebra.
+The basic order characterization and sum rules use Mathlib directly. Taylor uniqueness and the
+infinite-order criterion follow from the convergent polydisc expansion. The product rule follows
+from multiplicativity of Taylor series. The coordinate chain rule proves that analytic pullback
+cannot lower order; applying this to a map and its inverse gives coordinate invariance. Exact
+total order along the last axis after a linear change follows [Suwa][Suwa2024], Lemma 1.2: the
+leading homogeneous part is a nonzero polynomial, hence nonvanishing at some point. An
+invertible shear sends the last basis vector to a suitable such point. These are classical local
+analytic facts, as in [Suwa][Suwa2024] §1.4, rather than a development of local algebra.
+
+## Main definitions
+
+* `taylorSeries`: Taylor series of a scalar analytic germ, independent of its representative.
+* `order`: Total order of vanishing: the least total degree in the germ's Taylor series.
+* `shearToLastAxis`: A linear automorphism sending the last coordinate axis to the line through `c`,
+  provided the `i`-th coordinate of `c` is nonzero.
+
+## Main results
+
+* `taylorSeries_injective`: The multivariate Taylor-series map is injective on analytic germs.
+* `taylorSeries_mul`: Taylor series preserve multiplication of analytic germs.
+* `order_mul`: The order of a product is the sum of the orders, including zero germs.
+* `min_order_le_order_add`: Cancellation can only raise the order of a sum.
+* `order_eq_zero_iff`: A germ has order zero exactly when it is a unit.
+* `order_eq_top_iff`: Infinite order is equivalent to being the zero germ, by uniqueness of the
+  convergent multivariate Taylor expansion.
+* `order_pullbackEquiv`: An analytic change of coordinates preserves total order.
+* `exists_coordinate_change_order`: **[Suwa][Suwa2024], Lemma 1.2.** A linear change makes the order
+  on the last axis equal to the total order.
+
+## References
+
+* [T. Suwa, *Complex Analytic Geometry: From the Localization Viewpoint*][Suwa2024]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Filter Metric Set
-open scoped Classical Topology
+open scoped Topology
 
 namespace SeveralComplexVariables.AnalyticGerm
 
@@ -50,7 +73,7 @@ theorem holomorphicTaylorSeries_congr {f g : (Fin n → ℂ) → ℂ}
   rw [iteratedPartialDeriv_congrOn ho hU (multiIndexList k) hx]
 
 /-- Taylor series of a scalar analytic germ, independent of its representative. -/
-def taylorSeries (f : AnalyticGerm x) : MvPowerSeries (Fin n) ℂ :=
+@[expose] def taylorSeries (f : AnalyticGerm ℂ x) : MvPowerSeries (Fin n) ℂ :=
   f.val.liftOn (fun g => holomorphicTaylorSeries g x)
     (fun _ _ h => holomorphicTaylorSeries_congr h)
 
@@ -59,7 +82,7 @@ def taylorSeries (f : AnalyticGerm x) : MvPowerSeries (Fin n) ℂ :=
     taylorSeries (ofAnalyticAt f hf) = holomorphicTaylorSeries f x := rfl
 
 /-- Taylor series preserve addition of analytic germs. -/
-theorem taylorSeries_add (f g : AnalyticGerm x) :
+theorem taylorSeries_add (f g : AnalyticGerm ℂ x) :
     taylorSeries (f + g) = taylorSeries f + taylorSeries g := by
   obtain ⟨f, hf, rfl⟩ := exists_rep f
   obtain ⟨g, hg, rfl⟩ := exists_rep g
@@ -85,7 +108,7 @@ theorem taylorSeries_add (f g : AnalyticGerm x) :
   rw [hD, mul_add]
 
 /-- The zero germ has zero Taylor series, including in dimension zero. -/
-@[simp] theorem taylorSeries_zero : taylorSeries (0 : AnalyticGerm x) = 0 := by
+@[simp] theorem taylorSeries_zero : taylorSeries (0 : AnalyticGerm ℂ x) = 0 := by
   have hz : ∀ l : List (Fin n), iteratedPartialDeriv l (0 : (Fin n → ℂ) → ℂ) = 0 := by
     intro l
     induction l with
@@ -112,7 +135,8 @@ theorem holomorphicTaylorSeries_partialDeriv {f : (Fin n → ℂ) → ℂ}
       iteratedPartialDeriv (l ++ [i]) f = iteratedPartialDeriv l (partialDeriv i f) := by
     induction l with
     | nil => rfl
-    | cons j l ih => simpa only [List.cons_append, iteratedPartialDeriv] using congrArg (partialDeriv j) ih
+    | cons j l ih =>
+      simpa only [List.cons_append, iteratedPartialDeriv] using congrArg (partialDeriv j) ih
   have hD : multiIndexDeriv k (partialDeriv i f) x =
       multiIndexDeriv (k + Finsupp.single i 1 : Fin n →₀ ℕ) f x := by
     rw [multiIndexDeriv, ← happ]
@@ -125,7 +149,8 @@ theorem holomorphicTaylorSeries_partialDeriv {f : (Fin n → ℂ) → ℂ}
       (∏ j, (k j).factorial : ℂ) * (k i + 1) := by
     rw [← Finset.prod_erase_mul _ _ (Finset.mem_univ i),
       ← Finset.prod_erase_mul _ _ (Finset.mem_univ i)]
-    have he : (∏ j ∈ Finset.univ.erase i, (((k + Finsupp.single i 1 : Fin n →₀ ℕ) j).factorial : ℂ)) =
+    have he : (∏ j ∈ Finset.univ.erase i, (((k + Finsupp.single i 1 : Fin n →₀ ℕ) j).factorial :
+      ℂ)) =
         ∏ j ∈ Finset.univ.erase i, ((k j).factorial : ℂ) := by
       apply Finset.prod_congr rfl
       intro j hj
@@ -141,37 +166,37 @@ theorem holomorphicTaylorSeries_partialDeriv {f : (Fin n → ℂ) → ℂ}
   field_simp
 
 /-- Total order of vanishing: the least total degree in the germ's Taylor series. -/
-def order (f : AnalyticGerm x) : ℕ∞ := (taylorSeries f).order
+@[expose] def order (f : AnalyticGerm ℂ x) : ℕ∞ := (taylorSeries f).order
 
 /-- The total order is computed by Mathlib's multivariate power-series order. -/
-theorem order_eq_taylorSeries_order (f : AnalyticGerm x) :
+theorem order_eq_taylorSeries_order (f : AnalyticGerm ℂ x) :
     order f = (taylorSeries f).order := rfl
 
 /-- The constant Taylor coefficient is evaluation at the base point. -/
-@[simp] theorem constantCoeff_taylorSeries (f : AnalyticGerm x) :
+@[simp] theorem constantCoeff_taylorSeries (f : AnalyticGerm ℂ x) :
     (taylorSeries f).constantCoeff = eval x f := by
   obtain ⟨g, hg, rfl⟩ := exists_rep f
   change holomorphicTaylorSeries g x 0 = g x
   simp [holomorphicTaylorSeries, multiIndexDeriv, multiIndexList, iteratedPartialDeriv]
 
 /-- A germ has order zero exactly when it is a unit. -/
-@[simp] theorem order_eq_zero_iff (f : AnalyticGerm x) : order f = 0 ↔ IsUnit f := by
+@[simp] theorem order_eq_zero_iff (f : AnalyticGerm ℂ x) : order f = 0 ↔ IsUnit f := by
   rw [isUnit_iff, order]
   have h := MvPowerSeries.order_ne_zero_iff_constCoeff_eq_zero (f := taylorSeries f)
   simpa using not_congr h
 
 /-- The zero germ has infinite total order. -/
-@[simp] theorem order_zero : order (0 : AnalyticGerm x) = ⊤ := by
+@[simp] theorem order_zero : order (0 : AnalyticGerm ℂ x) = ⊤ := by
   simp [order]
 
 /-- Distinct orders prevent cancellation of the leading terms of a sum. -/
-theorem order_add_of_ne {f g : AnalyticGerm x} (h : order f ≠ order g) :
+theorem order_add_of_ne {f g : AnalyticGerm ℂ x} (h : order f ≠ order g) :
     order (f + g) = min (order f) (order g) := by
   simpa only [order, taylorSeries_add] using MvPowerSeries.order_add_of_order_ne h
 
-/-- A scalar analytic germ is determined to be zero by its Taylor coefficients.
-The proof uses the convergent polydisc Taylor expansion, including dimension zero. -/
-@[simp] theorem taylorSeries_eq_zero_iff (f : AnalyticGerm x) :
+/-- A scalar analytic germ is determined to be zero by its Taylor coefficients. The proof uses the
+convergent polydisc Taylor expansion, including dimension zero. -/
+@[simp] theorem taylorSeries_eq_zero_iff (f : AnalyticGerm ℂ x) :
     taylorSeries f = 0 ↔ f = 0 := by
   classical
   constructor
@@ -182,21 +207,15 @@ The proof uses the convergent polydisc Taylor expansion, including dimension zer
       hg.continuousAt.norm.eventually_lt_const (by linarith)
     obtain ⟨r, hr, hball⟩ := Metric.mem_nhds_iff.mp (hg.eventually_analyticAt.and hb)
     have hr₂ : 0 < r / 2 := half_pos hr
-    have hsub : closedPolydiscWithRadii x (fun _ => r / 2) ⊆ ball x r := by
-      rw [closedPolydiscWithRadii_const, closedPolydisc_eq_closedBall hr₂.le]
+    have hsub : closedPolydisc x (fun _ => r / 2) ⊆ ball x r := by
+      rw [closedPolydisc_eq_closedBall hr₂.le]
       exact closedBall_subset_ball (half_lt_self hr)
-    have hA : AnalyticOnNhd ℂ g (closedPolydiscWithRadii x (fun _ => r / 2)) :=
+    have hA : AnalyticOnNhd ℂ g (closedPolydisc x (fun _ => r / 2)) :=
       fun z hz => (hball (hsub hz)).1
-    have hslice : ∀ z ∈ closedPolydiscWithRadii x (fun _ => r / 2), ∀ i,
+    have hslice : ∀ z ∈ closedPolydisc x (fun _ => r / 2), ∀ i,
         AnalyticAt ℂ (fun w => g (Function.update z i w)) (z i) := by
       intro z hz i
-      convert hA.analyticAt_update hz i using 1
-      funext w
-      congr 1
-      funext j
-      by_cases hj : j = i
-      · subst j; simp
-      · simp [Function.update, hj]
+      exact hA.analyticAt_update hz i
     have hcoeff : ∀ m : Fin n → ℕ,
         polydiscCauchyCoeffWithRadii g x (fun _ => r / 2) m = 0 := by
       intro m
@@ -222,7 +241,7 @@ The proof uses the convergent polydisc Taylor expansion, including dimension zer
 
 /-- The multivariate Taylor-series map is injective on analytic germs. -/
 theorem taylorSeries_injective : Function.Injective (taylorSeries (x := x)) := by
-  let T : AnalyticGerm x →+ MvPowerSeries (Fin n) ℂ :=
+  let T : AnalyticGerm ℂ x →+ MvPowerSeries (Fin n) ℂ :=
     { toFun := taylorSeries
       map_zero' := taylorSeries_zero
       map_add' := taylorSeries_add }
@@ -235,14 +254,14 @@ theorem taylorSeries_injective : Function.Injective (taylorSeries (x := x)) := b
 
 /-- Infinite order is equivalent to being the zero germ, by uniqueness of the convergent
 multivariate Taylor expansion. -/
-@[simp] theorem order_eq_top_iff (f : AnalyticGerm x) : order f = ⊤ ↔ f = 0 := by
+@[simp] theorem order_eq_top_iff (f : AnalyticGerm ℂ x) : order f = ⊤ ↔ f = 0 := by
   rw [order, MvPowerSeries.order_eq_top_iff, taylorSeries_eq_zero_iff]
 
-/-- Taylor series preserve multiplication of analytic germs. The proof compares
-coefficients inductively, using the analytic and formal coordinate product rules. -/
-theorem taylorSeries_mul (f g : AnalyticGerm x) :
+/-- Taylor series preserve multiplication of analytic germs. The proof compares coefficients
+inductively, using the analytic and formal coordinate product rules. -/
+theorem taylorSeries_mul (f g : AnalyticGerm ℂ x) :
     taylorSeries (f * g) = taylorSeries f * taylorSeries g := by
-  let P (k : Fin n →₀ ℕ) : Prop := ∀ f g : AnalyticGerm x,
+  let P (k : Fin n →₀ ℕ) : Prop := ∀ f g : AnalyticGerm ℂ x,
     MvPowerSeries.coeff k (taylorSeries (f * g)) =
       MvPowerSeries.coeff k (taylorSeries f * taylorSeries g)
   have hzero : P 0 := by
@@ -292,19 +311,20 @@ theorem taylorSeries_mul (f g : AnalyticGerm x) :
       exact h b
   exact MvPowerSeries.ext fun k => hall k f g
 
-/-- The order of a product is the sum of the orders, including zero germs.
-This follows from multiplicativity of Taylor series and `MvPowerSeries.order_mul`. -/
-theorem order_mul (f g : AnalyticGerm x) : order (f * g) = order f + order g := by
-  simpa only [order, taylorSeries_mul] using MvPowerSeries.order_mul (taylorSeries f) (taylorSeries g)
+/-- The order of a product is the sum of the orders, including zero germs. This follows from
+multiplicativity of Taylor series and `MvPowerSeries.order_mul`. -/
+theorem order_mul (f g : AnalyticGerm ℂ x) : order (f * g) = order f + order g := by
+  simpa only [order, taylorSeries_mul] using MvPowerSeries.order_mul (taylorSeries f)
+    (taylorSeries g)
 
 /-- Cancellation can only raise the order of a sum. -/
-theorem min_order_le_add (f g : AnalyticGerm x) :
+theorem min_order_le_order_add (f g : AnalyticGerm ℂ x) :
     min (order f) (order g) ≤ order (f + g) := by
   simpa only [order, taylorSeries_add] using
     (MvPowerSeries.min_order_le_add (f := taylorSeries f) (g := taylorSeries g))
 
-/-- Order at least `d + 1` is equivalent to a zero constant term and order at
-least `d` for every formal coordinate derivative. -/
+/-- Order at least `d + 1` is equivalent to a zero constant term and order at least `d` for every
+formal coordinate derivative. -/
 private theorem nat_succ_le_series_order_iff (p : MvPowerSeries (Fin n) ℂ) (d : ℕ) :
     (d + 1 : ℕ) ≤ p.order ↔ p.constantCoeff = 0 ∧
       ∀ i, (d : ℕ∞) ≤ (MvPowerSeries.pderiv i p).order := by
@@ -340,14 +360,15 @@ private theorem nat_succ_le_series_order_iff (p : MvPowerSeries (Fin n) ℂ) (d 
     exact (mul_eq_zero.mp hh).resolve_right (by exact_mod_cast Nat.succ_ne_zero (l i))
 
 /-- A common lower bound on orders is preserved by finite sums of analytic germs. -/
-theorem le_order_sum {κ : Type*} (s : Finset κ) (f : κ → AnalyticGerm x) {d : ℕ∞}
+theorem le_order_sum {κ : Type*} (s : Finset κ) (f : κ → AnalyticGerm ℂ x) {d : ℕ∞}
     (h : ∀ i ∈ s, d ≤ order (f i)) : d ≤ order (∑ i ∈ s, f i) := by
+  classical
   induction s using Finset.induction_on with
   | empty => simp
   | @insert i s hi ih =>
     rw [Finset.sum_insert hi]
     exact le_trans (le_min (h i (Finset.mem_insert_self _ _))
-      (ih fun j hj => h j (Finset.mem_insert_of_mem hj))) (min_order_le_add _ _)
+      (ih fun j hj => h j (Finset.mem_insert_of_mem hj))) (min_order_le_order_add _ _)
 
 /-- Coordinate differentiation preserves analyticity at a point. -/
 private theorem analyticAt_partialDeriv {f : (Fin n → ℂ) → ℂ}
@@ -355,10 +376,10 @@ private theorem analyticAt_partialDeriv {f : (Fin n → ℂ) → ℂ}
   obtain ⟨r, hr, hfa⟩ := hf.exists_ball_analyticOnNhd
   exact (hfa.partialDeriv isOpen_ball i) x (mem_ball_self hr)
 
-/-- Analytic pullback cannot lower the total order of a scalar germ. This includes
-maps between spaces of different dimensions and empty coordinate types. -/
-theorem order_le_pullback (e : (Fin n → ℂ) → (Fin m → ℂ)) (he : AnalyticAt ℂ e x)
-    (f : AnalyticGerm (e x)) : order f ≤ order (pullback e he f) := by
+/-- Analytic pullback cannot lower the total order of a scalar germ. This includes maps between
+spaces of different dimensions and empty coordinate types. -/
+theorem order_le_order_pullback (e : (Fin n → ℂ) → (Fin m → ℂ)) (he : AnalyticAt ℂ e x)
+    (f : AnalyticGerm ℂ (e x)) : order f ≤ order (pullback e he f) := by
   apply ENat.forall_natCast_le_iff_le.mp
   intro d
   obtain ⟨f, hf, rfl⟩ := exists_rep f
@@ -407,15 +428,15 @@ theorem order_le_pullback (e : (Fin n → ℂ) → (Fin m → ℂ)) (he : Analyt
       simpa only [order, taylorSeries_ofAnalyticAt,
         holomorphicTaylorSeries_partialDeriv hf j] using hderiv j
 
-/-- An analytic change of coordinates preserves total order.
-Apply order monotonicity to the coordinate map and its analytic inverse. -/
+/-- An analytic change of coordinates preserves total order. Apply order monotonicity to the
+coordinate map and its analytic inverse. -/
 theorem order_pullbackEquiv (e : (Fin n → ℂ) ≃ₜ (Fin m → ℂ))
     (he : AnalyticAt ℂ e x) (hi : AnalyticAt ℂ e.symm (e x))
-    (f : AnalyticGerm (e x)) : order (pullbackEquiv e x he hi f) = order f := by
+    (f : AnalyticGerm ℂ (e x)) : order (pullbackEquiv e x he hi f) = order f := by
   apply le_antisymm
   · obtain ⟨f, hf, rfl⟩ := exists_rep f
     have hc : AnalyticAt ℂ (f ∘ e) (e.symm (e x)) := by simpa using hf.comp he
-    have h := order_le_pullback e.symm hi (ofAnalyticAt (f ∘ e) hc)
+    have h := order_le_order_pullback e.symm hi (ofAnalyticAt (f ∘ e) hc)
     have heq : ofAnalyticAt ((f ∘ e) ∘ e.symm) (hc.comp hi) = ofAnalyticAt f hf := by
       apply ofAnalyticAt_eq_iff.mpr
       exact .of_forall fun z => by simp
@@ -425,18 +446,18 @@ theorem order_pullbackEquiv (e : (Fin n → ℂ) ≃ₜ (Fin m → ℂ))
     change (holomorphicTaylorSeries (f ∘ e) x).order ≤
       (holomorphicTaylorSeries f (e x)).order
     simpa only [Homeomorph.symm_apply_apply] using h
-  · exact order_le_pullback e he f
+  · exact order_le_order_pullback e he f
 
 /-- Exact order is characterized by the first nonzero total-degree Taylor coefficient. -/
-theorem order_eq_nat_iff (f : AnalyticGerm x) (d : ℕ) :
+theorem order_eq_nat_iff (f : AnalyticGerm ℂ x) (d : ℕ) :
     order f = d ↔
       (∃ k, MvPowerSeries.coeff k (taylorSeries f) ≠ 0 ∧ k.degree = d) ∧
       ∀ k, k.degree < d → MvPowerSeries.coeff k (taylorSeries f) = 0 :=
   MvPowerSeries.order_eq_nat
 
-/-- A linear automorphism sending the last coordinate axis to the line through `c`,
-provided the `i`-th coordinate of `c` is nonzero. This is the shear used in Suwa,
-Lemma 1.2, after swapping `i` with the last index. -/
+/-- A linear automorphism sending the last coordinate axis to the line through `c`, provided the
+`i`-th coordinate of `c` is nonzero. This is the shear used in [Suwa][Suwa2024], Lemma 1.2,
+after swapping `i` with the last index. -/
 def shearToLastAxis (c : Fin (n + 1) → ℂ) (i : Fin (n + 1)) (hi : c i ≠ 0) :
     (Fin (n + 1) → ℂ) ≃ₗ[ℂ] (Fin (n + 1) → ℂ) where
   toFun z j := if j = i then z i * c i else z j + z i * c j
@@ -604,7 +625,7 @@ theorem order_le_analyticOrderAt_line {f : (Fin n → ℂ) → ℂ}
     ((ContinuousLinearMap.proj (0 : Fin 1) : (Fin 1 → ℂ) →L[ℂ] ℂ).analyticAt 0).smul
       analyticAt_const
   have hf' : AnalyticAt ℂ f (e 0) := by simpa [e] using hf
-  have h := order_le_pullback e he (ofAnalyticAt f hf')
+  have h := order_le_order_pullback e he (ofAnalyticAt f hf')
   rw [pullback_ofAnalyticAt] at h
   have hl : AnalyticAt ℂ (fun w : ℂ => f (w • v)) 0 :=
     hf.comp_of_eq (analyticAt_id.smul analyticAt_const) (zero_smul _ _)
@@ -612,7 +633,7 @@ theorem order_le_analyticOrderAt_line {f : (Fin n → ℂ) → ℂ}
   simp only [order, taylorSeries_ofAnalyticAt] at h hscalar ⊢
   simpa [e, Function.comp_def, hscalar] using h
 
-/-- **Suwa, Lemma 1.2.** A linear change makes the order on the last axis equal to the
+/-- **[Suwa][Suwa2024], Lemma 1.2.** A linear change makes the order on the last axis equal to the
 total order. Positive ambient dimension is explicit; units are permitted and give
 order zero. Evaluate the leading homogeneous part at a point with nonzero last
 coordinate; the higher-order remainder cannot cancel it along the resulting line. -/

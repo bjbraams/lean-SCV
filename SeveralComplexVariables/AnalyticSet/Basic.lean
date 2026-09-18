@@ -11,21 +11,46 @@ public import Mathlib.Analysis.Complex.Basic
 /-!
 # Analytic subsets of open complex domains
 
-An analytic subset is locally the common zero set of finitely many scalar analytic
-functions. Equations are required near every point of the ambient set, so relative
-closedness follows. The local neighborhood requirement also implies that the ambient
-domain is open. No connectedness, nonemptiness, or positive dimension is built in.
-Empty families define the whole domain.
+An analytic subset is locally the common zero set of finitely many scalar analytic functions.
+Equations are required near every point of the ambient set, so relative closedness follows. The
+local neighborhood requirement also implies that the ambient domain is open. No connectedness,
+nonemptiness, or positive dimension is built in. Empty families define the whole domain.
 
 Holomorphic defining equations and biholomorphic transport are treated separately in
-`SeveralComplexVariables.AnalyticSet.Holomorphic`. This file uses analytic predicates
-directly and does not depend on the SCV holomorphy–analyticity equivalence.
+`SeveralComplexVariables.AnalyticSet.Holomorphic`. This file uses analytic predicates directly
+and does not depend on the SCV holomorphy–analyticity equivalence.
 
-References: Range I §3.2; Fritzsche–Grauert I §8; Scheidemann §4.1.
-No abstract analytic spaces or sheaf structures are introduced.
+References: [Range][Range1986] I §3.2; [Fritzsche–Grauert][FritzscheGrauert2002] I §8;
+[Scheidemann][Scheidemann2005] §4.1. No abstract analytic spaces or sheaf structures are
+introduced.
+
+## Main definitions
+
+* `IsAnalyticSet`: `A` is an analytic subset of `U` if it is contained in `U` and is locally cut out
+  by finitely many scalar analytic equations.
+
+## Main results
+
+* `isAnalyticSet_zeroSet`: A scalar analytic zero set, restricted to its domain, is analytic.
+* `IsAnalyticSet.isOpen_sdiff`: Analytic subsets are relatively closed, expressed by their open
+  complement in `U`.
+* `IsAnalyticSet.inter`: Finite intersections of analytic subsets are analytic.
+* `IsAnalyticSet.union`: Finite unions are defined by pairwise products of the local equations.
+* `IsAnalyticSet.preimage`: Holomorphic preimages preserve analytic subsets.
+* `IsAnalyticSet.prod`: Products of analytic subsets are analytic.
+* `isAnalyticSet_of_local`: Analyticity of a subset can be checked on an open cover of its ambient
+  domain.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter
 open scoped Topology
@@ -35,9 +60,9 @@ namespace SeveralComplexVariables
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F]
 
-/-- `A` is an analytic subset of `U` if it is contained in `U` and is locally cut out
-by finitely many scalar analytic equations. The equations need not extend throughout `U`. -/
-def IsAnalyticSet (U A : Set E) : Prop :=
+/-- `A` is an analytic subset of `U` if it is contained in `U` and is locally cut out by finitely
+many scalar analytic equations. The equations need not extend throughout `U`. -/
+@[expose] def IsAnalyticSet (U A : Set E) : Prop :=
   A ⊆ U ∧ ∀ a ∈ U, ∃ V : Set E, IsOpen V ∧ a ∈ V ∧ V ⊆ U ∧
     ∃ s : Finset (E → ℂ), (∀ f ∈ s, AnalyticOnNhd ℂ f V) ∧
       ∀ z ∈ V, z ∈ A ↔ ∀ f ∈ s, f z = 0
@@ -67,8 +92,8 @@ theorem isAnalyticSet_zeroSet {U : Set E} (hU : IsOpen U) {f : E → ℂ}
   change IsAnalyticSet U {z | z ∈ U ∧ f z = 0}
   simpa using isAnalyticSet_commonZeroSet hU {f} (by simpa using hf)
 
-/-- The zero set of a finite-coordinate analytic map is analytic, including an empty
-coordinate index type, when the zero set is the whole domain. -/
+/-- The zero set of a finite-coordinate analytic map is analytic, including an empty coordinate
+index type, when the zero set is the whole domain. -/
 theorem isAnalyticSet_zeroSet_pi {ι : Type*} [Fintype ι] {U : Set E} (hU : IsOpen U)
     {f : E → (ι → ℂ)} (hf : AnalyticOnNhd ℂ f U) :
     IsAnalyticSet U (U ∩ f ⁻¹' {0}) := by

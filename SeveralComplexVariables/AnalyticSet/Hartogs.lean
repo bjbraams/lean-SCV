@@ -11,21 +11,20 @@ public import SeveralComplexVariables.HartogsContinuation
 /-!
 # Hartogs extension across analytic subsets
 
-A Hartogs figure avoiding an analytic exceptional set determines an extension on
-the whole cylinder. The complement of a proper analytic subset is connected, so
-the identity principle identifies this extension with the original function.
-Isolated two-dimensional slices supply such figures near the exceptional set.
+A Hartogs figure avoiding an analytic exceptional set determines an extension on the whole
+cylinder. The complement of a proper analytic subset is connected, so the identity principle
+identifies this extension with the original function. Isolated two-dimensional slices supply
+such figures near the exceptional set.
 
 ## Main results
 
-`IsAnalyticSet.exists_extension_of_hartogsCylinder_subset` extends across a Hartogs
-figure that avoids the analytic set. `exists_hartogs_neighborhood` produces such a
-figure near an isolated two-dimensional slice.
-`IsAnalyticSet.exists_local_extension_of_isolated_two_slice` is local extension
-from that figure.
+`IsAnalyticSet.exists_extension_of_hartogsCylinder_subset` extends across a Hartogs figure that
+avoids the analytic set. `exists_hartogs_neighborhood` produces such a figure near an isolated
+two-dimensional slice. `IsAnalyticSet.exists_local_extension_of_isolated_two_slice` is local
+extension from that figure.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
@@ -35,8 +34,8 @@ namespace SeveralComplexVariables
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [FiniteDimensional ℂ E] [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- A Hartogs cylinder avoiding an analytic subset gives an extension across that
-subset. Connectedness of its complement ensures agreement everywhere it is defined. -/
+/-- A Hartogs cylinder avoiding an analytic subset gives an extension across that subset.
+Connectedness of its complement ensures agreement everywhere it is defined. -/
 theorem IsAnalyticSet.exists_extension_of_hartogsCylinder_subset
     {D D₀ : Set E} {ρ R : ℝ} {A : Set (E × ℂ)}
     (hA : IsAnalyticSet (D ×ˢ ball 0 R) A)
@@ -93,8 +92,8 @@ private theorem offCenter_hartogsCylinder_subset_shell {R : ℝ} (hR : 0 < R) :
     linarith
 
 omit [FiniteDimensional ℂ E] in
-/-- Compact subsets of an open set remain in it under small translations of a
-fixed continuous linear image. -/
+/-- Compact subsets of an open set remain in it under small translations of a fixed continuous
+linear image. -/
 private theorem eventually_add_image_subset {P : Type*} [NormedAddCommGroup P]
     [NormedSpace ℂ P] {K : Set P} (hK : IsCompact K) {V : Set E} (hV : IsOpen V)
     {a : E} (L : P →L[ℂ] E) (hsub : ∀ p ∈ K, a + L p ∈ V) :
@@ -105,8 +104,8 @@ private theorem eventually_add_image_subset {P : Type*} [NormedAddCommGroup P]
     (hV.mem_nhds (hsub p hp))
 
 omit [FiniteDimensional ℂ E] in
-/-- An isolated two-dimensional slice supplies a Hartogs figure, together with
-nearby parallel translates, that avoids the exceptional set. -/
+/-- An isolated two-dimensional slice supplies a Hartogs figure, together with nearby parallel
+translates, that avoids the exceptional set. -/
 private theorem exists_hartogs_neighborhood {U A : Set E}
     (hU : IsOpen U) (hUA : IsOpen (U \ A)) {a : E} (ha : a ∈ U)
     (L : (ℂ × ℂ) →L[ℂ] E)
@@ -149,8 +148,8 @@ private theorem exists_hartogs_neighborhood {U A : Set E}
     · exact Or.inl ⟨hq.1.2, hq.2⟩
     · exact Or.inr ⟨hq.1.2, hq.2⟩
 
-/-- An analytic subset with an isolated two-dimensional slice admits local
-extension of every holomorphic function on its complement. No boundedness is assumed. -/
+/-- An analytic subset with an isolated two-dimensional slice admits local extension of every
+holomorphic function on its complement. No boundedness is assumed. -/
 theorem IsAnalyticSet.exists_local_extension_of_isolated_two_slice
     {U A : Set E} (hA : IsAnalyticSet U A) {a : E} (ha : a ∈ U)
     (L : (ℂ × ℂ) →L[ℂ] E)

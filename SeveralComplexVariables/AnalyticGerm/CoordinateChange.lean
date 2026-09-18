@@ -5,22 +5,54 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Analytic.Order
 public import SeveralComplexVariables.AnalyticGerm
 public import SeveralComplexVariables.Analyticity
-public import Mathlib.Analysis.Analytic.Order
 
 /-!
 # Coordinate changes and regular analytic germs
 
-Analytic changes of coordinates induce algebra isomorphisms on scalar germs.
-A nonzero germ on a finite-dimensional parameter space times `ℂ` becomes regular
-in the scalar coordinate after a complex linear change of coordinates.
-Finite families are normalized by applying the single-germ theorem to their product.
-This includes the finite-family version discussed in Suwa §1.4; the unitary and
-countable-family refinements in Jakóbczak–Jarnicki, Lemma 1.8.3 are not needed here.
+Analytic changes of coordinates induce algebra isomorphisms on scalar germs. A nonzero germ on a
+finite-dimensional parameter space times `ℂ` becomes regular in the scalar coordinate after a
+complex linear change of coordinates. Finite families are normalized by applying the single-germ
+theorem to their product. This includes the finite-family version discussed in [Suwa][Suwa2024]
+§1.4; the unitary and countable-family refinements in [Jakóbczak–Jarnicki][JakobczakJarnicki2021],
+Lemma 1.8.3 are not needed here.
+
+## Main definitions
+
+* `pullbackEquiv`: An analytic homeomorphism with analytic inverse induces an algebra isomorphism of
+  germs.
+* `pullbackEquivOfEq`: Pullback equivalence along a map whose value at the source point is only
+  known up to a stated equation, letting the target germ's base point be phrased as any value equal
+  to `e x`.
+* `linearEquivPullback`: Continuous linear coordinate changes act contravariantly on analytic germs.
+* `translateEquiv`: Translation identifies the germs at any point with the germs at the origin.
+* `linearEquivPullbackZero`: A linear change of coordinates fixes the origin and identifies the
+  corresponding germ rings.
+* `orderInLastVariable`: Order of a scalar germ along the distinguished coordinate axis.
+* `regularizingLinearEquiv`: A triangular linear coordinate change sends the last coordinate axis to
+  the line through `v`, provided the last coordinate of `v` is nonzero.
+
+## Main results
+
+* `exists_regular_coordinate_change`: A nonzero analytic germ can be made regular in the last
+  coordinate by an invertible complex linear change.
+* `exists_regular_coordinate_change_finite`: One linear coordinate change makes every member of a
+  finite family of nonzero analytic germs regular in the last variable.
+* `isUnit_iff_orderInLastVariable_eq_zero`: A germ is a unit exactly when it has order zero along
+  the distinguished coordinate.
+* `orderInLastVariable_mul`: Order along the distinguished coordinate is additive under
+  multiplication of germs.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
+* [T. Suwa, *Complex Analytic Geometry: From the Localization Viewpoint*][Suwa2024]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Filter Metric Set
 open scoped Topology
@@ -32,8 +64,8 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 /-- An analytic homeomorphism with analytic inverse induces an algebra isomorphism of germs. -/
-def pullbackEquiv (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
-    (hi : AnalyticAt ℂ e.symm (e x)) : AnalyticGerm (e x) ≃ₐ[ℂ] AnalyticGerm x :=
+@[expose] def pullbackEquiv (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
+    (hi : AnalyticAt ℂ e.symm (e x)) : AnalyticGerm ℂ (e x) ≃ₐ[ℂ] AnalyticGerm ℂ x :=
   AlgEquiv.ofBijective (pullback e he) (by
     constructor
     · intro a b hab
@@ -52,16 +84,16 @@ def pullbackEquiv (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
       apply Germ.coe_eq.mpr
       exact .of_forall fun y => by simp [Function.comp_def])
 
-/-- Pullback equivalence along a map whose value at the source point is only known up to a
-stated equation, letting the target germ's base point be phrased as any value equal to
-`e x`. Matches `pullbackEquiv` definitionally once the equation is substituted. -/
+/-- Pullback equivalence along a map whose value at the source point is only known up to a stated
+equation, letting the target germ's base point be phrased as any value equal to `e x`. Matches
+`pullbackEquiv` definitionally once the equation is substituted. -/
 def pullbackEquivOfEq (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
     (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) :
-    AnalyticGerm y ≃ₐ[ℂ] AnalyticGerm x :=
+    AnalyticGerm ℂ y ≃ₐ[ℂ] AnalyticGerm ℂ x :=
   hy ▸ pullbackEquiv e x he hi
 
-/-- Applying an equation-adjusted pullback equivalence to a represented germ is
-represented by composition, matching the plain pullback. -/
+/-- Applying an equation-adjusted pullback equivalence to a represented germ is represented by
+composition, matching the plain pullback. -/
 theorem pullbackEquivOfEq_ofAnalyticAt (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
     (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) (g : F → ℂ)
     (hg : AnalyticAt ℂ g y) :
@@ -70,8 +102,8 @@ theorem pullbackEquivOfEq_ofAnalyticAt (e : E ≃ₜ F) (x : E) (he : AnalyticAt
   subst hy
   rfl
 
-/-- An equation-adjusted pullback equivalence is bijective, like the plain pullback
-equivalence it matches definitionally. -/
+/-- An equation-adjusted pullback equivalence is bijective, like the plain pullback equivalence it
+matches definitionally. -/
 theorem pullbackEquivOfEq_bijective (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
     (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) :
     Function.Bijective (pullbackEquivOfEq e x he hi hy) := by
@@ -80,13 +112,13 @@ theorem pullbackEquivOfEq_bijective (e : E ≃ₜ F) (x : E) (he : AnalyticAt �
 
 /-- Continuous linear coordinate changes act contravariantly on analytic germs. -/
 def linearEquivPullback (e : E ≃L[ℂ] F) (x : E) :
-    AnalyticGerm (e x) ≃ₐ[ℂ] AnalyticGerm x :=
+    AnalyticGerm ℂ (e x) ≃ₐ[ℂ] AnalyticGerm ℂ x :=
   pullbackEquiv e.toHomeomorph x (e.toContinuousLinearMap.analyticAt x)
     (e.symm.toContinuousLinearMap.analyticAt (e x))
 
 /-- Translation identifies the germs at any point with the germs at the origin. -/
-def translateEquiv (x : E) : AnalyticGerm x ≃ₐ[ℂ] AnalyticGerm (0 : E) := by
-  have e : AnalyticGerm (0 + x) ≃ₐ[ℂ] AnalyticGerm (0 : E) :=
+def translateEquiv (x : E) : AnalyticGerm ℂ x ≃ₐ[ℂ] AnalyticGerm ℂ (0 : E) := by
+  have e : AnalyticGerm ℂ (0 + x) ≃ₐ[ℂ] AnalyticGerm ℂ (0 : E) :=
     pullbackEquiv (Homeomorph.addRight x) 0
       (analyticAt_id.add analyticAt_const) (by
         change AnalyticAt ℂ (fun y : E => y + -x) _
@@ -95,13 +127,13 @@ def translateEquiv (x : E) : AnalyticGerm x ≃ₐ[ℂ] AnalyticGerm (0 : E) := 
 
 /-- A linear change of coordinates fixes the origin and identifies the corresponding germ rings. -/
 def linearEquivPullbackZero (e : E ≃L[ℂ] F) :
-    AnalyticGerm (0 : F) ≃ₐ[ℂ] AnalyticGerm (0 : E) := by
+    AnalyticGerm ℂ (0 : F) ≃ₐ[ℂ] AnalyticGerm ℂ (0 : E) := by
   have h := linearEquivPullback e (0 : E)
   exact (e.map_zero) ▸ h
 
-/-- Order of a scalar germ along the distinguished coordinate axis. The definition
-uses Mathlib's one-variable analytic order and is independent of representatives. -/
-def orderInLastVariable (φ : AnalyticGerm (0 : E × ℂ)) : ℕ∞ :=
+/-- Order of a scalar germ along the distinguished coordinate axis. The definition uses Mathlib's
+one-variable analytic order and is independent of representatives. -/
+@[expose] def orderInLastVariable (φ : AnalyticGerm ℂ (0 : E × ℂ)) : ℕ∞ :=
   φ.val.liftOn (fun f => analyticOrderAt (fun w : ℂ => f (0, w)) 0) (by
     intro f g h
     have ht : Tendsto (fun w : ℂ => ((0 : E), w)) (𝓝 0) (𝓝 0) :=
@@ -118,7 +150,7 @@ theorem analyticAt_ofAnalyticAt_central (f : E × ℂ → ℂ) (hf : AnalyticAt 
   hf.comp_of_eq (analyticAt_const.prod analyticAt_id) rfl
 
 /-- Order along the distinguished coordinate is additive under multiplication of germs. -/
-theorem orderInLastVariable_mul (φ ψ : AnalyticGerm (0 : E × ℂ)) :
+theorem orderInLastVariable_mul (φ ψ : AnalyticGerm ℂ (0 : E × ℂ)) :
     orderInLastVariable (φ * ψ) = orderInLastVariable φ + orderInLastVariable ψ := by
   obtain ⟨f, hf, rfl⟩ := exists_rep φ
   obtain ⟨g, hg, rfl⟩ := exists_rep ψ
@@ -128,7 +160,7 @@ theorem orderInLastVariable_mul (φ ψ : AnalyticGerm (0 : E × ℂ)) :
     (analyticAt_ofAnalyticAt_central g hg)
 
 /-- A germ is a unit exactly when it has order zero along the distinguished coordinate. -/
-theorem isUnit_iff_orderInLastVariable_eq_zero (φ : AnalyticGerm (0 : E × ℂ)) :
+theorem isUnit_iff_orderInLastVariable_eq_zero (φ : AnalyticGerm ℂ (0 : E × ℂ)) :
     IsUnit φ ↔ orderInLastVariable φ = 0 := by
   obtain ⟨f, hf, rfl⟩ := exists_rep φ
   rw [isUnit_iff, eval_ofAnalyticAt, orderInLastVariable_ofAnalyticAt]
@@ -138,8 +170,8 @@ end AnalyticGerm
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- A triangular linear coordinate change sends the last coordinate axis to the line
-through `v`, provided the last coordinate of `v` is nonzero. -/
+/-- A triangular linear coordinate change sends the last coordinate axis to the line through `v`,
+provided the last coordinate of `v` is nonzero. -/
 def regularizingLinearEquiv (v : E × ℂ) (hv : v.2 ≠ 0) : (E × ℂ) ≃ₗ[ℂ] (E × ℂ) where
   toFun z := (z.1 + z.2 • v.1, z.2 * v.2)
   invFun z := (z.1 - (z.2 / v.2) • v.1, z.2 / v.2)
@@ -150,9 +182,9 @@ def regularizingLinearEquiv (v : E × ℂ) (hv : v.2 ≠ 0) : (E × ℂ) ≃ₗ[
   map_smul' c z := by
     ext <;> simp [smul_add, mul_smul, smul_eq_mul, mul_assoc]
 
-/-- A nonzero analytic germ can be made regular in the last coordinate by an invertible
-complex linear change. The resulting order is finite, including order zero for units.
-Empty parameter spaces are allowed, since the scalar coordinate is always present. -/
+/-- A nonzero analytic germ can be made regular in the last coordinate by an invertible complex
+linear change. The resulting order is finite, including order zero for units. Empty parameter
+spaces are allowed, since the scalar coordinate is always present. -/
 theorem exists_regular_coordinate_change [FiniteDimensional ℂ E]
     {f : E × ℂ → ℂ} (hf : AnalyticAt ℂ f 0) (hne : ¬ f =ᶠ[𝓝 0] 0) :
     ∃ (L : (E × ℂ) ≃L[ℂ] (E × ℂ)) (d : ℕ),
@@ -197,9 +229,9 @@ theorem exists_regular_coordinate_change [FiniteDimensional ℂ E]
   simp [regularizingLinearEquiv]
   rfl
 
-/-- One linear coordinate change makes every member of a finite family of nonzero
-analytic germs regular in the last variable. Empty families and unit germs are allowed.
-Apply single-germ normalization to the product, then use that no factor slice can vanish. -/
+/-- One linear coordinate change makes every member of a finite family of nonzero analytic germs
+regular in the last variable. Empty families and unit germs are allowed. Apply single-germ
+normalization to the product, then use that no factor slice can vanish. -/
 theorem exists_regular_coordinate_change_finite [FiniteDimensional ℂ E]
     {κ : Type*} [Fintype κ] {f : κ → E × ℂ → ℂ}
     (hf : ∀ i, AnalyticAt ℂ (f i) 0) (hne : ∀ i, ¬ f i =ᶠ[𝓝 0] 0) :

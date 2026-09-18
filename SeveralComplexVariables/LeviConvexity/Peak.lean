@@ -5,30 +5,62 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.LeviConvexity.Independence
-public import SeveralComplexVariables.LeviConvexity.Necessity
-public import SeveralComplexVariables.Analyticity
 public import Mathlib.Analysis.Calculus.FDeriv.Bilinear
 public import Mathlib.Analysis.Calculus.FDeriv.Pow
+public import SeveralComplexVariables.Analyticity
+public import SeveralComplexVariables.LeviConvexity.Independence
+public import SeveralComplexVariables.LeviConvexity.Necessity
 
 /-!
 # Peak functions at strictly Levi convex boundary points
 
 A boundary point `p` of an open set `U` is strictly Levi pseudoconvex if the Levi form of a
-local defining function is positive definite on the complex tangent space. Adding a multiple
-of the square of the defining function makes the Levi form positive definite on the whole
-space at `p`, by a compactness argument on the unit sphere. The Levi polynomial of the
-modified defining function `\tilde ρ` is the holomorphic quadratic function
-`F(z) = ∂\tilde ρ(p)(z - p) + Q(z - p)`, where `Q` is the complex quadratic part of the real
-Hessian; the second-order Taylor expansion gives `Re F(z) = \tilde ρ(z) - Lev \tilde ρ(p, z - p) + o(‖z - p‖²)`,
-so `Re F < 0` on the domain near `p`, except at `p` where `F` vanishes. The reciprocal `1 / F` is
-then holomorphic on the domain near `p` and unbounded at `p`: a local peak function.
+local defining function is positive definite on the complex tangent space. Adding a multiple of
+the square of the defining function makes the Levi form positive definite on the whole space at
+`p`, by a compactness argument on the unit sphere. The Levi polynomial of the modified defining
+function `\tilde ρ` is the holomorphic quadratic function `F(z) = ∂\tilde ρ(p)(z - p) + Q(z -
+p)`, where `Q` is the complex quadratic part of the real Hessian; the second-order Taylor
+expansion gives `Re F(z) = \tilde ρ(z) - Lev \tilde ρ(p, z - p) + o(‖z - p‖²)`, so `Re F < 0` on
+the domain near `p`, except at `p` where `F` vanishes. The reciprocal `1 / F` is then
+holomorphic on the domain near `p` and unbounded at `p`: a local holomorphic blow-up function.
+Exponentiating `F` gives a normalized local peak function with value one at `p` and modulus less
+than one elsewhere on the closed side.
 
-References: Range (1986), Chapter II, Lemma 2.13, Proposition 2.16 and Theorem 2.15;
-Fritzsche–Grauert (2002), Chapter II, Section 4.
+References: [Range][Range1986] (1986), Chapter II, Lemma 2.13, Proposition 2.16 and Theorem
+2.15; [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Section 4.
+
+## Main definitions
+
+* `IsStrictlyLeviPseudoconvexAt`: The strict Levi condition at a boundary point: the Levi form of
+  every local defining function is positive definite on the complex tangent space.
+* `leviBilinear`: The complex bilinear part of a real bilinear form on a complex space.
+
+## Main results
+
+* `exists_leviForm_add_normSq_ge`: **Positive definiteness after modification.** If the Levi form is
+  positive definite on the complex tangent space at `p`, then adding a large multiple of the squared
+  modulus of the complex-linear part of the derivative makes it positive definite on the whole
+  space.
+* `IsLocalDefiningFunction.exists_holomorphic_support`: **Levi polynomial as a peak function
+  ([Range][Range1986], Proposition 2.16).** At a boundary point with positive definite Levi form on
+  the complex tangent space there is an entire holomorphic function `F` vanishing at `p` whose real
+  part is negative at all nearby points where the defining function is nonpositive, except at `p`.
+* `IsLocalDefiningFunction.exists_peak`: **Normalized local peak function.** Exponentiating a
+  holomorphic supporting function has value one at the boundary point and modulus strictly less than
+  one at every other nearby point on the closed side of the defining function.
+* `IsLocalDefiningFunction.exists_tendsto_norm_atTop`: **Local holomorphic blow-up.** At a strictly
+  Levi convex boundary point of an open set there is a holomorphic function on the set near the
+  point whose modulus tends to infinity at the point.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Metric Set
 open scoped Topology
@@ -39,16 +71,17 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 section StrictDefinition
 
-/-- The strict Levi condition at a boundary point: the Levi form of every local defining
-function is positive definite on the complex tangent space. -/
-def IsStrictlyLeviPseudoconvexAt (U : Set E) (p : E) : Prop :=
+/-- The strict Levi condition at a boundary point: the Levi form of every local defining function is
+positive definite on the complex tangent space. -/
+@[expose] def IsStrictlyLeviPseudoconvexAt (U : Set E) (p : E) : Prop :=
   ∀ (ρ : E → ℝ) (V : Set E), IsLocalDefiningFunction U p ρ V →
     ∀ w, IsComplexTangent ρ p w → w ≠ 0 → 0 < leviForm ρ p w
 
 /-- The strict Levi condition can be checked on one defining function. -/
 theorem isStrictlyLeviPseudoconvexAt_iff_of_defining {U : Set E} {p : E} {ρ : E → ℝ} {V : Set E}
     (h : IsLocalDefiningFunction U p ρ V) :
-    IsStrictlyLeviPseudoconvexAt U p ↔ ∀ w, IsComplexTangent ρ p w → w ≠ 0 → 0 < leviForm ρ p w := by
+    IsStrictlyLeviPseudoconvexAt U p ↔ ∀ w, IsComplexTangent ρ p w → w ≠ 0 → 0 < leviForm ρ p w :=
+      by
   constructor
   · intro hL w hw hw0
     exact hL ρ V h w hw hw0
@@ -83,12 +116,14 @@ theorem leviBilinear_I_smul_right (B : E →L[ℝ] E →L[ℝ] ℝ) (k k' : E) :
 /-- The complex bilinear part is a bounded complex bilinear map. -/
 theorem isBoundedBilinearMap_leviBilinear (B : E →L[ℝ] E →L[ℝ] ℝ) :
     IsBoundedBilinearMap ℂ (leviBilinear B) := by
-  have hre : ∀ (r : ℝ) (k k' : E), leviBilinear B (r • k, k') = (r : ℂ) * leviBilinear B (k, k') := by
+  have hre : ∀ (r : ℝ) (k k' : E), leviBilinear B (r • k, k') = (r : ℂ) * leviBilinear B (k, k')
+    := by
     intro r k k'
     have h1 : I • r • k = r • I • k := smul_comm I r k
     simp only [leviBilinear, h1, map_smul]
     apply Complex.ext <;> simp <;> ring
-  have hre' : ∀ (r : ℝ) (k k' : E), leviBilinear B (k, r • k') = (r : ℂ) * leviBilinear B (k, k') := by
+  have hre' : ∀ (r : ℝ) (k k' : E), leviBilinear B (k, r • k') = (r : ℂ) * leviBilinear B (k, k')
+    := by
     intro r k k'
     have h1 : I • r • k' = r • I • k' := smul_comm I r k'
     simp only [leviBilinear, h1, map_smul]
@@ -96,7 +131,7 @@ theorem isBoundedBilinearMap_leviBilinear (B : E →L[ℝ] E →L[ℝ] ℝ) :
   refine ⟨fun k₁ k₂ k' => ?_, fun c k k' => ?_, fun k k₁' k₂' => ?_, fun c k k' => ?_, ?_⟩
   · simp only [leviBilinear, smul_add, map_add]
     apply Complex.ext <;> simp <;> ring
-  · rw [smul_eq_re_smul_add_im_smul c k]
+  · rw [Complex.smul_eq_re_smul_add_im_smul c k]
     have h1 : leviBilinear B (c.re • k + c.im • I • k, k') =
         leviBilinear B (c.re • k, k') + leviBilinear B (c.im • I • k, k') := by
       simp only [leviBilinear, smul_add, map_add]
@@ -106,7 +141,7 @@ theorem isBoundedBilinearMap_leviBilinear (B : E →L[ℝ] E →L[ℝ] ℝ) :
     ring
   · simp only [leviBilinear, smul_add, map_add]
     apply Complex.ext <;> simp <;> ring
-  · rw [smul_eq_re_smul_add_im_smul c k']
+  · rw [Complex.smul_eq_re_smul_add_im_smul c k']
     have h1 : leviBilinear B (k, c.re • k' + c.im • I • k') =
         leviBilinear B (k, c.re • k') + leviBilinear B (k, c.im • I • k') := by
       simp only [leviBilinear, smul_add, map_add]
@@ -150,24 +185,6 @@ theorem leviBilinear_self (B : E →L[ℝ] E →L[ℝ] ℝ) {k : E} (hsymm : B k
   · simp
     ring
 
-/-- The complex-linear part of a real functional is a bounded complex linear map. -/
-theorem isBoundedLinearMap_complexPart (ℓ : E →L[ℝ] ℝ) : IsBoundedLinearMap ℂ (complexPart ℓ) := by
-  refine ⟨⟨fun x y => ?_, fun c x => ?_⟩, ⟨2 * ‖ℓ‖ + 1, by positivity, fun x => ?_⟩⟩
-  · simp only [complexPart, map_add, smul_add]
-    push_cast
-    ring
-  · rw [complexPart_smul, smul_eq_mul]
-  · have h1 : |ℓ x| ≤ ‖ℓ‖ * ‖x‖ := by have := ℓ.le_opNorm x; rwa [Real.norm_eq_abs] at this
-    have h2 : |ℓ (I • x)| ≤ ‖ℓ‖ * ‖x‖ := by
-      have := ℓ.le_opNorm (I • x)
-      rwa [Real.norm_eq_abs, norm_smul, Complex.norm_I, one_mul] at this
-    calc ‖complexPart ℓ x‖ ≤ ‖((ℓ x : ℝ) : ℂ)‖ + ‖I * ((ℓ (I • x) : ℝ) : ℂ)‖ := norm_sub_le _ _
-      _ = |ℓ x| + |ℓ (I • x)| := by
-          rw [norm_mul, Complex.norm_I, one_mul, Complex.norm_real, Complex.norm_real,
-            Real.norm_eq_abs, Real.norm_eq_abs]
-      _ ≤ ‖ℓ‖ * ‖x‖ + ‖ℓ‖ * ‖x‖ := add_le_add h1 h2
-      _ ≤ (2 * ‖ℓ‖ + 1) * ‖x‖ := by nlinarith [norm_nonneg x]
-
 end Bilinear
 
 section Modification
@@ -208,7 +225,7 @@ theorem leviForm_add_mul_sq (hρ : ContDiffAt ℝ 2 ρ p) (hρ0 : ρ p = 0) (A :
   have hn : ‖complexPart (fderiv ℝ ρ p) w‖ ^ 2 =
       fderiv ℝ ρ p w ^ 2 + fderiv ℝ ρ p (I • w) ^ 2 := by
     rw [Complex.sq_norm, Complex.normSq_apply]
-    simp [complexPart]
+    simp [complexPart_apply]
     ring
   rw [hn]
   simp [hρ0, add_apply, smul_apply, smul_eq_mul]
@@ -233,20 +250,16 @@ theorem continuous_leviForm (f : E → ℝ) (p : E) : Continuous fun w => leviFo
   have hB := (fderiv ℝ (fderiv ℝ f) p).isBoundedBilinearMap.continuous
   fun_prop
 
-/-- The complex-linear part of a real functional is continuous. -/
-theorem continuous_complexPart (ℓ : E →L[ℝ] ℝ) : Continuous (complexPart ℓ) :=
-  (isBoundedLinearMap_complexPart ℓ).continuous
-
 /-- Real scaling of the complex-linear part. -/
 theorem complexPart_real_smul (ℓ : E →L[ℝ] ℝ) (r : ℝ) (w : E) :
     complexPart ℓ (r • w) = (r : ℂ) * complexPart ℓ w := by
-  rw [← Complex.coe_smul, complexPart_smul]
+  rw [← Complex.coe_smul, map_smul, smul_eq_mul]
 
-/-- A vector is complex tangent exactly when the complex-linear part of the derivative
-vanishes on it. -/
+/-- A vector is complex tangent exactly when the complex-linear part of the derivative vanishes on
+it. -/
 theorem isComplexTangent_iff_complexPart_eq_zero (w : E) :
     IsComplexTangent ρ p w ↔ complexPart (fderiv ℝ ρ p) w = 0 := by
-  simp only [IsComplexTangent, complexPart, Complex.ext_iff]
+  simp only [IsComplexTangent, complexPart_apply, Complex.ext_iff]
   simp
 
 /-- **Positive definiteness after modification.** If the Levi form is positive definite on
@@ -267,7 +280,7 @@ theorem exists_leviForm_add_normSq_ge [FiniteDimensional ℂ E]
     have hw0 : w ≠ 0 := by
       rintro rfl
       have h0 : leviForm ρ p 0 = 0 := by simp [leviForm_eq_fderiv]
-      have h1 : complexPart ℓ 0 = 0 := by simp [complexPart]
+      have h1 : complexPart ℓ 0 = 0 := by simp [complexPart_apply]
       rw [h0, h1] at hw
       simp at hw
     have hn0 : 0 < ‖w‖ := norm_pos_iff.mpr hw0
@@ -304,7 +317,7 @@ theorem exists_leviForm_add_normSq_ge [FiniteDimensional ℂ E]
     simp at hvS
   -- the limit is complex tangent
   have hcp : Tendsto (fun n => ‖complexPart ℓ (u (φ n))‖ ^ 2) atTop (𝓝 (‖complexPart ℓ v‖ ^ 2)) :=
-    (((continuous_complexPart ℓ).norm.pow 2).continuousAt.tendsto.comp hlim)
+    (((complexPart ℓ).continuous.norm.pow 2).continuousAt.tendsto.comp hlim)
   have hφtop : Tendsto (fun n => (φ n : ℝ)) atTop atTop :=
     tendsto_natCast_atTop_atTop.comp hφ.tendsto_atTop
   have hcp0 : ‖complexPart ℓ v‖ ^ 2 = 0 := by
@@ -338,11 +351,12 @@ section PeakFunction
 
 variable [FiniteDimensional ℂ E] {U : Set E} {p : E} {ρ : E → ℝ} {V : Set E}
 
-/-- **Levi polynomial as a peak function (Range, Proposition 2.16).** At a boundary point with
+/-- **Levi polynomial as a peak function ([Range][Range1986], Proposition 2.16).** At a boundary
+point with
 positive definite Levi form on the complex tangent space there is an entire holomorphic function
 `F` vanishing at `p` whose real part is negative at all nearby points where the defining
 function is nonpositive, except at `p`. -/
-theorem IsLocalDefiningFunction.exists_peak (h : IsLocalDefiningFunction U p ρ V)
+theorem IsLocalDefiningFunction.exists_holomorphic_support (h : IsLocalDefiningFunction U p ρ V)
     (hstrict : ∀ w, IsComplexTangent ρ p w → w ≠ 0 → 0 < leviForm ρ p w) :
     ∃ W ∈ 𝓝 p, ∃ F : E → ℂ, AnalyticOnNhd ℂ F univ ∧ F p = 0 ∧
       ∀ z ∈ W, z ≠ p → ρ z ≤ 0 → (F z).re < 0 := by
@@ -373,13 +387,13 @@ theorem IsLocalDefiningFunction.exists_peak (h : IsLocalDefiningFunction U p ρ 
   set F : E → ℂ := fun z => complexPart ℓ (z - p) + leviBilinear B (z - p, z - p) with hF
   have hFd : Differentiable ℂ F := by
     have h1 : Differentiable ℂ (complexPart ℓ) := fun x =>
-      (isBoundedLinearMap_complexPart ℓ).differentiableAt
+      (complexPart ℓ).differentiableAt
     have h2 : Differentiable ℂ (leviBilinear B) := fun q =>
       (isBoundedBilinearMap_leviBilinear B).differentiableAt q
     have hsub : Differentiable ℂ (fun z : E => z - p) := differentiable_id.sub_const p
     exact (h1.comp hsub).add (h2.comp (hsub.prodMk hsub))
-  have hFan : AnalyticOnNhd ℂ F univ := hFd.analyticOnNhd_finiteDimensional
-  have hF0 : F p = 0 := by simp [hF, complexPart, leviBilinear]
+  have hFan : AnalyticOnNhd ℂ F univ := hFd.analyticOnNhd_of_finiteDimensional
+  have hF0 : F p = 0 := by simp [hF, leviBilinear]
   -- Taylor expansion of the modified defining function
   obtain ⟨δ, hδ, htaylor⟩ := exists_taylor_bound hσc (ε := c / 2) (by positivity)
   have hsmall : ∀ᶠ z in 𝓝 p, |ρ z| < 1 / (A + 1) := by
@@ -424,26 +438,43 @@ theorem IsLocalDefiningFunction.exists_peak (h : IsLocalDefiningFunction U p ρ 
   rw [hFre]
   linarith [hσlev k]
 
-/-- On the domain near a strictly Levi convex boundary point, the Levi polynomial has negative
-real part. -/
-theorem IsLocalDefiningFunction.exists_peak_of_mem (hU : IsOpen U) (hp : p ∈ frontier U)
+/-- **Normalized local peak function.** Exponentiating a holomorphic supporting function
+has value one at the boundary point and modulus strictly less than one at every other nearby
+point on the closed side of the defining function. -/
+theorem IsLocalDefiningFunction.exists_peak
+    (h : IsLocalDefiningFunction U p ρ V)
+    (hstrict : ∀ w, IsComplexTangent ρ p w → w ≠ 0 → 0 < leviForm ρ p w) :
+    ∃ W ∈ 𝓝 p, ∃ f : E → ℂ, AnalyticOnNhd ℂ f univ ∧ f p = 1 ∧
+      ∀ z ∈ W, z ≠ p → ρ z ≤ 0 → ‖f z‖ < 1 := by
+  obtain ⟨W, hW, F, hF, hFp, hneg⟩ := h.exists_holomorphic_support hstrict
+  refine ⟨W, hW, fun z => Complex.exp (F z), ?_, by simp [hFp], ?_⟩
+  · exact fun z hz => (hF z hz).cexp
+  · intro z hz hzp hρ
+    rw [Complex.norm_exp, Real.exp_lt_one_iff]
+    exact hneg z hz hzp hρ
+
+/-- On the domain near a strictly Levi convex boundary point, the Levi polynomial has negative real
+part. -/
+theorem IsLocalDefiningFunction.exists_holomorphic_support_of_mem (hU : IsOpen U) (hp : p ∈
+  frontier U)
     (h : IsLocalDefiningFunction U p ρ V)
     (hstrict : ∀ w, IsComplexTangent ρ p w → w ≠ 0 → 0 < leviForm ρ p w) :
     ∃ W ∈ 𝓝 p, ∃ F : E → ℂ, AnalyticOnNhd ℂ F univ ∧ F p = 0 ∧ ∀ z ∈ W ∩ U, (F z).re < 0 := by
-  obtain ⟨W, hW, F, hFan, hF0, hneg⟩ := h.exists_peak hstrict
+  obtain ⟨W, hW, F, hFan, hF0, hneg⟩ := h.exists_holomorphic_support hstrict
   refine ⟨W ∩ V, inter_mem hW (h.isOpen.mem_nhds h.mem), F, hFan, hF0, ?_⟩
   rintro z ⟨⟨hzW, hzV⟩, hzU⟩
-  have hzp : z ≠ p := fun hzp => notMem_of_mem_frontier hU hp (hzp ▸ hzU)
+  have hzp : z ≠ p := fun hzp => hU.notMem_of_mem_frontier hp (hzp ▸ hzU)
   exact hneg z hzW hzp (h.neg_of_mem hzV hzU).le
 
-/-- **Local peak function.** At a strictly Levi convex boundary point of an open set there is a
+/-- **Local holomorphic blow-up.** At a strictly Levi convex boundary point of an open set there is
+a
 holomorphic function on the set near the point whose modulus tends to infinity at the point. -/
 theorem IsLocalDefiningFunction.exists_tendsto_norm_atTop (hU : IsOpen U) (hp : p ∈ frontier U)
     (h : IsLocalDefiningFunction U p ρ V)
     (hstrict : ∀ w, IsComplexTangent ρ p w → w ≠ 0 → 0 < leviForm ρ p w) :
     ∃ W ∈ 𝓝 p, ∃ f : E → ℂ, AnalyticOnNhd ℂ f (W ∩ U) ∧
       Tendsto (fun z => ‖f z‖) (𝓝[U] p) atTop := by
-  obtain ⟨W, hW, F, hFan, hF0, hneg⟩ := h.exists_peak_of_mem hU hp hstrict
+  obtain ⟨W, hW, F, hFan, hF0, hneg⟩ := h.exists_holomorphic_support_of_mem hU hp hstrict
   have hFne : ∀ z ∈ W ∩ U, F z ≠ 0 := fun z hz hzero => by
     have := hneg z hz
     rw [hzero, Complex.zero_re] at this

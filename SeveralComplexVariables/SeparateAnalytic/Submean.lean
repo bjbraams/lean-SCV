@@ -11,18 +11,18 @@ public import Mathlib.Analysis.Normed.Module.HahnBanach
 /-!
 # Submean estimates for positive powers of holomorphic norms
 
-Jensen's formula and the tangent-line inequality for the exponential give the
-submean inequality for every positive real power of a holomorphic norm. In
-particular, the exponent may be less than one, as needed for the roots of Taylor
-coefficients in the proof of Hartogs' separate-analyticity theorem.
+Jensen's formula and the tangent-line inequality for the exponential give the submean inequality
+for every positive real power of a holomorphic norm. In particular, the exponent may be less
+than one, as needed for the roots of Taylor coefficients in the proof of Hartogs'
+separate-analyticity theorem.
 
 Hahn–Banach transfers the scalar estimate to arbitrary complex normed targets.
 
 ## Main results
 
-`norm_rpow_le_circleAverage` is the circle submean inequality for every positive
-real power of a holomorphic norm. `log_norm_le_circleAverage` is Jensen's formula
-for a nonvanishing holomorphic function.
+`norm_rpow_le_circleAverage` is the circle submean inequality for every positive real power of a
+holomorphic norm. `log_norm_le_circleAverage` is Jensen's formula for a nonvanishing holomorphic
+function.
 -/
 
 public section
@@ -43,8 +43,8 @@ theorem circleAverage_le_of_eventually_le {u v : ℂ → ℝ} {c : ℂ} {R : ℝ
   apply ae_restrict_le_codiscreteWithin measurableSet_Icc
   exact codiscreteWithin_mono (by simp) (circleMap_preimage_codiscrete hR h)
 
-/-- For an analytic scalar function nonzero at the center, Jensen's zero terms
-are nonnegative, so the mean of its logarithmic norm bounds the center value. -/
+/-- For an analytic scalar function nonzero at the center, Jensen's zero terms are nonnegative, so
+the mean of its logarithmic norm bounds the center value. -/
 theorem log_norm_le_circleAverage {f : ℂ → ℂ} {c : ℂ} {R : ℝ}
     (hR : 0 < R) (hf : AnalyticOnNhd ℂ f (closedBall c R)) (hc : f c ≠ 0) :
     Real.log ‖f c‖ ≤ Real.circleAverage (fun z => Real.log ‖f z‖) c R := by
@@ -67,8 +67,8 @@ theorem log_norm_le_circleAverage {f : ℂ → ℂ} {c : ℂ} {R : ℝ}
   rw [← div_eq_mul_inv, one_le_div (norm_pos_iff.mpr (sub_ne_zero.mpr hzc))]
   simpa [mem_closedBall, dist_eq_norm, norm_sub_rev, abs_of_pos hR] using hzmem
 
-/-- A positive power lies above the affine tangent expressed in logarithmic
-coordinates. This form can be integrated even when the exponent is below one. -/
+/-- A positive power lies above the affine tangent expressed in logarithmic coordinates. This form
+can be integrated even when the exponent is below one. -/
 private theorem rpow_log_tangent_le {a b : ℝ} (ha : 0 < a) (hb : 0 < b) (p : ℝ) :
     a ^ p * (1 + p * (Real.log b - Real.log a)) ≤ b ^ p := by
   rw [Real.rpow_def_of_pos ha, Real.rpow_def_of_pos hb]
@@ -80,8 +80,8 @@ private theorem rpow_log_tangent_le {a b : ℝ} (ha : 0 < a) (hb : 0 < b) (p : �
         (Real.exp_pos _).le
     _ = Real.exp (Real.log b * p) := by rw [← Real.exp_add]; congr 1; ring
 
-/-- Every positive real power of the norm of a scalar holomorphic function
-satisfies the circle submean inequality, including powers less than one. -/
+/-- Every positive real power of the norm of a scalar holomorphic function satisfies the circle
+submean inequality, including powers less than one. -/
 theorem norm_rpow_le_circleAverage_scalar {f : ℂ → ℂ} {c : ℂ} {R p : ℝ}
     (hR : 0 < R) (hp : 0 < p) (hf : AnalyticOnNhd ℂ f (closedBall c R)) :
     ‖f c‖ ^ p ≤ Real.circleAverage (fun z => ‖f z‖ ^ p) c R := by
@@ -129,8 +129,8 @@ theorem norm_rpow_le_circleAverage_scalar {f : ℂ → ℂ} {c : ℂ} {R p : ℝ
     _ ≤ _ := mul_le_mul_of_nonneg_left
       (by nlinarith) (Real.rpow_nonneg (norm_nonneg _) _)
 
-/-- The submean inequality for positive powers of a holomorphic norm also holds
-for complex normed targets, by applying a norming linear functional at the center. -/
+/-- The submean inequality for positive powers of a holomorphic norm also holds for complex normed
+targets, by applying a norming linear functional at the center. -/
 theorem norm_rpow_le_circleAverage {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
     {f : ℂ → F} {c : ℂ} {R p : ℝ} (hR : 0 < R) (hp : 0 < p)
     (hf : AnalyticOnNhd ℂ f (closedBall c R)) :

@@ -5,30 +5,44 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Calculus.ImplicitContDiff
 public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.Derivatives
-public import Mathlib.Analysis.Calculus.ImplicitContDiff
+public import SeveralComplexVariables.Topology.Graph
 
 /-!
 # Holomorphic implicit mappings
 
 For `f : P × Q → R`, invertibility of the derivative in the `Q` variable gives a local
-holomorphic solution `y = g x` of the level equation `f (x, y) = f (a, b)`. The conclusion
-uses open product neighborhoods inside the original domain, includes uniqueness of every
-solution there, and identifies the derivative of `g`.
+holomorphic solution `y = g x` of the level equation `f (x, y) = f (a, b)`. The conclusion uses
+open product neighborhoods inside the original domain, includes uniqueness of every solution
+there, and identifies the derivative of `g`.
 
-The analytic theorem works in complex Banach spaces. The holomorphic version uses the
-project's finite-dimensional holomorphic–analytic equivalence. No connectedness assumptions
-or positive dimension restrictions are imposed; zero-dimensional parameter spaces include
-isolated solutions. We reuse Mathlib's implicit function theorem at regularity `ω`.
+The analytic theorem works in complex Banach spaces. The holomorphic version uses the project's
+finite-dimensional holomorphic–analytic equivalence. No connectedness assumptions or positive
+dimension restrictions are imposed; zero-dimensional parameter spaces include isolated
+solutions. We reuse Mathlib's implicit function theorem at regularity `ω`.
 
-Reference: Range (1986), I §2.3, Theorem 2.4.
+Reference: [Range][Range1986] (1986), I §2.3, Theorem 2.4.
+
+## Main results
+
+* `exists_analytic_implicit_mapping`: **Analytic implicit mapping theorem.** Near a point where the
+  partial derivative in the second variable is invertible, the level set is precisely an analytic
+  graph.
+* `exists_holomorphic_implicit_mapping`: **Holomorphic implicit mapping theorem.** The level set of
+  a holomorphic map with invertible partial derivative is locally a unique holomorphic graph.
+
+## References
+
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
 public noncomputable section
 
 open Set Filter
-open scoped Classical Topology ContDiff
+open scoped Topology ContDiff
 
 namespace SeveralComplexVariables
 
@@ -96,10 +110,11 @@ theorem exists_holomorphic_implicit_mapping {D : Set (P × Q)} (hD : IsOpen D)
   let := FiniteDimensional.complete ℂ P
   let := FiniteDimensional.complete ℂ Q
   obtain ⟨U, V, g, hU, ha, hV, hb, hsub, hg, hm, hga, hd, heq⟩ :=
-    exists_analytic_implicit_mapping hD hab (hf.analyticOnNhd_finiteDimensional hD _ hab) hi
+    exists_analytic_implicit_mapping hD hab (hf.analyticOnNhd_of_finiteDimensional hD _ hab) hi
   exact ⟨U, V, g, hU, ha, hV, hb, hsub, hg.differentiableOn, hm, hga, hd, heq⟩
 
-/-- Range's zero-set formulation: near a regular zero the zero set is a holomorphic graph. -/
+/-- [Range][Range1986]'s zero-set formulation: near a regular zero the zero set is a holomorphic
+graph. -/
 theorem exists_holomorphic_implicit_zero {D : Set (P × Q)} (hD : IsOpen D)
     {f : P × Q → R} (hf : DifferentiableOn ℂ f D) {a : P} {b : Q}
     (hab : (a, b) ∈ D) (hzero : f (a, b) = 0)
@@ -114,10 +129,10 @@ theorem exists_holomorphic_implicit_zero {D : Set (P × Q)} (hD : IsOpen D)
 
 end Holomorphic
 
-/-- The determinant-of-a-minor formulation of the implicit mapping theorem. The chosen
-coordinates are the second factor; their Jacobian is the Jacobian of the corresponding slice. -/
+/-- The determinant-of-a-minor formulation of the implicit mapping theorem. The chosen coordinates
+are the second factor; their Jacobian is the Jacobian of the corresponding slice. -/
 theorem exists_holomorphic_implicit_zero_of_det [FiniteDimensional ℂ P]
-    {ι : Type*} [Fintype ι] {D : Set (P × (ι → ℂ))} (hD : IsOpen D)
+    {ι : Type*} [Fintype ι] [DecidableEq ι] {D : Set (P × (ι → ℂ))} (hD : IsOpen D)
     {f : P × (ι → ℂ) → (ι → ℂ)} (hf : DifferentiableOn ℂ f D)
     {a : P} {b : ι → ℂ} (hab : (a, b) ∈ D) (hzero : f (a, b) = 0)
     (hdet : (complexJacobian (fun y => f (a, y)) b).det ≠ 0) :
@@ -131,13 +146,5 @@ theorem exists_holomorphic_implicit_zero_of_det [FiniteDimensional ℂ P]
   have hi := (det_complexJacobian_ne_zero_iff hs.differentiableAt).mp hdet
   rwa [hs.fderiv] at hi
 
-omit [NormedAddCommGroup P] [NormedSpace ℂ P] [NormedAddCommGroup Q] [NormedSpace ℂ Q]
-  [NormedAddCommGroup R] [NormedSpace ℂ R] in
-/-- A graph characterization gives uniqueness among all solution maps staying in the
-specified fiber neighborhood; no regularity assumption on the competing solution is needed. -/
-theorem eqOn_of_implicit_graph {U : Set P} {V : Set Q} {f : P × Q → R} {c : R}
-    {g h : P → Q} (hgraph : ∀ x ∈ U, ∀ y ∈ V, f (x, y) = c ↔ y = g x)
-    (hh : MapsTo h U V) (hsol : ∀ x ∈ U, f (x, h x) = c) : EqOn h g U :=
-  fun x hx => (hgraph x hx (h x) (hh hx)).mp (hsol x hx)
 
 end SeveralComplexVariables

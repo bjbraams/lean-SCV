@@ -10,14 +10,26 @@ public import SeveralComplexVariables.AnalyticGerm.Elimination
 /-!
 # Persistence of relative primality
 
-Relative primality is an open condition on the base point for two fixed analytic
-representatives in finite dimension. We use `IsRelPrime`, not the stronger Bezout
-condition `IsCoprime`. A germ at one point is not evaluated at other points; instead,
-the statement explicitly takes the germs of the same representatives nearby.
-Weierstrass preparation and a resultant identity eliminate one variable. The resulting
-nonzero parameter germ is relatively prime to the first germ on every nearby scalar
-fiber, which excludes a common nonunit divisor. Analytic coordinate changes reduce
-the general case to this argument; openness is its direct consequence.
+Relative primality is an open condition on the base point for two fixed analytic representatives
+in finite dimension. We use `IsRelPrime`, not the stronger Bezout condition `IsCoprime`. A germ
+at one point is not evaluated at other points; instead, the statement explicitly takes the germs
+of the same representatives nearby. Weierstrass preparation and a resultant identity eliminate
+one variable. The resulting nonzero parameter germ is relatively prime to the first germ on
+every nearby scalar fiber, which excludes a common nonunit divisor. Analytic coordinate changes
+reduce the general case to this argument; openness is its direct consequence.
+
+## Main results
+
+* `eventually_isRelPrime_of_orderInLastVariable`: Relative primality persists when the first germ
+  has finite order on the central fiber.
+* `eventually_isRelPrime_of_comp_homeomorph`: Persistence of relative primality transports through
+  analytic changes of coordinates.
+* `eventually_isRelPrime_ofAnalyticAt_prod`: Relative primality persists on a parameter space times
+  the scalar line.
+* `eventually_isRelPrime_ofAnalyticAt`: Relatively prime germs of two analytic representatives
+  remain relatively prime nearby.
+* `isOpen_isRelPrime_locus`: The locus where two functions are analytic and their germs are
+  relatively prime is open.
 -/
 
 public section
@@ -127,8 +139,8 @@ theorem eventually_isRelPrime_ofAnalyticAt_prod {f g : E × ℂ → ℂ}
   simpa only [ContinuousLinearEquiv.coe_toHomeomorph, map_zero] using
     eventually_isRelPrime_of_comp_homeomorph L.toHomeomorph L.analyticAt L.symm.analyticAt hp
 
-/-- Relatively prime germs of two analytic representatives remain relatively prime nearby.
-Neither germ is required to be nonzero: the relatively prime zero case forces a unit. -/
+/-- Relatively prime germs of two analytic representatives remain relatively prime nearby. Neither
+germ is required to be nonzero: the relatively prime zero case forces a unit. -/
 theorem eventually_isRelPrime_ofAnalyticAt {f g : E → ℂ} {x : E}
     (hf : AnalyticAt ℂ f x) (hg : AnalyticAt ℂ g x)
     (h : IsRelPrime (ofAnalyticAt f hf) (ofAnalyticAt g hg)) :

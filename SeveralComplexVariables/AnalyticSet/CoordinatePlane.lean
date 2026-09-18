@@ -11,13 +11,24 @@ public import SeveralComplexVariables.HartogsContinuation
 /-!
 # Removal across a coordinate subspace of codimension two
 
-The model subspace has two final coordinates equal to zero and arbitrary remaining
-parameters. Hartogs continuation on cylinders proves removal on any open domain,
-with Banach-valued targets, independently of the general analytic-set theorem.
-The parameter space may have dimension zero, recovering isolated-point removal in `ℂ²`.
+The model subspace has two final coordinates equal to zero and arbitrary remaining parameters.
+Hartogs continuation on cylinders proves removal on any open domain, with Banach-valued targets,
+independently of the general analytic-set theorem. The parameter space may have dimension zero,
+recovering isolated-point removal in `ℂ²`.
+
+## Main definitions
+
+* `complexCoordinatePlane`: The coordinate subspace obtained by setting the last two complex
+  coordinates to zero.
+
+## Main results
+
+* `exists_extension_across_coordinatePlane`: **Coordinate-subspace removal.** The proof uses the
+  already proved Hartogs cylinder theorem and gluing, with no dependence on general codimension-two
+  removal or local algebra.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
@@ -27,7 +38,7 @@ namespace SeveralComplexVariables
 variable {P : Type*} [NormedAddCommGroup P] [NormedSpace ℂ P]
 
 /-- The coordinate subspace obtained by setting the last two complex coordinates to zero. -/
-def complexCoordinatePlane : Set ((P × ℂ) × ℂ) := {z | z.1.2 = 0 ∧ z.2 = 0}
+@[expose] def complexCoordinatePlane : Set ((P × ℂ) × ℂ) := {z | z.1.2 = 0 ∧ z.2 = 0}
 
 /-- The model coordinate subspace is analytic on every open domain. -/
 theorem isAnalyticSet_coordinatePlane {U : Set ((P × ℂ) × ℂ)} (hU : IsOpen U) :

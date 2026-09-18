@@ -12,19 +12,18 @@ public import Mathlib.Topology.Algebra.InfiniteSum.NatInt
 /-!
 # Cauchy's formula on an annulus
 
-Subtracting the value at the evaluation point removes the singularity of the
-Cauchy kernel. Cauchy–Goursat on an annulus then gives the difference of the
-outer and inner Cauchy integrals.
+Subtracting the value at the evaluation point removes the singularity of the Cauchy kernel.
+Cauchy–Goursat on an annulus then gives the difference of the outer and inner Cauchy integrals.
 
 ## Main results
 
 `circleIntegral_sub_inv_smul_sub_of_analyticOnNhd_annulus` is the annulus formula.
-`circleIntegral_sub_inv_eq_zero_of_lt_norm` vanishes the inner integral when the
-evaluation point lies outside the inner circle. `hasSum_circleIntegral_geometric`
-expands the outer kernel as a geometric series.
+`circleIntegral_sub_inv_eq_zero_of_lt_norm` vanishes the inner integral when the evaluation
+point lies outside the inner circle. `hasSum_circleIntegral_geometric` expands the outer kernel
+as a geometric series.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set Metric Filter
 open scoped Topology

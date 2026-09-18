@@ -5,16 +5,34 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Reinhardt
 public import Mathlib.Analysis.LocallyConvex.BalancedCoreHull
+public import SeveralComplexVariables.Reinhardt
 
 /-!
 # Circular sets and balanced geometry
 
-Circular symmetry rotates all coordinates by the same scalar. This is weaker than
-Reinhardt symmetry. Openness, connectedness and nonemptiness remain separate properties.
-Balanced sets and their hulls use Mathlib's `Balanced` and `balancedHull`.
-Reference: Scheidemann (2005), Section 2.1 and Corollary 3.3.3.
+Circular symmetry rotates all coordinates by the same scalar. This is weaker than Reinhardt
+symmetry. Openness, connectedness and nonemptiness remain separate properties. Balanced sets and
+their hulls use Mathlib's `Balanced` and `balancedHull`. Reference:
+[Scheidemann][Scheidemann2005] (2005), Section 2.1 and Corollary 3.3.3.
+
+## Main definitions
+
+* `IsCircular`: Invariance under one common complex rotation, about the origin.
+
+## Main results
+
+* `isCircular_of_balanced`: Balanced sets are circular, including the empty set.
+* `isCircular_balancedHull`: Mathlib's balanced hull is circular.
+* `isPathConnected_balancedHull`: A nonempty balanced hull is path connected, independently of the
+  original set's connectedness.
+* `IsReinhardt.isCircular`: Independent coordinate rotations include common rotations.
+* `IsCompleteReinhardt.balanced`: Complete Reinhardt sets are balanced for complex scalar
+  multiplication.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public section
@@ -27,7 +45,7 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F] {U V : Set E}
 
 /-- Invariance under one common complex rotation, about the origin. -/
-def IsCircular (U : Set E) : Prop :=
+@[expose] def IsCircular (U : Set E) : Prop :=
   ∀ ⦃z⦄, z ∈ U → ∀ ⦃c : ℂ⦄, ‖c‖ = 1 → c • z ∈ U
 
 /-- Multiplication by a complex scalar of norm one preserves a circular set. -/
@@ -56,8 +74,8 @@ theorem isCircular_of_balanced (hU : Balanced ℂ U) : IsCircular U :=
 theorem isCircular_balancedHull (U : Set E) : IsCircular (balancedHull ℂ U) :=
   isCircular_of_balanced (balancedHull.balanced U)
 
-/-- A nonempty balanced hull is path connected, independently of the original set's
-connectedness. This follows by contraction along the real radial segments. -/
+/-- A nonempty balanced hull is path connected, independently of the original set's connectedness.
+This follows by contraction along the real radial segments. -/
 theorem isPathConnected_balancedHull (hne : U.Nonempty) : IsPathConnected (balancedHull ℂ U) := by
   let : NormedSpace ℝ E := NormedSpace.restrictScalars ℝ ℂ E
   have hB := balancedHull.balanced (𝕜 := ℂ) U

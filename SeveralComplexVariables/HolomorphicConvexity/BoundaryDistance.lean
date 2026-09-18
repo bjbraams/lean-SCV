@@ -5,28 +5,28 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.HolomorphicConvexity.Hull
 public import Mathlib.Topology.MetricSpace.Thickening
+public import SeveralComplexVariables.HolomorphicConvexity.Hull
 
 /-!
 # Boundary distance and compactness of holomorphic hulls
 
-Distance is taken to the complement and valued in `ℝ≥0∞`. The empty set and the whole
-ambient domain therefore have infinite boundary distance. On finite complex coordinate
-spaces the norm is the supremum norm, so the balls here are equal-radius polydiscs.
+Distance is taken to the complement and valued in `ℝ≥0∞`. In particular, `boundaryEDistance U ∅
+= ∞` and `boundaryEDistance univ K = ∞`. On finite complex coordinate spaces the norm is the
+supremum norm, so the balls here are equal-radius polydiscs.
 
-The radius formulation of hull-distance preservation implies holomorphic convexity by
-relative closedness, boundedness, and positive distance from the complement. These purely
-topological implications do not depend on Cartan–Thullen or Taylor continuation.
+The radius formulation of hull-distance preservation implies holomorphic convexity by relative
+closedness, boundedness, and positive distance from the complement. These purely topological
+implications do not depend on Cartan–Thullen or Taylor continuation.
 
 ## Main results
 
 `HasHolomorphicHullRadiusProperty` is uniform polydisc-radius preservation on hulls.
-`HasHolomorphicHullDistanceProperty` is exact preservation of extended boundary
-distance. Each implies the other, and each implies `IsHolomorphicallyConvex`.
+`HasHolomorphicHullDistanceProperty` is exact preservation of extended boundary distance. Each
+implies the other, and each implies `IsHolomorphicallyConvex`.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Metric
 open scoped ENNReal
@@ -34,7 +34,8 @@ open scoped ENNReal
 namespace SeveralComplexVariables
 
 /-- The extended distance of a set to the complement of an ambient set. -/
-noncomputable def boundaryEDistance {X : Type*} [PseudoMetricSpace X] (U K : Set X) : ℝ≥0∞ :=
+@[expose] noncomputable def boundaryEDistance {X : Type*} [PseudoMetricSpace X] (U K : Set X)
+    : ℝ≥0∞ :=
   ⨅ x ∈ K, infEDist x Uᶜ
 
 /-- Empty compact sets have infinite boundary distance. -/
@@ -50,8 +51,8 @@ theorem boundaryEDistance_anti {X : Type*} [PseudoMetricSpace X] {U K L : Set X}
     (hKL : K ⊆ L) : boundaryEDistance U L ≤ boundaryEDistance U K := by
   exact le_iInf fun x => le_iInf fun hx => iInf₂_le x (hKL hx)
 
-/-- A lower bound for boundary distance means that all corresponding open balls stay
-inside the ambient set. This formulation includes nonpositive radii and empty sets. -/
+/-- A lower bound for boundary distance means that all corresponding open balls stay inside the
+ambient set. This formulation includes nonpositive radii and empty sets. -/
 theorem ofReal_le_boundaryEDistance_iff {X : Type*} [PseudoMetricSpace X]
     {U K : Set X} {r : ℝ} :
     ENNReal.ofReal r ≤ boundaryEDistance U K ↔ ∀ x ∈ K, ball x r ⊆ U := by
@@ -70,14 +71,14 @@ theorem ofReal_le_boundaryEDistance_iff {X : Type*} [PseudoMetricSpace X]
 
 variable {ι : Type*} [Fintype ι]
 
-/-- Uniform polydisc radii available on a compact set remain available on its holomorphic
-hull. Openness is separate from this property. -/
-def HasHolomorphicHullRadiusProperty (U : Set (ι → ℂ)) : Prop :=
+/-- Uniform polydisc radii available on a compact set remain available on its holomorphic hull.
+Openness is separate from this property. -/
+@[expose] def HasHolomorphicHullRadiusProperty (U : Set (ι → ℂ)) : Prop :=
   ∀ K, IsCompact K → K ⊆ U → ∀ r : ℝ, 0 < r →
     (∀ x ∈ K, ball x r ⊆ U) → ∀ a ∈ holomorphicHull U K, ball a r ⊆ U
 
 /-- Preservation of the extended boundary distance under taking holomorphic hulls. -/
-def HasHolomorphicHullDistanceProperty (U : Set (ι → ℂ)) : Prop :=
+@[expose] def HasHolomorphicHullDistanceProperty (U : Set (ι → ℂ)) : Prop :=
   ∀ K, IsCompact K → K ⊆ U →
     boundaryEDistance U (holomorphicHull U K) = boundaryEDistance U K
 

@@ -5,29 +5,28 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Analytic.Uniqueness
+public import Mathlib.Analysis.Calculus.FDeriv.Analytic
 public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.ZeroSets.Persistence
-public import Mathlib.Analysis.Calculus.FDeriv.Analytic
-public import Mathlib.Analysis.Analytic.Uniqueness
 
 /-!
 # Local structure of scalar zero sets
 
-Nontrivial analytic germs have a nonzero derivative of finite order. Minimizing
-this order along a zero set supplies an analytic function with nonzero derivative
-that vanishes on that set. Persistence of zeros supplies the converse inclusion
-after straightening this auxiliary function.
+Nontrivial analytic germs have a nonzero derivative of finite order. Minimizing this order along
+a zero set supplies an analytic function with nonzero derivative that vanishes on that set.
+Persistence of zeros supplies the converse inclusion after straightening this auxiliary
+function.
 
 ## Main results
 
-`AnalyticAt.eventuallyEq_zero_of_iteratedFDeriv_eq_zero` is vanishing of a germ whose
-iterated derivatives all vanish. `exists_analytic_zeroSet_superset_fderiv_ne_zero`
-produces an analytic function with nonzero derivative vanishing on a given zero set.
-`eventually_zeroSet_eq_linear_zeroSet` is the local graph description after
-straightening.
+`AnalyticAt.eventuallyEq_zero_of_iteratedFDeriv_eq_zero` is vanishing of a germ whose iterated
+derivatives all vanish. `exists_analytic_zeroSet_superset_fderiv_ne_zero` produces an analytic
+function with nonzero derivative vanishing on a given zero set.
+`eventually_zeroSet_eq_linear_zeroSet` is the local graph description after straightening.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
@@ -46,9 +45,9 @@ theorem _root_.AnalyticAt.eventuallyEq_zero_of_iteratedFDeriv_eq_zero {f : E →
     simpa only [mem_eball, edist_zero_right, edist_eq_enorm_sub, sub_zero] using hy)
   simpa [hzero] using hs.tsum_eq.symm
 
-/-- A nonempty proper scalar zero set is contained in the zero set of an analytic
-function whose derivative is nonzero at some point of the original zero set.
-Choose a derivative of minimal order that does not vanish everywhere on the set. -/
+/-- A nonempty proper scalar zero set is contained in the zero set of an analytic function whose
+derivative is nonzero at some point of the original zero set. Choose a derivative of minimal
+order that does not vanish everywhere on the set. -/
 theorem exists_analytic_zeroSet_superset_fderiv_ne_zero [FiniteDimensional ℂ E]
     {U : Set E} (hU : IsOpen U) (hc : IsPreconnected U) {f : E → ℂ}
     (hf : AnalyticOnNhd ℂ f U) (hne : ∃ b ∈ U, f b ≠ 0) (hz : ∃ a ∈ U, f a = 0) :
@@ -79,7 +78,7 @@ theorem exists_analytic_zeroSet_superset_fderiv_ne_zero [FiniteDimensional ℂ E
     let g : E → ℂ := fun z => iteratedFDeriv ℂ n f z (Fin.tail v)
     have hg : AnalyticOnNhd ℂ g U :=
       ((hf.iteratedFDeriv n).differentiableOn.continuousMultilinear_apply_const
-        (Fin.tail v)).analyticOnNhd_finiteDimensional hU
+        (Fin.tail v)).analyticOnNhd_of_finiteDimensional hU
     refine ⟨a, g, ha, hfa, hg, ?_, ?_⟩
     · intro z hz hfz
       simp [g, hmin n (Nat.lt_succ_self n) z hz hfz]
@@ -89,8 +88,8 @@ theorem exists_analytic_zeroSet_superset_fderiv_ne_zero [FiniteDimensional ℂ E
       change fderiv ℂ g a (v 0) = 0
       simp [hd]
 
-/-- If the zeros of an analytic function lie in a hyperplane and include a point
-of that hyperplane, then the two zero sets agree near that point. -/
+/-- If the zeros of an analytic function lie in a hyperplane and include a point of that hyperplane,
+then the two zero sets agree near that point. -/
 theorem eventually_zeroSet_eq_linear_zeroSet {V : Set E} (hV : IsOpen V)
     {f : E → ℂ} (hf : AnalyticOnNhd ℂ f V) {L : E →L[ℂ] ℂ}
     (hL : Function.Surjective L) {a : E} (ha : a ∈ V) (hfa : f a = 0) (hLa : L a = 0)

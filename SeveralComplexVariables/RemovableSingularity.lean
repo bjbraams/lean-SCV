@@ -6,9 +6,9 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.Analyticity
-public import SeveralComplexVariables.ZeroSets.Basic
-public import SeveralComplexVariables.RemovableSingularity.Local
 public import SeveralComplexVariables.RemovableSingularity.Gluing
+public import SeveralComplexVariables.RemovableSingularity.Local
+public import SeveralComplexVariables.ZeroSets.Basic
 
 /-!
 # Removable singularities and Riemann extension
@@ -17,20 +17,27 @@ A continuous function analytic away from a countable set is analytic everywhere 
 domain. The proof applies the one-variable Cauchy theorem off countable sets to coordinate
 slices, then uses Osgood. The exceptional set need not be closed or discrete.
 
-This supplies a proved continuous-removal step toward the classical Riemann extension theory
-in Scheidemann (2005), Section 4.2, and Jakóbczak--Jarnicki (2021), Section 2.1.
-The codomain is a complex Banach space.
+This supplies a proved continuous-removal step toward the classical Riemann extension theory in
+[Scheidemann][Scheidemann2005] (2005), Section 4.2, and [Jakóbczak–Jarnicki][JakobczakJarnicki2021]
+(2021), Section 2.1. The codomain is a complex Banach space.
 
-Locally bounded removal across a proper holomorphic zero set is proved by a local
-Cauchy construction and gluing. It includes singular zero sets and does not require
-Weierstrass preparation, division, or any algebraic regularity of the zero set.
+Locally bounded removal across a proper holomorphic zero set is proved by a local Cauchy
+construction and gluing. It includes singular zero sets and does not require Weierstrass
+preparation, division, or any algebraic regularity of the zero set.
 
 ## Main results
 
-`analyticOnNhd_of_continuousOn_off_countable` (and `_pi`, `_finiteDimensional`)
-remove a countable exceptional set from a continuous function. `exists_analyticOnNhd_extension_across_zeroSet`
-is Riemann extension across a proper holomorphic zero set, for locally bounded
-Banach-valued maps.
+`analyticOnNhd_of_continuousOn_off_countable` (and `_pi`, `_finiteDimensional`) remove a countable
+exceptional set from a continuous function. `exists_analyticOnNhd_extension_across_zeroSet` is
+Riemann extension across a proper holomorphic zero set, for locally bounded Banach-valued maps.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
+* [J. Lebl, *Tasty Bits of Several Complex Variables: A Whirlwind Tour of the Subject*][Lebl2026]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
+* [T. Suwa, *Complex Analytic Geometry: From the Localization Viewpoint*][Suwa2024]
 -/
 
 public section
@@ -42,8 +49,8 @@ namespace SeveralComplexVariables
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- A continuous one-variable function analytic off a countable set is analytic on the
-whole open domain, by Mathlib's Cauchy power-series theorem off countable sets. -/
+/-- A continuous one-variable function analytic off a countable set is analytic on the whole open
+domain, by Mathlib's Cauchy power-series theorem off countable sets. -/
 theorem analyticOnNhd_of_continuousOn_off_countable {U S : Set ℂ} {f : ℂ → F}
     (hU : IsOpen U) (hS : S.Countable) (hc : ContinuousOn f U)
     (hf : AnalyticOnNhd ℂ f (U \ S)) : AnalyticOnNhd ℂ f U := by
@@ -54,8 +61,8 @@ theorem analyticOnNhd_of_continuousOn_off_countable {U S : Set ℂ} {f : ℂ →
     (fun z hz => (hf z ⟨hball (ball_subset_closedBall hz.1), hz.2⟩).differentiableAt)
     hr).analyticAt
 
-/-- Continuous removal of a countable exceptional set in any finite complex coordinate
-space. Empty coordinate types are allowed; no closedness of the exceptional set is required. -/
+/-- Continuous removal of a countable exceptional set in any finite complex coordinate space. Empty
+coordinate types are allowed; no closedness of the exceptional set is required. -/
 theorem analyticOnNhd_of_continuousOn_off_countable_pi
     {ι : Type*} [Fintype ι] {U S : Set (ι → ℂ)} {f : (ι → ℂ) → F}
     (hU : IsOpen U) (hS : S.Countable) (hc : ContinuousOn f U)
@@ -78,7 +85,7 @@ theorem analyticOnNhd_of_continuousOn_off_countable_pi
 
 /-- Continuous removal across a countable set in a finite-dimensional complex normed space.
 Coordinates occur only in the proof. -/
-theorem analyticOnNhd_of_continuousOn_off_countable_finiteDimensional
+theorem analyticOnNhd_of_continuousOn_off_countable_of_finiteDimensional
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     {U S : Set E} {f : E → F} (hU : IsOpen U) (hS : S.Countable)
     (hc : ContinuousOn f U) (hf : AnalyticOnNhd ℂ f (U \ S)) :
@@ -95,8 +102,8 @@ theorem analyticOnNhd_of_continuousOn_off_countable_finiteDimensional
   simpa [Function.comp_def] using
     (ha (e x) (by simpa using hx)).comp (e.toContinuousLinearMap.analyticAt x)
 
-/-- Local Riemann extension at a point where the defining scalar germ is nonzero.
-A bound near this point suffices; no connectedness assumption is needed. -/
+/-- Local Riemann extension at a point where the defining scalar germ is nonzero. A bound near this
+point suffices; no connectedness assumption is needed. -/
 theorem exists_local_extension_across_zeroSet
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     {U : Set E} (hU : IsOpen U) {g : E → ℂ} (hg : AnalyticOnNhd ℂ g U)
@@ -113,8 +120,8 @@ theorem exists_local_extension_across_zeroSet
     (C := C) (by intro z hz; exact hC z ⟨hz.1.2, hz.1.1, hz.2⟩)
   exact ⟨V, H, hV, haV, fun z hz => (hVU hz).1, hH, he⟩
 
-/-- Riemann extension on an arbitrary open set: it is enough that the defining scalar
-function has a nonzero germ at every point. No connectedness assumption is needed. -/
+/-- Riemann extension on an arbitrary open set: it is enough that the defining scalar function has a
+nonzero germ at every point. No connectedness assumption is needed. -/
 theorem exists_analyticOnNhd_extension_across_zeroSet_of_nonzero_germs
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     {U : Set E} (hU : IsOpen U) {g : E → ℂ} (hg : AnalyticOnNhd ℂ g U)
@@ -134,8 +141,8 @@ theorem exists_analyticOnNhd_extension_across_zeroSet_of_nonzero_germs
     exact hg.continuousOn.isOpen_inter_preimage hU isClosed_singleton.isOpen_compl
 
 omit [NormedSpace ℂ F] [CompleteSpace F] in
-/-- Extensions across a scalar zero set are unique on the domain. The defining germs
-are assumed nonzero locally, so the domain may have several connected components. -/
+/-- Extensions across a scalar zero set are unique on the domain. The defining germs are assumed
+nonzero locally, so the domain may have several connected components. -/
 theorem eqOn_of_extension_across_zeroSet
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     {U : Set E} (hU : IsOpen U) {g : E → ℂ} (hne : ∀ a ∈ U, ¬ g =ᶠ[𝓝 a] 0)
@@ -147,12 +154,13 @@ theorem eqOn_of_extension_across_zeroSet
 
 /-- **Riemann extension across a holomorphic zero set.** A holomorphic function locally
 bounded near the zero set of a nonzero scalar holomorphic function extends across that set.
-See Suwa Theorem 1.13, Lebl Theorem 1.6.1, and Jakóbczak--Jarnicki Theorem 2.1.6.
+See [Suwa][Suwa2024] Theorem 1.13, [Lebl][Lebl2026] Theorem 1.6.1, and
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021] Theorem 2.1.6.
 The proof uses one-variable removability and parameter-dependent Cauchy integration.
 
 The local bound controls only values outside the removed set. The given function may have
-arbitrary values on that set. Extension uniqueness on `U` follows from the independently
-proved density and continuous-uniqueness theorems in `ZeroSets.Basic`. -/
+arbitrary values on that set. Extension uniqueness on `U` follows from the independently proved
+density and continuous-uniqueness theorems in `ZeroSets.Basic`. -/
 theorem exists_analyticOnNhd_extension_across_zeroSet
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     {U : Set E} (hU : IsOpen U) (hconn : IsPreconnected U)

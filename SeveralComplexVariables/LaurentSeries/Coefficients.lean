@@ -5,27 +5,27 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.LaurentSeries.ProductCoefficients
-public import SeveralComplexVariables.LaurentSeries.Neighborhoods
-public import SeveralComplexVariables.ZeroSets.Connected
-public import SeveralComplexVariables.Reinhardt.Hull
 public import Mathlib.Topology.LocallyConstant.Basic
+public import SeveralComplexVariables.LaurentSeries.Neighborhoods
+public import SeveralComplexVariables.LaurentSeries.ProductCoefficients
+public import SeveralComplexVariables.Reinhardt.Hull
+public import SeveralComplexVariables.ZeroSets.Connected
 
 /-!
 # Global Laurent coefficients on Reinhardt domains
 
-The space of admissible positive radii is connected. Local independence on circular
-product neighborhoods therefore gives global independence of the coefficient torus.
+The space of admissible positive radii is connected. Local independence on circular product
+neighborhoods therefore gives global independence of the coefficient torus.
 
 ## Main results
 
-`IsReinhardt.isConnected_positive_radii` is connectedness of the positive radius
-vectors in a connected open Reinhardt domain. `multivariableLaurentCoeff_eq_of_radii`
-is independence of the torus. `multivariableLaurentCoeff_neg_eq_zero` vanishes
-coefficients with a negative exponent in a coordinate that meets a hyperplane.
+`IsReinhardt.isConnected_positive_radii` is connectedness of the positive radius vectors in a
+connected open Reinhardt domain. `multivariableLaurentCoeff_eq_of_radii` is independence of the
+torus. `multivariableLaurentCoeff_neg_eq_zero` vanishes coefficients with a negative exponent in
+a coordinate that meets a hyperplane.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set Metric Filter
 open scoped Topology NNReal
@@ -61,8 +61,8 @@ theorem IsReinhardt.isConnected_positive_radii {n : ℕ} {U : Set (Fin n → ℂ
 
 variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- Laurent coefficients on a connected Reinhardt domain are independent of the torus.
-The proof uses local Cauchy–Goursat and connectedness, not Laurent expansion. -/
+/-- Laurent coefficients on a connected Reinhardt domain are independent of the torus. The proof
+uses local Cauchy–Goursat and connectedness, not Laurent expansion. -/
 theorem multivariableLaurentCoeff_eq_of_radii {U : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hc : IsPreconnected U) (hR : IsReinhardt U)
     {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U)
@@ -87,8 +87,8 @@ theorem multivariableLaurentCoeff_eq_of_radii {U : Set (Fin n → ℂ)}
       t.property.1 u.property.1 (fun i => htV i (mem_univ _)) (fun i => hu i (mem_univ _))
   exact hg.apply_eq_of_preconnectedSpace ⟨s, hs, hsU⟩ ⟨r, hr, hrU⟩
 
-/-- Meeting a coordinate hyperplane forces every negative coefficient in that coordinate
- to vanish. This follows from the circle Cauchy theorem on a local product neighborhood. -/
+/-- Meeting a coordinate hyperplane forces every negative coefficient in that coordinate to vanish.
+This follows from the circle Cauchy theorem on a local product neighborhood. -/
 theorem multivariableLaurentCoeff_neg_eq_zero {U : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hc : IsPreconnected U) (hR : IsReinhardt U)
     {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U)

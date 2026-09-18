@@ -5,30 +5,50 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Subharmonic.Majorant
-public import Mathlib.Analysis.InnerProductSpace.Laplacian
 public import Mathlib.Analysis.Calculus.FDeriv.Symmetric
+public import Mathlib.Analysis.InnerProductSpace.Laplacian
 public import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+public import SeveralComplexVariables.Analysis.TaylorBounds
+public import SeveralComplexVariables.Subharmonic.Majorant
 
 /-!
 # The Laplacian criterion for subharmonicity
 
 A `C²` function of one complex variable is subharmonic exactly when its Laplacian is
-nonnegative. The proof expands the circle average of a `C²` function to second order:
-the difference between the circle average of radius `r` and the center value is
-`r ^ 2 / 4` times the Laplacian, up to `o(r ^ 2)`. A positive Laplacian therefore gives the
-strict submean inequality on small circles and a negative one the reverse inequality.
-The nonstrict direction adds a small multiple of `‖z - t₀‖ ^ 2`, whose Laplacian is `4`,
-and uses the submean inequality on closed discs for continuous subharmonic functions.
+nonnegative. The proof expands the circle average of a `C²` function to second order: the
+difference between the circle average of radius `r` and the center value is `r ^ 2 / 4` times
+the Laplacian, up to `o(r ^ 2)`. A positive Laplacian therefore gives the strict submean
+inequality on small circles and a negative one the reverse inequality. The nonstrict direction
+adds a small multiple of `‖z - t₀‖ ^ 2`, whose Laplacian is `4`, and uses the submean inequality
+on closed discs for continuous subharmonic functions.
 
-The Laplacian is Mathlib's `InnerProductSpace` Laplacian on `ℂ`, written in terms of the
-second Fréchet derivative in the directions `1` and `I`.
+The Laplacian is Mathlib's `InnerProductSpace` Laplacian on `ℂ`, written in terms of the second
+Fréchet derivative in the directions `1` and `I`.
 
-References: Fritzsche–Grauert (2002), Chapter II, Theorem 2.8; Hörmander (1973),
-Theorem 1.6.? and Theorem 2.6.2.
+References: [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Theorem 2.8;
+[Hörmander][Hormander1973] (1973), Section 1.6 and Theorem 2.6.2.
+
+## Main results
+
+* `exists_taylor_bound`: **Uniform second-order Taylor bound.** For a `C²` function on a real normed
+  space, the second-order Taylor remainder at a point is bounded by `ε ‖h‖ ^ 2` for all small
+  increments `h`.
+* `exists_circleAverage_sub_le`: **Second-order expansion of circle averages.** For a `C²` function,
+  the circle average of radius `r` differs from the center value by `r ^ 2 / 4` times the Laplacian,
+  up to `ε r ^ 2` for all small `r`.
+* `HasSubmeanAt.laplacian_nonneg`: **Necessity.** A `C²` subharmonic function has nonnegative
+  Laplacian.
+* `subharmonicOn_of_laplacian_nonneg`: **Sufficiency.** A `C²` function with nonnegative Laplacian
+  on an open set is subharmonic.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
 -/
 
-@[expose] public section
+public section
 
 open Complex Filter MeasureTheory Metric Set Real
 open scoped Topology InnerProductSpace Laplacian
@@ -49,47 +69,6 @@ theorem circleMap_zero_eq_smul (r θ : ℝ) :
   simp only [circleMap, zero_add, Complex.exp_mul_I, Complex.real_smul]
   push_cast
   ring
-
-/-- Radius constraints used to absorb a cubic Taylor error into a quadratic budget `η t ^ 2`. -/
-theorem le_one_and_mul_add_le_of_le_min {η M₀ M₁ δ' r : ℝ} (_hη : 0 < η) (hM₀ : 0 ≤ M₀)
-    (hM₁ : 0 ≤ M₁) (_hδ' : 0 < δ') (hr : 0 < r)
-    (hr₀ : r ≤ min 1 (min (η / (2 * (M₁ + 1))) (δ' / (2 * (M₀ + 1))))) :
-    r ≤ 1 ∧ r * (M₁ + 1) ≤ η / 2 ∧ r * (M₀ + 1) < δ' := by
-  have hr1 : r ≤ 1 := hr₀.trans (min_le_left _ _)
-  have hrM₁ : r * (M₁ + 1) ≤ η / 2 := by
-    have := hr₀.trans ((min_le_right _ _).trans (min_le_left _ _))
-    rw [le_div_iff₀ (by positivity)] at this
-    linarith
-  have hrδ' : r * (M₀ + 1) < δ' := by
-    have := hr₀.trans ((min_le_right _ _).trans (min_le_right _ _))
-    rw [le_div_iff₀ (by positivity)] at this
-    have : 0 < r * (M₀ + 1) := by positivity
-    linarith
-  exact ⟨hr1, hrM₁, hrδ'⟩
-
-/-- Combine a second-order remainder of size `O(t ^ 2)` with a cubic error of size `O(t ^ 3)`
-into a single quadratic bound `η t ^ 2`. -/
-theorem taylor_remainder_add_cubic_le {η t M₀ M₁ rem cub : ℝ} (ht : 0 < t) (hη : 0 < η)
-    (_hM₀ : 0 ≤ M₀) (_hM₁ : 0 ≤ M₁) (htM₁ : t * (M₁ + 1) ≤ η / 2)
-    (hrem : |rem| ≤ η / (2 * (M₀ ^ 2 + 1)) * (t * M₀) ^ 2) (hcub : |cub| ≤ M₁ * t ^ 3) :
-    |rem + cub| ≤ η * t ^ 2 := by
-  have hR : |rem| ≤ η / 2 * t ^ 2 := by
-    refine hrem.trans ?_
-    rw [mul_pow, div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
-    have : M₀ ^ 2 ≤ M₀ ^ 2 + 1 := by linarith
-    calc η * (t ^ 2 * M₀ ^ 2) ≤ η * (t ^ 2 * (M₀ ^ 2 + 1)) := by gcongr
-      _ = η / 2 * t ^ 2 * (2 * (M₀ ^ 2 + 1)) := by ring
-  have hC : |cub| ≤ η / 2 * t ^ 2 := by
-    refine hcub.trans ?_
-    calc M₁ * t ^ 3 = t * M₁ * t ^ 2 := by ring
-      _ ≤ η / 2 * t ^ 2 := by
-          refine mul_le_mul_of_nonneg_right ?_ (by positivity)
-          have : t * M₁ ≤ t * (M₁ + 1) :=
-            mul_le_mul_of_nonneg_left (by linarith) ht.le
-          linarith
-  calc |rem + cub| ≤ |rem| + |cub| := abs_add_le _ _
-    _ ≤ η / 2 * t ^ 2 + η / 2 * t ^ 2 := add_le_add hR hC
-    _ = η * t ^ 2 := by ring
 
 /-- **Uniform second-order Taylor bound.** For a `C²` function on a real normed space, the
 second-order Taylor remainder at a point is bounded by `ε ‖h‖ ^ 2` for all small increments
@@ -188,8 +167,8 @@ theorem integral_clm_circleMap_zero (L : ℂ →L[ℝ] ℝ) (r : ℝ) :
   · exact (continuous_const.mul Real.continuous_cos).intervalIntegrable _ _
   · exact (continuous_const.mul Real.continuous_sin).intervalIntegrable _ _
 
-/-- The circle integral of a real bilinear form on the diagonal is `π r ^ 2` times its trace
-in the directions `1` and `I`. -/
+/-- The circle integral of a real bilinear form on the diagonal is `π r ^ 2` times its trace in the
+directions `1` and `I`. -/
 theorem integral_bilinear_circleMap (B : ℂ →L[ℝ] ℂ →L[ℝ] ℝ) (r : ℝ) :
     ∫ θ in (0 : ℝ)..2 * π, B (circleMap 0 r θ) (circleMap 0 r θ) =
       π * r ^ 2 * (B 1 1 + B I I) := by
@@ -206,7 +185,8 @@ theorem integral_bilinear_circleMap (B : ℂ →L[ℝ] ℂ →L[ℝ] ℝ) (r : �
     integral_sin_sq_two_pi]
   · ring
   · exact (continuous_const.mul (Real.continuous_cos.pow 2)).intervalIntegrable _ _
-  · exact (continuous_const.mul (Real.continuous_sin.mul Real.continuous_cos)).intervalIntegrable _ _
+  · exact (continuous_const.mul (Real.continuous_sin.mul Real.continuous_cos)).intervalIntegrable
+      _ _
   · exact ((continuous_const.mul (Real.continuous_cos.pow 2)).add
       (continuous_const.mul (Real.continuous_sin.mul Real.continuous_cos))).intervalIntegrable _ _
   · exact (continuous_const.mul (Real.continuous_sin.pow 2)).intervalIntegrable _ _
@@ -230,7 +210,8 @@ theorem exists_circleAverage_sub_le (hg : ContDiffAt ℝ 2 g t₀) {ε : ℝ} (h
     simp [circleMap, abs_of_pos hr]
   have hint : CircleIntegrable g t₀ r := by
     refine ContinuousOn.circleIntegrable hr.le (hgc.mono fun z hz => ?_)
-    exact sphere_subset_closedBall.trans (closedBall_subset_ball (hrδ.trans_le (min_le_right _ _))) hz
+    exact sphere_subset_closedBall.trans (closedBall_subset_ball (hrδ.trans_le (min_le_right _
+      _))) hz
   refine ⟨hint, ?_⟩
   -- the remainder as a function of the angle
   set R : ℝ → ℝ := fun θ => g (t₀ + circleMap 0 r θ) - g t₀ - D t₀ (circleMap 0 r θ) -
@@ -264,7 +245,8 @@ theorem exists_circleAverage_sub_le (hg : ContDiffAt ℝ 2 g t₀) {ε : ℝ} (h
     simp [smul_eq_mul]
   rw [integral_clm_circleMap_zero, intervalIntegral.integral_const_mul, integral_bilinear_circleMap,
     sub_zero] at hsplit
-  have havg : circleAverage g t₀ r = (2 * π)⁻¹ * ∫ θ in (0 : ℝ)..2 * π, g (t₀ + circleMap 0 r θ) := by
+  have havg : circleAverage g t₀ r = (2 * π)⁻¹ * ∫ θ in (0 : ℝ)..2 * π, g (t₀ + circleMap 0 r θ)
+    := by
     rw [circleAverage_def, smul_eq_mul]
     simp only [hmap]
   have hlap : Δ g t₀ = B 1 1 + B I I := laplacian_eq_fderiv_fderiv g t₀

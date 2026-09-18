@@ -10,18 +10,18 @@ public import SeveralComplexVariables.LaurentSeries.Convergence
 /-!
 # Laurent expansion by successive circle expansions
 
-On circular products, induction on the number of coordinates combines the circle
-Laurent theorem with Fubini for absolutely summable families. Circular product
-neighborhoods then give pointwise expansion on every Reinhardt domain.
+On circular products, induction on the number of coordinates combines the circle Laurent theorem
+with Fubini for absolutely summable families. Circular product neighborhoods then give pointwise
+expansion on every Reinhardt domain.
 
 ## Main results
 
-`hasSum_multivariableLaurent_on_product` is the expansion on a finite product of
-circular domains. `hasSum_multivariableLaurent` is the pointwise expansion at an
-arbitrary point of an open Reinhardt domain.
+`hasSum_multivariableLaurent_on_product` is the expansion on a finite product of circular
+domains. `hasSum_multivariableLaurent` is the pointwise expansion at an arbitrary point of an
+open Reinhardt domain.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set Filter
 open scoped Topology NNReal
@@ -55,7 +55,8 @@ theorem hasSum_multivariableLaurent_on_product {V : Fin n → Set ℂ}
     HasSum (fun m => multivariableLaurentTerm (multivariableLaurentCoeff f r) m z) (f z) := by
   induction n with
   | zero =>
-    convert hasSum_fintype (fun m => multivariableLaurentTerm (multivariableLaurentCoeff f r) m z) using 1
+    convert hasSum_fintype (fun m => multivariableLaurentTerm (multivariableLaurentCoeff f r) m z)
+      using 1
     simp only [multivariableLaurentTerm, multivariableLaurentCoeff, torusIntegral_dim0,
       Fin.prod_univ_zero, pow_zero, inv_one, one_smul, Finset.sum_const, Finset.card_univ,
       Fintype.card_unique]
@@ -86,7 +87,7 @@ theorem hasSum_multivariableLaurent_on_product {V : Fin n → Set ℂ}
     let e := Fin.consEquiv (fun _ : Fin (n + 1) => ℤ)
     have hp := e.summable_iff.mpr habs.of_norm
     have hcont : Continuous (fun θ => f (torusMap 0 r θ)) :=
-      hf.continuousOn.comp_continuous (continuous_torusMapWithRadii 0 r)
+      hf.continuousOn.comp_continuous (continuous_torusMap 0 r)
         (torusMap_mem_product hrot hr hrV)
     have hterm (k : ℤ) (m : Fin n → ℤ) :
         multivariableLaurentTerm (multivariableLaurentCoeff f r) (e (k, m)) z =

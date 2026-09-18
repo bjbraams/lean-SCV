@@ -5,29 +5,36 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Analyticity
-public import SeveralComplexVariables.Montel
-public import SeveralComplexVariables.Biholomorphic
 public import Mathlib.Analysis.Normed.Group.Bounded
+public import SeveralComplexVariables.Analyticity
+public import SeveralComplexVariables.Biholomorphic
+public import SeveralComplexVariables.Montel
 
 /-!
 # Cartan uniqueness on bounded domains
 
 The theorem in this file concerns holomorphic self-maps of bounded finite-dimensional domains.
-It is Cartan's uniqueness theorem from Scheidemann (2005), Theorem 3.3.1,
-Jakóbczak--Jarnicki (2021), Theorem 2.3.2, and Lebl (2026), Section 1.5.
-It is independent of sheaves and of Cartan's theorems A and B.
+It is Cartan's uniqueness theorem from [Scheidemann][Scheidemann2005] (2005), Theorem 3.3.1,
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Theorem 2.3.2, and [Lebl][Lebl2026] (2026),
+Section 1.5. It is independent of sheaves and of Cartan's theorems A and B.
 
-The proof averages the bounded iterates and uses Montel's theorem to extract a locally
-uniform limit. Derivative convergence gives identity derivative at the fixed point.
-Telescoping gives invariance of the limit under the original map, so local injectivity
-and the identity principle force the original map to be the identity.
+The proof averages the bounded iterates and uses Montel's theorem to extract a locally uniform
+limit. Derivative convergence gives identity derivative at the fixed point. Telescoping gives
+invariance of the limit under the original map, so local injectivity and the identity principle
+force the original map to be the identity.
 
 ## Main results
 
-`eqOn_id_of_mapsTo_of_fderiv_eq_id` is Cartan's uniqueness theorem: a holomorphic
-self-map of a bounded domain which fixes a point and has identity derivative there
-is the identity on the connected component of that point.
+`eqOn_id_of_mapsTo_of_fderiv_eq_id` is Cartan's uniqueness theorem: a holomorphic self-map of a
+bounded domain which fixes a point and has identity derivative there is the identity on the
+connected component of that point.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
+* [J. Lebl, *Tasty Bits of Several Complex Variables: A Whirlwind Tour of the Subject*][Lebl2026]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public section
@@ -54,7 +61,7 @@ theorem eqOn_id_of_mapsTo_of_fderiv_eq_id
     ∑ k ∈ Finset.range (n + 1), f^[k] z
   have hA (n : ℕ) : AnalyticOnNhd ℂ (A n) U :=
     ((DifferentiableOn.fun_sum (fun k _ => hf.differentiableOn.iterate hmaps k)).const_smul
-      ((n + 1 : ℕ) : ℂ)⁻¹).analyticOnNhd_finiteDimensional hU
+      ((n + 1 : ℕ) : ℂ)⁻¹).analyticOnNhd_of_finiteDimensional hU
   have hAb (n : ℕ) (z : E) (hz : z ∈ U) : ‖A n z‖ ≤ M := by
     have hn : (0 : ℝ) < n + 1 := by positivity
     calc
@@ -83,7 +90,7 @@ theorem eqOn_id_of_mapsTo_of_fderiv_eq_id
   obtain ⟨g, φ, hφ, hg, hlim⟩ :=
     exists_subseq_tendstoLocallyUniformlyOn_of_uniform_bound hU hA hAb
   have hgd : fderiv ℂ g a = ContinuousLinearMap.id ℂ E := by
-    have H := (hlim.fderiv_finiteDimensional (.of_forall fun n => hA (φ n)) hU).tendsto_at ha
+    have H := (hlim.fderiv_of_finiteDimensional (.of_forall fun n => hA (φ n)) hU).tendsto_at ha
     simp only [hAd] at H
     exact tendsto_nhds_unique H tendsto_const_nhds
   have htel (n : ℕ) (z : E) : A n (f z) - A n z =

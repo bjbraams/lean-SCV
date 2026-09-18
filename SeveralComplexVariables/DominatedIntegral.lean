@@ -1,39 +1,44 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
-public import SeveralComplexVariables.ParametricIntegral
 public import Mathlib.Analysis.Complex.Schwarz
+public import SeveralComplexVariables.ParametricIntegral
 
 /-!
 # Locally dominated holomorphic integrals
 
-A locally uniform integrable bound on a holomorphic integrand also bounds its derivatives
-on smaller balls, by the Schwarz estimate. This avoids explicit logarithmic estimates when
-the parameters occur in complex powers. Measurability of the derivative is kept as a
-separate hypothesis so that the integration space needs no topology.
+A locally uniform integrable bound on a holomorphic integrand also bounds its derivatives on
+smaller balls, by the Schwarz estimate. This avoids explicit logarithmic estimates when the
+parameters occur in complex powers. Measurability of the derivative is kept as a separate
+hypothesis so that the integration space needs no topology.
 
 ## Main results
 
-`analyticOnNhd_integral_of_locally_dominated` is holomorphy of a parameter-dependent
-integral under a locally integrable dominant, without a logarithmic estimate on the
-parameter.
+`analyticOnNhd_integral_of_locally_dominated` is holomorphy of a parameter-dependent integral
+under a locally integrable dominant, without a logarithmic estimate on the parameter.
 -/
 
 open Complex MeasureTheory Filter Metric Set
 open scoped Topology
 public section
-variable {α ι : Type*} [MeasurableSpace α] [Fintype ι]
+variable {α P E : Type*} [MeasurableSpace α]
+  [NormedAddCommGroup P] [NormedSpace ℂ P] [FiniteDimensional ℂ P]
+  [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
 /-- A locally dominated holomorphic integrand has a holomorphic integral. The derivative
 measurability assumption is often obtained from continuity on the integration domain. -/
 theorem analyticOnNhd_integral_of_locally_dominated
-    {μ : Measure α} {U : Set (ι → ℂ)} {F : (ι → ℂ) → α → ℂ}
+    {μ : Measure α} {U : Set P} {F : P → α → E}
     (hU : IsOpen U)
     (hmeas : ∀ x ∈ U, AEStronglyMeasurable (F x) μ)
     (hderivmeas : ∀ x ∈ U,
       AEStronglyMeasurable (fun a => fderiv ℂ (F · a) x) μ)
     (hhol : ∀ᵐ a ∂μ, AnalyticOnNhd ℂ (F · a) U)
-    (hdom : ∀ x ∈ U, ∃ (s : Set (ι → ℂ)) (bound : α → ℝ),
+    (hdom : ∀ x ∈ U, ∃ (s : Set P) (bound : α → ℝ),
       s ∈ nhds x ∧ Integrable bound μ ∧
       ∀ᵐ a ∂μ, ∀ y ∈ s, ‖F y a‖ ≤ bound a) :
     AnalyticOnNhd ℂ (fun x => ∫ a, F x a ∂μ) U := by
@@ -47,7 +52,7 @@ theorem analyticOnNhd_integral_of_locally_dominated
   let r := ε / 2
   have hr : 0 < r := half_pos hε
   have hsmall : ball x r ⊆ ball x ε := ball_subset_ball (half_le_self hε.le)
-  have hnear (y : ι → ℂ) (hy : y ∈ ball x r) : ball y r ⊆ ball x ε := by
+  have hnear (y : P) (hy : y ∈ ball x r) : ball y r ⊆ ball x ε := by
     intro w hw
     rw [mem_ball] at *
     calc

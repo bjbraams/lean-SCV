@@ -5,12 +5,13 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Complex.AbsMax
+public import Mathlib.Topology.Connected.LocallyPathConnected
+public import Mathlib.Topology.Order.ProjIcc
+public import SeveralComplexVariables.HartogsContinuation
+public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 public import SeveralComplexVariables.Plurisubharmonic
 public import SeveralComplexVariables.Subharmonic.Majorant
-public import SeveralComplexVariables.HolomorphicConvexity.Thullen
-public import SeveralComplexVariables.HartogsContinuation
-public import Mathlib.Topology.Connected.LocallyPathConnected
-public import Mathlib.Analysis.Complex.AbsMax
 
 /-!
 # Pseudoconvexity
@@ -18,10 +19,12 @@ public import Mathlib.Analysis.Complex.AbsMax
 This file relates domains of holomorphy to plurisubharmonic functions and to two geometric
 convexity notions.
 
-* **Boundary distance.** On a domain of holomorphy in `Fin n → ℂ`, the negative logarithm of
-  the sup-norm distance to the complement is plurisubharmonic. The proof is Hörmander's: a
-  harmonic polynomial majorant of `-log δ` on a circle in a complex line gives, through the
-  weighted hull-radius bound of Thullen's lemma, the same bound at the center.
+* **Boundary distance.** On a domain of holomorphy in a finite-dimensional complex normed space, the
+negative logarithm of
+the sup-norm distance to the complement is plurisubharmonic. The proof is
+[Hörmander][Hormander1973]'s: a
+harmonic polynomial majorant of `-log δ` on a circle in a complex line gives, through the
+weighted hull-radius bound of Thullen's lemma, the same bound at the center.
 * **Pseudoconvexity.** An open set is pseudoconvex if it carries a continuous
   plurisubharmonic exhaustion function. Domains of holomorphy are pseudoconvex.
 * **Continuity principle.** Along a continuous family of affine analytic discs whose boundary
@@ -30,19 +33,64 @@ convexity notions.
   plurisubharmonic functions on discs.
 * **Hartogs convexity.** In a product `E × ℂ`, a set satisfying the continuity principle
   contains the filled cylinder of every Hartogs cylinder it contains.
-* **Kontinuitätssatz.** On a domain of holomorphy in `Fin n → ℂ`, the continuity principle
-  holds for continuous families of holomorphic discs, not only affine ones: every point of a
-  holomorphic disc lies in the holomorphic hull of the boundary circle, and Thullen's radius
-  bound keeps the discs at a fixed distance from the complement.
+* **Kontinuitätssatz.** On a domain of holomorphy in a finite-dimensional complex normed space, the
+continuity principle
+holds for continuous families of holomorphic discs, not only affine ones: every point of a
+holomorphic disc lies in the holomorphic hull of the boundary circle, and Thullen's radius
+bound keeps the discs at a fixed distance from the complement.
 
-The converse implications, from pseudoconvexity back to the domain-of-holomorphy property,
-form the Levi problem and are outside the present scope.
+The converse implications, from pseudoconvexity back to the domain-of-holomorphy property, form
+the Levi problem and are outside the present scope.
 
-References: Hörmander (1973), Theorems 2.5.4, 2.6.5 and 2.6.7; Fritzsche–Grauert (2002),
-Chapter II, Sections 1 and 3; Range (1986), Chapter II, Sections 2 and 5.
+References: [Hörmander][Hormander1973] (1973), Theorems 2.5.4, 2.6.5 and 2.6.7;
+[Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Sections 1 and 3;
+[Range][Range1986] (1986), Chapter II, Sections 2 and 5.
+
+## Main definitions
+
+* `IsPseudoconvex`: An open set is pseudoconvex if it carries a continuous plurisubharmonic
+  exhaustion function: one whose sublevel sets inside the set are compact.
+* `SatisfiesContinuityPrinciple`: **Continuity principle for affine analytic discs.** Along a
+  continuous family of affine analytic discs whose boundary circles stay in the set and whose
+  initial disc lies in the set, every disc of the family lies in the set.
+* `SatisfiesHolomorphicContinuityPrinciple`: **Continuity principle for holomorphic discs
+  (Kontinuitätssatz).** Along a continuous family of holomorphic discs whose boundary circles stay
+  in the set and whose initial disc lies in the set, every disc of the family lies in the set.
+* `IsHartogsConvex`: **Hartogs convexity** for cylinder figures: whenever a Hartogs cylinder over an
+  open preconnected base, with disc fibers over a nonempty open part of the base, lies in the set,
+  so does the filled cylinder.
+
+## Main results
+
+* `IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist`: **Plurisubharmonicity of the boundary
+  distance ([Hörmander][Hormander1973] 2.6.5).** On a domain of holomorphy in `Fin n → ℂ`, the
+  negative logarithm of the distance to the complement is plurisubharmonic.
+* `IsDomainOfHolomorphy.isPseudoconvex_fin`: **Domains of holomorphy in coordinates are
+  pseudoconvex.** The exhaustion is the maximum of the negative logarithm of the boundary distance
+  and the norm.
+* `IsPseudoconvex.satisfiesContinuityPrinciple`: **Pseudoconvex sets satisfy the continuity
+  principle ([Fritzsche–Grauert][FritzscheGrauert2002] II.3.1).**
+* `IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple_fin`: **Domains of holomorphy in
+  coordinates satisfy the continuity principle for holomorphic discs.** The coordinate-free version
+  is `IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple`.
+* `IsDomainOfHolomorphy.isPseudoconvex`: **Domains of holomorphy are pseudoconvex.** The exhaustion
+  is transported from the coordinate version `IsDomainOfHolomorphy.isPseudoconvex_fin`.
+* `IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple`: **Domains of holomorphy satisfy
+  the continuity principle for holomorphic discs.**
+* `SatisfiesContinuityPrinciple.isHartogsConvex`: **The continuity principle implies Hartogs
+  convexity ([Fritzsche–Grauert][FritzscheGrauert2002] II.1.5).** The disc fibers are slid along a
+  path in the base from the part carrying full discs.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
-@[expose] public section
+public section
 
 open Complex Filter Metric Set Real
 open scoped Topology
@@ -50,32 +98,31 @@ open scoped Topology
 namespace SeveralComplexVariables
 
 /-- Clamp a real parameter to the unit interval. -/
-def clampIcc01 (t : ℝ) : ℝ := max 0 (min 1 t)
+private noncomputable def clampIcc01 (t : ℝ) : ℝ := Set.projIcc 0 1 zero_le_one t
 
 /-- Clamping to `[0, 1]` is continuous. -/
-theorem continuous_clampIcc01 : Continuous clampIcc01 := by
-  unfold clampIcc01
-  fun_prop
+private theorem continuous_clampIcc01 : Continuous clampIcc01 := continuous_subtype_val.comp
+  continuous_projIcc
 
 /-- The clamp of any real lies in `[0, 1]`. -/
-theorem clampIcc01_mem_Icc (t : ℝ) : clampIcc01 t ∈ Icc (0 : ℝ) 1 :=
-  ⟨le_max_left _ _, max_le zero_le_one (min_le_left _ _)⟩
+private theorem clampIcc01_mem_Icc (t : ℝ) : clampIcc01 t ∈ Icc (0 : ℝ) 1 :=
+  (Set.projIcc 0 1 zero_le_one t).property
 
 /-- Clamping is the identity on `[0, 1]`. -/
-theorem clampIcc01_eq_of_mem_Icc {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) : clampIcc01 t = t := by
-  simp only [clampIcc01]
-  rw [min_eq_right ht.2, max_eq_right ht.1]
+private theorem clampIcc01_eq_of_mem_Icc {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) : clampIcc01 t = t
+    := congrArg
+  Subtype.val (Set.projIcc_of_mem zero_le_one ht)
 
 /-- Clamping is idempotent. -/
-theorem clampIcc01_idem (t : ℝ) : clampIcc01 (clampIcc01 t) = clampIcc01 t :=
+private theorem clampIcc01_idem (t : ℝ) : clampIcc01 (clampIcc01 t) = clampIcc01 t :=
   clampIcc01_eq_of_mem_Icc (clampIcc01_mem_Icc t)
 
 section BoundaryDistance
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- Points of a closed disc in a complex line lie in the holomorphic hull of its boundary circle,
-by the maximum modulus principle. -/
+/-- Points of a closed disc in a complex line lie in the holomorphic hull of its boundary circle, by
+the maximum modulus principle. -/
 theorem mem_holomorphicHull_of_mem_disc {U : Set E} {a w : E} {r : ℝ} (hr : 0 < r)
     (hdisc : ∀ t ∈ closedBall (0 : ℂ) r, a + t • w ∈ U) {t : ℂ} (ht : t ∈ closedBall (0 : ℂ) r) :
     a + t • w ∈ holomorphicHull U ((fun t : ℂ => a + t • w) '' sphere 0 r) := by
@@ -84,7 +131,8 @@ theorem mem_holomorphicHull_of_mem_disc {U : Set E} {a w : E} {r : ℝ} (hr : 0 
     apply DifferentiableOn.diffContOnCl
     rw [closure_ball 0 hr.ne']
     exact fun s hs => ((hf _ (hdisc s hs)).comp_of_eq
-      (analyticAt_const.add (analyticAt_id.smul analyticAt_const)) rfl).differentiableAt.differentiableWithinAt
+      (analyticAt_const.add (analyticAt_id.smul analyticAt_const))
+        rfl).differentiableAt.differentiableWithinAt
   have hbd : ∀ s ∈ frontier (ball (0 : ℂ) r), ‖f (a + s • w)‖ ≤ M := by
     intro s hs
     rw [frontier_ball 0 hr.ne'] at hs
@@ -93,8 +141,8 @@ theorem mem_holomorphicHull_of_mem_disc {U : Set E} {a w : E} {r : ℝ} (hr : 0 
     (z := t) (by rw [closure_ball 0 hr.ne']; exact ht)
   exact this
 
-/-- Every point of a closed holomorphic disc lies in the holomorphic hull of the boundary
-circle, by the maximum modulus principle. -/
+/-- Every point of a closed holomorphic disc lies in the holomorphic hull of the boundary circle, by
+the maximum modulus principle. -/
 theorem mem_holomorphicHull_of_analytic_disc {U : Set E} {φ : ℂ → E} {r : ℝ} (hr : 0 < r)
     (hφ : AnalyticOnNhd ℂ φ (closedBall 0 r)) (hdisc : ∀ t ∈ closedBall (0 : ℂ) r, φ t ∈ U)
     {t : ℂ} (ht : t ∈ closedBall (0 : ℂ) r) : φ t ∈ holomorphicHull U (φ '' sphere 0 r) := by
@@ -102,7 +150,8 @@ theorem mem_holomorphicHull_of_analytic_disc {U : Set E} {φ : ℂ → E} {r : �
   have hg : DiffContOnCl ℂ (fun t : ℂ => f (φ t)) (ball 0 r) := by
     apply DifferentiableOn.diffContOnCl
     rw [closure_ball 0 hr.ne']
-    exact fun s hs => ((hf _ (hdisc s hs)).comp_of_eq (hφ s hs) rfl).differentiableAt.differentiableWithinAt
+    exact fun s hs => ((hf _ (hdisc s hs)).comp_of_eq (hφ s hs)
+      rfl).differentiableAt.differentiableWithinAt
   have hbd : ∀ s ∈ frontier (ball (0 : ℂ) r), ‖f (φ s)‖ ≤ M := by
     intro s hs
     rw [frontier_ball 0 hr.ne'] at hs
@@ -112,7 +161,8 @@ theorem mem_holomorphicHull_of_analytic_disc {U : Set E} {φ : ℂ → E} {r : �
 
 variable {n : ℕ}
 
-/-- **Plurisubharmonicity of the boundary distance (Hörmander 2.6.5).** On a domain of
+/-- **Plurisubharmonicity of the boundary distance ([Hörmander][Hormander1973] 2.6.5).** On a domain
+of
 holomorphy in `Fin n → ℂ`, the negative logarithm of the distance to the complement is
 plurisubharmonic. -/
 theorem IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist {U : Set (Fin n → ℂ)}
@@ -131,7 +181,7 @@ theorem IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist {U : Set (Fin n 
   · simp only [hw, smul_zero, add_zero]
     exact hasSubmeanAt_const _ 0
   obtain ⟨i, hi⟩ := Function.ne_iff.mp hw
-  have hline : Continuous fun t : ℂ => a + t • w := continuous_line a w
+  have hline : Continuous fun t : ℂ => a + t • w := by fun_prop
   obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hline.continuousAt.preimage_mem_nhds (by
     show U ∈ 𝓝 ((fun t : ℂ => a + t • w) 0)
     simp only [zero_smul, add_zero]
@@ -155,7 +205,7 @@ theorem IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist {U : Set (Fin n 
       apply Complex.differentiable_exp.comp
       apply Differentiable.neg
       exact Q.differentiable.comp (by fun_prop)
-    exact hd.analyticOnNhd_finiteDimensional.mono (subset_univ U)
+    exact hd.analyticOnNhd_of_finiteDimensional.mono (subset_univ U)
   have hqnorm : ∀ z, ‖q z‖ = Real.exp (-(F z).re) := fun z => by
     simp [hq, Complex.norm_exp]
   set K := (fun t : ℂ => a + t • w) '' sphere 0 r with hK
@@ -173,7 +223,8 @@ theorem IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist {U : Set (Fin n 
     have h2 : Real.exp (-(F (a + t • w)).re) ≤ infDist (a + t • w) Uᶜ := by
       rw [← Real.le_log_iff_exp_le hδ]
       linarith
-    exact (ball_subset_ball h2).trans (by simpa using ball_infDist_subset_compl (x := a + t • w) (s := Uᶜ))
+    apply (ball_subset_ball h2).trans
+    simpa using (ball_infDist_subset_compl (x := a + t • w) (s := Uᶜ))
   have hhull := hU.holomorphic_radius_bound ho hKc hKU hqan hrad a
     (by simpa using mem_holomorphicHull_of_mem_disc hr hdisc (mem_closedBall_self hr.le))
   -- the radius bound at the center gives the distance bound
@@ -196,9 +247,9 @@ section Pseudoconvex
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- An open set is pseudoconvex if it carries a continuous plurisubharmonic exhaustion
-function: one whose sublevel sets inside the set are compact. -/
-def IsPseudoconvex (U : Set E) : Prop :=
+/-- An open set is pseudoconvex if it carries a continuous plurisubharmonic exhaustion function: one
+whose sublevel sets inside the set are compact. -/
+@[expose] def IsPseudoconvex (U : Set E) : Prop :=
   IsOpen U ∧ ∃ φ : E → ℝ, ContinuousOn φ U ∧ PlurisubharmonicOn φ U ∧
     ∀ c : ℝ, IsCompact {z ∈ U | φ z ≤ c}
 
@@ -215,7 +266,8 @@ theorem IsDomainOfHolomorphy.isPseudoconvex_fin {U : Set (Fin n → ℂ)} (hU : 
   refine ⟨ho, ?_⟩
   rcases eq_empty_or_nonempty Uᶜ with hc | hc
   · have hU' : U = univ := compl_empty_iff.mp hc
-    refine ⟨fun z => ‖z‖, continuous_norm.continuousOn, plurisubharmonicOn_norm.mono (subset_univ U),
+    refine ⟨fun z => ‖z‖, continuous_norm.continuousOn, plurisubharmonicOn_norm.mono (subset_univ
+      U),
       fun c => ?_⟩
     convert isCompact_closedBall (0 : Fin n → ℂ) c using 1
     ext z
@@ -225,7 +277,8 @@ theorem IsDomainOfHolomorphy.isPseudoconvex_fin {U : Set (Fin n → ℂ)} (hU : 
   refine ⟨fun z => max (-Real.log (infDist z Uᶜ)) ‖z‖, ?_, ?_, fun c => ?_⟩
   · exact (((continuous_infDist_pt Uᶜ).continuousOn.log fun z hz => (hpos z hz).ne').neg).sup
       continuous_norm.continuousOn
-  · exact (hU.plurisubharmonicOn_neg_log_infDist ho).sup (plurisubharmonicOn_norm.mono (subset_univ U))
+  · exact (hU.plurisubharmonicOn_neg_log_infDist ho).sup (plurisubharmonicOn_norm.mono
+    (subset_univ U))
   · have heq : {z ∈ U | max (-Real.log (infDist z Uᶜ)) ‖z‖ ≤ c} =
         {z | Real.exp (-c) ≤ infDist z Uᶜ} ∩ closedBall 0 c := by
       ext z
@@ -252,13 +305,14 @@ theorem IsDomainOfHolomorphy.isPseudoconvex_fin {U : Set (Fin n → ℂ)} (hU : 
 /-- **Continuity principle for affine analytic discs.** Along a continuous family of affine
 analytic discs whose boundary circles stay in the set and whose initial disc lies in the set,
 every disc of the family lies in the set. -/
-def SatisfiesContinuityPrinciple (U : Set E) : Prop :=
+@[expose] def SatisfiesContinuityPrinciple (U : Set E) : Prop :=
   ∀ a b : ℝ → E, Continuous a → Continuous b →
     (∀ t ∈ Icc (0 : ℝ) 1, ∀ ζ ∈ sphere (0 : ℂ) 1, a t + ζ • b t ∈ U) →
     (∀ ζ ∈ closedBall (0 : ℂ) 1, a 0 + ζ • b 0 ∈ U) →
     ∀ t ∈ Icc (0 : ℝ) 1, ∀ ζ ∈ closedBall (0 : ℂ) 1, a t + ζ • b t ∈ U
 
-/-- **Pseudoconvex sets satisfy the continuity principle (Fritzsche–Grauert II.3.1).** -/
+/-- **Pseudoconvex sets satisfy the continuity principle ([Fritzsche–Grauert][FritzscheGrauert2002]
+II.3.1).** -/
 theorem IsPseudoconvex.satisfiesContinuityPrinciple {U : Set E} (h : IsPseudoconvex U) :
     SatisfiesContinuityPrinciple U := by
   obtain ⟨hU, φ, hφc, hφpsh, hφex⟩ := h
@@ -295,7 +349,8 @@ theorem IsPseudoconvex.satisfiesContinuityPrinciple {U : Set E} (h : IsPseudocon
     have hsl : SubharmonicOn (fun ζ : ℂ => φ (a (p t) + ζ • b (p t))) (ball 0 1) :=
       (hφpsh.slice hat (b (p t))).mono fun ζ hζ => ht ζ (ball_subset_closedBall hζ)
     have husc : UpperSemicontinuousOn (fun ζ : ℂ => φ (a (p t) + ζ • b (p t))) (closedBall 0 1) :=
-      (hφc.comp (continuous_line _ _).continuousOn fun ζ hζ => ht ζ hζ).upperSemicontinuousOn
+      (hφc.comp (by fun_prop : Continuous fun ζ : ℂ => a (p t) + ζ • b (p t)).continuousOn
+        fun ζ hζ => ht ζ hζ).upperSemicontinuousOn
     have hbdy : ∀ ζ ∈ sphere (0 : ℂ) 1, φ (a (p t) + ζ • b (p t)) ≤ C := by
       intro ζ hζ
       apply hCle
@@ -338,7 +393,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 /-- **Continuity principle for holomorphic discs (Kontinuitätssatz).** Along a continuous
 family of holomorphic discs whose boundary circles stay in the set and whose initial disc lies
 in the set, every disc of the family lies in the set. -/
-def SatisfiesHolomorphicContinuityPrinciple (U : Set E) : Prop :=
+@[expose] def SatisfiesHolomorphicContinuityPrinciple (U : Set E) : Prop :=
   ∀ φ : ℝ → ℂ → E, Continuous (fun q : ℝ × ℂ => φ q.1 q.2) →
     (∀ t ∈ Icc (0 : ℝ) 1, AnalyticOnNhd ℂ (φ t) (closedBall 0 1)) →
     (∀ t ∈ Icc (0 : ℝ) 1, ∀ ζ ∈ sphere (0 : ℂ) 1, φ t ζ ∈ U) →
@@ -524,11 +579,12 @@ variable {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℂ E']
 /-- **Hartogs convexity** for cylinder figures: whenever a Hartogs cylinder over an open
 preconnected base, with disc fibers over a nonempty open part of the base, lies in the set, so
 does the filled cylinder. -/
-def IsHartogsConvex (U : Set (E' × ℂ)) : Prop :=
+@[expose] def IsHartogsConvex (U : Set (E' × ℂ)) : Prop :=
   ∀ (D D₀ : Set E') (ρ R : ℝ), IsOpen D → IsPreconnected D → IsOpen D₀ → D₀.Nonempty →
     D₀ ⊆ D → 0 ≤ ρ → ρ < R → hartogsCylinder D D₀ ρ R ⊆ U → D ×ˢ ball 0 R ⊆ U
 
-/-- **The continuity principle implies Hartogs convexity (Fritzsche–Grauert II.1.5).** The disc
+/-- **The continuity principle implies Hartogs convexity ([Fritzsche–Grauert][FritzscheGrauert2002]
+II.1.5).** The disc
 fibers are slid along a path in the base from the part carrying full discs. -/
 theorem SatisfiesContinuityPrinciple.isHartogsConvex {U : Set (E' × ℂ)}
     (h : SatisfiesContinuityPrinciple U) : IsHartogsConvex U := by

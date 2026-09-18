@@ -5,9 +5,9 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.BiholomorphicRigidity
-public import Mathlib.Analysis.InnerProductSpace.PiL2
 public import Mathlib.Analysis.Complex.Schwarz
+public import Mathlib.Analysis.InnerProductSpace.PiL2
+public import SeveralComplexVariables.BiholomorphicRigidity
 
 import Mathlib.Tactic.Module
 
@@ -16,12 +16,36 @@ import Mathlib.Tactic.Module
 
 The explicit involution exchanges an interior point with zero. Holomorphy, a nonvanishing
 denominator, the metric identity, preservation of the ball, and involutivity are proved.
-Packaging as a biholomorphism and transitivity are proved consequences, independent
-of Cartan uniqueness and circular-domain rigidity.
-The ball–polydisc inequivalence follows independently from Schwarz bounds on derivatives
-and the parallelogram identity in dimension at least two.
-The source uses the supremum norm and the target uses `EuclideanSpace`, explicitly.
-References: Scheidemann (2005), Theorem 3.2.1 and Exercise 3.3.4.
+Packaging as a biholomorphism and transitivity are proved consequences, independent of Cartan
+uniqueness and circular-domain rigidity. The ball–polydisc inequivalence follows independently
+from Schwarz bounds on derivatives and the parallelogram identity in dimension at least two. The
+source uses the supremum norm and the target uses `EuclideanSpace`, explicitly. References:
+[Scheidemann][Scheidemann2005] (2005), Theorem 3.2.1 and Exercise 3.3.4.
+
+## Main definitions
+
+* `ballParallelComponent`: Projection onto the complex line through `a`, with value zero when `a =
+  0`.
+* `ballMobius`: The standard ball involution.
+* `ballMobiusOpenPartialHomeomorph`: The standard involution as an equivalence of open unit balls,
+  with an explicit formula.
+
+## Main results
+
+* `ballMobius_norm_identity`: The metric identity for the standard ball map, expressed without
+  division.
+* `mapsTo_ballMobius`: The standard ball map preserves the unit ball, by its metric identity.
+* `ballMobius_ballMobius`: The ball automorphism is an involution of the unit ball, using the
+  parallel and perpendicular components.
+* `isBiholomorphic_ballMobius`: Both directions of the explicit ball equivalence are holomorphic.
+* `exists_ball_automorphism`: The unit ball is homogeneous under biholomorphic automorphisms: any
+  interior point can be sent to any other, by composing two explicit ball involutions.
+* `not_biholomorphic_polydisc_ball`: The Euclidean unit ball and the unit polydisc are not
+  biholomorphic in dimension at least two.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public noncomputable section
@@ -34,12 +58,12 @@ namespace SeveralComplexVariables
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
 
 /-- Projection onto the complex line through `a`, with value zero when `a = 0`. -/
-def ballParallelComponent (a z : E) : E :=
+@[expose] def ballParallelComponent (a z : E) : E :=
   (⟪a, z⟫_ℂ / (‖a‖ : ℂ) ^ 2) • a
 
-/-- The standard ball involution. Mathlib's inner product is linear in its second argument;
-the scalar in the perpendicular component is `sqrt (1 - ‖a‖²)`. -/
-def ballMobius (a z : E) : E :=
+/-- The standard ball involution. Mathlib's inner product is linear in its second argument; the
+scalar in the perpendicular component is `sqrt (1 - ‖a‖²)`. -/
+@[expose] def ballMobius (a z : E) : E :=
   (1 - ⟪a, z⟫_ℂ)⁻¹ •
     (a - ballParallelComponent a z -
       (Real.sqrt (1 - ‖a‖ ^ 2) : ℂ) • (z - ballParallelComponent a z))
@@ -73,7 +97,8 @@ theorem ballMobius_denominator_ne_zero {a z : E} (ha : a ∈ ball 0 1) (hz : z �
   simp [he] at hi
 
 /-- The projection formula is complex differentiable even for the zero parameter. -/
-theorem differentiable_ballParallelComponent (a : E) : Differentiable ℂ (ballParallelComponent a) := by
+theorem differentiable_ballParallelComponent (a : E) : Differentiable ℂ (ballParallelComponent a)
+  := by
   unfold ballParallelComponent
   simpa only [innerSL_apply_apply, div_eq_mul_inv] using
     ((innerSL ℂ a).differentiable.mul_const (((‖a‖ : ℂ) ^ 2)⁻¹)).smul_const a
@@ -152,7 +177,7 @@ theorem ballMobius_norm_identity {a z : E} (ha : a ∈ ball 0 1) (hz : z ∈ bal
   nlinarith
 
 /-- The standard ball map preserves the unit ball, by its metric identity. -/
-theorem ballMobius_mapsTo {a : E} (ha : a ∈ ball 0 1) :
+theorem mapsTo_ballMobius {a : E} (ha : a ∈ ball 0 1) :
     MapsTo (ballMobius a) (ball 0 1) (ball 0 1) := by
   intro z hz
   have ha' : ‖a‖ < 1 := by simpa using ha
@@ -165,11 +190,11 @@ theorem ballMobius_mapsTo {a : E} (ha : a ∈ ball 0 1) :
   simpa only [mem_ball, dist_zero_right] using
     (show ‖ballMobius a z‖ < 1 by nlinarith [norm_nonneg (ballMobius a z)])
 
-/-- Preservation of the ball and involutivity, using the parallel and perpendicular components. -/
-theorem ballMobius_mapsTo_involutive [FiniteDimensional ℂ E] {a : E} (ha : a ∈ ball 0 1) :
-    MapsTo (ballMobius a) (ball 0 1) (ball 0 1) ∧
-      (∀ z ∈ ball 0 1, ballMobius a (ballMobius a z) = z) := by
-  refine ⟨ballMobius_mapsTo ha, fun z hz => ?_⟩
+/-- The ball automorphism is an involution of the unit ball, using the parallel and perpendicular
+components. -/
+theorem ballMobius_ballMobius {a : E} (ha : a ∈ ball 0 1) :
+    ∀ z ∈ ball 0 1, ballMobius a (ballMobius a z) = z := by
+  intro z hz
   let s : ℂ := (Real.sqrt (1 - ‖a‖ ^ 2) : ℂ)
   let A : ℂ := (‖a‖ : ℂ) ^ 2
   let P : E →ₗ[ℂ] E := A⁻¹ • (innerSL ℂ a).toLinearMap.smulRight a
@@ -215,7 +240,7 @@ theorem ballMobius_mapsTo_involutive [FiniteDimensional ℂ E] {a : E} (ha : a �
   let d := 1 - c
   have hd : d ≠ 0 := ballMobius_denominator_ne_zero ha hz
   have hd' : 1 - ⟪a, ballMobius a z⟫_ℂ ≠ 0 :=
-    ballMobius_denominator_ne_zero ha (ballMobius_mapsTo ha hz)
+    ballMobius_denominator_ne_zero ha (mapsTo_ballMobius ha hz)
   have hden : d * (1 - ⟪a, ballMobius a z⟫_ℂ) = 1 - A := by
     rw [hmob]
     simp only [inner_smul_right, inner_sub_right, inner_self_eq_norm_sq_to_K, hiT]
@@ -235,29 +260,29 @@ theorem ballMobius_mapsTo_involutive [FiniteDimensional ℂ E] {a : E} (ha : a �
   module
 
 /-- The standard involution as an equivalence of open unit balls, with an explicit formula. -/
-def ballMobiusOpenPartialHomeomorph [FiniteDimensional ℂ E] (a : E) (ha : a ∈ ball 0 1) :
+@[expose] def ballMobiusOpenPartialHomeomorph (a : E) (ha : a ∈ ball 0 1) :
     OpenPartialHomeomorph E E where
   toFun := ballMobius a
   invFun := ballMobius a
   source := ball 0 1
   target := ball 0 1
-  map_source' := (ballMobius_mapsTo_involutive ha).1
-  map_target' := (ballMobius_mapsTo_involutive ha).1
-  left_inv' := (ballMobius_mapsTo_involutive ha).2
-  right_inv' := (ballMobius_mapsTo_involutive ha).2
+  map_source' := mapsTo_ballMobius ha
+  map_target' := mapsTo_ballMobius ha
+  left_inv' := ballMobius_ballMobius ha
+  right_inv' := ballMobius_ballMobius ha
   continuousOn_toFun := (differentiableOn_ballMobius ha).continuousOn
   continuousOn_invFun := (differentiableOn_ballMobius ha).continuousOn
   open_source := isOpen_ball
   open_target := isOpen_ball
 
 /-- Both directions of the explicit ball equivalence are holomorphic. -/
-theorem isBiholomorphic_ballMobius [FiniteDimensional ℂ E] (a : E) (ha : a ∈ ball 0 1) :
+theorem isBiholomorphic_ballMobius (a : E) (ha : a ∈ ball 0 1) :
     IsBiholomorphic (ballMobiusOpenPartialHomeomorph a ha) :=
   ⟨differentiableOn_ballMobius ha, differentiableOn_ballMobius ha⟩
 
-/-- The unit ball is homogeneous under biholomorphic automorphisms: any interior point
-can be sent to any other, by composing two explicit ball involutions. -/
-theorem exists_ball_automorphism [FiniteDimensional ℂ E] {a b : E}
+/-- The unit ball is homogeneous under biholomorphic automorphisms: any interior point can be sent
+to any other, by composing two explicit ball involutions. -/
+theorem exists_ball_automorphism {a b : E}
     (ha : a ∈ ball 0 1) (hb : b ∈ ball 0 1) :
     ∃ e : OpenPartialHomeomorph E E, IsBiholomorphic e ∧
       e.source = ball 0 1 ∧ e.target = ball 0 1 ∧ e a = b := by
@@ -266,15 +291,15 @@ theorem exists_ball_automorphism [FiniteDimensional ℂ E] {a b : E}
   refine ⟨A.trans B, (isBiholomorphic_ballMobius a ha).trans (isBiholomorphic_ballMobius b hb),
     ?_, ?_, ?_⟩
   · rw [OpenPartialHomeomorph.trans_source]
-    exact inter_eq_left.mpr (ballMobius_mapsTo_involutive ha).1
+    exact inter_eq_left.mpr (mapsTo_ballMobius ha)
   · rw [OpenPartialHomeomorph.trans_target]
-    exact inter_eq_left.mpr (ballMobius_mapsTo_involutive hb).1
+    exact inter_eq_left.mpr (mapsTo_ballMobius hb)
   · change ballMobius b (ballMobius a a) = b
     rw [ballMobius_apply_self a, ballMobius_apply_zero]
 
-/-- The derivative at zero of an origin-preserving biholomorphism between unit balls
-preserves norms. Schwarz bounds for the map and its inverse prove both inequalities,
-without Cartan uniqueness or finite-dimensional assumptions. -/
+/-- The derivative at zero of an origin-preserving biholomorphism between unit balls preserves
+norms. Schwarz bounds for the map and its inverse prove both inequalities, without Cartan
+uniqueness or finite-dimensional assumptions. -/
 theorem IsBiholomorphic.norm_fderiv_apply_eq_of_unit_ball
     {A B : Type*} [NormedAddCommGroup A] [NormedSpace ℂ A]
     [NormedAddCommGroup B] [NormedSpace ℂ B]
@@ -303,11 +328,10 @@ theorem IsBiholomorphic.norm_fderiv_apply_eq_of_unit_ball
         simpa using (fderiv ℂ e.symm 0).le_of_opNorm_le_of_le hi
           (le_refl ‖fderiv ℂ e 0 x‖)
 
-/-- The Euclidean unit ball and the unit polydisc are not biholomorphic in dimension at
-least two. Normalize at zero using a ball automorphism; Schwarz's lemma makes the
-derivative norm-preserving, contradicting the parallelogram identity. This proof is
-independent of Cartan uniqueness. The dimension hypothesis excludes the singleton
-and one-variable cases. -/
+/-- The Euclidean unit ball and the unit polydisc are not biholomorphic in dimension at least two.
+Normalize at zero using a ball automorphism; Schwarz's lemma makes the derivative
+norm-preserving, contradicting the parallelogram identity. This proof is independent of Cartan
+uniqueness. The dimension hypothesis excludes the singleton and one-variable cases. -/
 theorem not_biholomorphic_polydisc_ball {ι : Type*} [Fintype ι]
     (hdim : 2 ≤ Fintype.card ι) :
     ¬ ∃ e : OpenPartialHomeomorph (ι → ℂ) (EuclideanSpace ℂ ι),
@@ -328,7 +352,7 @@ theorem not_biholomorphic_polydisc_ball {ι : Type*} [Fintype ι]
     rw [OpenPartialHomeomorph.trans_target]
     change ball 0 1 ∩ (ballMobius (e 0)) ⁻¹' e.target = ball 0 1
     rw [ht]
-    exact inter_eq_left.mpr (ballMobius_mapsTo_involutive ha).1
+    exact inter_eq_left.mpr (mapsTo_ballMobius ha)
   have hg0 : g 0 = 0 := ballMobius_apply_self (e 0)
   let L := fderiv ℂ g 0
   have hL (x : ι → ℂ) : ‖L x‖ = ‖x‖ :=

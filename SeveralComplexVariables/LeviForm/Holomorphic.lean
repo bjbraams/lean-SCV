@@ -5,25 +5,37 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.LeviForm
-public import Mathlib.Analysis.Calculus.ContDiff.RestrictScalars
 public import Mathlib.Analysis.Calculus.ContDiff.Operations
+public import Mathlib.Analysis.Calculus.ContDiff.RestrictScalars
 public import Mathlib.Analysis.Calculus.FDeriv.RestrictScalars
+public import SeveralComplexVariables.LeviForm
 
 /-!
 # The Levi form under holomorphic maps
 
-The Levi form transforms under a holomorphic map `Φ` by the chain rule
-`Lev (g ∘ Φ) (a, w) = Lev g (Φ a, Φ'(a) w)`: the second derivative of `Φ` contributes
-`Dg (D²Φ (w, w) + D²Φ (I • w, I • w))`, which vanishes because the second derivative of a
-holomorphic map is complex bilinear. Consequently `C²` plurisubharmonic functions compose
-with holomorphic maps to `C²` plurisubharmonic functions.
+The Levi form transforms under a holomorphic map `Φ` by the chain rule `Lev (g ∘ Φ) (a, w) = Lev
+g (Φ a, Φ'(a) w)`: the second derivative of `Φ` contributes `Dg (D²Φ (w, w) + D²Φ (I • w, I •
+w))`, which vanishes because the second derivative of a holomorphic map is complex bilinear.
+Consequently `C²` plurisubharmonic functions compose with holomorphic maps to `C²`
+plurisubharmonic functions.
 
-References: Fritzsche–Grauert (2002), Chapter II, Section 2, Example 4 after the definition
-of the Levi form; Hörmander (1973), Theorem 2.6.4 (smooth case).
+References: [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Section 2, Example 4
+after the definition of the Levi form; [Hörmander][Hormander1973] (1973), Theorem 2.6.4 (smooth
+case).
+
+## Main results
+
+* `leviForm_comp_analytic`: **Chain rule for the Levi form.** For a `C²` function `g` and a
+  holomorphic map `Φ`, `Lev (g ∘ Φ) (a, w) = Lev g (Φ a, Φ'(a) w)`.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Metric Set
 open scoped Topology
@@ -40,8 +52,8 @@ theorem fderiv_real_eq_restrictScalars {Φ : E → F} {a : E} (hΦ : Differentia
     fderiv ℝ Φ a = (fderiv ℂ Φ a).restrictScalars ℝ :=
   (hΦ.hasFDerivAt.restrictScalars ℝ).fderiv
 
-/-- The real second derivative of a holomorphic map is complex bilinear: it changes sign when
-both arguments are multiplied by `I`. -/
+/-- The real second derivative of a holomorphic map is complex bilinear: it changes sign when both
+arguments are multiplied by `I`. -/
 theorem fderiv_fderiv_smul_I_smul_I {Φ : E → F} {a : E} (hΦ : AnalyticAt ℂ Φ a) (s t : E) :
     fderiv ℝ (fderiv ℝ Φ) a (I • s) (I • t) = -fderiv ℝ (fderiv ℝ Φ) a s t := by
   have hc : ContDiffAt ℂ 2 Φ a := hΦ.contDiffAt
@@ -93,10 +105,12 @@ theorem leviForm_comp_analytic {g : F → ℝ} {Φ : E → F} {a : E} (hg : Cont
     simp [ContinuousLinearMap.compL_apply]
   -- complex linearity of the first derivative
   have hlin : fderiv ℝ Φ a (I • w) = I • fderiv ℂ Φ a w := by
-    rw [fderiv_real_eq_restrictScalars hΦ.differentiableAt, ContinuousLinearMap.coe_restrictScalars',
+    rw [fderiv_real_eq_restrictScalars hΦ.differentiableAt,
+      ContinuousLinearMap.coe_restrictScalars',
       map_smul]
   have hlin' : fderiv ℝ Φ a w = fderiv ℂ Φ a w := by
-    rw [fderiv_real_eq_restrictScalars hΦ.differentiableAt, ContinuousLinearMap.coe_restrictScalars']
+    rw [fderiv_real_eq_restrictScalars hΦ.differentiableAt,
+      ContinuousLinearMap.coe_restrictScalars']
   rw [leviForm_eq_fderiv, leviForm_eq_fderiv, hD2, hD2, fderiv_fderiv_smul_I_smul_I hΦ, map_neg,
     hlin, hlin']
   ring

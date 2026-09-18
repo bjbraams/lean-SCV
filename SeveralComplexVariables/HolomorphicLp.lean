@@ -5,39 +5,56 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.MeasureTheory.Constructions.Pi
+public import Mathlib.MeasureTheory.Function.ConvergenceInMeasure
+public import Mathlib.MeasureTheory.Function.L2Space
+public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+public import Mathlib.MeasureTheory.Measure.Lebesgue.Complex
 public import SeveralComplexVariables.LocallyUniform
 public import SeveralComplexVariables.PolydiscMeanValue
-public import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
-public import Mathlib.MeasureTheory.Function.L2Space
-public import Mathlib.MeasureTheory.Function.ConvergenceInMeasure
-public import Mathlib.MeasureTheory.Measure.Lebesgue.Complex
-public import Mathlib.MeasureTheory.Constructions.Pi
 
 /-!
 # Holomorphic Lp spaces
 
-The holomorphic Lp space on an open subset of `ι → ℂ` is the submodule of Lebesgue
-Lp classes admitting a holomorphic representative. Such a representative is unique on
-the open set. Complex Banach targets and empty coordinate types are allowed.
+The holomorphic Lp space on an open subset of `ι → ℂ` is the submodule of Lebesgue Lp classes
+admitting a holomorphic representative. Such a representative is unique on the open set. Complex
+Banach targets and empty coordinate types are allowed.
 
-Jakóbczak–Jarnicki, Lemma 1.4.20 and Corollary 1.4.21, motivate the local Lp estimate
-and completeness for `1 ≤ p < ∞`. The local estimate follows from the volume
-mean-value formula and Hölder's inequality. It yields closedness and completeness. For Hilbert targets, the
-space at `p = 2` inherits Mathlib's L2 inner product, with its convention of linearity
-in the second argument. No boundedness or connectedness of the open set is required.
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021], Lemma 1.4.20 and Corollary 1.4.21, motivate the
+local Lp estimate and completeness for `1 ≤ p ≤ ∞`. The local estimate follows from the volume
+mean-value formula and Hölder's inequality. It yields closedness and completeness. For Hilbert
+targets, the space at `p = 2` inherits Mathlib's L2 inner product, with its convention of
+linearity in the second argument. No boundedness or connectedness of the open set is required.
+
+## Main definitions
+
+* `holomorphicLpSubmodule`: The Lp classes which have a holomorphic representative on the open set.
+* `HolomorphicLp`: Holomorphic Lp functions, represented as a subspace of Mathlib's Lebesgue Lp
+  space.
+
+## Main results
+
+* `exists_norm_le_mul_Lp_norm`: **Local Lp estimate ([Jakóbczak–Jarnicki][JakobczakJarnicki2021]
+  1.4.20).** On each compact subset of an open set, values of a holomorphic representative are
+  bounded by a fixed multiple of the norm of its Lp class.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
 public section
 
 open Filter Set MeasureTheory Metric
-open scoped Classical ENNReal Topology
+open scoped ENNReal Topology
 
 namespace SeveralComplexVariables
 
 variable {ι F : Type*} [Fintype ι] [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 /-- The Lp classes which have a holomorphic representative on the open set. -/
-def holomorphicLpSubmodule (U : TopologicalSpace.Opens (ι → ℂ)) (p : ℝ≥0∞) :
+@[expose] def holomorphicLpSubmodule (U : TopologicalSpace.Opens (ι → ℂ)) (p : ℝ≥0∞) :
     Submodule ℂ (Lp F p (volume.restrict (U : Set (ι → ℂ)))) where
   carrier := {u | ∃ f : (ι → ℂ) → F, DifferentiableOn ℂ f U ∧
     f =ᵐ[volume.restrict (U : Set (ι → ℂ))] u}
@@ -49,10 +66,10 @@ def holomorphicLpSubmodule (U : TopologicalSpace.Opens (ι → ℂ)) (p : ℝ≥
     rintro c u ⟨f, hf, he⟩
     exact ⟨c • f, hf.const_smul c, (he.const_smul c).trans (Lp.coeFn_smul c u).symm⟩
 
-/-- Holomorphic Lp functions, represented as a subspace of Mathlib's Lebesgue Lp space.
-For `1 ≤ p` the norm and complex normed-space structure are inherited from Lp. -/
+/-- Holomorphic Lp functions, represented as a subspace of Mathlib's Lebesgue Lp space. For `1 ≤ p`
+the norm and complex normed-space structure are inherited from Lp. -/
 abbrev HolomorphicLp (U : TopologicalSpace.Opens (ι → ℂ)) (F : Type*)
-    [NormedAddCommGroup F] [NormedSpace ℂ F] (p : ℝ≥0∞) :=
+    [NormedAddCommGroup F] [NormedSpace ℂ F] (p : ℝ≥0∞) : Type _ :=
   ↥(holomorphicLpSubmodule (F := F) U p)
 
 /-- Every element of the holomorphic Lp subspace has a holomorphic representative. -/
@@ -71,8 +88,8 @@ theorem holomorphicLp_representative_unique {U : TopologicalSpace.Opens (ι → 
 
 variable [CompleteSpace F]
 
-/-- The volume mean-value formula and Hölder's inequality bound the center value
-by the global Lp norm. Only holomorphy on the closed polydisc is needed here. -/
+/-- The volume mean-value formula and Hölder's inequality bound the center value by the global Lp
+norm. Only holomorphy on the closed polydisc is needed here. -/
 theorem volume_mul_norm_le_Lp_norm (U : TopologicalSpace.Opens (ι → ℂ))
     (p : ℝ≥0∞) [Fact (1 ≤ p)] {c : ι → ℂ} {r : ℝ} (hr : 0 < r)
     (hBU : closedBall c r ⊆ U)
@@ -109,12 +126,13 @@ theorem volume_mul_norm_le_Lp_norm (U : TopologicalSpace.Opens (ι → ℂ))
       exact integral_norm_eq_lintegral_enorm hmeas
     _ ≤ ‖u‖ * volume.real (closedBall c r) ^ (1 - 1 / p.toReal) := hreal
 
-/-- **Local Lp estimate (Jakóbczak–Jarnicki 1.4.20).** On each compact subset of an
+/-- **Local Lp estimate ([Jakóbczak–Jarnicki][JakobczakJarnicki2021] 1.4.20).** On each compact
+subset of an
 open set, values of a holomorphic representative are bounded by a fixed multiple of
 the norm of its Lp class. A uniform polydisc radius, the volume mean-value formula,
 and Hölder's inequality give a constant independent of the representative. -/
 theorem exists_norm_le_mul_Lp_norm (U : TopologicalSpace.Opens (ι → ℂ))
-    (p : ℝ≥0∞) [Fact (1 ≤ p)] (_hp : p ≠ ∞)
+    (p : ℝ≥0∞) [Fact (1 ≤ p)]
     {K : Set (ι → ℂ)} (hKU : K ⊆ U) (hK : IsCompact K) :
     ∃ C : ℝ, 0 < C ∧ ∀ (u : Lp F p (volume.restrict (U : Set (ι → ℂ))))
       (f : (ι → ℂ) → F), DifferentiableOn ℂ f U →
@@ -129,7 +147,7 @@ theorem exists_norm_le_mul_Lp_norm (U : TopologicalSpace.Opens (ι → ℂ))
   intro u f hf he z hz
   have hBU : closedBall z r ⊆ U := (closedBall_subset_cthickening hz r).trans hsub
   have hbound := volume_mul_norm_le_Lp_norm U p hr hBU u
-    ((hf.analyticOnNhd_finiteDimensional U.isOpen).mono hBU) he
+    ((hf.analyticOnNhd_of_finiteDimensional U.isOpen).mono hBU) he
   have hvol : volume.real (closedBall z r) = v := by
     have hpre : (fun w : ι → ℂ => z + w) ⁻¹' closedBall z r = closedBall 0 r := by
       ext w
@@ -142,11 +160,11 @@ theorem exists_norm_le_mul_Lp_norm (U : TopologicalSpace.Opens (ι → ℂ))
       (le_div_iff₀ hv).mpr (by simpa only [mul_comm] using hbound)
     _ = v ^ (1 - 1 / p.toReal) / v * ‖u‖ := by ring
 
-/-- An Lp-convergent sequence of holomorphic representatives converges locally uniformly
-on the open set to a holomorphic representative of its Lp limit. This uses the local
-Lp estimate; in particular, no global finite-measure hypothesis is needed. -/
+/-- An Lp-convergent sequence of holomorphic representatives converges locally uniformly on the open
+set to a holomorphic representative of its Lp limit. This uses the local Lp estimate; in
+particular, no global finite-measure hypothesis is needed. -/
 theorem exists_holomorphic_representative_of_tendsto_Lp
-    {U : TopologicalSpace.Opens (ι → ℂ)} {p : ℝ≥0∞} [Fact (1 ≤ p)] (hp : p ≠ ∞)
+    {U : TopologicalSpace.Opens (ι → ℂ)} {p : ℝ≥0∞} [Fact (1 ≤ p)]
     {u : ℕ → Lp F p (volume.restrict (U : Set (ι → ℂ)))}
     {v : Lp F p (volume.restrict (U : Set (ι → ℂ)))}
     {f : ℕ → (ι → ℂ) → F} (hf : ∀ n, DifferentiableOn ℂ (f n) U)
@@ -155,9 +173,10 @@ theorem exists_holomorphic_representative_of_tendsto_Lp
     ∃ g : (ι → ℂ) → F, DifferentiableOn ℂ g U ∧
       g =ᵐ[volume.restrict (U : Set (ι → ℂ))] v ∧
       TendstoLocallyUniformlyOn f g atTop U := by
+  classical
   have hc : ∀ K ⊆ (U : Set (ι → ℂ)), IsCompact K → UniformCauchySeqOn f atTop K := by
     intro K hKU hK
-    obtain ⟨C, hC, hbound⟩ := exists_norm_le_mul_Lp_norm (F := F) U p hp hKU hK
+    obtain ⟨C, hC, hbound⟩ := exists_norm_le_mul_Lp_norm (F := F) U p hKU hK
     rw [Metric.uniformCauchySeqOn_iff]
     intro ε hε
     obtain ⟨N, hN⟩ := Metric.cauchySeq_iff.mp hu.cauchySeq (ε / C) (div_pos hε hC)
@@ -183,7 +202,7 @@ theorem exists_holomorphic_representative_of_tendsto_Lp
     intro K hKU hK
     exact (hc K hKU hK).tendstoUniformlyOn_of_tendsto fun z hz => hG z (hKU hz)
   refine ⟨G, (hloc.analyticOnNhd_pi
-    (.of_forall fun n => (hf n).analyticOnNhd_finiteDimensional U.isOpen)
+    (.of_forall fun n => (hf n).analyticOnNhd_of_finiteDimensional U.isOpen)
     U.isOpen).differentiableOn, ?_, hloc⟩
   obtain ⟨φ, hφ, hv⟩ := (tendstoInMeasure_of_tendsto_Lp hu).exists_seq_tendsto_ae
   filter_upwards [hv, ae_all_iff.mpr he, ae_restrict_mem U.isOpen.measurableSet] with z hz hez hzU
@@ -191,33 +210,28 @@ theorem exists_holomorphic_representative_of_tendsto_Lp
     simpa only [Function.comp_def, ← hez] using (hG z hzU).comp hφ.tendsto_atTop
   exact tendsto_nhds_unique ht hz
 
-/-- The holomorphic Lp submodule is closed for `1 ≤ p < ∞`, by the local Lp estimate
-and Weierstrass convergence. -/
+/-- The holomorphic Lp submodule is closed for `1 ≤ p ≤ ∞`, by the local Lp estimate and Weierstrass
+convergence. -/
 theorem isClosed_holomorphicLpSubmodule (U : TopologicalSpace.Opens (ι → ℂ))
-    (p : ℝ≥0∞) [Fact (1 ≤ p)] (hp : p ≠ ∞) :
+    (p : ℝ≥0∞) [Fact (1 ≤ p)] :
     IsClosed (holomorphicLpSubmodule (F := F) U p : Set (Lp F p
       (volume.restrict (U : Set (ι → ℂ))))) := by
   apply isSeqClosed_iff_isClosed.mp
   intro u v hu hv
   choose f hf he using hu
-  obtain ⟨g, hg, heq, _⟩ := exists_holomorphic_representative_of_tendsto_Lp hp hf he hv
+  obtain ⟨g, hg, heq, _⟩ := exists_holomorphic_representative_of_tendsto_Lp hf he hv
   exact ⟨g, hg, heq⟩
 
-/-- **Jakóbczak–Jarnicki 1.4.21.** Holomorphic Lp is a complex Banach space for
-`1 ≤ p < ∞`. Completeness follows from closedness in Mathlib's complete Lp space. -/
+/-- **[Jakóbczak–Jarnicki][JakobczakJarnicki2021] 1.4.21.** Holomorphic Lp is a complex Banach space
+for
+`1 ≤ p ≤ ∞`. Completeness follows from closedness in Mathlib's complete Lp space. -/
 instance (U : TopologicalSpace.Opens (ι → ℂ)) (p : ℝ≥0∞)
-    [Fact (1 ≤ p)] [Fact (p ≠ ∞)] : CompleteSpace (HolomorphicLp U F p) :=
-  (isClosed_holomorphicLpSubmodule (F := F) U p (Fact.out : p ≠ ∞)).isComplete.completeSpace_coe
+    [Fact (1 ≤ p)] : CompleteSpace (HolomorphicLp U F p) :=
+  (isClosed_holomorphicLpSubmodule (F := F) U p).isComplete.completeSpace_coe
 
-/-- Holomorphic L2 is complete, in particular without requiring callers to supply
-an explicit proof that the exponent `2` is finite. -/
-instance holomorphicL2CompleteSpace (U : TopologicalSpace.Opens (ι → ℂ)) :
-    CompleteSpace (HolomorphicLp U F 2) :=
-  (isClosed_holomorphicLpSubmodule (F := F) U 2 (by norm_num)).isComplete.completeSpace_coe
-
-/-- Holomorphic L2 inherits the integral inner product of Mathlib's L2 space.
-Together with completeness this gives Corollary 1.4.21's Hilbert-space assertion,
-including Hilbert-valued functions and Mathlib's linear-in-the-second-argument convention. -/
+/-- Holomorphic L2 inherits the integral inner product of Mathlib's L2 space. Together with
+completeness this gives Corollary 1.4.21's Hilbert-space assertion, including Hilbert-valued
+functions and Mathlib's linear-in-the-second-argument convention. -/
 theorem holomorphicL2_inner {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
     {U : TopologicalSpace.Opens (ι → ℂ)} (f g : HolomorphicLp U H 2) :
     inner ℂ f g = ∫ z, inner ℂ (f.val z) (g.val z)

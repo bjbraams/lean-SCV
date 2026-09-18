@@ -5,34 +5,65 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.RCLike.Extend
 public import SeveralComplexVariables.LeviForm
+public import SeveralComplexVariables.Analysis.LinearFunctional
+public import SeveralComplexVariables.Topology.Frontier
 
 /-!
 # Levi convex boundaries
 
-A local `C²` defining function for an open set `U` at a boundary point `p` is a `C²`
-function `ρ` on an open neighborhood `V` of `p`, vanishing at `p`, with nonzero derivative at
-`p`, such that `U ∩ V` is the set where `ρ` is negative. The complex tangent space at `p` is
-the kernel of the complex-linear part of the derivative of `ρ`. The set `U` satisfies the
-Levi condition at `p` if the Levi form of every local defining function is positive
-semidefinite on the complex tangent space; it is Levi pseudoconvex if this holds at every
-boundary point. Quantifying over all defining functions avoids the lemma that two defining
-functions differ by a positive factor.
+A local `C²` defining function for an open set `U` at a boundary point `p` is a `C²` function
+`ρ` on an open neighborhood `V` of `p`, vanishing at `p`, with nonzero derivative at `p`, such
+that `U ∩ V` is the set where `ρ` is negative. The complex tangent space at `p` is the kernel of
+the complex-linear part of the derivative of `ρ`. The set `U` satisfies the Levi condition at
+`p` if the Levi form of every local defining function is positive semidefinite on the complex
+tangent space; it is Levi pseudoconvex if this holds at every boundary point. Quantifying over
+all defining functions avoids the lemma that two defining functions differ by a positive factor.
 
 This file proves that convex open sets are Levi pseudoconvex: along a real tangent line the
-defining function vanishes to first order at `p`, so a negative second derivative would put
-two symmetric points of the line into `U` and, by convexity, the boundary point itself.
+defining function vanishes to first order at `p`, so a negative second derivative would put two
+symmetric points of the line into `U` and, by convexity, the boundary point itself.
 
-It also provides the complex-linear part `complexPart ℓ` of a real functional `ℓ`, with
-`ℓ (ζ • c) = Re (ζ * complexPart ℓ c)`, and the decomposition of a symmetric real bilinear
-form along a complex line into a Hermitian part, the Levi form, and the real part of a
-complex quadratic term. Both are used for the Levi polynomial in `LeviConvexity.Necessity`.
+It also provides the complex-linear part `complexPart ℓ` of a real functional `ℓ`, with `ℓ (ζ •
+c) = Re (ζ * complexPart ℓ c)`, and the decomposition of a symmetric real bilinear form along a
+complex line into a Hermitian part, the Levi form, and the real part of a complex quadratic
+term. Both are used for the Levi polynomial in `LeviConvexity.Necessity`.
 
-References: Fritzsche–Grauert (2002), Chapter II, Section 4; Range (1986), Chapter II,
-Sections 2.4–2.6.
+References: [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Section 4;
+[Range][Range1986] (1986), Chapter II, Sections 2.4–2.6.
+
+## Main definitions
+
+* `complexPart`: The complex-linear part of a real functional: `ℓ c - I * ℓ (I • c)`.
+* `IsLocalDefiningFunction`: A local `C²` defining function for `U` at `p` on the open neighborhood
+  `V`: `ρ p = 0`, the real derivative of `ρ` at `p` is nonzero, and `U ∩ V` is the negative sublevel
+  set of `ρ` in `V`.
+* `HasC2Boundary`: A set has `C²` boundary if every boundary point has a local defining function.
+* `IsComplexTangent`: The complex tangent space of the level set of `ρ` at `p`: the kernel of the
+  complex-linear part of the derivative.
+* `IsLeviPseudoconvexAt`: The Levi condition at a boundary point: the Levi form of every local
+  defining function is positive semidefinite on the complex tangent space.
+* `IsLeviPseudoconvex`: Levi pseudoconvexity: the Levi condition at every boundary point.
+
+## Main results
+
+* `bilinear_smul_smul_eq`: **Quadratic decomposition along a complex line.** For a symmetric real
+  bilinear form `B`, `B (ζ • w) (ζ • w) / 2` is `‖ζ‖ ^ 2` times the Hermitian part `(B w w + B (I •
+  w) (I • w)) / 4` plus the real part of `ζ ^ 2` times the complex quadratic coefficient `(B w w - B
+  (I • w) (I • w)) / 4 - I / 2 * B w (I • w)`.
+* `Convex.isLeviPseudoconvex`: **Convex open sets are Levi pseudoconvex** ([Range][Range1986], Lemma
+  2.10).
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Metric Set
 open scoped Topology
@@ -43,53 +74,25 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 section ComplexPart
 
-/-- A complex scalar acts on a vector through its real and imaginary parts. -/
-theorem smul_eq_re_smul_add_im_smul (ζ : ℂ) (c : E) : ζ • c = ζ.re • c + ζ.im • (I • c) := by
-  conv_lhs => rw [← Complex.re_add_im ζ]
-  rw [add_smul, mul_smul, Complex.coe_smul, Complex.coe_smul]
+/-- The complex-linear part `c ↦ ℓ c - I * ℓ (I • c)` of a real functional: Mathlib's
+`StrongDual.extendRCLike` with the scalar field fixed to `ℂ`. -/
+abbrev complexPart (ℓ : E →L[ℝ] ℝ) : E →L[ℂ] ℂ := StrongDual.extendRCLike ℓ
 
-/-- The complex-linear part of a real functional: `ℓ c - I * ℓ (I • c)`. -/
-def complexPart (ℓ : E →L[ℝ] ℝ) (c : E) : ℂ := (ℓ c : ℂ) - I * (ℓ (I • c) : ℂ)
+/-- The defining formula of the complex-linear part. -/
+theorem complexPart_apply (ℓ : E →L[ℝ] ℝ) (c : E) :
+    complexPart ℓ c = (ℓ c : ℂ) - I * (ℓ (I • c) : ℂ) := rfl
 
 /-- A real functional on a complex multiple is the real part of the complex multiple of its
 complex-linear part. -/
 theorem apply_smul_eq_re_mul_complexPart (ℓ : E →L[ℝ] ℝ) (ζ : ℂ) (c : E) :
     ℓ (ζ • c) = (ζ * complexPart ℓ c).re := by
-  rw [smul_eq_re_smul_add_im_smul, map_add, map_smul, map_smul, smul_eq_mul, smul_eq_mul,
-    complexPart]
+  rw [Complex.smul_eq_re_smul_add_im_smul, map_add, map_smul, map_smul, smul_eq_mul, smul_eq_mul,
+    complexPart_apply]
   simp [Complex.mul_re, Complex.mul_im]
-
-/-- The complex-linear part is complex linear. -/
-theorem complexPart_smul (ℓ : E →L[ℝ] ℝ) (ζ : ℂ) (c : E) :
-    complexPart ℓ (ζ • c) = ζ * complexPart ℓ c := by
-  have h1 : ℓ (ζ • c) = (ζ * complexPart ℓ c).re := apply_smul_eq_re_mul_complexPart ℓ ζ c
-  have h2 : ℓ (I • ζ • c) = (I * ζ * complexPart ℓ c).re := by
-    rw [smul_smul]
-    exact apply_smul_eq_re_mul_complexPart ℓ (I * ζ) c
-  rw [complexPart, h1, h2]
-  apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im]
 
 /-- The real part of the complex part of a real functional is the functional itself. -/
 theorem re_complexPart (ℓ : E →L[ℝ] ℝ) (c : E) : (complexPart ℓ c).re = ℓ c := by
-  simp [complexPart]
-
-/-- A nonzero real functional attains every real value. -/
-theorem exists_apply_eq {ℓ : E →L[ℝ] ℝ} (hℓ : ℓ ≠ 0) (c : ℝ) : ∃ ν, ℓ ν = c := by
-  obtain ⟨v, hv⟩ : ∃ v, ℓ v ≠ 0 := by
-    by_contra h
-    push Not at h
-    exact hℓ (ContinuousLinearMap.ext h)
-  refine ⟨(c / ℓ v) • v, ?_⟩
-  rw [map_smul, smul_eq_mul, div_mul_cancel₀ _ hv]
-
-/-- A nonzero real functional attains the value `1` on a nonzero vector. -/
-theorem exists_apply_eq_one {ℓ : E →L[ℝ] ℝ} (hℓ : ℓ ≠ 0) : ∃ ν, ℓ ν = 1 ∧ 0 < ‖ν‖ := by
-  obtain ⟨ν, hν⟩ := exists_apply_eq hℓ 1
-  refine ⟨ν, hν, ?_⟩
-  rw [norm_pos_iff]
-  intro h0
-  rw [h0, map_zero] at hν
-  exact zero_ne_one hν
+  simp [complexPart_apply]
 
 /-- A nonzero real functional has a vector on which its complex-linear part is nonzero. -/
 theorem exists_complexPart_ne_zero {ℓ : E →L[ℝ] ℝ} (hℓ : ℓ ≠ 0) : ∃ c, complexPart ℓ c ≠ 0 := by
@@ -105,7 +108,7 @@ theorem exists_complexPart_eq {ℓ : E →L[ℝ] ℝ} (hℓ : ℓ ≠ 0) (q : �
     ∃ c, complexPart ℓ c = q := by
   obtain ⟨c₀, hc₀⟩ := exists_complexPart_ne_zero hℓ
   refine ⟨(q / complexPart ℓ c₀) • c₀, ?_⟩
-  rw [complexPart_smul, div_mul_cancel₀ _ hc₀]
+  rw [map_smul, smul_eq_mul, div_mul_cancel₀ _ hc₀]
 
 /-- **Quadratic decomposition along a complex line.** For a symmetric real bilinear form `B`,
 `B (ζ • w) (ζ • w) / 2` is `‖ζ‖ ^ 2` times the Hermitian part
@@ -116,7 +119,7 @@ theorem bilinear_smul_smul_eq (B : E →L[ℝ] E →L[ℝ] ℝ) {w : E}
     (1 / 2 : ℝ) * B (ζ • w) (ζ • w) =
       ‖ζ‖ ^ 2 * ((B w w + B (I • w) (I • w)) / 4) +
         (ζ ^ 2 * (((B w w - B (I • w) (I • w)) / 4 : ℝ) - I / 2 * B w (I • w))).re := by
-  rw [smul_eq_re_smul_add_im_smul]
+  rw [Complex.smul_eq_re_smul_add_im_smul]
   simp only [map_add, map_smul, add_apply, smul_apply, smul_eq_mul, hsymm]
   rw [Complex.sq_norm, Complex.normSq_apply]
   simp [Complex.mul_re, Complex.mul_im, pow_two]
@@ -126,34 +129,39 @@ end ComplexPart
 
 section Defining
 
-/-- A local `C²` defining function for `U` at `p` on the open neighborhood `V`: `ρ p = 0`,
-the real derivative of `ρ` at `p` is nonzero, and `U ∩ V` is the negative sublevel set of `ρ`
-in `V`. -/
+/-- A local `C²` defining function for `U` at `p` on the open neighborhood `V`: `ρ p = 0`, the real
+derivative of `ρ` at `p` is nonzero, and `U ∩ V` is the negative sublevel set of `ρ` in `V`. -/
 structure IsLocalDefiningFunction (U : Set E) (p : E) (ρ : E → ℝ) (V : Set E) : Prop where
+  /-- The defining neighborhood is open. -/
   isOpen : IsOpen V
+  /-- The boundary point lies in the defining neighborhood. -/
   mem : p ∈ V
+  /-- The defining function is twice continuously real differentiable. -/
   contDiffOn : ContDiffOn ℝ 2 ρ V
+  /-- The defining function vanishes at the boundary point. -/
   eq_zero : ρ p = 0
+  /-- The real derivative is nonzero at the boundary point. -/
   fderiv_ne : fderiv ℝ ρ p ≠ 0
+  /-- The domain is the negative sublevel set in the defining neighborhood. -/
   inter_eq : U ∩ V = {z | ρ z < 0} ∩ V
 
 /-- A set has `C²` boundary if every boundary point has a local defining function. -/
-def HasC2Boundary (U : Set E) : Prop :=
+@[expose] def HasC2Boundary (U : Set E) : Prop :=
   ∀ p ∈ frontier U, ∃ (ρ : E → ℝ) (V : Set E), IsLocalDefiningFunction U p ρ V
 
-/-- The complex tangent space of the level set of `ρ` at `p`: the kernel of the complex-linear
-part of the derivative. -/
-def IsComplexTangent (ρ : E → ℝ) (p w : E) : Prop :=
+/-- The complex tangent space of the level set of `ρ` at `p`: the kernel of the complex-linear part
+of the derivative. -/
+@[expose] def IsComplexTangent (ρ : E → ℝ) (p w : E) : Prop :=
   fderiv ℝ ρ p w = 0 ∧ fderiv ℝ ρ p (I • w) = 0
 
 /-- The Levi condition at a boundary point: the Levi form of every local defining function is
 positive semidefinite on the complex tangent space. -/
-def IsLeviPseudoconvexAt (U : Set E) (p : E) : Prop :=
+@[expose] def IsLeviPseudoconvexAt (U : Set E) (p : E) : Prop :=
   ∀ (ρ : E → ℝ) (V : Set E), IsLocalDefiningFunction U p ρ V →
     ∀ w, IsComplexTangent ρ p w → 0 ≤ leviForm ρ p w
 
 /-- Levi pseudoconvexity: the Levi condition at every boundary point. -/
-def IsLeviPseudoconvex (U : Set E) : Prop :=
+@[expose] def IsLeviPseudoconvex (U : Set E) : Prop :=
   ∀ p ∈ frontier U, IsLeviPseudoconvexAt U p
 
 /-- The complex tangent space is closed under multiplication by `I`. -/
@@ -161,13 +169,6 @@ theorem IsComplexTangent.smul_I {ρ : E → ℝ} {p w : E} (h : IsComplexTangent
     IsComplexTangent ρ p (I • w) := by
   refine ⟨h.2, ?_⟩
   rw [smul_smul, Complex.I_mul_I, neg_one_smul, map_neg, h.1, neg_zero]
-
-omit [NormedSpace ℂ E] in
-/-- A boundary point of an open set is not in the set. -/
-theorem notMem_of_mem_frontier {U : Set E} (hU : IsOpen U) {p : E} (hp : p ∈ frontier U) :
-    p ∉ U := by
-  rw [hU.frontier_eq] at hp
-  exact hp.2
 
 /-- Points near `p` where the defining function is negative lie in `U`. -/
 theorem IsLocalDefiningFunction.mem_of_neg {U : Set E} {p : E} {ρ : E → ℝ} {V : Set E}
@@ -189,8 +190,8 @@ section Convex
 
 variable {U : Set E} {p : E} {ρ : E → ℝ} {V : Set E}
 
-/-- Along a real tangent direction, the second derivative of a defining function of a convex
-open set is nonnegative. -/
+/-- Along a real tangent direction, the second derivative of a defining function of a convex open
+set is nonnegative. -/
 theorem IsLocalDefiningFunction.fderiv_fderiv_nonneg_of_convex (hU : IsOpen U)
     (hconv : Convex ℝ U) (hp : p ∈ frontier U) (h : IsLocalDefiningFunction U p ρ V)
     {w : E} (hw : fderiv ℝ ρ p w = 0) : 0 ≤ fderiv ℝ (fderiv ℝ ρ) p w w := by
@@ -201,16 +202,18 @@ theorem IsLocalDefiningFunction.fderiv_fderiv_nonneg_of_convex (hU : IsOpen U)
   set g : ℂ → ℝ := fun t => ρ (p + t • w) with hg
   have hρp : ContDiffAt ℝ 2 ρ (p + (0 : ℂ) • w) := by
     simpa using h.contDiffOn.contDiffAt (h.isOpen.mem_nhds h.mem)
-  have hgc : ContDiffAt ℝ 2 g 0 := hρp.comp 0 (contDiff_line p w).contDiffAt
+  have hgc : ContDiffAt ℝ 2 g 0 := hρp.comp 0
+    (by fun_prop : ContDiff ℝ 2 fun t : ℂ => p + t • w).contDiffAt
   obtain ⟨δ₁, hδ₁, htaylor⟩ := exists_taylor_bound hgc (ε := -A / 4) (by linarith)
   obtain ⟨δ₂, hδ₂, hV⟩ := Metric.mem_nhds_iff.mp
-    ((continuous_line p w).continuousAt.preimage_mem_nhds (by
+    ((by fun_prop : Continuous fun t : ℂ => p + t • w).continuousAt.preimage_mem_nhds (by
       show V ∈ 𝓝 ((fun t : ℂ => p + t • w) 0)
       simpa using h.isOpen.mem_nhds h.mem))
-  have hD1 : fderiv ℝ g 0 = (fderiv ℝ ρ p).comp (lineCLM w) := by
+  have hD1 : fderiv ℝ g 0 = (fderiv ℝ ρ p).comp ((ContinuousLinearMap.id ℝ ℂ).smulRight w) := by
     have := fderiv_slice (f := ρ) (a := p) (w := w) (t₀ := 0) (hρp.differentiableAt (by norm_num))
     simpa using this
-  have hD2 : ∀ s s' : ℂ, fderiv ℝ (fderiv ℝ g) 0 s s' = fderiv ℝ (fderiv ℝ ρ) p (s • w) (s' • w) := by
+  have hD2 : ∀ s s' : ℂ, fderiv ℝ (fderiv ℝ g) 0 s s' = fderiv ℝ (fderiv ℝ ρ) p (s • w) (s' • w)
+    := by
     intro s s'
     have := fderiv_fderiv_slice (f := ρ) (a := p) (w := w) (t₀ := 0) hρp s s'
     simpa using this
@@ -223,7 +226,8 @@ theorem IsLocalDefiningFunction.fderiv_fderiv_nonneg_of_convex (hU : IsOpen U)
     have ht := htaylor (x : ℂ) hxδ₁
     have hg0 : g 0 = 0 := by simp [hg, h.eq_zero]
     have hlin : fderiv ℝ g 0 (x : ℂ) = 0 := by
-      rw [hD1, ContinuousLinearMap.comp_apply, lineCLM_apply, Complex.coe_smul, map_smul, hw,
+      rw [hD1, ContinuousLinearMap.comp_apply, ContinuousLinearMap.smulRight_apply,
+        ContinuousLinearMap.id_apply, Complex.coe_smul, map_smul, hw,
         smul_zero]
     have hquad : fderiv ℝ (fderiv ℝ g) 0 (x : ℂ) (x : ℂ) = x ^ 2 * A := by
       rw [hD2, Complex.coe_smul, map_smul, map_smul]
@@ -252,10 +256,10 @@ theorem IsLocalDefiningFunction.fderiv_fderiv_nonneg_of_convex (hU : IsOpen U)
   have : p ∈ U := by
     rw [hmid]
     exact hconv h1 h2 (by norm_num) (by norm_num) (by norm_num)
-  exact notMem_of_mem_frontier hU hp this
+  exact hU.notMem_of_mem_frontier hp this
 
-/-- **Convex open sets are Levi pseudoconvex** (Range, Lemma 2.10). -/
-theorem IsLeviPseudoconvex.of_convex (hU : IsOpen U) (hconv : Convex ℝ U) :
+/-- **Convex open sets are Levi pseudoconvex** ([Range][Range1986], Lemma 2.10). -/
+theorem _root_.Convex.isLeviPseudoconvex (hU : IsOpen U) (hconv : Convex ℝ U) :
     IsLeviPseudoconvex U := by
   intro p hp ρ V h w hw
   have h1 := h.fderiv_fderiv_nonneg_of_convex hU hconv hp hw.1

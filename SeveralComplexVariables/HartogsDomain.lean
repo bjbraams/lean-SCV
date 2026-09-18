@@ -10,21 +10,51 @@ public import SeveralComplexVariables.Reinhardt
 /-!
 # Hartogs sets and their fibers
 
-The product `E × ℂ` specifies a base and a distinguished complex fiber coordinate.
-`IsHartogs` is rotational invariance in that coordinate; `IsCompleteHartogs` also
-allows contraction toward zero. Openness, nonemptiness and connectedness of the total
-set are separate assumptions. `HasPreconnectedFibers` is a further, independent property:
-empty fibers are allowed, and every nonempty fiber is then connected.
+The product `E × ℂ` specifies a base and a distinguished complex fiber coordinate. `IsHartogs`
+is rotational invariance in that coordinate; `IsCompleteHartogs` also allows contraction toward
+zero. Openness, nonemptiness and connectedness of the total set are separate assumptions.
+`HasPreconnectedFibers` is a further, independent property: empty fibers are allowed, and every
+nonempty fiber is then connected.
 
-Complete Hartogs sets have star-convex, hence preconnected, fibers. Their base is exactly
-their zero section. No symmetry or contraction in the base is required. To change the
-fiber center to `a`, apply the predicates to `{p | (p.1, a + p.2) ∈ U}`.
+Complete Hartogs sets have star-convex, hence preconnected, fibers. Their base is exactly their
+zero section. No symmetry or contraction in the base is required. To change the fiber center to
+`a`, apply the predicates to `{p | (p.1, a + p.2) ∈ U}`.
 
-References: Shabat (1991), I §1.2, pp. 9–10; Range (1986), Chapter I, E.1.10 and E.5.5.
-Hartogs series are treated separately in `HartogsSeries`.
+References: [Shabat][Shabat1991] (1991), I §1.2, pp. 9–10; [Range][Range1986] (1986), Chapter I,
+E.1.10 and E.5.5. Hartogs series are treated separately in `HartogsSeries`.
+
+## Main definitions
+
+* `hartogsFiber`: The complex fiber of a set over a specified base point.
+* `hartogsBase`: The base consists of the points with nonempty fiber.
+* `IsHartogs`: Hartogs symmetry is invariance under rotations of the fiber coordinate about zero.
+* `IsCompleteHartogs`: Complete Hartogs sets also contain every smaller fiber modulus, including
+  zero.
+* `HasPreconnectedFibers`: Each fiber is preconnected.
+
+## Main results
+
+* `IsCompleteHartogs.isHartogs`: Complete Hartogs sets have Hartogs symmetry.
+* `IsCompleteHartogs.hasPreconnectedFibers`: Complete Hartogs sets have preconnected fibers; empty
+  fibers need no exception.
+* `hasPreconnectedFibers_iff`: Preconnected fibers are equivalently connected fibers at every point
+  of the base.
+* `IsReinhardt.isHartogs_option`: Selecting the `none` coordinate in a Reinhardt set gives Hartogs
+  symmetry.
+* `IsCompleteReinhardt.isCompleteHartogs_option`: Selecting the `none` coordinate in a complete
+  Reinhardt set gives complete Hartogs.
+* `isOpen_hartogsBase`: The base of an open set in a product is open.
+* `isPreconnected_hartogsBase`: The base of a preconnected set is preconnected.
+
+## References
+
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [B. V. Shabat, *Introduction to Complex Analysis, Part II: Functions of Several
+  Variables*][Shabat1991]
 -/
 
-@[expose] public section
+public section
 
 open Set
 
@@ -33,23 +63,23 @@ namespace SeveralComplexVariables
 variable {E E' : Type*} {U V : Set (E × ℂ)}
 
 /-- The complex fiber of a set over a specified base point. -/
-def hartogsFiber (U : Set (E × ℂ)) (z : E) : Set ℂ :=
+@[expose] def hartogsFiber (U : Set (E × ℂ)) (z : E) : Set ℂ :=
   {w | (z, w) ∈ U}
 
 /-- The base consists of the points with nonempty fiber. -/
-def hartogsBase (U : Set (E × ℂ)) : Set E := Prod.fst '' U
+@[expose] def hartogsBase (U : Set (E × ℂ)) : Set E := Prod.fst '' U
 
 /-- Hartogs symmetry is invariance under rotations of the fiber coordinate about zero. -/
-def IsHartogs (U : Set (E × ℂ)) : Prop :=
+@[expose] def IsHartogs (U : Set (E × ℂ)) : Prop :=
   ∀ ⦃z w⦄, (z, w) ∈ U → ∀ ⦃v⦄, ‖v‖ = ‖w‖ → (z, v) ∈ U
 
 /-- Complete Hartogs sets also contain every smaller fiber modulus, including zero. -/
-def IsCompleteHartogs (U : Set (E × ℂ)) : Prop :=
+@[expose] def IsCompleteHartogs (U : Set (E × ℂ)) : Prop :=
   ∀ ⦃z w⦄, (z, w) ∈ U → ∀ ⦃v⦄, ‖v‖ ≤ ‖w‖ → (z, v) ∈ U
 
-/-- Each fiber is preconnected. Equivalently, every nonempty fiber is connected.
-This does not require Hartogs symmetry, openness, or connectedness of the total set. -/
-def HasPreconnectedFibers (U : Set (E × ℂ)) : Prop :=
+/-- Each fiber is preconnected. Equivalently, every nonempty fiber is connected. This does not
+require Hartogs symmetry, openness, or connectedness of the total set. -/
+@[expose] def HasPreconnectedFibers (U : Set (E × ℂ)) : Prop :=
   ∀ z, IsPreconnected (hartogsFiber U z)
 
 /-- Membership in the base is equivalent to nonemptiness of the fiber. -/

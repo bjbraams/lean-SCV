@@ -5,35 +5,47 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.HolomorphicConvexity.Thullen
-public import SeveralComplexVariables.HolomorphicConvexity.Exhaustion
 public import Mathlib.Topology.Connected.LocallyConnected
 public import Mathlib.Topology.Sequences
+public import SeveralComplexVariables.HolomorphicConvexity.Exhaustion
+public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 
 /-!
 # The Cartan–Thullen characterizations
 
-The core equivalences relate holomorphic convexity, obstruction to common local
-continuation, a single function's domain of existence, and hull boundary distance.
-They apply to open subsets of finite complex coordinate spaces; connectedness is not
-required. They include the empty set, the whole space, and dimension zero.
+The core equivalences relate holomorphic convexity, obstruction to common local continuation, a
+single function's domain of existence, and hull boundary distance. The function-theoretic
+equivalences apply to open subsets of arbitrary finite-dimensional complex normed spaces; the
+numerical hull-radius forms use coordinate sup norms. Connectedness is not required. They
+include the empty set, the whole space, and dimension zero.
 
-Thullen's Taylor continuation lemma gives the forward implication. For the converse,
-a countable basis of balls and overlap components supplies escaping sequences that
-detect every local continuation patch. Baire's theorem gives one holomorphic function
-unbounded on all these sequences. This proves the full equivalences, including for
-disconnected open sets.
+Thullen's Taylor continuation lemma gives the forward implication. For the converse, a countable
+basis of balls and overlap components supplies escaping sequences that detect every local
+continuation patch. Baire's theorem gives one holomorphic function unbounded on all these
+sequences. This proves the full equivalences, including for disconnected open sets.
 
-References: Range II §3.6; Fritzsche–Grauert II §§5–6; Scheidemann §7.3;
-Jakóbczak–Jarnicki §2.7; Hörmander §2.5.
+References: [Range][Range1986] II §3.6; [Fritzsche–Grauert][FritzscheGrauert2002] II §§5–6;
+[Scheidemann][Scheidemann2005] §7.3; [Jakóbczak–Jarnicki][JakobczakJarnicki2021] §2.7;
+[Hörmander][Hormander1973] §2.5.
 
 ## Main results
 
 `isDomainOfHolomorphy_iff_isHolomorphicallyConvex` is the Cartan–Thullen equivalence.
-`isDomainOfHolomorphy_iff_exists_domainOfExistence` produces a single completely
-nonextendable function. `isDomainOfHolomorphy_iff_hasHolomorphicHullDistanceProperty`
-and `isDomainOfHolomorphy_iff_hasHolomorphicHullRadiusProperty` are the hull-radius
-forms. `isHolomorphicallyConvex_of_convex` is the convex example.
+`isDomainOfHolomorphy_iff_exists_domainOfExistence` produces a single completely nonextendable
+function. `isDomainOfHolomorphy_iff_hasHolomorphicHullDistanceProperty` and
+`isDomainOfHolomorphy_iff_hasHolomorphicHullRadiusProperty` are the hull-radius forms.
+`isHolomorphicallyConvex_of_convex` is the convex example.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public noncomputable section
@@ -43,19 +55,29 @@ open scoped Topology
 
 namespace SeveralComplexVariables
 
-variable {n : ℕ} {U : Set (Fin n → ℂ)}
+section General
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
+  {U : Set E}
 
-/-- A component of the overlap with a connected larger open set approaches the
-boundary of the original set inside the larger set. -/
+/-- Finite-dimensional source spaces are proper. -/
+local instance : ProperSpace E := FiniteDimensional.proper ℂ E
+
+/-- Finite-dimensional source spaces have countable bases. -/
+local instance : SecondCountableTopology E :=
+  (Module.finBasis ℂ E).equivFunL.toHomeomorph.secondCountableTopology
+
+omit [FiniteDimensional ℂ E] in
+/-- A component of the overlap with a connected larger open set approaches the boundary of the
+original set inside the larger set. -/
 private theorem exists_boundary_point_of_component (ho : IsOpen U)
-    {V : Set (Fin n → ℂ)} (hV : IsOpen V) (hc : IsPreconnected V)
-    {x : Fin n → ℂ} (hx : x ∈ U ∩ V) (hn : ¬ V ⊆ U) :
+    {V : Set E} (hV : IsOpen V) (hc : IsPreconnected V)
+    {x : E} (hx : x ∈ U ∩ V) (hn : ¬ V ⊆ U) :
     ∃ a ∈ V, a ∉ U ∧ a ∈ closure (connectedComponentIn (U ∩ V) x) := by
   let C := connectedComponentIn (U ∩ V) x
   have hC : IsOpen C := (ho.inter hV).connectedComponentIn
   have hxC : x ∈ C := mem_connectedComponentIn hx
   have hCF : C ⊆ U ∩ V := connectedComponentIn_subset _ _
-  have hrel {a : Fin n → ℂ} (ha : a ∈ closure C) (haF : a ∈ U ∩ V) : a ∈ C := by
+  have hrel {a : E} (ha : a ∈ closure C) (haF : a ∈ U ∩ V) : a ∈ C := by
     have hconn : IsPreconnected (insert a C) :=
       isPreconnected_connectedComponentIn.subset_closure (subset_insert _ _)
         (insert_subset ha subset_closure)
@@ -69,10 +91,11 @@ private theorem exists_boundary_point_of_component (ho : IsOpen U)
   exact hrel haC ⟨by by_contra haU; exact h a haV haU haC, haV⟩
 
 /-- There is a countable basis of nonempty open balls in a finite coordinate space. -/
-private theorem exists_countable_ball_basis (n : ℕ) :
-    ∃ b : Set (Set (Fin n → ℂ)), b.Countable ∧ TopologicalSpace.IsTopologicalBasis b ∧
+private theorem exists_countable_ball_basis (E : Type*) [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [FiniteDimensional ℂ E] :
+    ∃ b : Set (Set E), b.Countable ∧ TopologicalSpace.IsTopologicalBasis b ∧
       ∀ B ∈ b, ∃ c r, 0 < r ∧ B = ball c r := by
-  let T : Set (Set (Fin n → ℂ)) := {B | ∃ c r, 0 < r ∧ B = ball c r}
+  let T : Set (Set E) := {B | ∃ c r, 0 < r ∧ B = ball c r}
   have hT : TopologicalSpace.IsTopologicalBasis T := by
     apply TopologicalSpace.isTopologicalBasis_of_isOpen_of_nhds
     · rintro _ ⟨c, r, hr, rfl⟩; exact isOpen_ball
@@ -82,16 +105,16 @@ private theorem exists_countable_ball_basis (n : ℕ) :
   obtain ⟨b, hbT, hbc, hb⟩ := hT.exists_countable
   exact ⟨b, hbc, hb, hbT⟩
 
-/-- One holomorphic function is unbounded on every member of a countable family
-of escaping sequences. Baire's theorem combines the individual obstructions. -/
+/-- One holomorphic function is unbounded on every member of a countable family of escaping
+sequences. Baire's theorem combines the individual obstructions. -/
 private theorem exists_unbounded_on_sequences {I : Type*} [Countable I]
     (hU : IsHolomorphicallyConvex U) (ho : IsOpen U)
-    (p : I → ℕ → (Fin n → ℂ)) (hp : ∀ i j, p i j ∈ U)
+    (p : I → ℕ → E) (hp : ∀ i j, p i j ∈ U)
     (he : ∀ i, EscapesCompactSubsets U (p i)) :
-    ∃ f : (Fin n → ℂ) → ℂ, AnalyticOnNhd ℂ f U ∧
+    ∃ f : E → ℂ, AnalyticOnNhd ℂ f U ∧
       ∀ i, ¬ BddAbove (range (fun j => ‖f (p i j)‖)) := by
   classical
-  let V : TopologicalSpace.Opens (Fin n → ℂ) := ⟨U, ho⟩
+  let V : TopologicalSpace.Opens E := ⟨U, ho⟩
   let : LocallyCompactSpace V := ho.locallyCompactSpace
   have : (uniformity C(V, ℂ)).IsCountablyGenerated := inferInstance
   have : (uniformity (HolomorphicMap V ℂ)).IsCountablyGenerated :=
@@ -150,9 +173,9 @@ function unbounded on a countable family of escaping sequences that detects ever
 local continuation patch. Disconnected open sets are allowed. -/
 theorem IsHolomorphicallyConvex.exists_domainOfExistence
     (hU : IsHolomorphicallyConvex U) (ho : IsOpen U) :
-    ∃ f : (Fin n → ℂ) → ℂ, IsDomainOfExistence U f := by
+    ∃ f : E → ℂ, IsDomainOfExistence U f := by
   classical
-  obtain ⟨b, hbc, hb, hballs⟩ := exists_countable_ball_basis n
+  obtain ⟨b, hbc, hb, hballs⟩ := exists_countable_ball_basis E
   have : Countable b := hbc.to_subtype
   have hne (B : b) : B.val.Nonempty := by
     obtain ⟨c, r, hr, hB⟩ := hballs B.val B.property
@@ -161,7 +184,7 @@ theorem IsHolomorphicallyConvex.exists_domainOfExistence
   let x (q : I) := (hne q.val.2).some
   let C (q : I) := connectedComponentIn (U ∩ q.val.1.val) (x q)
   have hx (q : I) : x q ∈ U ∩ q.val.1.val := q.property.1 (hne q.val.2).some_mem
-  have hseq (q : I) : ∃ p : ℕ → (Fin n → ℂ),
+  have hseq (q : I) : ∃ p : ℕ → E,
       (∀ j, p j ∈ C q) ∧ EscapesCompactSubsets U p := by
     obtain ⟨c, r, hr, hB⟩ := hballs q.val.1.val q.val.1.property
     have hc : IsPreconnected q.val.1.val := hB ▸ (convex_ball c r).isPreconnected
@@ -232,15 +255,24 @@ theorem isDomainOfHolomorphy_iff_isHolomorphicallyConvex (ho : IsOpen U) :
     IsDomainOfHolomorphy U ↔ IsHolomorphicallyConvex U :=
   ⟨fun h => h.isHolomorphicallyConvex ho, fun h => h.isDomainOfHolomorphy ho⟩
 
-/-- A domain of holomorphy is the domain of existence of a single scalar function.
-The converse follows from the obstruction to common local continuation. -/
+/-- A domain of holomorphy is the domain of existence of a single scalar function. The converse
+follows from the obstruction to common local continuation. -/
 theorem isDomainOfHolomorphy_iff_exists_domainOfExistence (ho : IsOpen U) :
-    IsDomainOfHolomorphy U ↔ ∃ f : (Fin n → ℂ) → ℂ, IsDomainOfExistence U f :=
+    IsDomainOfHolomorphy U ↔ ∃ f : E → ℂ, IsDomainOfExistence U f :=
   ⟨fun h => (h.isHolomorphicallyConvex ho).exists_domainOfExistence ho,
     fun ⟨_, hf⟩ => hf.isDomainOfHolomorphy⟩
 
-/-- Exact preservation of compact hull boundary distance characterizes domains of
-holomorphy, by the equivalence with holomorphic convexity. -/
+/-- Convex open coordinate domains are holomorphically convex. This deduction uses the
+separating-hyperplane example and Thullen's lemma. -/
+theorem isHolomorphicallyConvex_of_convex (hU : Convex ℝ U) (ho : IsOpen U) :
+    IsHolomorphicallyConvex U := (isDomainOfHolomorphy_of_convex hU ho).isHolomorphicallyConvex ho
+
+end General
+
+variable {n : ℕ} {U : Set (Fin n → ℂ)}
+
+/-- Exact preservation of compact hull boundary distance characterizes domains of holomorphy, by the
+equivalence with holomorphic convexity. -/
 theorem isDomainOfHolomorphy_iff_hasHolomorphicHullDistanceProperty (ho : IsOpen U) :
     IsDomainOfHolomorphy U ↔ HasHolomorphicHullDistanceProperty U :=
   ⟨fun h => h.hasHolomorphicHullDistanceProperty ho,
@@ -251,10 +283,5 @@ theorem isDomainOfHolomorphy_iff_hasHolomorphicHullRadiusProperty (ho : IsOpen U
     IsDomainOfHolomorphy U ↔ HasHolomorphicHullRadiusProperty U :=
   ⟨fun h => h.hasHolomorphicHullRadiusProperty ho,
     fun h => (h.isHolomorphicallyConvex ho).isDomainOfHolomorphy ho⟩
-
-/-- Convex open coordinate domains are holomorphically convex. This deduction uses the
-separating-hyperplane example and Thullen's lemma. -/
-theorem isHolomorphicallyConvex_of_convex (hU : Convex ℝ U) (ho : IsOpen U) :
-    IsHolomorphicallyConvex U := (isDomainOfHolomorphy_of_convex hU ho).isHolomorphicallyConvex ho
 
 end SeveralComplexVariables

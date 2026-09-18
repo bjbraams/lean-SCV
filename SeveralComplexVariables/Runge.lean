@@ -5,12 +5,14 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Algebra.MvPolynomial.Basic
+public import Mathlib.Analysis.Analytic.Polynomial
+public import Mathlib.Topology.Algebra.InfiniteSum.UniformOn
+public import Mathlib.Topology.Algebra.MvPolynomial
+public import SeveralComplexVariables.Analyticity
+public import SeveralComplexVariables.Topology.CompactExhaustion
 public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 public import SeveralComplexVariables.PolydiscTaylor
-public import SeveralComplexVariables.Analyticity
-public import Mathlib.Analysis.Analytic.Polynomial
-public import Mathlib.Algebra.MvPolynomial.Basic
-public import Mathlib.Topology.Algebra.InfiniteSum.UniformOn
 
 /-!
 # Runge pairs, Runge domains and polynomial hulls
@@ -28,15 +30,47 @@ Runge domain exactly when it forms a Runge pair with the whole space.
 
 For a Runge domain `U`, the polynomial hull of a compact `K ⊆ U` meets `U` in the holomorphic
 hull of `K` relative to `U`, and for a Runge domain of holomorphy this set is compact. These are
-the elementary implications of the hull characterization of Runge domains (Hörmander, Theorem
-2.7.3; Jakóbczak–Jarnicki, Theorem 4.3.3). The converse implications constitute the Oka–Weil
-theorem and are not included.
+the elementary implications of the hull characterization of Runge domains
+([Hörmander][Hormander1973], Theorem 2.7.3; [Jakóbczak–Jarnicki][JakobczakJarnicki2021], Theorem
+4.3.3). The converse implications constitute the Oka–Weil theorem and are not included.
 
-References: Hörmander (1973), Section 2.7; Jakóbczak–Jarnicki (2021), Section 4.3;
-Korevaar–Wiegerinck (2017), Section 1.7.
+References: [Hörmander][Hormander1973] (1973), Section 2.7;
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Section 4.3;
+[Korevaar–Wiegerinck][KorevaarWiegerinck2017] (2017), Section 1.7.
+
+## Main definitions
+
+* `polynomialHull`: The polynomial hull of a set: the points at which every polynomial is bounded by
+  each of its bounds on the set.
+* `IsPolynomiallyConvex`: A set is polynomially convex if it equals its polynomial hull.
+* `IsRungePair`: A **Runge pair**: `U ⊆ V`, and every holomorphic function on `U` is approximated
+  within `ε` on every compact subset of `U` by a holomorphic function on `V`.
+* `IsRungeDomain`: A **Runge domain** in `ℂⁿ`: every holomorphic function is approximated within `ε`
+  on every compact subset by a polynomial.
+
+## Main results
+
+* `exists_mvPolynomial_approx_of_entire`: **Entire functions are locally uniform limits of
+  polynomials.** On a compact set, an entire function is approximated within `ε` by a Taylor
+  polynomial.
+* `polynomialHull_eq_holomorphicHull_univ`: **Polynomial and entire hulls agree** on compact sets,
+  since entire functions are locally uniform limits of polynomials.
+* `IsRungeDomain.polynomialHull_inter`: **Hull identity for Runge domains.** For a Runge domain `U`
+  and a compact `K ⊆ U`, the polynomial hull of `K` meets `U` exactly in the holomorphic hull of `K`
+  relative to `U`.
+* `IsRungePair.exists_seq_tendstoLocallyUniformlyOn`: **Sequence formulation.** For an open `U`, a
+  Runge pair provides, for each holomorphic function on `U`, a sequence of holomorphic functions on
+  `V` converging locally uniformly.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Filter Function Metric Set
 open scoped Topology
@@ -46,22 +80,6 @@ namespace SeveralComplexVariables
 section Polynomials
 
 variable {n : ℕ}
-
-/-- Polynomials are entire functions. -/
-theorem analyticOnNhd_mvPolynomial (P : MvPolynomial (Fin n) ℂ) :
-    AnalyticOnNhd ℂ (fun z : Fin n → ℂ => MvPolynomial.eval z P) univ := by
-  intro z _
-  have h := AnalyticAt.aeval_mvPolynomial (𝕜 := ℂ) (z := z)
-    (f := fun (x : Fin n → ℂ) (i : Fin n) => x i)
-    (fun i => (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin n => ℂ) i).analyticAt z) P
-  convert h using 2 with x
-  rw [← MvPolynomial.coe_aeval_eq_eval]
-  rfl
-
-/-- Polynomial evaluation is continuous. -/
-theorem continuous_mvPolynomial_eval (P : MvPolynomial (Fin n) ℂ) :
-    Continuous fun z : Fin n → ℂ => MvPolynomial.eval z P :=
-  continuousOn_univ.mp (analyticOnNhd_mvPolynomial P).continuousOn
 
 /-- A finite sum of monomials with complex coefficients, indexed by finitely supported
 multi-indices, is the evaluation of a polynomial. -/
@@ -73,8 +91,8 @@ theorem exists_mvPolynomial_eval_eq_sum (s : Finset (Fin n →₀ ℕ)) (c : (Fi
   refine Finset.sum_congr rfl fun m _ => ?_
   ring
 
-/-- A finite sum of monomials with complex coefficients, indexed by functions `Fin n → ℕ`,
-is the evaluation of a polynomial. -/
+/-- A finite sum of monomials with complex coefficients, indexed by functions `Fin n → ℕ`, is the
+evaluation of a polynomial. -/
 theorem exists_mvPolynomial_eval_eq_sum' (s : Finset (Fin n → ℕ)) (c : (Fin n → ℕ) → ℂ) :
     ∃ P : MvPolynomial (Fin n) ℂ, ∀ z : Fin n → ℂ,
       MvPolynomial.eval z P = ∑ m ∈ s, (∏ i, z i ^ m i) * c m := by
@@ -94,19 +112,19 @@ theorem exists_mvPolynomial_approx_of_entire {g : (Fin n → ℂ) → ℂ}
   set s : Fin n → ℝ := fun _ => max B 0 with hsdef
   have hs : ∀ i, 0 ≤ s i := fun _ => le_max_right _ _
   have hsR : ∀ i, s i < R i := fun _ => by simp [hsdef, hRdef]
-  have hKs : K ⊆ closedPolydiscWithRadii 0 s := by
+  have hKs : K ⊆ closedPolydisc 0 s := by
     intro z hz
-    rw [mem_closedPolydiscWithRadii]
+    rw [mem_closedPolydisc]
     intro i
     have h1 : ‖z i‖ ≤ ‖z‖ := norm_le_pi_norm z i
     have h2 : ‖z‖ ≤ B := mem_closedBall_zero_iff.mp (hB hz)
     rw [Pi.zero_apply, dist_zero_right]
     exact h1.trans (h2.trans (le_max_left _ _))
-  have hcont : ContinuousOn g (closedPolydiscWithRadii 0 R) := hg.continuousOn.mono (subset_univ _)
-  have hslice : ∀ z ∈ closedPolydiscWithRadii 0 R, ∀ i,
+  have hcont : ContinuousOn g (closedPolydisc 0 R) := hg.continuousOn.mono (subset_univ _)
+  have hslice : ∀ z ∈ closedPolydisc 0 R, ∀ i,
       AnalyticAt ℂ (fun v => g (update z i v)) (z i) :=
     fun z _ i => by convert hg.analyticAt_update (mem_univ z) i
-  obtain ⟨M, hM⟩ := (isCompact_closedPolydiscWithRadii 0 R).exists_bound_of_continuousOn hcont
+  obtain ⟨M, hM⟩ := (isCompact_closedPolydisc 0 R).exists_bound_of_continuousOn hcont
   have hsum := hasSumUniformlyOn_polydiscTaylor hR hs hsR hcont hslice hM
   rw [hasSumUniformlyOn_iff_tendstoUniformlyOn, Metric.tendstoUniformlyOn_iff] at hsum
   obtain ⟨t, ht⟩ := (hsum ε hε).exists
@@ -122,35 +140,35 @@ end Polynomials
 
 section Hull
 
-variable {n : ℕ}
+variable {n : ℕ} {σ : Type*}
 
 /-- The polynomial hull of a set: the points at which every polynomial is bounded by each of its
-bounds on the set. -/
-def polynomialHull (K : Set (Fin n → ℂ)) : Set (Fin n → ℂ) :=
-  {z | ∀ P : MvPolynomial (Fin n) ℂ, ∀ M : ℝ,
+bounds on the set. The variables may be indexed by any type. -/
+@[expose] def polynomialHull (K : Set (σ → ℂ)) : Set (σ → ℂ) :=
+  {z | ∀ P : MvPolynomial σ ℂ, ∀ M : ℝ,
     (∀ w ∈ K, ‖MvPolynomial.eval w P‖ ≤ M) → ‖MvPolynomial.eval z P‖ ≤ M}
 
 /-- A set is polynomially convex if it equals its polynomial hull. -/
-def IsPolynomiallyConvex (K : Set (Fin n → ℂ)) : Prop := polynomialHull K = K
+@[expose] def IsPolynomiallyConvex (K : Set (σ → ℂ)) : Prop := polynomialHull K = K
 
 /-- A set lies in its polynomial hull. -/
-theorem subset_polynomialHull (K : Set (Fin n → ℂ)) : K ⊆ polynomialHull K :=
+theorem subset_polynomialHull (K : Set (σ → ℂ)) : K ⊆ polynomialHull K :=
   fun z hz _ _ hM => hM z hz
 
 /-- The polynomial hull is monotone. -/
-theorem polynomialHull_mono {K L : Set (Fin n → ℂ)} (h : K ⊆ L) :
+theorem polynomialHull_mono {K L : Set (σ → ℂ)} (h : K ⊆ L) :
     polynomialHull K ⊆ polynomialHull L :=
   fun _ hz P M hM => hz P M fun w hw => hM w (h hw)
 
 /-- The polynomial hull is closed. -/
-theorem isClosed_polynomialHull (K : Set (Fin n → ℂ)) : IsClosed (polynomialHull K) := by
-  have : polynomialHull K = ⋂ P : MvPolynomial (Fin n) ℂ, ⋂ M : ℝ,
+theorem isClosed_polynomialHull (K : Set (σ → ℂ)) : IsClosed (polynomialHull K) := by
+  have : polynomialHull K = ⋂ P : MvPolynomial σ ℂ, ⋂ M : ℝ,
       ⋂ _ : (∀ w ∈ K, ‖MvPolynomial.eval w P‖ ≤ M), {z | ‖MvPolynomial.eval z P‖ ≤ M} := by
     ext z
     simp only [polynomialHull, mem_ofPred_eq, mem_iInter]
   rw [this]
   exact isClosed_iInter fun P => isClosed_iInter fun M => isClosed_iInter fun _ =>
-    isClosed_le (continuous_mvPolynomial_eval P).norm continuous_const
+    isClosed_le (P.continuous_eval).norm continuous_const
 
 /-- The polynomial hull of a bounded set is bounded, by the coordinate polynomials. -/
 theorem polynomialHull_subset_closedBall {K : Set (Fin n → ℂ)} {B : ℝ} (hB0 : 0 ≤ B)
@@ -194,10 +212,10 @@ theorem polynomialHull_eq_holomorphicHull_univ {K : Set (Fin n → ℂ)} (hK : I
       _ ≤ ‖f z - MvPolynomial.eval z P‖ + ‖MvPolynomial.eval z P‖ := norm_add_le _ _
       _ ≤ M + ε := by linarith
   · intro hz P M hM
-    exact hz.2 _ (analyticOnNhd_mvPolynomial P) M hM
+    exact hz.2 _ (AnalyticOnNhd.eval_mvPolynomial P) M hM
 
 /-- The polynomial hull is polynomially convex. -/
-theorem isPolynomiallyConvex_polynomialHull (K : Set (Fin n → ℂ)) :
+theorem isPolynomiallyConvex_polynomialHull (K : Set (σ → ℂ)) :
     IsPolynomiallyConvex (polynomialHull K) := by
   refine Subset.antisymm (fun z hz P M hM => ?_) (subset_polynomialHull _)
   exact hz P M fun w hw => hw P M hM
@@ -208,9 +226,9 @@ section Runge
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- A **Runge pair**: `U ⊆ V`, and every holomorphic function on `U` is approximated within `ε`
-on every compact subset of `U` by a holomorphic function on `V`. -/
-def IsRungePair (U V : Set E) : Prop :=
+/-- A **Runge pair**: `U ⊆ V`, and every holomorphic function on `U` is approximated within `ε` on
+every compact subset of `U` by a holomorphic function on `V`. -/
+@[expose] def IsRungePair (U V : Set E) : Prop :=
   U ⊆ V ∧ ∀ f : E → ℂ, AnalyticOnNhd ℂ f U → ∀ K : Set E, IsCompact K → K ⊆ U → ∀ ε > 0,
     ∃ g : E → ℂ, AnalyticOnNhd ℂ g V ∧ ∀ z ∈ K, ‖f z - g z‖ < ε
 
@@ -233,11 +251,12 @@ theorem IsRungePair.trans {U V W : Set E} (h₁ : IsRungePair U V) (h₂ : IsRun
     _ < ε / 2 + ε / 2 := add_lt_add (hfg z hz) (hgk z hz)
     _ = ε := add_halves ε
 
-/-- A **Runge domain** in `ℂⁿ`: every holomorphic function is approximated within `ε` on every
+/-- A **Runge domain** in `ℂ^ι`, for a finite index type `ι`: every holomorphic function is
+    approximated within `ε` on every
 compact subset by a polynomial. Being a domain of holomorphy is not part of the definition. -/
-def IsRungeDomain {n : ℕ} (U : Set (Fin n → ℂ)) : Prop :=
-  ∀ f : (Fin n → ℂ) → ℂ, AnalyticOnNhd ℂ f U → ∀ K : Set (Fin n → ℂ), IsCompact K → K ⊆ U →
-    ∀ ε > 0, ∃ P : MvPolynomial (Fin n) ℂ, ∀ z ∈ K, ‖f z - MvPolynomial.eval z P‖ < ε
+@[expose] def IsRungeDomain {ι : Type*} [Fintype ι] (U : Set (ι → ℂ)) : Prop :=
+  ∀ f : (ι → ℂ) → ℂ, AnalyticOnNhd ℂ f U → ∀ K : Set (ι → ℂ), IsCompact K → K ⊆ U →
+    ∀ ε > 0, ∃ P : MvPolynomial ι ℂ, ∀ z ∈ K, ‖f z - MvPolynomial.eval z P‖ < ε
 
 variable {n : ℕ}
 
@@ -248,7 +267,7 @@ theorem isRungeDomain_iff_isRungePair_univ (U : Set (Fin n → ℂ)) :
   · intro h
     refine ⟨subset_univ U, fun f hf K hK hKU ε hε => ?_⟩
     obtain ⟨P, hP⟩ := h f hf K hK hKU ε hε
-    exact ⟨fun z => MvPolynomial.eval z P, analyticOnNhd_mvPolynomial P, hP⟩
+    exact ⟨fun z => MvPolynomial.eval z P, AnalyticOnNhd.eval_mvPolynomial P, hP⟩
   · intro h f hf K hK hKU ε hε
     obtain ⟨g, hg, hfg⟩ := h.2 f hf K hK hKU (ε / 2) (half_pos hε)
     obtain ⟨P, hP⟩ := exists_mvPolynomial_approx_of_entire hg hK (half_pos hε)
@@ -272,7 +291,8 @@ theorem IsRungeDomain.polynomialHull_inter {U : Set (Fin n → ℂ)} (h : IsRung
   · rintro ⟨hz, hzU⟩
     refine ⟨hzU, fun f hf M hM => ?_⟩
     refine le_of_forall_pos_le_add fun ε hε => ?_
-    obtain ⟨P, hP⟩ := h f hf (insert z K) (hK.insert z) (insert_subset hzU hKU) (ε / 2) (half_pos hε)
+    obtain ⟨P, hP⟩ := h f hf (insert z K) (hK.insert z) (insert_subset hzU hKU) (ε / 2) (half_pos
+      hε)
     have hPK : ∀ w ∈ K, ‖MvPolynomial.eval w P‖ ≤ M + ε / 2 := fun w hw => by
       have h1 := hP w (mem_insert_of_mem z hw)
       have h2 := hM w hw
@@ -285,7 +305,8 @@ theorem IsRungeDomain.polynomialHull_inter {U : Set (Fin n → ℂ)} (h : IsRung
       _ ≤ ‖f z - MvPolynomial.eval z P‖ + ‖MvPolynomial.eval z P‖ := norm_add_le _ _
       _ ≤ M + ε := by linarith
   · intro hz
-    refine ⟨fun P M hM => hz.2 _ ((analyticOnNhd_mvPolynomial P).mono (subset_univ U)) M hM, hz.1⟩
+    refine ⟨fun P M hM => hz.2 _ ((AnalyticOnNhd.eval_mvPolynomial P).mono (subset_univ U)) M hM,
+      hz.1⟩
 
 /-- If the polynomial hull of every compact subset agrees with its holomorphic hull, then in
 particular the intersection with `U` does. -/
@@ -295,8 +316,8 @@ theorem polynomialHull_inter_eq_of_eq {U K : Set (Fin n → ℂ)}
   rw [h]
   exact inter_eq_left.mpr (holomorphicHull_subset U K)
 
-/-- For a Runge domain of holomorphy, the polynomial hull of a compact subset meets the domain
-in a compact set. The converse implications are the Oka–Weil theorem. -/
+/-- For a Runge domain of holomorphy, the polynomial hull of a compact subset meets the domain in a
+compact set. The converse implications are the Oka–Weil theorem. -/
 theorem IsRungeDomain.isCompact_polynomialHull_inter {U : Set (Fin n → ℂ)} (h : IsRungeDomain U)
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) {K : Set (Fin n → ℂ)} (hK : IsCompact K)
     (hKU : K ⊆ U) : IsCompact (polynomialHull K ∩ U) := by
@@ -323,64 +344,12 @@ theorem isRungePair_of_forall_exists_seq {U V : Set E} (hUV : U ⊆ V)
 
 variable [ProperSpace E]
 
-omit [NormedSpace ℂ E] in
-/-- An exhaustion of an open set by compact subsets of the form `closedBall 0 k ∩ {infDist ≥ 1/(k+1)}`.
-Every compact subset of the open set lies in one of them, and they increase. -/
-theorem exists_compact_exhaustion {U : Set E} (hU : IsOpen U) :
-    ∃ L : ℕ → Set E, (∀ k, IsCompact (L k)) ∧ (∀ k, L k ⊆ U) ∧ (∀ k, L k ⊆ L (k + 1)) ∧
-      ∀ K, IsCompact K → K ⊆ U → ∃ k, K ⊆ L k := by
-  rcases eq_empty_or_nonempty Uᶜ with hc | hc
-  · have hU' : U = univ := compl_empty_iff.mp hc
-    refine ⟨fun k => closedBall 0 k, fun k => isCompact_closedBall 0 k, fun k => by rw [hU']; exact subset_univ _,
-      fun k => closedBall_subset_closedBall (by exact_mod_cast Nat.le_succ k), fun K hK _ => ?_⟩
-    obtain ⟨B, hB⟩ := hK.isBounded.subset_closedBall 0
-    obtain ⟨k, hk⟩ := exists_nat_ge B
-    exact ⟨k, hB.trans (closedBall_subset_closedBall hk)⟩
-  refine ⟨fun k => closedBall 0 k ∩ {z | 1 / ((k : ℝ) + 1) ≤ infDist z Uᶜ}, fun k => ?_, fun k z hz => ?_,
-    fun k z hz => ⟨closedBall_subset_closedBall (by exact_mod_cast Nat.le_succ k) hz.1, ?_⟩,
-    fun K hK hKU => ?_⟩
-  · exact isCompact_of_isClosed_isBounded (isClosed_closedBall.inter
-      (isClosed_le continuous_const (continuous_infDist_pt _))) (isBounded_closedBall.subset inter_subset_left)
-  · have hpos : 0 < infDist z Uᶜ := lt_of_lt_of_le (by positivity) hz.2
-    by_contra hzU
-    rw [infDist_zero_of_mem hzU] at hpos
-    exact lt_irrefl _ hpos
-  · have h1 : (1 : ℝ) / ((k : ℝ) + 1 + 1) ≤ 1 / ((k : ℝ) + 1) := by
-      apply one_div_le_one_div_of_le (by positivity)
-      linarith
-    show (1 : ℝ) / (((k + 1 : ℕ) : ℝ) + 1) ≤ infDist z Uᶜ
-    push_cast
-    exact le_trans h1 hz.2
-  · obtain ⟨B, hB⟩ := hK.isBounded.subset_closedBall 0
-    -- positive distance from the complement
-    have hd : ∃ δ > 0, ∀ z ∈ K, δ ≤ infDist z Uᶜ := by
-      rcases K.eq_empty_or_nonempty with hKe | hKne
-      · exact ⟨1, one_pos, fun z hz => by simp [hKe] at hz⟩
-      obtain ⟨z₀, hz₀, hmin⟩ := hK.exists_isMinOn hKne (continuous_infDist_pt Uᶜ).continuousOn
-      refine ⟨infDist z₀ Uᶜ, ?_, fun z hz => hmin hz⟩
-      exact (infDist_pos_iff_notMem_closure hc).mp (by
-        rw [hU.isClosed_compl.closure_eq]
-        exact notMem_compl_iff.mpr (hKU hz₀))
-    obtain ⟨δ, hδ, hδK⟩ := hd
-    obtain ⟨k₁, hk₁⟩ := exists_nat_ge B
-    obtain ⟨k₂, hk₂⟩ := exists_nat_ge (1 / δ)
-    refine ⟨max k₁ k₂, fun z hz => ⟨closedBall_subset_closedBall ?_ (hB hz), ?_⟩⟩
-    · exact hk₁.trans (by exact_mod_cast le_max_left k₁ k₂)
-    · have hk₂' : (1 : ℝ) / δ ≤ (max k₁ k₂ : ℕ) + 1 := by
-        have : (k₂ : ℝ) ≤ (max k₁ k₂ : ℕ) := by exact_mod_cast le_max_right k₁ k₂
-        linarith
-      have : (1 : ℝ) / ((max k₁ k₂ : ℕ) + 1) ≤ δ := by
-        rw [div_le_iff₀ (by positivity)]
-        rw [div_le_iff₀ hδ] at hk₂'
-        linarith
-      exact this.trans (hδK z hz)
-
 /-- **Sequence formulation.** For an open `U`, a Runge pair provides, for each holomorphic
 function on `U`, a sequence of holomorphic functions on `V` converging locally uniformly. -/
 theorem IsRungePair.exists_seq_tendstoLocallyUniformlyOn {U V : Set E} (hU : IsOpen U)
     (h : IsRungePair U V) {f : E → ℂ} (hf : AnalyticOnNhd ℂ f U) :
     ∃ g : ℕ → E → ℂ, (∀ k, AnalyticOnNhd ℂ (g k) V) ∧ TendstoLocallyUniformlyOn g f atTop U := by
-  obtain ⟨L, hLc, hLU, hLmono, hLex⟩ := exists_compact_exhaustion hU
+  obtain ⟨L, hLc, hLU, hLmono, hLex⟩ := hU.exists_compact_exhaustion
   have hchoice : ∀ k : ℕ, ∃ g : E → ℂ, AnalyticOnNhd ℂ g V ∧
       ∀ z ∈ L k, ‖f z - g z‖ < 1 / ((k : ℝ) + 1) :=
     fun k => h.2 f hf (L k) (hLc k) (hLU k) _ (by positivity)

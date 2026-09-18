@@ -11,21 +11,28 @@ public import SeveralComplexVariables.ZeroSets.Connected
 /-!
 # Proper analytic subsets and the first Riemann extension theorem
 
-An analytic subset with empty interior is locally contained in proper scalar zero
-sets. In a preconnected domain, properness suffices. This connects local finite
-equations with the existing Banach-valued removability and connected-complement theory.
-For disconnected domains we retain the empty-interior condition explicitly.
+An analytic subset with empty interior is locally contained in proper scalar zero sets. In a
+preconnected domain, properness suffices. This connects local finite equations with the existing
+Banach-valued removability and connected-complement theory. For disconnected domains we retain
+the empty-interior condition explicitly.
 
-References: Range I, Theorem 3.8; Fritzsche–Grauert I, 8.1–8.2;
-Scheidemann 4.1.6, 4.2.1–4.2.2.
+References: [Range][Range1986] I, Theorem 3.8; [Fritzsche–Grauert][FritzscheGrauert2002] I,
+8.1–8.2; [Scheidemann][Scheidemann2005] 4.1.6, 4.2.1–4.2.2.
 
 ## Main results
 
-`IsAnalyticSet.interior_eq_empty` is emptiness of the interior of a proper analytic
-subset of a preconnected domain. `IsAnalyticSet.locallyContainedInAnalyticZeroSet`
-places a proper analytic subset in proper scalar zero sets.
-`IsAnalyticSet.exists_extension_of_locally_bounded` is the first Riemann extension
-theorem for locally bounded Banach-valued maps.
+`IsAnalyticSet.interior_eq_empty` is emptiness of the interior of a proper analytic subset of a
+preconnected domain. `IsAnalyticSet.locallyContainedInAnalyticZeroSet` places a proper analytic
+subset in proper scalar zero sets. `IsAnalyticSet.exists_extension_of_locally_bounded` is the
+first Riemann extension theorem for locally bounded Banach-valued maps.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public section
@@ -103,7 +110,7 @@ theorem IsAnalyticSet.extension_unique {F : Type*} [TopologicalSpace F] [T2Space
 theorem IsAnalyticSet.isConnected_sdiff [FiniteDimensional ℂ E]
     {U A : Set E} (hA : IsAnalyticSet U A) (hc : IsConnected U) (hp : A ≠ U) :
     IsConnected (U \ A) :=
-  isConnected_sdiff_of_locallyContainedInAnalyticZeroSet hA.isOpen_domain hc hA.isOpen_sdiff
+  isConnected_sdiff_of_locallyContainedInAnalyticZeroSet hc hA.isOpen_sdiff
     (hA.locallyContainedInAnalyticZeroSet (hA.interior_eq_empty hc.isPreconnected hp))
 
 /-- **First Riemann extension theorem.** Local boundedness is required only near the
@@ -116,8 +123,8 @@ theorem IsAnalyticSet.exists_extension_of_locally_bounded [FiniteDimensional ℂ
     (hb : ∀ a ∈ A, ∃ r : ℝ, 0 < r ∧ ∃ C : ℝ,
       ∀ z ∈ ball a r ∩ (U \ A), ‖f z‖ ≤ C) :
     ∃ g, AnalyticOnNhd ℂ g U ∧ EqOn g f (U \ A) := by
-  apply exists_analyticOnNhd_extension_across_locallyContainedZeroSet hA.isOpen_domain
-    hA.isOpen_sdiff (hA.locallyContainedInAnalyticZeroSet hi) hf
+  apply exists_analyticOnNhd_extension_across_locallyContainedZeroSet hA.isOpen_sdiff
+    (hA.locallyContainedInAnalyticZeroSet hi) hf
   intro a ha
   by_cases haA : a ∈ A
   · exact hb a haA

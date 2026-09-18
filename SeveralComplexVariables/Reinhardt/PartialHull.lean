@@ -10,21 +10,24 @@ public import SeveralComplexVariables.Reinhardt.Extension
 /-!
 # Completion in selected Reinhardt coordinates
 
-The selected coordinates can decrease in modulus; the others retain their moduli.
-On Reinhardt sets this is precisely coordinate contraction without a coordinate ordering.
-The geometric hull works for arbitrary index types, and its openness is proved.
-For finite coordinates, absolute convergence and vanishing of the relevant negative
-Laurent coefficients give locally uniform convergence and an analytic sum on the hull.
-These coefficient-series results are independent of the Laurent expansion
-theorem; extension of arbitrary holomorphic functions is deduced from that theorem.
-Reference: Scheidemann (2005), Corollary 2.1.15.
+The selected coordinates can decrease in modulus; the others retain their moduli. On Reinhardt
+sets this is precisely coordinate contraction without a coordinate ordering. The geometric hull
+works for arbitrary index types, and its openness is proved. For finite coordinates, absolute
+convergence and vanishing of the relevant negative Laurent coefficients give locally uniform
+convergence and an analytic sum on the hull. These coefficient-series results are independent of
+the Laurent expansion theorem; extension of arbitrary holomorphic functions is deduced from that
+theorem. Reference: [Scheidemann][Scheidemann2005] (2005), Corollary 2.1.15.
 
 ## Main results
 
-`IsCompleteReinhardtIn` is completeness in a selected set of coordinates.
-`partialReinhardtHull` is the corresponding hull. `exists_extension_partialReinhardtHull`
-extends a holomorphic function to that hull. `hasSumLocallyUniformlyOn_laurent_partialReinhardtHull`
-is locally uniform convergence of the relevant Laurent terms.
+`IsCompleteReinhardtIn` is completeness in a selected set of coordinates. `partialReinhardtHull`
+is the corresponding hull. `exists_extension_partialReinhardtHull` extends a holomorphic
+function to that hull. `hasSumLocallyUniformlyOn_laurent_partialReinhardtHull` is locally
+uniform convergence of the relevant Laurent terms.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public section
@@ -37,12 +40,12 @@ namespace SeveralComplexVariables
 variable {ι : Type*} {U V : Set (ι → ℂ)} {I : Set ι}
 
 /-- Reinhardt completeness restricted to a specified set of coordinates. -/
-def IsCompleteReinhardtIn (I : Set ι) (U : Set (ι → ℂ)) : Prop :=
+@[expose] def IsCompleteReinhardtIn (I : Set ι) (U : Set (ι → ℂ)) : Prop :=
   ∀ ⦃z⦄, z ∈ U → ∀ ⦃w⦄, (∀ i, ‖w i‖ ≤ ‖z i‖) →
     (∀ i ∉ I, ‖w i‖ = ‖z i‖) → w ∈ U
 
 /-- The hull formed by contracting selected moduli and preserving all other moduli. -/
-def partialReinhardtHull (I : Set ι) (U : Set (ι → ℂ)) : Set (ι → ℂ) :=
+@[expose] def partialReinhardtHull (I : Set ι) (U : Set (ι → ℂ)) : Set (ι → ℂ) :=
   {w | ∃ z ∈ U, (∀ i, ‖w i‖ ≤ ‖z i‖) ∧ ∀ i ∉ I, ‖w i‖ = ‖z i‖}
 
 /-- The original set is contained in its partial hull. -/
@@ -92,8 +95,8 @@ theorem partialReinhardtHull_empty (hU : IsReinhardt U) : partialReinhardtHull �
   rintro w ⟨z, hz, _, he⟩
   exact hU hz (fun i => he i (by simp))
 
-/-- Partial hulls of open Reinhardt sets are open. A continuous modulus majorant supplies
-nearby witnesses in the original open set. -/
+/-- Partial hulls of open Reinhardt sets are open. A continuous modulus majorant supplies nearby
+witnesses in the original open set. -/
 theorem isOpen_partialReinhardtHull [Fintype ι] (ho : IsOpen U) (hR : IsReinhardt U) :
     IsOpen (partialReinhardtHull I U) := by
   classical
@@ -122,8 +125,8 @@ theorem isOpen_partialReinhardtHull [Fintype ι] (ho : IsOpen U) (hR : IsReinhar
   · intro i hi
     simp [v, hi]
 
-/-- A Laurent monomial is largest at the corner selected by its exponent signs.
-Summing over all corners gives a bound independent of the signs. -/
+/-- A Laurent monomial is largest at the corner selected by its exponent signs. Summing over all
+corners gives a bound independent of the signs. -/
 private theorem norm_laurentTerm_le_sum_corners {n : ℕ} {F : Type*}
     [NormedAddCommGroup F] [NormedSpace ℂ F] (c : (Fin n → ℤ) → F)
     (a b : Fin n → ℝ) (ha : ∀ i, 0 < a i) (hb : ∀ i, 0 < b i)
@@ -158,9 +161,9 @@ private theorem norm_laurentTerm_le_sum_corners {n : ℕ} {F : Type*}
         (fun i => ((if i ∈ t then b i else a i) : ℂ))‖)
       (fun _ _ => norm_nonneg _) (Finset.mem_univ s)
 
-/-- Near a point of the partial hull, choose upper and lower radii whose finitely
-many corners lie in the original domain. Lower bounds are needed only in
-coordinates where a nonzero Laurent coefficient has negative exponent. -/
+/-- Near a point of the partial hull, choose upper and lower radii whose finitely many corners lie
+in the original domain. Lower bounds are needed only in coordinates where a nonzero Laurent
+coefficient has negative exponent. -/
 private theorem exists_laurent_box_partialHull {n : ℕ} {I : Set (Fin n)}
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hR : IsReinhardt U)
     {F : Type*} [Zero F] (c : (Fin n → ℤ) → F)
@@ -216,9 +219,9 @@ private theorem exists_laurent_box_partialHull {n : ℕ} {I : Set (Fin n)}
     rw [ite_eq_right hzi]
     nlinarith [norm_pos_iff.mpr hzi]
 
-/-- An absolutely convergent Laurent series on an open Reinhardt set converges
-locally uniformly on its partial hull when the relevant negative coefficients
-vanish. This convergence argument is independent of Laurent expansion for functions. -/
+/-- An absolutely convergent Laurent series on an open Reinhardt set converges locally uniformly on
+its partial hull when the relevant negative coefficients vanish. This convergence argument is
+independent of Laurent expansion for functions. -/
 theorem hasSumLocallyUniformlyOn_laurent_partialReinhardtHull
     {n : ℕ} {I : Set (Fin n)} {U : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hR : IsReinhardt U)
@@ -253,8 +256,8 @@ theorem hasSumLocallyUniformlyOn_laurent_partialReinhardtHull
   exact norm_laurentTerm_le_sum_corners c a b ha hb m x
     (fun i => (hx i).1.le) (fun hm i hmi => ((hx i).2 (hlower m hm i hmi)).le)
 
-/-- The Laurent sum is analytic on the partial hull. A term with a negative
-exponent is either identically zero or has no coordinate singularity on the hull. -/
+/-- The Laurent sum is analytic on the partial hull. A term with a negative exponent is either
+identically zero or has no coordinate singularity on the hull. -/
 theorem analyticOnNhd_laurentSum_partialReinhardtHull
     {n : ℕ} {I : Set (Fin n)} {U : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hR : IsReinhardt U)
@@ -286,10 +289,10 @@ theorem analyticOnNhd_laurentSum_partialReinhardtHull
       have hzi : z i = 0 := norm_eq_zero.mp (by simpa [hwi] using (hweq i hiI).symm)
       exact hm (hzero m i (Or.inr ⟨z, hz, hzi⟩) hmi)
 
-/-- Extension in the coordinates whose zero hyperplanes meet the connected domain.
-The Laurent expansion theorem supplies the coefficients and their vanishing; the
-series converges locally uniformly and is analytic on the partial hull. This deduction
-depends on the Laurent expansion. No common point on the hyperplanes is required. -/
+/-- Extension in the coordinates whose zero hyperplanes meet the connected domain. The Laurent
+expansion theorem supplies the coefficients and their vanishing; the series converges locally
+uniformly and is analytic on the partial hull. This deduction depends on the Laurent expansion.
+No common point on the hyperplanes is required. -/
 theorem exists_extension_partialReinhardtHull {n : ℕ} {I : Set (Fin n)}
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U)
     (hmeet : ∀ i ∈ I, ∃ z ∈ U, z i = 0)
@@ -299,7 +302,8 @@ theorem exists_extension_partialReinhardtHull {n : ℕ} {I : Set (Fin n)}
   obtain ⟨z₀, hz₀⟩ := hc.nonempty
   obtain ⟨r, hrU, hzr⟩ := hR.exists_strict_modulus_majorant ho hz₀
   have hr : ∀ i, (0 : ℝ) < r i := fun i => (norm_nonneg _).trans_lt (hzr i)
-  obtain ⟨hsum, hnorm, hneg, _, _⟩ := multivariableLaurent_expansion ho hc hR hf hr hrU
+  obtain ⟨hsum, hnorm, hneg, _, _⟩ := multivariableLaurent_expansion ho hc.isPreconnected hR hf hr
+    hrU
   let c := multivariableLaurentCoeff f (fun i => (r i : ℝ))
   have hzero : ∀ m i, (i ∈ I ∨ ∃ z ∈ U, z i = 0) → m i < 0 → c m = 0 := by
     intro m i hi hmi

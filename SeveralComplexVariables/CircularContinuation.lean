@@ -5,27 +5,31 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Analytic.CPolynomial
 public import SeveralComplexVariables.Circular
 public import SeveralComplexVariables.IdentityPrinciple
 public import SeveralComplexVariables.LocallyUniform
 public import SeveralComplexVariables.RemovableSingularity.Cauchy
-public import Mathlib.Analysis.Analytic.CPolynomial
 
 /-!
 # Homogeneous expansion and continuation on circular domains
 
-The terms are diagonals of Mathlib continuous multilinear Taylor coefficients, hence
-homogeneous polynomials. Convergence is grouped by total degree, not by individual
-coordinate monomials. Cauchy projections identify the terms on circular domains,
-and geometric majorants give locally uniform convergence on the balanced hull.
-Reference: Scheidemann (2005), Theorem 2.1.8. Banach-valued targets are allowed.
+The terms are diagonals of Mathlib continuous multilinear Taylor coefficients, hence homogeneous
+polynomials. Convergence is grouped by total degree, not by individual coordinate monomials.
+Cauchy projections identify the terms on circular domains, and geometric majorants give locally
+uniform convergence on the balanced hull. Reference: [Scheidemann][Scheidemann2005] (2005),
+Theorem 2.1.8. Banach-valued targets are allowed.
 
 ## Main results
 
 `homogeneousTerm` is the degree-`k` diagonal of a multilinear Taylor series.
-`homogeneous_expansion_balancedHull` is locally uniform convergence of the
-homogeneous expansion on the balanced hull. `exists_extension_balancedHull` is
-continuation from a circular domain to its balanced hull.
+`IsCircular.hasSumLocallyUniformlyOn_homogeneousTerm_balancedHull` is locally uniform convergence of
+the homogeneous expansion on the balanced hull. `exists_extension_balancedHull` is continuation from
+a circular domain to its balanced hull.
+
+## References
+
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public noncomputable section
@@ -60,8 +64,8 @@ theorem analyticOnNhd_homogeneousTerm (p : FormalMultilinearSeries ℂ E F) (k :
   intro z _
   exact (p k).analyticAt.comp (analyticAt_pi_iff.mpr fun _ => analyticAt_id)
 
-/-- On a circular domain, the homogeneous Taylor terms are the Cauchy projections
-under simultaneous rotation of all coordinates. -/
+/-- On a circular domain, the homogeneous Taylor terms are the Cauchy projections under simultaneous
+rotation of all coordinates. -/
 theorem homogeneousTerm_eq_circleIntegral {U : Set E} (ho : IsOpen U)
     (hc : IsPreconnected U) (hrot : IsCircular U) (hzero : (0 : E) ∈ U)
     {f : E → F} (hf : AnalyticOnNhd ℂ f U) {p : FormalMultilinearSeries ℂ E F}
@@ -107,8 +111,8 @@ theorem homogeneousTerm_eq_circleIntegral {U : Set E} (ho : IsOpen U)
     homogeneousTerm, cauchyPowerSeries_apply, sub_zero, one_div, H] using he'
 
 omit [FiniteDimensional ℂ E] in
-/-- Openness lets every point of a balanced hull be represented by a strict,
-nonzero contraction of a point of the original set. -/
+/-- Openness lets every point of a balanced hull be represented by a strict, nonzero contraction of
+a point of the original set. -/
 private theorem exists_strict_contraction {U : Set E} (ho : IsOpen U)
     (hzero : (0 : E) ∈ U) {x : E} (hx : x ∈ balancedHull ℂ U) :
     ∃ (c : ℂ) (z : E), c ≠ 0 ∧ ‖c‖ < 1 ∧ z ∈ U ∧ c • z = x := by
@@ -130,9 +134,9 @@ private theorem exists_strict_contraction {U : Set E} (ho : IsOpen U)
     exact (div_lt_one ht0).mpr (hd.trans_lt ht)
   · rw [smul_smul, div_mul_cancel₀ _ (ofReal_ne_zero.mpr ht0.ne')]
 
-/-- Cauchy projections give a locally summable geometric majorant throughout the
-balanced hull of a circular domain. -/
-private theorem homogeneousTerm_hasSumLocallyUniformlyOn {U : Set E} (ho : IsOpen U)
+/-- Cauchy projections give a locally summable geometric majorant throughout the balanced hull of a
+circular domain. -/
+private theorem hasSumLocallyUniformlyOn_homogeneousTerm {U : Set E} (ho : IsOpen U)
     (hc : IsPreconnected U) (hrot : IsCircular U) (hzero : (0 : E) ∈ U)
     {f : E → F} (hf : AnalyticOnNhd ℂ f U) {p : FormalMultilinearSeries ℂ E F}
     (hp : HasFPowerSeriesAt f p 0) :
@@ -184,11 +188,11 @@ private theorem homogeneousTerm_hasSumLocallyUniformlyOn {U : Set E} (ho : IsOpe
     (tendstoUniformlyOn_tsum ((summable_geometric_of_lt_one (norm_nonneg c) hc1).mul_left C)
       hterm)
 
-/-- Homogeneous Taylor expansion on a circular domain extends to its balanced hull.
-Cauchy projections under common rotations and compact majorants on radial contractions
-give convergence; analytic uniqueness identifies the sum with the original function.
-The chosen Taylor series is supplied explicitly. -/
-theorem homogeneous_expansion_balancedHull {U : Set E} (ho : IsOpen U)
+/-- Homogeneous Taylor expansion on a circular domain extends to its balanced hull. Cauchy
+projections under common rotations and compact majorants on radial contractions give
+convergence; analytic uniqueness identifies the sum with the original function. The chosen
+Taylor series is supplied explicitly. -/
+theorem IsCircular.hasSumLocallyUniformlyOn_homogeneousTerm_balancedHull {U : Set E} (ho : IsOpen U)
     (hc : IsPreconnected U) (hrot : IsCircular U) (hzero : (0 : E) ∈ U)
     {f : E → F} (hf : AnalyticOnNhd ℂ f U) {p : FormalMultilinearSeries ℂ E F}
     (hp : HasFPowerSeriesAt f p 0) :
@@ -196,9 +200,9 @@ theorem homogeneous_expansion_balancedHull {U : Set E} (ho : IsOpen U)
       HasSumLocallyUniformlyOn (homogeneousTerm p) (fun z => ∑' k, homogeneousTerm p k z)
         (balancedHull ℂ U) ∧
       AnalyticOnNhd ℂ (fun z => ∑' k, homogeneousTerm p k z) (balancedHull ℂ U) := by
-  have hs := homogeneousTerm_hasSumLocallyUniformlyOn ho hc hrot hzero hf hp
+  have hs := hasSumLocallyUniformlyOn_homogeneousTerm ho hc hrot hzero hf hp
   have ha : AnalyticOnNhd ℂ (fun z => ∑' k, homogeneousTerm p k z) (balancedHull ℂ U) := by
-    apply hs.analyticOnNhd_finiteDimensional _ (ho.balancedHull hzero)
+    apply hs.analyticOnNhd_of_finiteDimensional _ (ho.balancedHull hzero)
     filter_upwards with s
     exact Finset.analyticOnNhd_fun_sum s fun k _ =>
       analyticOnNhd_homogeneousTerm p k _
@@ -216,7 +220,8 @@ theorem exists_extension_balancedHull {U : Set E} (ho : IsOpen U)
     {f : E → F} (hf : AnalyticOnNhd ℂ f U) :
     ∃ g, AnalyticOnNhd ℂ g (balancedHull ℂ U) ∧ EqOn g f U := by
   obtain ⟨p, hp⟩ := hf 0 hzero
-  obtain ⟨hs, _, ha⟩ := homogeneous_expansion_balancedHull ho hc hrot hzero hf hp
+  obtain ⟨hs, _, ha⟩
+    := IsCircular.hasSumLocallyUniformlyOn_homogeneousTerm_balancedHull ho hc hrot hzero hf hp
   exact ⟨_, ha, fun z hz => (hs.hasSum hz).tsum_eq⟩
 
 /-- Extensions to the balanced hull are unique by the identity theorem and geometry. -/
@@ -224,7 +229,7 @@ theorem eqOn_balancedHull_of_eqOn {U : Set E} (ho : IsOpen U) (hzero : (0 : E) �
     {f g : E → F} (hf : AnalyticOnNhd ℂ f (balancedHull ℂ U))
     (hg : AnalyticOnNhd ℂ g (balancedHull ℂ U)) (he : EqOn f g U) :
     EqOn f g (balancedHull ℂ U) :=
-  identity_theorem (ho.balancedHull hzero)
+  eqOn_of_holomorphic_of_eqOn (ho.balancedHull hzero)
     (isPathConnected_balancedHull ⟨0, hzero⟩).isConnected.isPreconnected
     hf.differentiableOn hg.differentiableOn ho ⟨0, hzero⟩ (subset_balancedHull ℂ) he
 

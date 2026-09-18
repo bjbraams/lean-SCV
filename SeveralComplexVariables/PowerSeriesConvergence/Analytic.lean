@@ -5,28 +5,32 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.LocallyUniform
 public import SeveralComplexVariables.PowerSeriesConvergence.Basic
 public import SeveralComplexVariables.Reinhardt.Hull
-public import SeveralComplexVariables.LocallyUniform
 
 /-!
 # Analytic sums on power-series convergence domains
 
-Arbitrary Banach-valued coefficient families converge locally uniformly on the interior
-of their absolute-convergence set, and their sum is analytic there. Absolute-convergence
-sets are geometrically convex in moduli even at zero coordinates and boundary points.
-Reference: Korevaar–Wiegerinck (2017), Theorem 2.4.2.
+Arbitrary Banach-valued coefficient families converge locally uniformly on the interior of their
+absolute-convergence set, and their sum is analytic there. Absolute-convergence sets are
+geometrically convex in moduli even at zero coordinates and boundary points. Reference:
+[Korevaar–Wiegerinck][KorevaarWiegerinck2017] (2017), Theorem 2.4.2.
 
 ## Main results
 
 `powerSeriesSum` is the sum of a Banach-valued power series on its convergence domain.
 `hasSumLocallyUniformlyOn_powerSeries` is locally uniform convergence there.
 `analyticOnNhd_powerSeriesSum` is analyticity of the sum.
-`hasGeometricallyConvexModuli_powerSeriesConvergenceDomain` is geometric convexity
-of the moduli, including zero coordinates.
+`hasGeometricallyConvexModuli_powerSeriesConvergenceDomain` is geometric convexity of the moduli,
+including zero coordinates.
+
+## References
+
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter
 open scoped NNReal Topology BigOperators
@@ -70,8 +74,8 @@ theorem geometric_monomial_le (k : ℝ≥0) (r s : ι → ℝ≥0) (m : ι →�
   rw [← he] at h
   exact_mod_cast h
 
-/-- The absolute-convergence set has geometrically convex moduli, including boundary points
-and points on coordinate hyperplanes. No completeness of the coefficient space is needed. -/
+/-- The absolute-convergence set has geometrically convex moduli, including boundary points and
+points on coordinate hyperplanes. No completeness of the coefficient space is needed. -/
 theorem hasGeometricallyConvexModuli_powerSeriesAbsConvergenceSet (c : MvPowerSeries ι F) :
     HasGeometricallyConvexModuli (powerSeriesAbsConvergenceSet c) := by
   rintro r ⟨z, hz, rfl⟩ s ⟨w, hw, rfl⟩ a b ha hb hab
@@ -92,7 +96,7 @@ theorem hasGeometricallyConvexModuli_powerSeriesConvergenceDomain (c : MvPowerSe
 variable [NormedSpace ℂ F] [CompleteSpace F]
 
 /-- The sum of a coefficient power series; its analytic domain is treated separately. -/
-def powerSeriesSum (c : MvPowerSeries ι F) (z : ι → ℂ) : F :=
+@[expose] def powerSeriesSum (c : MvPowerSeries ι F) (z : ι → ℂ) : F :=
   ∑' m : ι →₀ ℕ, (∏ i, z i ^ m i) • c m
 
 /-- An arbitrary coefficient series converges locally uniformly on its convergence domain. -/
@@ -132,6 +136,7 @@ theorem hasSumUniformlyOn_powerSeries (c : MvPowerSeries ι F)
 /-- The sum of an arbitrary Banach-valued power series is analytic on its convergence domain. -/
 theorem analyticOnNhd_powerSeriesSum (c : MvPowerSeries ι F) :
     AnalyticOnNhd ℂ (powerSeriesSum c) (powerSeriesConvergenceDomain c) := by
+  classical
   apply (hasSumLocallyUniformlyOn_powerSeries c).analyticOnNhd_pi _
     (isOpen_powerSeriesConvergenceDomain c)
   intro m z _

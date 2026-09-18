@@ -7,25 +7,40 @@ module
 
 public import Mathlib.Analysis.Analytic.Uniqueness
 public import Mathlib.Analysis.Complex.Basic
-public import Mathlib.Analysis.Normed.Module.Convex
-public import Mathlib.Analysis.Normed.Affine.AddTorsor
 public import Mathlib.Analysis.Convex.Segment
+public import Mathlib.Analysis.Normed.Affine.AddTorsor
 public import Mathlib.Analysis.Normed.Module.Connected
+public import Mathlib.Analysis.Normed.Module.Convex
 
 /-!
 # Gluing local analytic continuations along a convex set
 
-Let `g` be holomorphic on an open set `U` of a complex normed space and let `L ⊆ U` be
-convex. Suppose that at every point `ζ` of `L` there is a holomorphic function on the ball of
-radius `δ` around `ζ` agreeing with `g` near `ζ`. Then these local continuations agree on
-overlaps and define a holomorphic function on the `δ`-neighborhood of `L` agreeing with `g`
-near every point of `L`. The overlap argument passes through the midpoint of two centers,
-which lies in `L` and in both balls, and uses the identity theorem on a thickened segment.
+Let `g` be holomorphic on an open set `U` of a complex normed space and let `L ⊆ U` be convex.
+Suppose that at every point `ζ` of `L` there is a holomorphic function on the ball of radius `δ`
+around `ζ` agreeing with `g` near `ζ`. Then these local continuations agree on overlaps and
+define a holomorphic function on the `δ`-neighborhood of `L` agreeing with `g` near every point
+of `L`. The overlap argument passes through the midpoint of two centers, which lies in `L` and
+in both balls, and uses the identity theorem on a thickened segment.
 
-References: Scheidemann §6.3, proof of Theorem 6.3.1; Hörmander §2.5, proof of Theorem 2.5.10.
+References: [Scheidemann][Scheidemann2005] §6.3, proof of Theorem 6.3.1;
+[Hörmander][Hormander1973] §2.5, proof of Theorem 2.5.10.
+
+## Main results
+
+* `eventuallyEq_of_isPreconnected`: **Propagation of local agreement along a preconnected set.** Two
+  holomorphic functions on an open set that agree near one point of a preconnected subset agree near
+  every point of that subset.
+* `exists_glue_of_local_continuations`: **Gluing lemma.** Local holomorphic continuations of `g` on
+  balls of a fixed radius around the points of a convex set `L ⊆ U` glue to a holomorphic function
+  on the `δ`-neighborhood of `L` agreeing with `g` near every point of `L`.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
@@ -69,8 +84,8 @@ theorem eventuallyEq_of_isPreconnected {U K : Set E} (hU : IsOpen U) {g h : E �
   · exact h hb
   · exact absurd hab (h ha).2
 
-/-- Agreement of two holomorphic functions near a point propagates along a segment inside
-their common domain: if they agree near one endpoint, they agree near the other. -/
+/-- Agreement of two holomorphic functions near a point propagates along a segment inside their
+common domain: if they agree near one endpoint, they agree near the other. -/
 theorem eventuallyEq_of_segment_subset {U : Set E} (hU : IsOpen U) {g h : E → F}
     (hg : AnalyticOnNhd ℂ g U) (hh : AnalyticOnNhd ℂ h U) {a b : E}
     (hseg : segment ℝ a b ⊆ U) (hab : h =ᶠ[𝓝 a] g) : h =ᶠ[𝓝 b] g :=

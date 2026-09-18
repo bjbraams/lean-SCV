@@ -13,27 +13,29 @@ import Mathlib.Analysis.SpecificLimits.Basic
 /-!
 # Analytic uniqueness from positive real parameters
 
-This file records uniqueness principles for holomorphic functions whose values are known only
-on the positive real locus. They are useful for transporting certain identities proved using
-real probability measures to their complex analytic continuations.
+This file records uniqueness principles for holomorphic functions whose values are known only on
+the positive real locus. They are useful for transporting certain identities proved using real
+probability measures to their complex analytic continuations.
 
 ## Main results
 
-`AnalyticOnNhd.eqOn_of_eventuallyEq_ofReal` is one-variable uniqueness from agreement
-on a real germ, on a connected continuation domain. `analyticOnNhd_eq_of_eqOn_posReal`
-is uniqueness of entire functions of one variable from the positive reals.
-`analyticOnNhd_eq_of_eqOn_posReal_pi` is the corresponding statement for entire
-functions of finitely many variables.
+`AnalyticOnNhd.eqOn_of_eventuallyEq_ofReal` is one-variable uniqueness from agreement on a real
+germ, on a connected continuation domain. `AnalyticOnNhd.eq_of_eqOn_posReal` is uniqueness of
+entire functions of one variable from the positive reals. `AnalyticOnNhd.eq_of_eqOn_posReal_pi`
+is the corresponding statement for entire functions of finitely many variables. All three
+results allow values in any complex normed space; completeness of the target is not needed.
 -/
 
 open Complex Set Filter
 open scoped Topology
 
-@[expose] public noncomputable section RealUniqueness
+public noncomputable section RealUniqueness
 
-/-- Local one-variable uniqueness from agreement on a real germ. This is the form useful when
-the functions are only analytic on a connected continuation domain rather than entire. -/
-theorem AnalyticOnNhd.eqOn_of_eventuallyEq_ofReal {U : Set ℂ} {F G : ℂ → ℂ}
+variable {H : Type*} [NormedAddCommGroup H] [NormedSpace ℂ H]
+
+/-- Local one-variable uniqueness from agreement on a real germ. This is the form useful when the
+functions are only analytic on a connected continuation domain rather than entire. -/
+theorem AnalyticOnNhd.eqOn_of_eventuallyEq_ofReal {U : Set ℂ} {F G : ℂ → H}
     {x₀ : ℝ} (hF : AnalyticOnNhd ℂ F U) (hG : AnalyticOnNhd ℂ G U)
     (hU : IsPreconnected U) (hx₀ : (x₀ : ℂ) ∈ U)
     (hEq : ∀ᶠ x : ℝ in 𝓝 x₀, F (x : ℂ) = G (x : ℂ)) : Set.EqOn F G U := by
@@ -59,7 +61,7 @@ theorem AnalyticOnNhd.eqOn_of_eventuallyEq_ofReal {U : Set ℂ} {F G : ℂ → �
 
 /-- Two entire functions of one complex variable which agree at every positive real number agree
 everywhere. -/
-theorem analyticOnNhd_eq_of_eqOn_posReal {F G : ℂ → ℂ}
+theorem AnalyticOnNhd.eq_of_eqOn_posReal {F G : ℂ → H}
     (hF : AnalyticOnNhd ℂ F univ) (hG : AnalyticOnNhd ℂ G univ)
     (hEq : ∀ x : ℝ, 0 < x → F (x : ℂ) = G (x : ℂ)) : F = G := by
   have hEq' : ∀ᶠ x : ℝ in 𝓝 1, F (x : ℂ) = G (x : ℂ) := by
@@ -68,11 +70,10 @@ theorem analyticOnNhd_eq_of_eqOn_posReal {F G : ℂ → ℂ}
   have h := hF.eqOn_of_eventuallyEq_ofReal hG isPreconnected_univ (Set.mem_univ _) hEq'
   exact funext fun z => h (Set.mem_univ z)
 
-/-- Two entire functions of finitely many complex variables which agree on all vectors of
-strictly positive real parameters agree everywhere. No complex-open agreement hypothesis is
-needed. -/
-theorem analyticOnNhd_eq_of_eqOn_posReal_pi {ι : Type*} [Fintype ι]
-    {F G : (ι → ℂ) → ℂ} (hF : AnalyticOnNhd ℂ F univ)
+/-- Two entire functions of finitely many complex variables which agree on all vectors of strictly
+positive real parameters agree everywhere. No complex-open agreement hypothesis is needed. -/
+theorem AnalyticOnNhd.eq_of_eqOn_posReal_pi {ι : Type*} [Fintype ι]
+    {F G : (ι → ℂ) → H} (hF : AnalyticOnNhd ℂ F univ)
     (hG : AnalyticOnNhd ℂ G univ)
     (hEq : ∀ b : ι → ℝ, (∀ i, 0 < b i) →
       F (fun i ↦ (b i : ℂ)) = G (fun i ↦ (b i : ℂ))) : F = G := by
@@ -106,7 +107,7 @@ theorem analyticOnNhd_eq_of_eqOn_posReal_pi {ι : Type*} [Fintype ι]
           · simpa [L, hia] using
               (analyticAt_const : AnalyticAt ℂ (fun _ : ℂ ↦ b i) w)
         have hslices : (fun w ↦ F (L w)) = (fun w ↦ G (L w)) := by
-          apply analyticOnNhd_eq_of_eqOn_posReal
+          apply AnalyticOnNhd.eq_of_eqOn_posReal
           · intro w _
             exact (hF (L w) (mem_univ _)).comp_of_eq (hL w (mem_univ _)) rfl
           · intro w _

@@ -5,31 +5,53 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Calculus.ContDiff.Basic
+public import Mathlib.Analysis.Calculus.FDeriv.Const
+public import Mathlib.Analysis.Complex.RealDeriv
+public import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 public import Mathlib.Analysis.SpecialFunctions.PolarCoord
 public import Mathlib.MeasureTheory.Integral.IntegralEqImproper
-public import Mathlib.Analysis.Calculus.ContDiff.Basic
-public import Mathlib.Analysis.Complex.RealDeriv
-public import Mathlib.Analysis.Calculus.FDeriv.Const
-public import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 
 /-!
 # The Cauchy–Pompeiu identity
 
-For a real-linear map `L` and a direction `v`, the antiholomorphic part of `L` along `v` is
-`(L v + I • L (I • v)) / 2`; for the real derivative of a function of one complex variable and
-`v = 1` this is the Wirtinger derivative `∂f/∂\bar z`. A real-linear map is complex-linear exactly
+For a real-linear map `L` and a direction `v`, the antiholomorphic part of `L` along `v` is `(L
+v + I • L (I • v)) / 2`; for the real derivative of a function of one complex variable and `v =
+1` this is the Wirtinger derivative `∂f/∂\bar z`. A real-linear map is complex-linear exactly
 when all its antiholomorphic parts vanish.
 
-The Cauchy–Pompeiu identity states that for a compactly supported `C¹` function `φ : ℂ → F`,
-`∫ (∂φ/∂\bar z)(w) / w = -π φ(0)`. The proof passes to polar coordinates: in the direction of the
+The Cauchy–Pompeiu identity states that for a compactly supported `C¹` function `φ : ℂ → F`, `∫
+(∂φ/∂\bar z)(w) / w = -π φ(0)`. The proof passes to polar coordinates: in the direction of the
 ray the integrand is the radial derivative, whose integral over each ray is `-φ(0)`, and in the
 angular direction it is the angular derivative divided by the radius, whose integral over each
 circle vanishes by periodicity. No Green or Stokes theorem is used.
 
-References: Hörmander (1973), Theorem 1.2.1; Jakóbczak–Jarnicki (2021), Lemma 4.2.4.
+References: [Hörmander][Hormander1973] (1973), Theorem 1.2.1;
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Lemma 4.2.4.
+
+## Main definitions
+
+* `dbarAlong`: The antiholomorphic part of a real-linear map along a direction: `(L v + I • L (I •
+  v)) / 2`.
+* `complexLinearOfDbar`: A real-linear map whose antiholomorphic parts all vanish, as a
+  complex-linear map.
+* `polarRadialDeriv`: The radial derivative of `φ` at the point with polar coordinates `p`.
+* `polarAngularDeriv`: The angular derivative of `φ` at the point with polar coordinates `p`,
+  divided by the radius.
+
+## Main results
+
+* `integral_inv_smul_dbarAlong_fderiv`: **The Cauchy–Pompeiu identity.** For a compactly supported
+  `C¹` function `φ : ℂ → F`, `∫ w⁻¹ • ∂φ/∂\bar z (w) = -π • φ 0`.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex MeasureTheory Set Filter
 open scoped Real Topology
@@ -43,7 +65,7 @@ section Dbar
 
 /-- The antiholomorphic part of a real-linear map along a direction: `(L v + I • L (I • v)) / 2`.
 For the real derivative of a function of one complex variable at `v = 1` this is `∂/∂\bar z`. -/
-def dbarAlong (L : E →L[ℝ] F) (v : E) : F := (2 : ℂ)⁻¹ • (L v + I • L (I • v))
+@[expose] def dbarAlong (L : E →L[ℝ] F) (v : E) : F := (2 : ℂ)⁻¹ • (L v + I • L (I • v))
 
 /-- The antiholomorphic part along `v` vanishes exactly when `L` commutes with `I` on `v`. -/
 theorem dbarAlong_eq_zero_iff (L : E →L[ℝ] F) (v : E) :
@@ -81,15 +103,15 @@ theorem dbarAlong_restrictScalars (L : E →L[ℂ] F) (v : E) :
   rw [dbarAlong_eq_zero_iff]
   simp
 
-/-- The antiholomorphic part of the composition of a real-linear map with a continuous
-linear map `T : E →L[ℝ] F` and a complex-linear evaluation. -/
+/-- The antiholomorphic part of the composition of a real-linear map with a continuous linear map `T
+: E →L[ℝ] F` and a complex-linear evaluation. -/
 theorem dbarAlong_comp_clm {G : Type*} [NormedAddCommGroup G] [NormedSpace ℂ G]
     (T : F →L[ℂ] G) (L : E →L[ℝ] F) (v : E) :
     dbarAlong ((T.restrictScalars ℝ).comp L) v = T (dbarAlong L v) := by
   simp [dbarAlong, map_add, map_smul]
 
 /-- A real-linear map whose antiholomorphic parts all vanish, as a complex-linear map. -/
-def complexLinearOfDbar (L : E →L[ℝ] F) (h : ∀ v, dbarAlong L v = 0) : E →L[ℂ] F where
+@[expose] def complexLinearOfDbar (L : E →L[ℝ] F) (h : ∀ v, dbarAlong L v = 0) : E →L[ℂ] F where
   toFun := L
   map_add' := map_add L
   map_smul' := fun c v => by
@@ -103,8 +125,8 @@ def complexLinearOfDbar (L : E →L[ℝ] F) (h : ∀ v, dbarAlong L v = 0) : E �
             ← add_smul, Complex.re_add_im]
   cont := L.cont
 
-/-- The complex-linear map built from vanishing antiholomorphic parts has the same
-underlying function. -/
+/-- The complex-linear map built from vanishing antiholomorphic parts has the same underlying
+function. -/
 @[simp] theorem coe_complexLinearOfDbar (L : E →L[ℝ] F) (h : ∀ v, dbarAlong L v = 0) :
     ⇑(complexLinearOfDbar L h) = ⇑L := rfl
 
@@ -119,12 +141,11 @@ end Dbar
 section Polar
 
 /-- The radial derivative of `φ` at the point with polar coordinates `p`. -/
-def polarRadialDeriv (φ : ℂ → F) (p : ℝ × ℝ) : F :=
+@[expose] def polarRadialDeriv (φ : ℂ → F) (p : ℝ × ℝ) : F :=
   fderiv ℝ φ (p.1 * exp (p.2 * I)) (exp (p.2 * I))
 
-/-- The angular derivative of `φ` at the point with polar coordinates `p`, divided by the
-radius. -/
-def polarAngularDeriv (φ : ℂ → F) (p : ℝ × ℝ) : F :=
+/-- The angular derivative of `φ` at the point with polar coordinates `p`, divided by the radius. -/
+@[expose] def polarAngularDeriv (φ : ℂ → F) (p : ℝ × ℝ) : F :=
   fderiv ℝ φ (p.1 * exp (p.2 * I)) (I * exp (p.2 * I))
 
 /-- Rotation identity for a real-linear map on `ℂ`. -/
@@ -151,7 +172,8 @@ theorem apply_exp_add_I_smul_apply_I_mul_exp (L : ℂ →L[ℝ] F) (θ : ℝ) :
 
 /-- The polar-coordinate form of the Cauchy–Pompeiu integrand. -/
 theorem smul_inv_smul_dbarAlong_polar (φ : ℂ → F) {r θ : ℝ} (hr : 0 < r) :
-    r • ((Complex.polarCoord.symm (r, θ))⁻¹ • dbarAlong (fderiv ℝ φ (Complex.polarCoord.symm (r, θ))) 1) =
+    r • ((Complex.polarCoord.symm (r, θ))⁻¹ • dbarAlong (fderiv ℝ φ (Complex.polarCoord.symm (r,
+      θ))) 1) =
       (2 : ℂ)⁻¹ • (polarRadialDeriv φ (r, θ) + I • polarAngularDeriv φ (r, θ)) := by
   have hw : Complex.polarCoord.symm (r, θ) = r * exp (θ * I) := by
     rw [Complex.polarCoord_symm_apply, exp_mul_I]
@@ -203,7 +225,8 @@ theorem norm_polarAngularDeriv_le {φ : ℂ → F} {C : ℝ} (hC : ∀ w, ‖fde
     ‖polarAngularDeriv φ p‖ ≤ C := by
   unfold polarAngularDeriv
   calc ‖fderiv ℝ φ (p.1 * exp (p.2 * I)) (I * exp (p.2 * I))‖
-      ≤ ‖fderiv ℝ φ (p.1 * exp (p.2 * I))‖ * ‖I * exp (p.2 * I)‖ := ContinuousLinearMap.le_opNorm _ _
+      ≤ ‖fderiv ℝ φ (p.1 * exp (p.2 * I))‖ * ‖I * exp (p.2 * I)‖ := ContinuousLinearMap.le_opNorm
+        _ _
     _ ≤ C := by rw [norm_mul, norm_I, norm_exp_ofReal_mul_I, one_mul, mul_one]; exact hC _
 
 /-- The modulus of `r e^{iθ}` is `|r|`. -/
@@ -225,8 +248,8 @@ theorem polarAngularDeriv_eq_zero {φ : ℂ → F} {R : ℝ} (hR : tsupport φ �
   rfl
 
 omit [NormedSpace ℂ F] in
-/-- A bounded continuous function on the polar-coordinate rectangle vanishing beyond a
-radius is integrable on the polar target. -/
+/-- A bounded continuous function on the polar-coordinate rectangle vanishing beyond a radius is
+integrable on the polar target. -/
 theorem integrableOn_polarCoord_target_of_bound {A : ℝ × ℝ → F} (hA : Continuous A) {C R : ℝ}
     (hC : ∀ p, ‖A p‖ ≤ C) (hzero : ∀ p : ℝ × ℝ, R < |p.1| → A p = 0) :
     IntegrableOn A polarCoord.target := by

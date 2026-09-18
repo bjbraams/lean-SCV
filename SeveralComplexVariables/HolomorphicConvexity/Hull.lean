@@ -5,30 +5,39 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Analyticity
 public import Mathlib.Analysis.Normed.Group.Bounded
 public import Mathlib.Analysis.Normed.Module.HahnBanach
+public import SeveralComplexVariables.Analyticity
 
 /-!
 # Holomorphic hulls relative to an ambient set
 
-The hull is tested by scalar analytic functions on the ambient set. On open sets these
-are precisely holomorphic functions. The formulation uses all real upper bounds rather
-than a real supremum, so empty sets and unbounded functions have the intended behavior.
-In particular the empty hull is empty. Relative closedness is expressed on the ambient
-subtype; no ambient closedness or compactness of the hull is assumed.
+The hull is tested by scalar analytic functions on the ambient set. On open sets these are
+precisely holomorphic functions. The formulation uses all real upper bounds rather than a real
+supremum, so empty sets and unbounded functions have the intended behavior. In particular the
+empty hull is empty. Relative closedness is expressed on the ambient subtype; no ambient
+closedness or compactness of the hull is assumed.
 
-References: Range II §3.2; Scheidemann §6.2; Jakóbczak–Jarnicki §2.7.
+References: [Range][Range1986] II §3.2; [Scheidemann][Scheidemann2005] §6.2;
+[Jakóbczak–Jarnicki][JakobczakJarnicki2021] §2.7.
 
 ## Main results
 
-`holomorphicHull` is the scalar hull relative to an ambient set, tested by all real
-modulus bounds. `IsHolomorphicallyConvex` is the property that compact subsets of an
-open set have compact hulls in that set. `exists_separator_of_notMem_holomorphicHull`
-separates a point outside the hull. `holomorphicHull_idem` is idempotence.
+`holomorphicHull` is the scalar hull relative to an ambient set, tested by all real modulus
+bounds. `IsHolomorphicallyConvex` is the property that compact subsets of an open set have
+compact hulls in that set. `exists_separator_of_notMem_holomorphicHull` separates a point
+outside the hull. `holomorphicHull_idem` is idempotence.
+
+## References
+
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set
 
@@ -38,12 +47,12 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 /-- The scalar holomorphic hull of `K` relative to `U`, using all real modulus bounds. -/
-def holomorphicHull (U K : Set E) : Set E :=
+@[expose] def holomorphicHull (U K : Set E) : Set E :=
   {z | z ∈ U ∧ ∀ f : E → ℂ, AnalyticOnNhd ℂ f U →
     ∀ M : ℝ, (∀ w ∈ K, ‖f w‖ ≤ M) → ‖f z‖ ≤ M}
 
-/-- On an open finite-dimensional domain, the hull may equivalently be tested by
-complex Fréchet-differentiable scalar functions. -/
+/-- On an open finite-dimensional domain, the hull may equivalently be tested by complex
+Fréchet-differentiable scalar functions. -/
 theorem mem_holomorphicHull_iff_differentiableOn [FiniteDimensional ℂ E]
     {U K : Set E} (ho : IsOpen U) {z : E} :
     z ∈ holomorphicHull U K ↔ z ∈ U ∧
@@ -51,7 +60,7 @@ theorem mem_holomorphicHull_iff_differentiableOn [FiniteDimensional ℂ E]
         ∀ M : ℝ, (∀ w ∈ K, ‖f w‖ ≤ M) → ‖f z‖ ≤ M := by
   constructor
   · intro hz
-    exact ⟨hz.1, fun f hf => hz.2 f (hf.analyticOnNhd_finiteDimensional ho)⟩
+    exact ⟨hz.1, fun f hf => hz.2 f (hf.analyticOnNhd_of_finiteDimensional ho)⟩
   · intro hz
     exact ⟨hz.1, fun f hf => hz.2 f hf.differentiableOn⟩
 
@@ -69,8 +78,8 @@ theorem norm_le_on_holomorphicHull {U K : Set E} {f : E → ℂ}
     ∀ z ∈ holomorphicHull U K, ‖f z‖ ≤ M :=
   fun _ hz => hz.2 f hf M hM
 
-/-- Norm bounds transfer from a set to its scalar holomorphic hull for Banach-valued
-holomorphic maps, by norming functionals. -/
+/-- Norm bounds transfer from a set to its scalar holomorphic hull for Banach-valued holomorphic
+maps, by norming functionals. -/
 theorem norm_le_on_holomorphicHull_vector {U K : Set E} {G : E → F}
     (hG : AnalyticOnNhd ℂ G U) {M : ℝ} (hM : ∀ w ∈ K, ‖G w‖ ≤ M) :
     ∀ z ∈ holomorphicHull U K, ‖G z‖ ≤ M := by
@@ -128,8 +137,8 @@ theorem isClosed_holomorphicHull_preimage (U K : Set E) :
     isClosed_iInter fun M => isClosed_iInter fun _ =>
       isClosed_le (continuousOn_iff_continuous_domRestrict.mp hf.continuousOn).norm continuous_const
 
-/-- A point of the ambient set outside the hull is separated by a scalar holomorphic
-function and a strict modulus bound. -/
+/-- A point of the ambient set outside the hull is separated by a scalar holomorphic function and a
+strict modulus bound. -/
 theorem exists_separator_of_notMem_holomorphicHull {U K : Set E} {z : E}
     (hz : z ∈ U) (hn : z ∉ holomorphicHull U K) :
     ∃ f : E → ℂ, AnalyticOnNhd ℂ f U ∧ ∃ M : ℝ,
@@ -146,15 +155,15 @@ theorem mapsTo_holomorphicHull {U K : Set E} {V : Set F} {g : E → F}
   exact hz.2 (f ∘ g) (hf.comp hg hgV) M (fun w hw => hM (g w) ⟨w, hw, rfl⟩)
 
 /-- A set is holomorphically convex relative to `U` when its hull equals itself. -/
-def IsHolomorphicallyConvexIn (U K : Set E) : Prop := holomorphicHull U K = K
+@[expose] def IsHolomorphicallyConvexIn (U K : Set E) : Prop := holomorphicHull U K = K
 
 /-- Every holomorphic hull is holomorphically convex relative to its ambient set. -/
 theorem isHolomorphicallyConvexIn_holomorphicHull (U K : Set E) :
     IsHolomorphicallyConvexIn U (holomorphicHull U K) := holomorphicHull_idem U K
 
-/-- Holomorphic convexity of an ambient set means compactness of the hull of each
-compact subset. Openness and connectedness are separate hypotheses. -/
-def IsHolomorphicallyConvex (U : Set E) : Prop :=
+/-- Holomorphic convexity of an ambient set means compactness of the hull of each compact subset.
+Openness and connectedness are separate hypotheses. -/
+@[expose] def IsHolomorphicallyConvex (U : Set E) : Prop :=
   ∀ K : Set E, IsCompact K → K ⊆ U → IsCompact (holomorphicHull U K)
 
 /-- The empty ambient set is holomorphically convex. -/
@@ -207,8 +216,8 @@ theorem isBounded_holomorphicHull {ι : Type*} [Fintype ι]
   exact (hz.2 (fun w => w i) ((ContinuousLinearMap.proj i : (ι → ℂ) →L[ℂ] ℂ).analyticOnNhd U) M
     (fun w hw => (norm_le_pi_norm w i).trans (hM w hw))).trans (le_max_left _ _)
 
-/-- A singleton has no additional hull points; if it lies outside the ambient set,
-its relative hull is empty. Empty coordinate types are included. -/
+/-- A singleton has no additional hull points; if it lies outside the ambient set, its relative hull
+is empty. Empty coordinate types are included. -/
 @[simp] theorem holomorphicHull_singleton {ι : Type*} [Fintype ι]
     (U : Set (ι → ℂ)) (a : ι → ℂ) : holomorphicHull U {a} = U ∩ {a} := by
   ext z
@@ -233,5 +242,23 @@ theorem isHolomorphicallyConvex_univ {ι : Type*} [Fintype ι] :
     (isBounded_holomorphicHull univ hK.isBounded)
   exact isCompact_holomorphicHull_of_subset_compact (isCompact_closedBall 0 r)
     (subset_univ _) hr
+
+/-- Continuous complex-linear equivalences preserve holomorphic convexity. -/
+theorem IsHolomorphicallyConvex.image_equiv {U : Set E}
+    (hU : IsHolomorphicallyConvex U) (L : E ≃L[ℂ] F) :
+    IsHolomorphicallyConvex (L '' U) := by
+  intro K hK hKU
+  have hmap : MapsTo L.symm (L '' U) U := by
+    rintro _ ⟨z, hz, rfl⟩
+    simpa using hz
+  have hc := hU (L.symm '' K) (hK.image L.symm.continuous)
+    (by rintro _ ⟨z, hz, rfl⟩; exact hmap (hKU hz))
+  apply isCompact_holomorphicHull_of_subset_compact (hc.image L.continuous)
+  · rintro _ ⟨z, hz, rfl⟩
+    exact ⟨z, hz.1, rfl⟩
+  · intro z hz
+    exact ⟨L.symm z,
+      mapsTo_holomorphicHull (L.symm.toContinuousLinearMap.analyticOnNhd _) hmap hz,
+      L.apply_symm_apply z⟩
 
 end SeveralComplexVariables

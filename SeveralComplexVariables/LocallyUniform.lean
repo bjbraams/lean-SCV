@@ -5,20 +5,20 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Analyticity
-public import SeveralComplexVariables.Derivatives
-public import SeveralComplexVariables.CauchyEstimates
 public import Mathlib.Analysis.Complex.LocallyUniformLimit
 public import Mathlib.Analysis.Normed.Group.FunctionSeries
 public import Mathlib.Topology.Algebra.InfiniteSum.TsumUniformlyOn
+public import SeveralComplexVariables.Analyticity
+public import SeveralComplexVariables.CauchyEstimates
+public import SeveralComplexVariables.Derivatives
 
 /-!
 # Locally uniform limits of analytic maps in several variables
 
-This file proves the Weierstrass convergence theorem for finite-dimensional complex domains,
-its normally summable series consequences, and locally uniform convergence of all mixed
-coordinate and iterated Fréchet derivatives. The topological notion
-`TendstoLocallyUniformlyOn` is Mathlib's.
+This file proves the Weierstrass convergence theorem for finite-dimensional complex domains, its
+normally summable series consequences, and locally uniform convergence of all mixed coordinate
+and iterated Fréchet derivatives. The topological notion `TendstoLocallyUniformlyOn` is
+Mathlib's.
 
 This is a temporary project home for material ultimately intended for a Mathlib location such as
 `Mathlib.Analysis.Complex.SeveralVariables.LocallyUniform`.
@@ -31,20 +31,19 @@ This is a temporary project home for material ultimately intended for a Mathlib 
 * `TendstoLocallyUniformlyOn.partialDeriv` and
   `TendstoLocallyUniformlyOn.iteratedPartialDeriv` give convergence of coordinate derivatives.
 * `HasSumLocallyUniformlyOn.iteratedPartialDeriv` gives termwise differentiation of series.
-* `TendstoLocallyUniformlyOn.analyticOnNhd_finiteDimensional` and
-  `TendstoLocallyUniformlyOn.iteratedFDeriv_finiteDimensional` are the coordinate-independent
+* `TendstoLocallyUniformlyOn.analyticOnNhd_of_finiteDimensional` and
+  `TendstoLocallyUniformlyOn.iteratedFDeriv_of_finiteDimensional` are the coordinate-independent
   formulations, with multilinear operator norm for the latter.
 
-Derivative convergence uses a one-variable Cauchy estimate on compact thickenings, followed
-by finite sums, currying, and transport along a continuous linear choice of coordinates.
+Derivative convergence uses a one-variable Cauchy estimate on compact thickenings, followed by
+finite sums, currying, and transport along a continuous linear choice of coordinates.
 -/
 
 public section
 
 open Filter Set
-open scoped Classical
 
-variable {ι κ F : Type*} [Fintype ι]
+variable {ι κ F : Type*} [Fintype ι] [DecidableEq ι]
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 /-- **Weierstrass convergence theorem, finite-coordinate form.** A locally uniform limit of
@@ -55,6 +54,7 @@ theorem TendstoLocallyUniformlyOn.analyticOnNhd_pi
     (hlim : TendstoLocallyUniformlyOn f g l U)
     (hf : ∀ᶠ n in l, AnalyticOnNhd ℂ (f n) U) (hU : IsOpen U) :
     AnalyticOnNhd ℂ g U := by
+  classical
   have hg : ContinuousOn g U :=
     hlim.continuousOn (hf.frequently.mono fun _ hn => hn.continuousOn)
   apply SeveralComplexVariables.analyticOnNhd_pi_of_analyticOnNhd_update hU hg
@@ -79,8 +79,8 @@ theorem TendstoLocallyUniformlyOn.analyticOnNhd_pi
   exact (hlim'.differentiableOn hfdiff hV).analyticAt
     (hV.mem_nhds (show update (z i) ∈ U by simpa [update] using hz))
 
-/-- A locally uniformly convergent sum of analytic maps on an open finite complex coordinate
-space is analytic. -/
+/-- A locally uniformly convergent sum of analytic maps on an open finite complex coordinate space
+is analytic. -/
 theorem HasSumLocallyUniformlyOn.analyticOnNhd_pi
     {U : Set (ι → ℂ)} {f : κ → (ι → ℂ) → F} {g : (ι → ℂ) → F}
     (hsum : HasSumLocallyUniformlyOn f g U)
@@ -90,8 +90,8 @@ theorem HasSumLocallyUniformlyOn.analyticOnNhd_pi
   filter_upwards with s
   exact Finset.analyticOnNhd_fun_sum s fun n _ ↦ hf n
 
-/-- A series of analytic maps is analytic when its terms admit a summable uniform majorant on
-every compact subset of the domain. -/
+/-- A series of analytic maps is analytic when its terms admit a summable uniform majorant on every
+compact subset of the domain. -/
 theorem analyticOnNhd_tsum_of_summable_norm_on_compacts
     {U : Set (ι → ℂ)} {f : κ → (ι → ℂ) → F}
     (hU : IsOpen U) (hf : ∀ n, AnalyticOnNhd ℂ (f n) U)
@@ -102,8 +102,8 @@ theorem analyticOnNhd_tsum_of_summable_norm_on_compacts
     SummableLocallyUniformlyOn_of_locally_bounded hU hmajorant
   exact hs.hasSumLocallyUniformlyOn.analyticOnNhd_pi hf hU
 
-/-- Locally uniform convergence of holomorphic maps implies locally uniform convergence
-of each coordinate derivative. The Cauchy estimate is applied on a compact thickening. -/
+/-- Locally uniform convergence of holomorphic maps implies locally uniform convergence of each
+coordinate derivative. The Cauchy estimate is applied on a compact thickening. -/
 theorem TendstoLocallyUniformlyOn.partialDeriv
     {U : Set (ι → ℂ)} {l : Filter κ} [l.NeBot]
     {f : κ → (ι → ℂ) → F} {g : (ι → ℂ) → F}
@@ -143,14 +143,15 @@ theorem TendstoLocallyUniformlyOn.iteratedPartialDeriv
   | cons i is ih =>
       exact ih.partialDeriv (hf.mono fun n hn => hn.iteratedPartialDeriv hU is) hU i
 
-/-- Locally uniform convergence of holomorphic maps gives locally uniform convergence
-of their Fréchet derivatives in operator norm. -/
+/-- Locally uniform convergence of holomorphic maps gives locally uniform convergence of their
+Fréchet derivatives in operator norm. -/
 theorem TendstoLocallyUniformlyOn.fderiv_pi
     {U : Set (ι → ℂ)} {l : Filter κ} [l.NeBot]
     {f : κ → (ι → ℂ) → F} {g : (ι → ℂ) → F}
     (hlim : TendstoLocallyUniformlyOn f g l U)
     (hf : ∀ᶠ n in l, AnalyticOnNhd ℂ (f n) U) (hU : IsOpen U) :
     TendstoLocallyUniformlyOn (fun n => fderiv ℂ (f n)) (fderiv ℂ g) l U := by
+  classical
   let L (i : ι) : F →L[ℂ] ((ι → ℂ) →L[ℂ] F) :=
     ContinuousLinearMap.smulRightL ℂ (ι → ℂ) F (ContinuousLinearMap.proj i)
   have hi (i : ι) := (L i).uniformContinuous.comp_tendstoLocallyUniformlyOn
@@ -182,14 +183,16 @@ theorem TendstoLocallyUniformlyOn.iteratedFDeriv_pi
   induction k with
   | zero =>
     simpa only [iteratedFDeriv_zero_eq_comp] using
-      (continuousMultilinearCurryFin0 ℂ (ι → ℂ) F).symm.isometry.uniformContinuous.comp_tendstoLocallyUniformlyOn hlim
+      (continuousMultilinearCurryFin0 ℂ (ι → ℂ)
+        F).symm.isometry.uniformContinuous.comp_tendstoLocallyUniformlyOn hlim
   | succ k ih =>
     have hd := ih.fderiv_pi (hf.mono fun n hn => hn.iteratedFDeriv_of_isOpen hU k) hU
     simpa only [iteratedFDeriv_succ_eq_comp_left] using
-      (continuousMultilinearCurryLeftEquiv ℂ (fun _ : Fin (k + 1) => ι → ℂ) F).symm.isometry.uniformContinuous.comp_tendstoLocallyUniformlyOn hd
+      (continuousMultilinearCurryLeftEquiv ℂ (fun _ : Fin (k + 1) => ι → ℂ)
+        F).symm.isometry.uniformContinuous.comp_tendstoLocallyUniformlyOn hd
 
-/-- A locally uniformly convergent holomorphic series may be differentiated term by term
-any finite number of times, with locally uniform convergence of the differentiated series. -/
+/-- A locally uniformly convergent holomorphic series may be differentiated term by term any finite
+number of times, with locally uniform convergence of the differentiated series. -/
 theorem HasSumLocallyUniformlyOn.iteratedPartialDeriv
     {U : Set (ι → ℂ)} {f : κ → (ι → ℂ) → F} {g : (ι → ℂ) → F}
     (hsum : HasSumLocallyUniformlyOn f g U)
@@ -206,7 +209,7 @@ section FiniteDimensional
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
 
 /-- The Weierstrass convergence theorem on any finite-dimensional complex normed domain. -/
-theorem TendstoLocallyUniformlyOn.analyticOnNhd_finiteDimensional
+theorem TendstoLocallyUniformlyOn.analyticOnNhd_of_finiteDimensional
     {U : Set E} {l : Filter κ} [l.NeBot] {f : κ → E → F} {g : E → F}
     (hlim : TendstoLocallyUniformlyOn f g l U)
     (hf : ∀ᶠ n in l, AnalyticOnNhd ℂ (f n) U) (hU : IsOpen U) :
@@ -221,9 +224,9 @@ theorem TendstoLocallyUniformlyOn.analyticOnNhd_finiteDimensional
   simpa [Function.comp_def] using
     (ha (e x) hmem).comp_of_eq (e.toContinuousLinearMap.analyticAt x) rfl
 
-/-- Locally uniform convergence of the Fréchet derivatives, without a choice of coordinates
-in the statement. The target carries the operator norm. -/
-theorem TendstoLocallyUniformlyOn.fderiv_finiteDimensional
+/-- Locally uniform convergence of the Fréchet derivatives, without a choice of coordinates in the
+statement. The target carries the operator norm. -/
+theorem TendstoLocallyUniformlyOn.fderiv_of_finiteDimensional
     {U : Set E} {l : Filter κ} [l.NeBot] {f : κ → E → F} {g : E → F}
     (hlim : TendstoLocallyUniformlyOn f g l U)
     (hf : ∀ᶠ n in l, AnalyticOnNhd ℂ (f n) U) (hU : IsOpen U) :
@@ -246,11 +249,11 @@ theorem TendstoLocallyUniformlyOn.fderiv_finiteDimensional
   have H' := H.congr_inseparable (hf.mono fun n hn x hx =>
     Inseparable.of_eq (heq (hn x hx).differentiableAt))
   exact H'.congr_right fun x hx => heq
-    ((hlim.analyticOnNhd_finiteDimensional hf hU) x hx).differentiableAt
+    ((hlim.analyticOnNhd_of_finiteDimensional hf hU) x hx).differentiableAt
 
-/-- All iterated Fréchet derivatives converge locally uniformly on a finite-dimensional
-complex domain, in multilinear operator norm. -/
-theorem TendstoLocallyUniformlyOn.iteratedFDeriv_finiteDimensional
+/-- All iterated Fréchet derivatives converge locally uniformly on a finite-dimensional complex
+domain, in multilinear operator norm. -/
+theorem TendstoLocallyUniformlyOn.iteratedFDeriv_of_finiteDimensional
     {U : Set E} {l : Filter κ} [l.NeBot] {f : κ → E → F} {g : E → F}
     (hlim : TendstoLocallyUniformlyOn f g l U)
     (hf : ∀ᶠ n in l, AnalyticOnNhd ℂ (f n) U) (hU : IsOpen U) (k : ℕ) :
@@ -259,12 +262,14 @@ theorem TendstoLocallyUniformlyOn.iteratedFDeriv_finiteDimensional
   induction k with
   | zero =>
     simpa only [iteratedFDeriv_zero_eq_comp] using
-      (continuousMultilinearCurryFin0 ℂ E F).symm.isometry.uniformContinuous.comp_tendstoLocallyUniformlyOn hlim
+      (continuousMultilinearCurryFin0 ℂ E
+        F).symm.isometry.uniformContinuous.comp_tendstoLocallyUniformlyOn hlim
   | succ k ih =>
-    have hd := ih.fderiv_finiteDimensional
+    have hd := ih.fderiv_of_finiteDimensional
       (hf.mono fun n hn => hn.iteratedFDeriv_of_isOpen hU k) hU
     simpa only [iteratedFDeriv_succ_eq_comp_left] using
-      (continuousMultilinearCurryLeftEquiv ℂ (fun _ : Fin (k + 1) => E) F).symm.isometry.uniformContinuous.comp_tendstoLocallyUniformlyOn hd
+      (continuousMultilinearCurryLeftEquiv ℂ (fun _ : Fin (k + 1) => E)
+        F).symm.isometry.uniformContinuous.comp_tendstoLocallyUniformlyOn hd
 
 end FiniteDimensional
 

@@ -5,35 +5,35 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Reinhardt.MonomialSeparation
-public import SeveralComplexVariables.Polydisc
 public import SeveralComplexVariables.HolomorphicConvexity.Hull
+public import SeveralComplexVariables.Polydisc
+public import SeveralComplexVariables.Reinhardt.MonomialSeparation
 
 /-!
 # Holomorphic convexity of complete Reinhardt domains
 
-An exterior point is separated from each compact subset by a monomial. The entire
-holomorphic hull of the compact set therefore stays in the domain. Its compactness
-implies compactness of the relative holomorphic hull.
+An exterior point is separated from each compact subset by a monomial. The entire holomorphic
+hull of the compact set therefore stays in the domain. Its compactness implies compactness of
+the relative holomorphic hull.
 
 ## Main results
 
-`exists_monomial_separator_of_isCompact` separates an exterior point from a compact
-subset by a monomial. `isHolomorphicallyConvex_of_completeReinhardt` is holomorphic
-convexity of an open complete logarithmically convex Reinhardt domain.
+`exists_monomial_separator_of_isCompact` separates an exterior point from a compact subset by a
+monomial. `isHolomorphicallyConvex_of_completeReinhardt` is holomorphic convexity of an open
+complete logarithmically convex Reinhardt domain.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set
-open scoped Classical Topology NNReal
+open scoped Topology NNReal
 
 namespace SeveralComplexVariables
 
 variable {ι : Type*} [Fintype ι]
 
-/-- A monomial separates a compact subset of an open complete logarithmically convex
-Reinhardt set from any exterior point. -/
+/-- A monomial separates a compact subset of an open complete logarithmically convex Reinhardt set
+from any exterior point. -/
 theorem exists_monomial_separator_of_isCompact {U K : Set (ι → ℂ)}
     (ho : IsOpen U) (hc : IsCompleteReinhardt U) (hl : IsLogarithmicallyConvex U)
     (hK : IsCompact K) (hKU : K ⊆ U) {z : ι → ℂ} (hz : z ∉ U) :
@@ -42,17 +42,17 @@ theorem exists_monomial_separator_of_isCompact {U K : Set (ι → ℂ)}
   rcases K.eq_empty_or_nonempty with rfl | hne
   · exact ⟨0, 0, by simp, by simp⟩
   let R := {r : ι → ℝ≥0 | (fun i => (r i : ℂ)) ∈ U ∧ ∀ i, 0 < r i}
-  let P (r : R) := polydiscWithRadii 0 (fun i => (r.val i : ℝ))
+  let P (r : R) := polydisc (0 : ι → ℂ) (fun i => (r.val i : ℝ))
   have hcover : K ⊆ ⋃ r : R, P r := by
     intro w hw
     obtain ⟨r, hrU, hr⟩ := hc.isReinhardt.exists_strict_modulus_majorant ho (hKU hw)
     have hrpos (i) : 0 < r i := (show (0 : ℝ≥0) ≤ ‖w i‖₊ from zero_le).trans_lt (hr i)
     apply mem_iUnion.mpr
     refine ⟨⟨r, hrU, hrpos⟩, ?_⟩
-    apply mem_polydiscWithRadii.mpr
+    apply mem_polydisc.mpr
     intro i
     simpa only [dist_zero_right, Pi.zero_apply] using (show ‖w i‖ < (r i : ℝ) from hr i)
-  obtain ⟨s, hs⟩ := hK.elim_finite_subcover P (fun r => isOpen_polydiscWithRadii _ _) hcover
+  obtain ⟨s, hs⟩ := hK.elim_finite_subcover P (fun r => isOpen_polydisc _ _) hcover
   have hsne : s.Nonempty := by
     obtain ⟨w, hw⟩ := hne
     obtain ⟨r, hr, _⟩ := mem_iUnion₂.mp (hs hw)
@@ -74,11 +74,11 @@ theorem exists_monomial_separator_of_isCompact {U K : Set (ι → ℂ)}
     intro i _
     apply pow_le_pow_left₀ (norm_nonneg _)
     simpa only [Pi.zero_apply, dist_zero_right] using
-      (mem_polydiscWithRadii.mp hwq i).le
+      (mem_polydisc.mp hwq i).le
   · simpa only [norm_prod, norm_pow] using hm j
 
-/-- Open complete logarithmically convex Reinhardt sets are holomorphically convex.
-This includes unbounded sets, the empty set, and empty coordinate types. -/
+/-- Open complete logarithmically convex Reinhardt sets are holomorphically convex. This includes
+unbounded sets, the empty set, and empty coordinate types. -/
 theorem isHolomorphicallyConvex_of_completeReinhardt {U : Set (ι → ℂ)}
     (ho : IsOpen U) (hc : IsCompleteReinhardt U) (hl : IsLogarithmicallyConvex U) :
     IsHolomorphicallyConvex U := by

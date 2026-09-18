@@ -11,20 +11,20 @@ public import SeveralComplexVariables.RemovableSingularity.Cauchy
 /-!
 # Circle coefficients for analytic Laurent series
 
-Laurent coefficients on a circle satisfy Cauchy bounds and depend holomorphically
-on holomorphic parameters. Cauchy's formula on an annulus proves the Laurent
-expansion, independence of radius, and vanishing of negative coefficients on a
-disc. These results are independent of the multivariable Laurent expansion.
+Laurent coefficients on a circle satisfy Cauchy bounds and depend holomorphically on holomorphic
+parameters. Cauchy's formula on an annulus proves the Laurent expansion, independence of radius,
+and vanishing of negative coefficients on a disc. These results are independent of the
+multivariable Laurent expansion.
 
 ## Main results
 
 `circleLaurentCoeff` is the coefficient of `z ^ k` on the circle of radius `r`.
-`circleLaurentCoeff_eq_of_connected` is independence of radius on a connected set of
-admissible radii. `circleLaurentCoeff_neg_eq_zero` is vanishing of negative coefficients
-on a disc. `circleLaurent_expansion` is the two-sided series on an annulus.
+`circleLaurentCoeff_eq_of_connected` is independence of radius on a connected set of admissible
+radii. `circleLaurentCoeff_neg_eq_zero` is vanishing of negative coefficients on a disc.
+`circleLaurent_expansion` is the two-sided series on an annulus.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set Filter Metric
 open scoped Topology
@@ -34,12 +34,12 @@ namespace SeveralComplexVariables
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 /-- The coefficient of exponent `k` obtained by integrating on the circle of radius `r`. -/
-def circleLaurentCoeff (f : ℂ → F) (r : ℝ) (k : ℤ) : F :=
+@[expose] def circleLaurentCoeff (f : ℂ → F) (r : ℝ) (k : ℤ) : F :=
   (2 * Real.pi * I : ℂ)⁻¹ • ∮ w in C(0, r), w ^ (-k - 1) • f w
 
 omit [CompleteSpace F] in
-/-- Cauchy's bound for an arbitrary integer Laurent coefficient. No analyticity
-assumption is needed for this integral estimate. -/
+/-- Cauchy's bound for an arbitrary integer Laurent coefficient. No analyticity assumption is needed
+for this integral estimate. -/
 theorem norm_circleLaurentCoeff_le {f : ℂ → F} {r M : ℝ} (hr : 0 < r)
     (hM : ∀ w ∈ sphere (0 : ℂ) r, ‖f w‖ ≤ M) (k : ℤ) :
     ‖circleLaurentCoeff f r k‖ ≤ M * r ^ (-k) := by
@@ -57,8 +57,8 @@ theorem norm_circleLaurentCoeff_le {f : ℂ → F} {r M : ℝ} (hr : 0 < r)
   rw [mul_comm (r ^ (-k - 1)) M, ← mul_assoc, mul_comm r M, mul_assoc,
     he]
 
-/-- A fixed-circle Laurent coefficient is analytic in any finite-dimensional
-complex parameter on which the integrand depends holomorphically. -/
+/-- A fixed-circle Laurent coefficient is analytic in any finite-dimensional complex parameter on
+which the integrand depends holomorphically. -/
 theorem analyticOnNhd_circleLaurentCoeff {E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℂ E] [FiniteDimensional ℂ E] {V : Set E} (hV : IsOpen V)
     {U : Set (E × ℂ)} {f : E × ℂ → F} (hf : AnalyticOnNhd ℂ f U)
@@ -166,7 +166,8 @@ theorem circleLaurentCoeff_neg_eq_zero {f : ℂ → F} {r : ℝ} (hr : 0 ≤ r)
     funext w
     rw [he, zpow_natCast, Int.toNat_natCast]
   rw [circleLaurentCoeff,
-    (ha.differentiableOn.mono closure_ball_subset_closedBall).diffContOnCl.circleIntegral_eq_zero hr,
+    (ha.differentiableOn.mono closure_ball_subset_closedBall).diffContOnCl.circleIntegral_eq_zero
+      hr,
     smul_zero]
 
 omit [CompleteSpace F] in
@@ -254,8 +255,8 @@ theorem hasSum_circleLaurentCoeff_annulus {f : ℂ → F} {r R : ℝ}
     inv_smul_smul₀ two_pi_I_ne_zero] at hsum
   exact hsum.congr_fun fun k => by cases k <;> rfl
 
-/-- One-variable Laurent expansion on a connected rotation-invariant open set,
-including independence of radius and vanishing of negative coefficients at zero. -/
+/-- One-variable Laurent expansion on a connected rotation-invariant open set, including
+independence of radius and vanishing of negative coefficients at zero. -/
 theorem circleLaurent_expansion {V : Set ℂ} (hV : IsOpen V) (hc : IsConnected V)
     (hrot : ∀ z ∈ V, ∀ w : ℂ, ‖w‖ = ‖z‖ → w ∈ V)
     {f : ℂ → F} (hf : AnalyticOnNhd ℂ f V) {r : ℝ} (hr : 0 < r) (hrV : (r : ℂ) ∈ V) :

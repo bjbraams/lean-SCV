@@ -5,30 +5,34 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.CartanThullen
 public import SeveralComplexVariables.PowerSeriesConvergence.Basic
 public import SeveralComplexVariables.Reinhardt.Extension
 public import SeveralComplexVariables.Reinhardt.HolomorphicConvexity
-public import SeveralComplexVariables.CartanThullen
 
 /-!
 # Characterization of power-series convergence domains
 
-An open complete logarithmically convex Reinhardt domain is holomorphically convex,
-by monomial separation. Cartan–Thullen supplies a function with precisely that domain
-of existence. Its Taylor series at zero has the prescribed convergence domain.
+An open complete logarithmically convex Reinhardt domain is holomorphically convex, by monomial
+separation. Cartan–Thullen supplies a function with precisely that domain of existence. Its
+Taylor series at zero has the prescribed convergence domain.
 
 ## Main results
 
-`exists_powerSeriesConvergenceDomain_eq` realizes every nonempty open complete
-logarithmically convex Reinhardt set as a scalar power-series convergence domain.
+`exists_powerSeriesConvergenceDomain_eq` realizes every nonempty open complete logarithmically
+convex Reinhardt set as a scalar power-series convergence domain.
 `isLogarithmicallyConvex_iff_exists_powerSeriesConvergenceDomain` is the corresponding
 characterization among open complete Reinhardt sets.
+
+## References
+
+* [H. P. Boas, *Lecture Notes on Several Complex Variables*][Boas2013]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set
-open scoped Classical Topology
+open scoped Topology
 
 namespace SeveralComplexVariables
 
@@ -55,20 +59,22 @@ theorem powerSeriesConvergenceDomain_domCongr {κ : Type*} [Fintype κ]
   change interior (powerSeriesAbsConvergenceSet _) = H ⁻¹' interior (powerSeriesAbsConvergenceSet c)
   rw [he, H.preimage_interior]
 
-/-- On finite ordered coordinates, the Taylor series of a nonextendable function realizes
-an open complete logarithmically convex Reinhardt domain. -/
+/-- On finite ordered coordinates, the Taylor series of a nonextendable function realizes an open
+complete logarithmically convex Reinhardt domain. -/
 private theorem exists_powerSeriesConvergenceDomain_eq_fin {n : ℕ} {U : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hne : U.Nonempty) (hc : IsCompleteReinhardt U)
     (hl : IsLogarithmicallyConvex U) :
     ∃ c : MvPowerSeries (Fin n) ℂ, powerSeriesConvergenceDomain c = U := by
-  obtain ⟨f, hf⟩ := (isHolomorphicallyConvex_of_completeReinhardt ho hc hl).exists_domainOfExistence ho
-  obtain ⟨hUD, he⟩ := taylor_representation_completeReinhardt ho hc hf.1
+  obtain ⟨f, hf⟩ := (isHolomorphicallyConvex_of_completeReinhardt ho hc
+    hl).exists_domainOfExistence ho
+  obtain ⟨hUD, he⟩
+    := IsCompleteReinhardt.subset_convergenceDomain_and_eqOn_powerSeriesSum ho hc hf.1
   refine ⟨taylorCoefficientsAtZero f, Subset.antisymm ?_ hUD⟩
   exact hf.2 _ U (isOpen_powerSeriesConvergenceDomain _)
     ((isCompleteReinhardt_powerSeriesConvergenceDomain _).isConnected (hne.mono hUD))
     ho hne Subset.rfl hUD ⟨_, analyticOnNhd_powerSeriesSum _, he⟩
 
-/-- **Hartogs' characterization, existence direction** (Boas §2.2, Theorem 1).
+/-- **Hartogs' characterization, existence direction** ([Boas][Boas2013] §2.2, Theorem 1).
 Every nonempty open complete logarithmically convex Reinhardt set is exactly the convergence
 domain of a scalar power series. Monomial separation and Cartan–Thullen give a
 nonextendable function whose Taylor series realizes the domain. -/

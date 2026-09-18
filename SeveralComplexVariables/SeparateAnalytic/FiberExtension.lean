@@ -5,33 +5,37 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.SeparateAnalytic.HartogsLemma
-public import SeveralComplexVariables.RemovableSingularity.Cauchy
 public import Mathlib.Analysis.Complex.CauchyIntegral
+public import SeveralComplexVariables.RemovableSingularity.Cauchy
+public import SeveralComplexVariables.SeparateAnalytic.HartogsLemma
 
 /-!
 # Hartogs' fiber extension lemma
 
-A function of a base variable and one fiber variable, jointly analytic on a thin cylinder
-and analytic on a larger disc in each fiber, is locally bounded on the larger cylinder.
-The fiber Taylor coefficients are analytic in the base variable by Cauchy's formula on a
-small circle. Cauchy's estimates on the large discs give a pointwise eventual bound on
-their roots, and Hartogs' lemma makes this bound uniform near each base point, so the
-fiber Taylor series is dominated by a geometric series near every point of the larger
-cylinder.
+A function of a base variable and one fiber variable, jointly analytic on a thin cylinder and
+analytic on a larger disc in each fiber, is locally bounded on the larger cylinder. The fiber
+Taylor coefficients are analytic in the base variable by Cauchy's formula on a small circle.
+Cauchy's estimates on the large discs give a pointwise eventual bound on their roots, and
+Hartogs' lemma makes this bound uniform near each base point, so the fiber Taylor series is
+dominated by a geometric series near every point of the larger cylinder.
 
-This is the continuation step in the proof of Hartogs' separate-analyticity theorem.
-Reference: Hörmander (1973), proof of Theorem 2.2.8; Boas (2013), Section 2.4.
+This is the continuation step in the proof of Hartogs' separate-analyticity theorem. Reference:
+[Hörmander][Hormander1973] (1973), proof of Theorem 2.2.8; [Boas][Boas2013] (2013), Section 2.4.
 
 ## Main results
 
-`fiberCoeff` is the Taylor coefficient of a fiber slice. `analyticOnNhd_fiberCoeff`
-is its holomorphy in the base. `exists_eventually_norm_le_of_fiber_analytic` is
-local boundedness on the larger cylinder. `exists_hartogs_fiber_radii` chooses the
-intermediate radii for the geometric majorant.
+`fiberCoeff` is the Taylor coefficient of a fiber slice. `analyticOnNhd_fiberCoeff` is its
+holomorphy in the base. `exists_eventually_norm_le_of_fiber_analytic` is local boundedness on
+the larger cylinder. `exists_hartogs_fiber_radii` chooses the intermediate radii for the
+geometric majorant.
+
+## References
+
+* [H. P. Boas, *Lecture Notes on Several Complex Variables*][Boas2013]
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Function MeasureTheory Metric Set
 open scoped Real Topology
@@ -42,8 +46,8 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensi
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 omit [CompleteSpace F] in
-/-- Radii for the geometric majorant in Hartogs' fiber extension: an intermediate
-circle `σ < ρ` and a contraction ratio `q < 1`. -/
+/-- Radii for the geometric majorant in Hartogs' fiber extension: an intermediate circle `σ < ρ` and
+a contraction ratio `q < 1`. -/
 theorem exists_hartogs_fiber_radii {b w₁ : ℂ} {R : ℝ} (hdist : dist w₁ b < R) :
     ∃ σ ρ ε q : ℝ, dist w₁ b < σ ∧ σ < ρ ∧ ρ < R ∧ 0 < σ ∧ 0 < ρ ∧ 0 < ε ∧
       0 < q ∧ q < 1 ∧ q = σ * (ρ⁻¹ + ε) := by
@@ -66,8 +70,8 @@ theorem exists_hartogs_fiber_radii {b w₁ : ℂ} {R : ℝ} (hdist : dist w₁ b
   exact ⟨σ, ρ, ε, q, hσ₁, hσρ, hρR, hσ0, hρ, hε0, hq0, hq1, rfl⟩
 
 omit [CompleteSpace F] in
-/-- Cauchy's estimate for the scalar values of the Cauchy power series coefficients,
-from a bound on the closed disc. -/
+/-- Cauchy's estimate for the scalar values of the Cauchy power series coefficients, from a bound on
+the closed disc. -/
 theorem norm_cauchyPowerSeries_apply_one_le {g : ℂ → F} {b : ℂ} {ρ M : ℝ} (hρ : 0 < ρ)
     (hM : ∀ w ∈ closedBall b ρ, ‖g w‖ ≤ M) (k : ℕ) :
     ‖cauchyPowerSeries g b ρ k (fun _ => 1)‖ ≤ M * ρ⁻¹ ^ k := by
@@ -91,8 +95,8 @@ theorem norm_cauchyPowerSeries_apply_one_le {g : ℂ → F} {b : ℂ} {ρ M : �
             ≤ (2 * π)⁻¹ * (M * (2 * π)) := by gcongr
           _ = M := by field_simp
 
-/-- The Cauchy power series of a function analytic on a closed disc converges on the
-open disc, with the radius given as an extended real number. -/
+/-- The Cauchy power series of a function analytic on a closed disc converges on the open disc, with
+the radius given as an extended real number. -/
 theorem hasFPowerSeriesOnBall_cauchyPowerSeries_of_analyticOnNhd {g : ℂ → F} {b : ℂ}
     {r : ℝ} (hr : 0 < r) (hg : AnalyticOnNhd ℂ g (closedBall b r)) :
     HasFPowerSeriesOnBall g (cauchyPowerSeries g b r) b (ENNReal.ofReal r) := by
@@ -108,8 +112,8 @@ theorem tendsto_rpow_inv_natCast_succ {M : ℝ} (hM : 0 < M) :
   simpa [Function.comp_def, Real.rpow_def_of_pos hM] using
     Real.tendsto_exp_nhds_zero_nhds_one.comp h
 
-/-- A root of an exponential-type bound is bounded by a root of the constant times the
-reciprocal radius. -/
+/-- A root of an exponential-type bound is bounded by a root of the constant times the reciprocal
+radius. -/
 theorem rpow_inv_succ_le_of_le_mul_pow {x M ρ : ℝ} (hx : 0 ≤ x) (hM : 0 ≤ M) (hρ : 0 < ρ)
     (n : ℕ) (h : x ≤ M * ρ⁻¹ ^ (n + 1)) :
     x ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ M ^ ((n + 1 : ℕ) : ℝ)⁻¹ * ρ⁻¹ := by
@@ -119,8 +123,8 @@ theorem rpow_inv_succ_le_of_le_mul_pow {x M ρ : ℝ} (hx : 0 ≤ x) (hM : 0 ≤
         rw [Real.mul_rpow hM (by positivity),
           Real.pow_rpow_inv_natCast (inv_nonneg.mpr hρ.le) n.succ_ne_zero]
 
-/-- A sequence with a uniform exponential bound and an eventual geometric bound has a
-single geometric majorant. -/
+/-- A sequence with a uniform exponential bound and an eventual geometric bound has a single
+geometric majorant. -/
 theorem le_geometric_of_bounds {a : ℕ → ℝ} {M s q : ℝ} {N : ℕ} (hM : 0 ≤ M) (hs : 0 ≤ s)
     (hq0 : 0 < q) (hq1 : q ≤ 1) (h1 : ∀ k, a k ≤ M * s ^ k)
     (h2 : ∀ k, N + 1 ≤ k → a k ≤ q ^ k) (k : ℕ) :
@@ -141,14 +145,14 @@ theorem le_geometric_of_bounds {a : ℕ → ℝ} {M s q : ℝ} {N : ℕ} (hM : 0
       _ ≤ max 1 (M * max 1 s ^ N / q ^ N) * q ^ k :=
           mul_le_mul_of_nonneg_right (le_max_right _ _) hqk
 
-/-- Fiber Taylor coefficients of a function of a base variable and a fiber variable,
-computed by Cauchy's formula on the circle of radius `r` about `b` in the fiber. -/
-def fiberCoeff (f : E × ℂ → F) (b : ℂ) (r : ℝ) (k : ℕ) (z : E) : F :=
+/-- Fiber Taylor coefficients of a function of a base variable and a fiber variable, computed by
+Cauchy's formula on the circle of radius `r` about `b` in the fiber. -/
+private def fiberCoeff (f : E × ℂ → F) (b : ℂ) (r : ℝ) (k : ℕ) (z : E) : F :=
   cauchyPowerSeries (fun w => f (z, w)) b r k (fun _ => 1)
 
-/-- The fiber coefficients are analytic in the base variable wherever the function is
-jointly analytic on a cylinder containing the integration circle. -/
-theorem analyticOnNhd_fiberCoeff {D : Set E} (hD : IsOpen D) {b : ℂ} {r ε₁ : ℝ}
+/-- The fiber coefficients are analytic in the base variable wherever the function is jointly
+analytic on a cylinder containing the integration circle. -/
+private theorem analyticOnNhd_fiberCoeff {D : Set E} (hD : IsOpen D) {b : ℂ} {r ε₁ : ℝ}
     (hr : 0 < r) (hrε : r < ε₁) {f : E × ℂ → F}
     (hf : AnalyticOnNhd ℂ f (D ×ˢ ball b ε₁)) (k : ℕ) :
     AnalyticOnNhd ℂ (fiberCoeff f b r k) D := by
@@ -173,20 +177,21 @@ theorem analyticOnNhd_fiberCoeff {D : Set E} (hD : IsOpen D) {b : ℂ} {r ε₁ 
 
 omit [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E] [CompleteSpace F] in
 /-- A bound on a closed cylinder bounds all fiber coefficients over its base. -/
-theorem norm_fiberCoeff_le {f : E × ℂ → F} {b : ℂ} {r M : ℝ} (hr : 0 < r) {z : E}
+private theorem norm_fiberCoeff_le {f : E × ℂ → F} {b : ℂ} {r M : ℝ} (hr : 0 < r) {z : E}
     (hM : ∀ w ∈ closedBall b r, ‖f (z, w)‖ ≤ M) (k : ℕ) :
     ‖fiberCoeff f b r k z‖ ≤ M * r⁻¹ ^ k :=
   norm_cauchyPowerSeries_apply_one_le hr hM k
 
 omit [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E] in
-/-- Fiber coefficients are independent of the radius when the fiber function is analytic
-on both closed discs. -/
-theorem fiberCoeff_eq_of_radii {f : E × ℂ → F} {b : ℂ} {r ρ : ℝ} (hr : 0 < r) (hρ : 0 < ρ)
+/-- Fiber coefficients are independent of the radius when the fiber function is analytic on both
+closed discs. -/
+private theorem fiberCoeff_eq_of_radii {f : E × ℂ → F} {b : ℂ} {r ρ : ℝ} (hr : 0 < r) (hρ : 0 < ρ)
     {z : E} (hgr : AnalyticOnNhd ℂ (fun w => f (z, w)) (closedBall b r))
     (hgρ : AnalyticOnNhd ℂ (fun w => f (z, w)) (closedBall b ρ)) (k : ℕ) :
     fiberCoeff f b r k z = cauchyPowerSeries (fun w => f (z, w)) b ρ k (fun _ => 1) := by
   unfold fiberCoeff
-  rw [(hasFPowerSeriesOnBall_cauchyPowerSeries_of_analyticOnNhd hr hgr).hasFPowerSeriesAt.eq_formalMultilinearSeries
+  rw [(hasFPowerSeriesOnBall_cauchyPowerSeries_of_analyticOnNhd hr
+    hgr).hasFPowerSeriesAt.eq_formalMultilinearSeries
     (hasFPowerSeriesOnBall_cauchyPowerSeries_of_analyticOnNhd hρ hgρ).hasFPowerSeriesAt]
 
 variable [MeasureSpace E] [BorelSpace E] [(volume : Measure E).IsAddHaarMeasure]

@@ -5,22 +5,21 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.Analysis.Complex.RemovableSingularity
 public import Mathlib.Analysis.Analytic.IsolatedZeros
+public import Mathlib.Analysis.Complex.RemovableSingularity
 
 /-!
 # One-variable extension across analytic zero sets
 
-Mathlib's Banach-valued isolated-singularity theorem applies at every zero of a
-nonzero scalar analytic function. Redefining the function by its punctured limit
-at each zero gives one extension on the whole open set. This is the slice theorem
-used in the several-variable Riemann extension argument.
+Mathlib's Banach-valued isolated-singularity theorem applies at every zero of a nonzero scalar
+analytic function. Redefining the function by its punctured limit at each zero gives one
+extension on the whole open set. This is the slice theorem used in the several-variable Riemann
+extension argument.
 
 ## Main results
 
-`exists_analyticOnNhd_extension_zeroSet_oneVariable` extends a Banach-valued
-holomorphic function across the zeros of a nonzero scalar analytic function of one
-variable.
+`exists_analyticOnNhd_extension_zeroSet_oneVariable` extends a Banach-valued holomorphic
+function across the zeros of a nonzero scalar analytic function of one variable.
 -/
 
 public noncomputable section
@@ -32,8 +31,8 @@ namespace SeveralComplexVariables
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- A bounded Banach-valued function analytic off the zeros of a nonzero one-variable
-analytic function extends across all of those zeros. Bounds are needed only near zeros. -/
+/-- A bounded Banach-valued function analytic off the zeros of a nonzero one-variable analytic
+function extends across all of those zeros. Bounds are needed only near zeros. -/
 theorem exists_analyticOnNhd_extension_zeroSet_oneVariable
     {U : Set ℂ} (hU : IsOpen U) (hc : IsPreconnected U)
     {g : ℂ → ℂ} (hg : AnalyticOnNhd ℂ g U) (hne : ∃ z ∈ U, g z ≠ 0)

@@ -5,27 +5,31 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Reinhardt.GeometricConvexity
 public import Mathlib.Topology.MetricSpace.Pseudo.Pi
+public import SeveralComplexVariables.Reinhardt.GeometricConvexity
 
 /-!
 # Reinhardt hulls and comparison of logarithmic convexity conventions
 
-The complete Reinhardt hull allows coordinatewise shrinking. The logarithmic Reinhardt
-hull closes the modulus trace under geometric interpolation, including zeros, and restores
-rotation symmetry. Both are minimal hulls of sets; neither definition builds in openness.
-For open complete Reinhardt sets in finite dimension, the two logarithmic convexity
-predicates agree. References: Korevaar–Wiegerinck (2017), §§2.2–2.5 and §2.8.
+The complete Reinhardt hull allows coordinatewise shrinking. The logarithmic Reinhardt hull
+closes the modulus trace under geometric interpolation, including zeros, and restores rotation
+symmetry. Both are minimal hulls of sets; neither definition builds in openness. For open
+complete Reinhardt sets in finite dimension, the two logarithmic convexity predicates agree.
+References: [Korevaar–Wiegerinck][KorevaarWiegerinck2017] (2017), §§2.2–2.5 and §2.8.
 
 ## Main results
 
 `completeReinhardtHull` and `logarithmicReinhardtHull` are the two hulls.
 `completeReinhardtHull_min` and `logarithmicReinhardtHull_min` are minimality.
-`hasGeometricallyConvexModuli_iff` compares geometric and logarithmic convexity
-on open complete Reinhardt sets.
+`hasGeometricallyConvexModuli_iff` compares geometric and logarithmic convexity on open complete
+Reinhardt sets.
+
+## References
+
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Metric
 open scoped NNReal Topology
@@ -58,9 +62,11 @@ theorem IsLogarithmicallyConvex.geometricCombination_mem {r s : ι → ℝ≥0}
     {a b : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hab : a + b = 1) :
     (fun i => (geometricCombination a b r s i : ℂ)) ∈ U := by
   have hx : (fun i => Real.log (r i)) ∈ logarithmicImage U := by
-    simpa only [logarithmicImage, mem_ofPred_eq, Real.exp_log (show (0 : ℝ) < r _ from hrp _)] using hr
+    simpa only [logarithmicImage, mem_ofPred_eq, Real.exp_log (show (0 : ℝ) < r _ from hrp _)]
+      using hr
   have hy : (fun i => Real.log (s i)) ∈ logarithmicImage U := by
-    simpa only [logarithmicImage, mem_ofPred_eq, Real.exp_log (show (0 : ℝ) < s _ from hsp _)] using hs
+    simpa only [logarithmicImage, mem_ofPred_eq, Real.exp_log (show (0 : ℝ) < s _ from hsp _)]
+      using hs
   have hm := h hx hy ha hb hab
   have he : (fun i => (Real.exp (a * Real.log (r i) + b * Real.log (s i)) : ℂ)) =
       (fun i => (geometricCombination a b r s i : ℂ)) := by
@@ -98,8 +104,8 @@ theorem hasGeometricallyConvexModuli_iff [Fintype ι] (ho : IsOpen U)
   ⟨fun h => h.isLogarithmicallyConvex hc.isReinhardt,
     fun h => h.hasGeometricallyConvexModuli ho hc⟩
 
-/-- Away from all coordinate hyperplanes, the two convexity conventions coincide without
-openness or completeness assumptions. -/
+/-- Away from all coordinate hyperplanes, the two convexity conventions coincide without openness or
+completeness assumptions. -/
 theorem hasGeometricallyConvexModuli_iff_of_nonzero (hR : IsReinhardt U)
     (hne : ∀ z ∈ U, ∀ i, z i ≠ 0) :
     HasGeometricallyConvexModuli U ↔ IsLogarithmicallyConvex U := by
@@ -113,7 +119,7 @@ theorem hasGeometricallyConvexModuli_iff_of_nonzero (hR : IsReinhardt U)
     (fun i => nnnorm_pos.mpr (hne z hz i)) (fun i => nnnorm_pos.mpr (hne w hw i)) ha hb hab)
 
 /-- The smallest complete Reinhardt set containing a given set. -/
-def completeReinhardtHull (U : Set (ι → ℂ)) : Set (ι → ℂ) :=
+@[expose] def completeReinhardtHull (U : Set (ι → ℂ)) : Set (ι → ℂ) :=
   {w | ∃ z ∈ U, ∀ i, ‖w i‖ ≤ ‖z i‖}
 
 /-- A set is contained in its complete Reinhardt hull. -/
@@ -121,7 +127,8 @@ theorem subset_completeReinhardtHull : U ⊆ completeReinhardtHull U :=
   fun z hz => ⟨z, hz, fun _ => le_rfl⟩
 
 /-- The complete Reinhardt hull is complete Reinhardt. -/
-theorem isCompleteReinhardt_completeReinhardtHull : IsCompleteReinhardt (completeReinhardtHull U) := by
+theorem isCompleteReinhardt_completeReinhardtHull : IsCompleteReinhardt (completeReinhardtHull U)
+  := by
   rintro z ⟨v, hv, hz⟩ w hw
   exact ⟨v, hv, fun i => (hw i).trans (hz i)⟩
 
@@ -148,10 +155,11 @@ theorem isOpen_completeReinhardtHull [Fintype ι] (ho : IsOpen U) (hR : IsReinha
         (continuous_const (y := (r i : ℝ))))
   apply Filter.mem_of_superset (hW.mem_nhds (fun i => (hwz i).trans_lt (hzr i)))
   intro v hv
-  exact ⟨_, hrU, fun i => by simpa only [Complex.norm_of_nonneg (NNReal.coe_nonneg _)] using (hv i).le⟩
+  exact ⟨_, hrU, fun i => by simpa only [Complex.norm_of_nonneg (NNReal.coe_nonneg _)] using (hv
+    i).le⟩
 
 /-- The logarithmic Reinhardt hull uses geometric convexity including coordinate hyperplanes. -/
-def logarithmicReinhardtHull (U : Set (ι → ℂ)) : Set (ι → ℂ) :=
+@[expose] def logarithmicReinhardtHull (U : Set (ι → ℂ)) : Set (ι → ℂ) :=
   {z | (fun i => ‖z i‖₊) ∈ geometricConvexHull (modulusTrace U)}
 
 /-- A set is contained in its logarithmic Reinhardt hull. -/
@@ -198,8 +206,8 @@ theorem logarithmicReinhardtHull_eq (hU : IsReinhardt U) (hg : HasGeometricallyC
     logarithmicReinhardtHull U = U :=
   Subset.antisymm (logarithmicReinhardtHull_min Subset.rfl hU hg) subset_logarithmicReinhardtHull
 
-/-- Openness of the geometric logarithmic hull in finite dimension, including zero coordinates.
-The modulus trace of an open Reinhardt set is open, and so is its geometric convex hull. -/
+/-- Openness of the geometric logarithmic hull in finite dimension, including zero coordinates. The
+modulus trace of an open Reinhardt set is open, and so is its geometric convex hull. -/
 theorem isOpen_logarithmicReinhardtHull [Fintype ι] (ho : IsOpen U) (hU : IsReinhardt U) :
     IsOpen (logarithmicReinhardtHull U) := by
   have htrace : modulusTrace U =

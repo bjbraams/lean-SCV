@@ -5,31 +5,43 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Convex.Topology
+public import Mathlib.Analysis.Normed.Module.Connected
 public import SeveralComplexVariables.DomainOfHolomorphy
 public import SeveralComplexVariables.TubeDomain.Basic
 public import SeveralComplexVariables.TubeDomain.Bochner
-public import Mathlib.Analysis.Normed.Module.Connected
-public import Mathlib.Analysis.Convex.Topology
 
 /-!
 # Tube domains and Bochner's tube theorem
 
-The tube over a real base consists of complex points whose real parts belong to that
-base. The tube theorem extends functions to the tube over the real convex hull, inside
-the same complex coordinate space. No abstract envelope is constructed. Connectedness
-of the base is essential to the extension theorem. Banach-valued targets and empty
-coordinate types are retained.
+The tube over a real base consists of complex points whose real parts belong to that base. The
+tube theorem extends functions to the tube over the real convex hull, inside the same complex
+coordinate space. No abstract envelope is constructed. Connectedness of the base is essential to
+the extension theorem. Banach-valued targets and empty coordinate types are retained. A
+preconnected empty base is handled separately.
 
-Bochner extension is proved by Hörmander's argument: the maximal star-convex extension tube
-is convex by the parabolic disc hull lemma and Thullen's continuation lemma, and a path
-argument handles connected bases (`TubeDomain/Bochner`). The statement for a general finite
-index type is obtained by reindexing. Uniqueness of extensions and the convex-base
+Bochner extension is proved by [Hörmander][Hormander1973]'s argument: the maximal star-convex
+extension tube is convex by the parabolic disc hull lemma and Thullen's continuation lemma, and
+a path argument handles connected bases (`TubeDomain/Bochner`). The statement for a general
+finite index type is obtained by reindexing. Uniqueness of extensions and the convex-base
 characterization of tube domains of holomorphy follow.
 
-References: Scheidemann §6.3; Hörmander §2.5, Theorem 2.5.10.
+References: [Scheidemann][Scheidemann2005] §6.3; [Hörmander][Hormander1973] §2.5, Theorem
+2.5.10.
+
+## Main results
+
+* `exists_extension_tubeDomain_convexHull`: **Bochner's tube theorem.** Every Banach-valued
+  holomorphic function on a tube with preconnected open base extends to the tube over its real
+  convex hull.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter
 open scoped Topology
@@ -40,9 +52,9 @@ variable {ι : Type*}
 
 variable [Fintype ι]
 
-/-- **Bochner's tube theorem.** Every Banach-valued holomorphic function on a tube with
-connected open base extends to the tube over its real convex hull. -/
-theorem exists_extension_tubeDomain_convexHull {F : Type*} [NormedAddCommGroup F]
+/-- Bochner extension for a nonempty connected base, obtained by reindexing the coordinate
+proof. This is the prerequisite for the empty-inclusive public theorem below. -/
+private theorem exists_extension_tubeDomain_convexHull_nonempty {F : Type*} [NormedAddCommGroup F]
     [NormedSpace ℂ F] [CompleteSpace F] {Ω : Set (ι → ℝ)}
     (ho : IsOpen Ω) (hc : IsConnected Ω) {f : (ι → ℂ) → F}
     (hf : AnalyticOnNhd ℂ f (tubeDomain Ω)) :
@@ -94,8 +106,22 @@ theorem exists_extension_tubeDomain_convexHull {F : Type*} [NormedAddCommGroup F
   rw [hg'f hz']
   simp only [Function.comp_assoc, e.symm_comp_self, Function.comp_id]
 
-/-- Uniqueness of a tube extension to the convexified base, independently of Bochner's
-existence theorem. Only a nonempty open original base is needed. -/
+/-- **Bochner's tube theorem.** Every Banach-valued holomorphic function on a tube with
+preconnected open base extends to the tube over its real convex hull. -/
+theorem exists_extension_tubeDomain_convexHull {F : Type*} [NormedAddCommGroup F]
+    [NormedSpace ℂ F] [CompleteSpace F] {Ω : Set (ι → ℝ)}
+    (ho : IsOpen Ω) (hc : IsPreconnected Ω) {f : (ι → ℂ) → F}
+    (hf : AnalyticOnNhd ℂ f (tubeDomain Ω)) :
+    ∃ g : (ι → ℂ) → F, AnalyticOnNhd ℂ g (tubeDomain (convexHull ℝ Ω)) ∧
+      EqOn g f (tubeDomain Ω) := by
+  by_cases hn : Ω.Nonempty
+  · exact exists_extension_tubeDomain_convexHull_nonempty ho ⟨hn, hc⟩ hf
+  · have hΩ : Ω = ∅ := Set.not_nonempty_iff_eq_empty.mp hn
+    subst Ω
+    exact ⟨f, by simp [tubeDomain], by simp [tubeDomain]⟩
+
+/-- Uniqueness of a tube extension to the convexified base, independently of Bochner's existence
+theorem. Only a nonempty open original base is needed. -/
 theorem eqOn_of_tubeDomain_extension {F : Type*} [NormedAddCommGroup F]
     [NormedSpace ℂ F] [CompleteSpace F] {Ω : Set (ι → ℝ)}
     (ho : IsOpen Ω) (hn : Ω.Nonempty) {f g : (ι → ℂ) → F}
@@ -109,24 +135,30 @@ theorem eqOn_of_tubeDomain_extension {F : Type*} [NormedAddCommGroup F]
   filter_upwards [(isOpen_tubeDomain ho).mem_nhds ha] with z hz
   exact he hz
 
-/-- The convexified tube is a common scalar extension domain, by Bochner's extension
-theorem, without asserting a universal abstract envelope property. -/
+/-- The convexified tube is a common scalar extension domain, by Bochner's extension theorem,
+without asserting a universal abstract envelope property. -/
 theorem isCommonAnalyticExtension_tubeDomain_convexHull {Ω : Set (ι → ℝ)}
-    (ho : IsOpen Ω) (hc : IsConnected Ω) :
+    (ho : IsOpen Ω) (hc : IsPreconnected Ω) :
     IsCommonAnalyticExtension (tubeDomain Ω) (tubeDomain (convexHull ℝ Ω)) :=
   isCommonAnalyticExtension_of_forall (tubeDomain_subset_convexHull_base Ω)
     (fun _ hf => exists_extension_tubeDomain_convexHull ho hc hf)
 
-/-- A tube with connected open base is a domain of holomorphy exactly when its base is
-convex. The forward implication uses Bochner's extension theorem. -/
+/-- A tube with preconnected open base is a domain of holomorphy exactly when its base is convex.
+The forward implication uses Bochner's extension theorem. -/
 theorem isDomainOfHolomorphy_tubeDomain_iff {Ω : Set (ι → ℝ)}
-    (ho : IsOpen Ω) (hc : IsConnected Ω) :
+    (ho : IsOpen Ω) (hc : IsPreconnected Ω) :
     IsDomainOfHolomorphy (tubeDomain Ω) ↔ Convex ℝ Ω := by
+  by_cases hn : Ω.Nonempty
+  swap
+  · have hΩ : Ω = ∅ := Set.not_nonempty_iff_eq_empty.mp hn
+    subst Ω
+    exact ⟨fun _ => convex_empty, fun _ =>
+      isDomainOfHolomorphy_of_convex (convex_tubeDomain convex_empty) (isOpen_tubeDomain ho)⟩
   constructor
   · intro h
-    have he := h.eq_of_commonExtension (isOpen_tubeDomain ho) (nonempty_tubeDomain hc.nonempty)
+    have he := h.eq_of_commonExtension (isOpen_tubeDomain ho) (nonempty_tubeDomain hn)
       (isOpen_tubeDomain (ho.convexHull (𝕜 := ℝ)))
-      ⟨(nonempty_tubeDomain hc.nonempty).mono (tubeDomain_subset_convexHull_base Ω),
+      ⟨(nonempty_tubeDomain hn).mono (tubeDomain_subset_convexHull_base Ω),
         (convex_tubeDomain (convex_convexHull ℝ Ω)).isPreconnected⟩
       (isCommonAnalyticExtension_tubeDomain_convexHull ho hc)
     have heq : convexHull ℝ Ω = Ω := by

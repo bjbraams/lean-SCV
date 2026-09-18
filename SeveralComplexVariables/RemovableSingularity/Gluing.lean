@@ -10,15 +10,15 @@ public import SeveralComplexVariables.Analyticity
 /-!
 # Gluing local analytic extensions from a dense subset
 
-Local continuous extensions of a function on a dense subset agree. The filter limit
-along that subset therefore gives a single analytic extension on the whole domain.
-This elementary construction uses no sheaf machinery and imposes no connectedness.
+Local continuous extensions of a function on a dense subset agree. The filter limit along that
+subset therefore gives a single analytic extension on the whole domain. This elementary
+construction uses no sheaf machinery and imposes no connectedness.
 
 ## Main results
 
-`exists_analyticOnNhd_extension_of_local` glues local analytic extensions from a
-dense subset. `subset_closure_nonzero_of_nonzero_germs` is density of the
-nonvanishing locus from nonzero germs, without analyticity of a global function.
+`exists_analyticOnNhd_extension_of_local` glues local analytic extensions from a dense subset.
+`subset_closure_nonzero_of_nonzero_germs` is density of the nonvanishing locus from nonzero
+germs, without analyticity of a global function.
 -/
 
 public noncomputable section
@@ -32,8 +32,8 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 omit [NormedSpace ℂ E] in
-/-- A function with nonzero germs everywhere on an open set has dense nonvanishing locus.
-This topological statement needs no analyticity assumption. -/
+/-- A function with nonzero germs everywhere on an open set has dense nonvanishing locus. This
+topological statement needs no analyticity assumption. -/
 theorem subset_closure_nonzero_of_nonzero_germs {U : Set E} (hU : IsOpen U)
     {g : E → ℂ} (hne : ∀ a ∈ U, ¬ g =ᶠ[𝓝 a] 0) :
     U ⊆ closure (U \ g ⁻¹' {0}) := by
@@ -46,8 +46,8 @@ theorem subset_closure_nonzero_of_nonzero_germs {U : Set E} (hU : IsOpen U)
   by_contra hgz
   exact not_lt_of_ge (h z ⟨hz, hgz⟩) (by simpa [dist_comm] using hzr)
 
-/-- Local analytic extensions from a relatively dense subset glue to an extension on
-an open set. Uniqueness is only asserted on that set, not outside it. -/
+/-- Local analytic extensions from a relatively dense subset glue to an extension on an open set.
+Uniqueness is only asserted on that set, not outside it. -/
 theorem exists_analyticOnNhd_extension_of_local
     {U S : Set E} {f : E → F} (hSU : S ⊆ U) (hdense : U ⊆ closure S)
     (hloc : ∀ a ∈ U, ∃ (V : Set E) (H : E → F), IsOpen V ∧ a ∈ V ∧ V ⊆ U ∧

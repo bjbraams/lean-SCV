@@ -5,22 +5,22 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.InjectiveMapping.OneVariable
 public import Mathlib.LinearAlgebra.Dual.Lemmas
+public import SeveralComplexVariables.InjectiveMapping.OneVariable
 
 /-!
 # Immersion points of injective holomorphic maps
 
-Scalar projections with nonzero differential admit local coordinates. Restricting to
-a level hyperplane lowers the source dimension and preserves injectivity. This gives
-immersion points without assuming that source and target dimensions agree.
+Scalar projections with nonzero differential admit local coordinates. Restricting to a level
+hyperplane lowers the source dimension and preserves injectivity. This gives immersion points
+without assuming that source and target dimensions agree.
 
 ## Main results
 
-`exists_fderiv_ne_zero_of_injOn` finds a point of nonzero derivative on a nonempty
-open set in positive dimension. `exists_scalar_projection_fderiv_ne_zero` produces a
-scalar coordinate with nonzero derivative. `exists_injective_fderiv_of_injOn` is the
-immersion-point theorem after restricting to a level hyperplane.
+`exists_fderiv_ne_zero_of_injOn` finds a point of nonzero derivative on a nonempty open set in
+positive dimension. `exists_scalar_projection_fderiv_ne_zero` produces a scalar coordinate with
+nonzero derivative. `exists_injective_fderiv_of_injOn` is the immersion-point theorem after
+restricting to a level hyperplane.
 -/
 
 public noncomputable section
@@ -37,8 +37,8 @@ variable {E : Type u} {F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [FiniteDimensional ℂ E] [FiniteDimensional ℂ F]
 
 omit [FiniteDimensional ℂ E] [FiniteDimensional ℂ F] in
-/-- An injective holomorphic map on a nonempty open set in positive dimension has
-nonzero differential somewhere. -/
+/-- An injective holomorphic map on a nonempty open set in positive dimension has nonzero
+differential somewhere. -/
 theorem exists_fderiv_ne_zero_of_injOn [Nontrivial E]
     {U : Set E} (hU : IsOpen U) (hne : U.Nonempty) {f : E → F}
     (hf : DifferentiableOn ℂ f U) (hi : InjOn f U) :
@@ -55,8 +55,8 @@ theorem exists_fderiv_ne_zero_of_injOn [Nontrivial E]
   simp at this
 
 omit [FiniteDimensional ℂ E] in
-/-- Some scalar projection of an injective holomorphic map has nonzero differential
-at a point of any nonempty open domain of positive dimension. -/
+/-- Some scalar projection of an injective holomorphic map has nonzero differential at a point of
+any nonempty open domain of positive dimension. -/
 theorem exists_scalar_projection_fderiv_ne_zero [Nontrivial E]
     {U : Set E} (hU : IsOpen U) (hne : U.Nonempty) {f : E → F}
     (hf : DifferentiableOn ℂ f U) (hi : InjOn f U) :
@@ -181,8 +181,8 @@ private theorem exists_injective_fderiv_aux (n : ℕ) :
     exact congrArg (fderiv ℂ e.symm (κ z)) (hinjG (by simpa only [hd,
       ContinuousLinearMap.comp_apply] using hvw))
 
-/-- Every nonempty open restriction of an injective holomorphic map has an immersion point.
-The source and target dimensions need not agree. -/
+/-- Every nonempty open restriction of an injective holomorphic map has an immersion point. The
+source and target dimensions need not agree. -/
 theorem exists_injective_fderiv_of_injOn {U : Set E} (hU : IsOpen U) (hne : U.Nonempty)
     {f : E → F} (hf : DifferentiableOn ℂ f U) (hi : InjOn f U) :
     ∃ a ∈ U, Injective (fderiv ℂ f a) :=

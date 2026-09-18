@@ -18,8 +18,8 @@ no admitted statements.
 
 - `SeveralComplexVariables.lean` is the root module. It imports every file of the library
   and its docstring summarizes the contents topic by topic.
-- `SeveralComplexVariables/` holds the library: 143 files in 64 top-level modules and 17
-  subdirectories, grouped by topic (`AnalyticGerm`, `AnalyticSet`, `HolomorphicConvexity`,
+- `SeveralComplexVariables/` holds the library, grouped by topic (`AnalyticGerm`,
+  `AnalyticSet`, `HolomorphicConvexity`,
   `LaurentSeries`, `LeviConvexity`, `Reinhardt`, `RemovableSingularity`, `Runge`,
   `SeparateAnalytic`, `Subharmonic`, `TubeDomain`, `WeierstrassDivision`, `ZeroSets`, and
   others). Every file has a documentation header and every declaration a docstring.
@@ -35,6 +35,16 @@ The project uses Lean and Mathlib at version `v4.34.0` (see `lean-toolchain` and
     lake build
 
 Documentation can be generated with the `doc-gen4` dependency declared in the lakefile.
+To include the project bibliography while keeping its source at the repository root:
+
+```sh
+DOCGEN_SRC=vscode lake build Main:docs
+lake exe doc-gen4 bibPrepass SCVReferences.bib
+lake exe doc-gen4 fromDb .lake/build/api-docs.db SeveralComplexVariables
+```
+
+The last command regenerates the HTML from the documentation database using the project
+bibliography. This avoids requiring a documentation-source directory under the library.
 
 ## Documentation
 
@@ -60,6 +70,10 @@ rational approximation, and the Levi problem in the sufficiency direction.
 
 ## References
 
+The module docstrings use Mathlib-style bibliography keys resolved in
+[SCVReferences.bib](SCVReferences.bib). These entries accompany the project modules for
+upstream integration; the installed Mathlib bibliography is unchanged.
+
 The formalization follows classical introductory treatments, especially:
 
 - H. Alexander and J. Wermer, *Several Complex Variables and Banach Algebras*, 3rd ed.,
@@ -71,8 +85,8 @@ The formalization follows classical introductory treatments, especially:
   North-Holland, 1973.
 - P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
   Variables*, manuscript, 2021.
-- J. Korevaar and J. Wiegerinck, *Lecture Notes on Several Complex Variables*, 1997,
-  revised 2021.
+- J. Korevaar and J. Wiegerinck, *Several Complex Variables*, version of 23 August 2017
+  (the date printed in the local PDF, despite its 1997/revised-2021 filename).
 - S. G. Krantz, *Function Theory of Several Complex Variables*, 2nd ed., 1992.
 - J. Lebl, *Tasty Bits of Several Complex Variables*, 2026.
 - P. Lelong and L. Gruman, *Entire Functions of Several Complex Variables*, Springer, 1986.

@@ -7,8 +7,8 @@ module
 
 public import Mathlib.Analysis.Complex.Basic
 public import Mathlib.Analysis.Convex.PathConnected
-public import Mathlib.Analysis.Convex.Topology
 public import Mathlib.Analysis.Convex.SpecificFunctions.Basic
+public import Mathlib.Analysis.Convex.Topology
 
 /-!
 # Reinhardt sets
@@ -24,17 +24,44 @@ viewed in complex coordinates. `IsLogarithmicallyConvex` asks for this real set 
 For complete Reinhardt sets, logarithmic image commutes with taking the interior; both
 completeness and logarithmic convexity are preserved by taking interiors.
 
-The centre is the origin in the specified coordinates. To express the property about `a`,
-apply the predicate to `{z | a + z ∈ U}`. Arbitrary complex linear changes of coordinates
-need not preserve either property. These definitions and results also allow empty coordinate
-types; no finiteness assumption is needed for the basic geometry in the product topology.
+The centre is the origin in the specified coordinates. To express the property about `a`, apply
+the predicate to `{z | a + z ∈ U}`. Arbitrary complex linear changes of coordinates need not
+preserve either property. These definitions and results also allow empty coordinate types; no
+finiteness assumption is needed for the basic geometry in the product topology.
 
-References: Korevaar--Wiegerinck, Definitions 2.3.2 and 2.3.4; Lebl, Section 1.2;
-Boas (2013), Sections 2.1--2.2.
-Polydisc examples are provided in `SeveralComplexVariables.Polydisc`.
+References: [Korevaar–Wiegerinck][KorevaarWiegerinck2017], Definitions 2.3.2 and 2.3.4;
+[Lebl][Lebl2026], Section 1.2; [Boas][Boas2013] (2013), Sections 2.1--2.2. Polydisc examples are
+provided in `SeveralComplexVariables.Polydisc`.
+
+## Main definitions
+
+* `IsReinhardt`: A set is Reinhardt if membership is preserved by independent coordinate rotations.
+* `IsCompleteReinhardt`: A set is complete Reinhardt if membership is preserved by decreasing
+  coordinate moduli.
+* `logarithmicImage`: The logarithmic image uses the positive real slice, avoiding logarithms at
+  zero.
+* `IsLogarithmicallyConvex`: Logarithmic convexity means convexity of the logarithmic image.
+
+## Main results
+
+* `IsCompleteReinhardt.isReinhardt`: Every complete Reinhardt set is Reinhardt.
+* `IsCompleteReinhardt.isPathConnected`: Every nonempty complete Reinhardt set is path connected in
+  the product topology.
+* `IsCompleteReinhardt.interior`: The interior of a complete Reinhardt set is complete Reinhardt.
+* `IsCompleteReinhardt.logarithmicImage_interior`: For complete Reinhardt sets, logarithmic image
+  commutes with taking the interior.
+* `IsLogarithmicallyConvex.interior`: The interior of a complete logarithmically convex Reinhardt
+  set is logarithmically convex.
+* `isOpen_logarithmicImage`: The logarithmic image of an open set is open.
+
+## References
+
+* [H. P. Boas, *Lecture Notes on Several Complex Variables*][Boas2013]
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
+* [J. Lebl, *Tasty Bits of Several Complex Variables: A Whirlwind Tour of the Subject*][Lebl2026]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Filter Set
 open scoped Topology
@@ -43,14 +70,14 @@ namespace SeveralComplexVariables
 
 variable {ι : Type*} {U V : Set (ι → ℂ)}
 
-/-- A set is Reinhardt if membership is preserved by independent coordinate rotations.
-The centre is zero; openness, connectedness and nonemptiness are not required. -/
-def IsReinhardt (U : Set (ι → ℂ)) : Prop :=
+/-- A set is Reinhardt if membership is preserved by independent coordinate rotations. The centre is
+zero; openness, connectedness and nonemptiness are not required. -/
+@[expose] def IsReinhardt (U : Set (ι → ℂ)) : Prop :=
   ∀ ⦃z⦄, z ∈ U → ∀ ⦃w⦄, (∀ i, ‖w i‖ = ‖z i‖) → w ∈ U
 
-/-- A set is complete Reinhardt if membership is preserved by decreasing coordinate moduli.
-This includes rotations and allows zero coordinates; no topological hypotheses are imposed. -/
-def IsCompleteReinhardt (U : Set (ι → ℂ)) : Prop :=
+/-- A set is complete Reinhardt if membership is preserved by decreasing coordinate moduli. This
+includes rotations and allows zero coordinates; no topological hypotheses are imposed. -/
+@[expose] def IsCompleteReinhardt (U : Set (ι → ℂ)) : Prop :=
   ∀ ⦃z⦄, z ∈ U → ∀ ⦃w⦄, (∀ i, ‖w i‖ ≤ ‖z i‖) → w ∈ U
 
 /-- The empty set is Reinhardt. -/
@@ -160,14 +187,14 @@ theorem IsCompleteReinhardt.isPreconnected (hU : IsCompleteReinhardt U) :
   · exact isPreconnected_empty
   · exact (hU.isConnected hne).isPreconnected
 
-/-- The logarithmic image uses the positive real slice, avoiding logarithms at zero.
-For a Reinhardt set this is its usual image under coordinatewise log modulus. -/
-def logarithmicImage (U : Set (ι → ℂ)) : Set (ι → ℝ) :=
+/-- The logarithmic image uses the positive real slice, avoiding logarithms at zero. For a Reinhardt
+set this is its usual image under coordinatewise log modulus. -/
+@[expose] def logarithmicImage (U : Set (ι → ℂ)) : Set (ι → ℝ) :=
   {x | (fun i => (Real.exp (x i) : ℂ)) ∈ U}
 
 /-- Logarithmic convexity means convexity of the logarithmic image. Reinhardt symmetry,
 completeness, openness and nonemptiness remain separate hypotheses. -/
-def IsLogarithmicallyConvex (U : Set (ι → ℂ)) : Prop :=
+@[expose] def IsLogarithmicallyConvex (U : Set (ι → ℂ)) : Prop :=
   Convex ℝ (logarithmicImage U)
 
 /-- Membership of the logarithmic image is membership of the exponential coordinate vector. -/
@@ -192,8 +219,8 @@ theorem isOpen_logarithmicImage (hU : IsOpen U) : IsOpen (logarithmicImage U) :=
   hU.preimage (continuous_pi fun i => Complex.continuous_ofReal.comp
     (Real.continuous_exp.comp (continuous_apply i)))
 
-/-- The interior of a complete Reinhardt set is complete Reinhardt. The proof also handles
-points on coordinate hyperplanes, where coordinate contractions need not be open maps. -/
+/-- The interior of a complete Reinhardt set is complete Reinhardt. The proof also handles points on
+coordinate hyperplanes, where coordinate contractions need not be open maps. -/
 theorem IsCompleteReinhardt.interior (hU : IsCompleteReinhardt U) :
     IsCompleteReinhardt (_root_.interior U) := by
   classical

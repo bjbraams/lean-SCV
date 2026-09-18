@@ -5,9 +5,9 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 public import SeveralComplexVariables.TubeDomain.Disc
 public import SeveralComplexVariables.TubeDomain.Gluing
-public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 
 /-!
 # The maximal star-convex extension tube and Bochner's theorem for star-convex bases
@@ -24,32 +24,66 @@ continuation lemma every function continues to a ball of a uniform radius, these
 continuations glue along the convex triangle, and maximality absorbs the enlarged tube.
 
 Consequently, for an open star-convex base, every holomorphic function on the tube extends to
-the tube over the convex hull. This is part (a) of Hörmander's proof of Bochner's theorem.
+the tube over the convex hull. This is part (a) of [Hörmander][Hormander1973]'s proof of
+Bochner's theorem.
 
-References: Hörmander §2.5, Theorem 2.5.10 (a); Scheidemann §6.3, Theorem 6.3.1, Step 1.
+References: [Hörmander][Hormander1973] §2.5, Theorem 2.5.10 (a); [Scheidemann][Scheidemann2005]
+§6.3, Theorem 6.3.1, Step 1.
+
+## Main definitions
+
+* `TubeExtends`: Every `F`-valued holomorphic function on the tube over `Ω` extends holomorphically
+  to the tube over `A`, agreeing with the original near the real point `p`.
+* `starFamily`: The family of open star-convex extension bases.
+* `maxStar`: The maximal star-convex extension base.
+
+## Main results
+
+* `maxStar_maximal`: **Maximality.** An open star-convex base to which every function on the maximal
+  tube extends is contained in the maximal base.
+* `exists_local_continuation_tri`: **Local continuation on a shrunken triangle.** If the tube over
+  the triangle of scale `a` lies in the tube over `A` and balls of radius `δ` around the two sides
+  through `p` lie in the tube over `A`, then every function holomorphic on the tube over `A`
+  continues to the ball of radius `δ` around each point of the tube over the triangle of a smaller
+  scale `b`.
+* `thickening_tri_subset_of_maximal`: **One step of the triangle induction.** Under maximality, the
+  `δ`-thickening of the tube over the triangle of a smaller scale is absorbed into `A`.
+* `tri_subset_of_maximal`: **The triangle lemma.** Under maximality, the full triangle with vertex
+  `p` and two points of `A` lies in `A`.
+* `convex_maxStar`: **The maximal star-convex extension base is convex.**
+* `exists_extension_tubeDomain_convexHull_of_starConvex`: **Bochner's tube theorem for star-convex
+  bases.** Every Banach-valued holomorphic function on the tube over an open star-convex base
+  extends to the tube over the convex hull.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric Complex
-open scoped Topology Classical
+open scoped Topology
 
 namespace SeveralComplexVariables
 
+namespace BochnerTube
+
 variable {n : ℕ} (F : Type*) [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-/-- Every `F`-valued holomorphic function on the tube over `Ω` extends holomorphically to the
-tube over `A`, agreeing with the original near the real point `p`. -/
-def TubeExtends (Ω A : Set (Fin n → ℝ)) (p : Fin n → ℝ) : Prop :=
+/-- Every `F`-valued holomorphic function on the tube over `Ω` extends holomorphically to the tube
+over `A`, agreeing with the original near the real point `p`. -/
+@[expose] def TubeExtends (Ω A : Set (Fin n → ℝ)) (p : Fin n → ℝ) : Prop :=
   ∀ f : (Fin n → ℂ) → F, AnalyticOnNhd ℂ f (tubeDomain Ω) →
     ∃ g : (Fin n → ℂ) → F, AnalyticOnNhd ℂ g (tubeDomain A) ∧ g =ᶠ[𝓝 (ofRealPi p)] f
 
 /-- The family of open star-convex extension bases. -/
-def starFamily (Ω : Set (Fin n → ℝ)) (p : Fin n → ℝ) : Set (Set (Fin n → ℝ)) :=
+@[expose] def starFamily (Ω : Set (Fin n → ℝ)) (p : Fin n → ℝ) : Set (Set (Fin n → ℝ)) :=
   {A | IsOpen A ∧ StarConvex ℝ p A ∧ TubeExtends F Ω A p}
 
 /-- The maximal star-convex extension base. -/
-def maxStar (Ω : Set (Fin n → ℝ)) (p : Fin n → ℝ) : Set (Fin n → ℝ) :=
+@[expose] def maxStar (Ω : Set (Fin n → ℝ)) (p : Fin n → ℝ) : Set (Fin n → ℝ) :=
   ⋃₀ starFamily F Ω p
 
 variable {F}
@@ -90,8 +124,8 @@ theorem isPreconnected_tubeDomain_of_starConvex {A : Set (Fin n → ℝ)} (hA : 
   isPreconnected_tubeDomain (hA.isPathConnected hp).isConnected.isPreconnected
 
 omit [CompleteSpace F] in
-/-- Two extensions agreeing with a function near `p` agree on the tube over the intersection
-of star-convex bases. -/
+/-- Two extensions agreeing with a function near `p` agree on the tube over the intersection of
+star-convex bases. -/
 theorem eqOn_of_starConvex {A B : Set (Fin n → ℝ)} (hA : StarConvex ℝ p A)
     (hB : StarConvex ℝ p B) {f g₁ g₂ : (Fin n → ℂ) → F}
     (hg₁ : AnalyticOnNhd ℂ g₁ (tubeDomain A)) (hg₂ : AnalyticOnNhd ℂ g₂ (tubeDomain B))
@@ -157,6 +191,7 @@ theorem maxStar_maximal (hp : p ∈ maxStar F Ω p) {B : Set (Fin n → ℝ)} (h
   exact this.trans hgf
 
 omit [CompleteSpace F] in
+open scoped Classical in
 /-- Piecewise gluing of holomorphic functions on tubes over an open union, agreeing on the
 intersection. -/
 theorem analyticOnNhd_ite_tubeDomain {A B : Set (Fin n → ℝ)} (hA : IsOpen A) (hB : IsOpen B)
@@ -305,7 +340,7 @@ theorem tri_subset_scale_step_of_maximal (hA : IsOpen A) (hAs : StarConvex ℝ p
     (hS : ∀ w ∈ tubeDomain (segment ℝ p t₁ ∪ segment ℝ p t₂), ball w δ ⊆ tubeDomain A)
     (hδ₁ : δ₁ = δ / (4 * D)) (hε : ε = min (1 / 2) (δ / (4 * D)))
     (ha0 : 0 ≤ a) (ha1 : a ≤ 1) (htri : tri p t₁ t₂ a ⊆ A)
-    (_haa' : a ≤ a') (_ha'1 : a' ≤ 1) (ha'δ : a' ≤ a + δ₁) :
+    (ha'δ : a' ≤ a + δ₁) :
     tri p t₁ t₂ a' ⊆ A := by
   set b : ℝ := (1 - ε) * a
   have hεle : ε ≤ 1 / 2 := by rw [hε]; exact min_le_left _ _
@@ -398,15 +433,14 @@ theorem tri_subset_of_maximal (hA : IsOpen A) (hAs : StarConvex ℝ p A) (hp : p
     | succ k ih =>
       have hk0 : (0 : ℝ) ≤ k * δ₁ := by positivity
       refine tri_subset_scale_step_of_maximal hA hAs hp hmax hδ hDpos hD hS rfl rfl
-        (le_min zero_le_one hk0) (min_le_left _ _) ih ?_ (min_le_left _ _) ?_
-      · exact min_le_min_left _ (by push_cast; nlinarith)
-      · rcases le_or_gt 1 (k * δ₁) with h | h
-        · rw [min_eq_left h]
-          exact le_add_of_le_of_nonneg (min_le_left _ _) hδ₁.le
-        · rw [min_eq_right h.le]
-          push_cast
-          refine (min_le_right _ _).trans ?_
-          rw [add_mul, one_mul]
+        (le_min zero_le_one hk0) (min_le_left _ _) ih ?_
+      rcases le_or_gt 1 (k * δ₁) with h | h
+      · rw [min_eq_left h]
+        exact le_add_of_le_of_nonneg (min_le_left _ _) hδ₁.le
+      · rw [min_eq_right h.le]
+        push_cast
+        refine (min_le_right _ _).trans ?_
+        rw [add_mul, one_mul]
   obtain ⟨k, hk⟩ := exists_nat_ge (1 / δ₁)
   have hk1 : 1 ≤ k * δ₁ := by
     rw [div_le_iff₀ hδ₁] at hk
@@ -426,6 +460,17 @@ theorem convex_maxStar (hp : p ∈ maxStar F Ω p) : Convex ℝ (maxStar F Ω p)
   intro t₁ ht₁ t₂ ht₂
   exact (segment_subset_tri p t₁ t₂).trans (tri_subset_of_maximal isOpen_maxStar starConvex_maxStar
     hp (fun _ hB hBs hext => maxStar_maximal hp hB hBs hext) ht₁ ht₂)
+
+end Convex
+
+end BochnerTube
+
+open BochnerTube
+
+section Convex
+
+variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
+  {Ω : Set (Fin n → ℝ)} {p : Fin n → ℝ}
 
 /-- **Bochner's tube theorem for star-convex bases.** Every Banach-valued holomorphic function
 on the tube over an open star-convex base extends to the tube over the convex hull. -/

@@ -10,17 +10,17 @@ public import SeveralComplexVariables.LaurentSeries.Basic
 /-!
 # Iterated Laurent coefficients
 
-Fubini's theorem writes a torus integral with the first circle integrated first.
-Consequently Laurent coefficients can be computed one coordinate at a time.
+Fubini's theorem writes a torus integral with the first circle integrated first. Consequently
+Laurent coefficients can be computed one coordinate at a time.
 
 ## Main results
 
 `torusIntegral_succ_inner` is Fubini for the first circle of a coordinate torus.
-`multivariableLaurentCoeff_succ` identifies the multivariable coefficient with an
-iterated one-variable coefficient in the remaining coordinates.
+`multivariableLaurentCoeff_succ` identifies the multivariable coefficient with an iterated
+one-variable coefficient in the remaining coordinates.
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Set MeasureTheory Function
 open scoped Real Topology
@@ -72,7 +72,8 @@ theorem multivariableLaurentCoeff_succ {f : (Fin (n + 1) → ℂ) → F}
   let g (y : Fin n → ℂ) := ∮ x in C(0, r 0), x ^ (-m 0 - 1) • f (Fin.cons x y)
   let b (y : Fin n → ℂ) := ∏ i, y i ^ (-m i.succ - 1)
   have hcircle (y : Fin n → ℂ) :
-      (∮ x in C(0, r 0), (∏ i, (Fin.cons x y : Fin (n + 1) → ℂ) i ^ (-m i - 1)) • f (Fin.cons x y)) =
+      (∮ x in C(0, r 0), (∏ i, (Fin.cons x y : Fin (n + 1) → ℂ) i ^ (-m i - 1)) • f (Fin.cons x
+        y)) =
         b y • g y := by
     rw [← circleIntegral.integral_smul]
     apply circleIntegral.integral_congr (hr 0).le

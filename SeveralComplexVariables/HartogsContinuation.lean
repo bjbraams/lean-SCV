@@ -5,25 +5,29 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.RemovableSingularity.Cauchy
 public import Mathlib.Analysis.Complex.CauchyIntegral
+public import SeveralComplexVariables.RemovableSingularity.Cauchy
 
 /-!
 # Hartogs continuation over an arbitrary connected base
 
-An analytic function on an annular cylinder together with full disc fibers over a
-nonempty open part of the base extends to the full cylinder. No local boundedness near
-the missing part is assumed. The proof uses a fixed circle integral and the identity
-principle in the base. Reference: Korevaar–Wiegerinck (2017), Theorem 2.6.1.
+An analytic function on an annular cylinder together with full disc fibers over a nonempty open
+part of the base extends to the full cylinder. No local boundedness near the missing part is
+assumed. The proof uses a fixed circle integral and the identity principle in the base.
+Reference: [Korevaar–Wiegerinck][KorevaarWiegerinck2017] (2017), Theorem 2.6.1.
 
 ## Main results
 
-`hartogsCylinder` is an annular cylinder together with full disc fibers over part of
-the base. `exists_extension_hartogsCylinder` is Hartogs continuation across that
-figure, without a local boundedness hypothesis on the missing part.
+`hartogsCylinder` is an annular cylinder together with full disc fibers over part of the base.
+`exists_extension_hartogsCylinder` is Hartogs continuation across that figure, without a local
+boundedness hypothesis on the missing part.
+
+## References
+
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Metric Set
 open scoped Topology
@@ -34,7 +38,7 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensi
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 /-- An annular cylinder supplemented by full disc fibers over part of the base. -/
-def hartogsCylinder (D D₀ : Set E) (ρ R : ℝ) : Set (E × ℂ) :=
+@[expose] def hartogsCylinder (D D₀ : Set E) (ρ R : ℝ) : Set (E × ℂ) :=
   (D ×ˢ (ball 0 R \ closedBall 0 ρ)) ∪ (D₀ ×ˢ ball 0 R)
 
 /-- **Hartogs' continuity theorem.** The smaller base need not be connected. Finite positive

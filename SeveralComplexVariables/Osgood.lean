@@ -11,29 +11,28 @@ public import SeveralComplexVariables.CauchySeries
 /-!
 # Osgood's theorem in finite products
 
-Joint continuity and separate holomorphy imply joint analyticity on an open subset of a
-finite complex coordinate space. The stronger Hartogs theorem without continuity is not
-proved here. The polydisc Cauchy formula and its series construction live in the imported
-modules and remain available through this file.
+Joint continuity and separate holomorphy imply joint analyticity on an open subset of a finite
+complex coordinate space. The stronger Hartogs theorem without continuity is not proved here.
+The polydisc Cauchy formula and its series construction live in the imported modules and remain
+available through this file.
 
 ## Main results
 
-`analyticOnNhd_pi_of_analyticOnNhd_update` is Osgood's theorem on an arbitrary finite
-coordinate space `ι → ℂ`: continuity on an open set together with holomorphy in each
-coordinate separately yields joint analyticity.
+`analyticOnNhd_pi_of_analyticOnNhd_update` is Osgood's theorem on an arbitrary finite coordinate
+space `ι → ℂ`: continuity on an open set together with holomorphy in each coordinate separately
+yields joint analyticity.
 -/
 
 public section
 
 open Complex Filter Function MeasureTheory Metric Set
-open scoped Classical ENNReal NNReal Real Topology
+open scoped ENNReal NNReal Real Topology
 
 namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
-/-- Osgood's theorem on `Fin d → ℂ`, before reindexing to an arbitrary finite coordinate
-type. -/
+/-- Osgood's theorem on `Fin d → ℂ`, before reindexing to an arbitrary finite coordinate type. -/
 private theorem analyticOnNhd_fin_of_analyticOnNhd_update {d : ℕ}
     {U : Set (Fin d → ℂ)} {f : (Fin d → ℂ) → E}
     (hU : IsOpen U) (hfc : ContinuousOn f U)
@@ -41,13 +40,13 @@ private theorem analyticOnNhd_fin_of_analyticOnNhd_update {d : ℕ}
     AnalyticOnNhd ℂ f U := by
   intro c hc
   obtain ⟨R, hR, hRU⟩ := nhds_basis_closedBall.mem_iff.mp (hU.mem_nhds hc)
-  have hP : closedPolydisc c R ⊆ U := by
+  have hP : closedPolydisc c (fun _ => R) ⊆ U := by
     rw [closedPolydisc_eq_closedBall hR.le]
     exact hRU
-  have hfcP : ContinuousOn f (closedPolydisc c R) := hfc.mono hP
-  have hfaP : ∀ z ∈ closedPolydisc c R, ∀ i,
+  have hfcP : ContinuousOn f (closedPolydisc c (fun _ => R)) := hfc.mono hP
+  have hfaP : ∀ z ∈ closedPolydisc c (fun _ => R), ∀ i,
       AnalyticAt ℂ (fun x => f (update z i x)) (z i) := fun z hz => hf z (hP hz)
-  have hPcpt : IsCompact (closedPolydisc c R) := by
+  have hPcpt : IsCompact (closedPolydisc c (fun _ => R)) := by
     rw [closedPolydisc_eq_closedBall hR.le]
     exact isCompact_closedBall _ _
   obtain ⟨M, hM⟩ := hPcpt.bddAbove_image hfcP.norm
@@ -64,7 +63,7 @@ bounded version `analyticOnNhd_of_separately_analytic_locally_bounded`, and ther
 derived from it. Continuity is present in every application preceding Hartogs' theorem in this
 library. -/
 theorem analyticOnNhd_pi_of_analyticOnNhd_update
-    {ι : Type*} [Fintype ι] {U : Set (ι → ℂ)} {f : (ι → ℂ) → E}
+    {ι : Type*} [Fintype ι] [DecidableEq ι] {U : Set (ι → ℂ)} {f : (ι → ℂ) → E}
     (hU : IsOpen U) (hfc : ContinuousOn f U)
     (hf : ∀ z ∈ U, ∀ i,
       AnalyticAt ℂ (fun w => f (Function.update z i w)) (z i)) :

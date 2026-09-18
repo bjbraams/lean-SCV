@@ -5,11 +5,11 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Analyticity
-public import SeveralComplexVariables.HartogsDomain
-public import SeveralComplexVariables.HartogsContinuation
-public import SeveralComplexVariables.CompactHole
 public import Mathlib.Analysis.Normed.Module.Connected
+public import SeveralComplexVariables.Analyticity
+public import SeveralComplexVariables.CompactHole
+public import SeveralComplexVariables.HartogsContinuation
+public import SeveralComplexVariables.HartogsDomain
 
 /-!
 # Hartogs extension
@@ -17,21 +17,43 @@ public import Mathlib.Analysis.Normed.Module.Connected
 This file develops the geometry of a standard Hartogs figure and uniqueness of its analytic
 extensions. Extension from the figure follows from Hartogs continuation over a connected base.
 Extension across general compact holes is deduced from the product-space theorem of
-`CompactHole`, proved by Ehrenpreis' method, by a choice of linear coordinates.
-Separate analyticity is treated in `SeparateAnalytic`.
+`CompactHole`, proved by Ehrenpreis' method, by a choice of linear coordinates. Separate
+analyticity is treated in `SeparateAnalytic`.
 
-References: Boas (2013), Section 2.7; Scheidemann (2005), Exercise 2.1.7 and Section 2.3;
-Jakóbczak--Jarnicki (2021), Corollary 2.1.2.
+References: [Boas][Boas2013] (2013), Section 2.7; [Scheidemann][Scheidemann2005] (2005),
+Exercise 2.1.7 and Section 2.3; [Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Corollary
+2.1.2.
 
-All extension targets are subsets of finite-dimensional complex normed spaces. Coordinate
-balls use the supremum norm, so the figure is built from polydiscs. Extension means agreement
-on the old domain; functions outside the new domain are unrestricted.
+All extension targets are subsets of finite-dimensional complex normed spaces. Coordinate balls
+use the supremum norm, so the figure is built from polydiscs. Extension means agreement on the
+old domain; functions outside the new domain are unrestricted.
+
+## Main definitions
+
+* `hartogsFigure`: A standard Hartogs figure: a thin full cylinder together with an outer annular
+  cylinder in the last coordinate.
+
+## Main results
+
+* `exists_analyticOnNhd_extension_hartogsFigure`: **Extension from a Hartogs figure.** A
+  Banach-valued holomorphic function on the figure extends to its full unit polydisc, by Hartogs
+  continuation in the last coordinate.
+* `exists_analyticOnNhd_extension_of_isCompact`: **Hartogs' compact-hole extension theorem.** In
+  complex dimension at least two, a holomorphic function extends across a compact subset if its
+  complement in the domain is connected.
+
+## References
+
+* [H. P. Boas, *Lecture Notes on Several Complex Variables*][Boas2013]
+* [P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
+  Variables*][JakobczakJarnicki2021]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
 public section
 
 open Function Metric Set
-open scoped Classical Topology
+open scoped Topology
 
 namespace SeveralComplexVariables
 
@@ -41,13 +63,13 @@ section Figure
 
 variable {ι : Type*} [Fintype ι]
 
-/-- A standard Hartogs figure: a thin full cylinder together with an outer annular cylinder
-in the last coordinate. The intended parameters satisfy `0 < r < 1` and `0 < s < 1`. -/
-def hartogsFigure (r s : ℝ) : Set ((ι → ℂ) × ℂ) :=
+/-- A standard Hartogs figure: a thin full cylinder together with an outer annular cylinder in the
+last coordinate. The intended parameters satisfy `0 < r < 1` and `0 < s < 1`. -/
+@[expose] def hartogsFigure (r s : ℝ) : Set ((ι → ℂ) × ℂ) :=
   (ball 0 r ×ˢ ball 0 1) ∪ (ball 0 1 ×ˢ (ball 0 1 \ closedBall 0 s))
 
-/-- The standard Hartogs figure has rotational symmetry in its fiber coordinate,
-including for degenerate parameters and an empty base coordinate type. -/
+/-- The standard Hartogs figure has rotational symmetry in its fiber coordinate, including for
+degenerate parameters and an empty base coordinate type. -/
 theorem isHartogs_hartogsFigure (r s : ℝ) : IsHartogs (hartogsFigure (ι := ι) r s) := by
   unfold hartogsFigure
   apply (isCompleteHartogs_prod_ball _ _).isHartogs.union
@@ -72,8 +94,8 @@ theorem zero_mem_hartogsFigure {r : ℝ} (hr : 0 < r) (s : ℝ) :
     (0 : (ι → ℂ) × ℂ) ∈ hartogsFigure r s :=
   Or.inl ⟨mem_ball_self hr, mem_ball_self zero_lt_one⟩
 
-/-- With no base coordinates, a positive-radius Hartogs figure is already the full disk.
-Thus the figure-extension statement needs no positive-dimensional base assumption. -/
+/-- With no base coordinates, a positive-radius Hartogs figure is already the full disk. Thus the
+figure-extension statement needs no positive-dimensional base assumption. -/
 theorem hartogsFigure_eq_of_isEmpty [IsEmpty ι] {r : ℝ} (hr : 0 < r) (s : ℝ) :
     hartogsFigure (ι := ι) r s = ball 0 1 ×ˢ ball 0 1 := by
   ext z
@@ -81,8 +103,8 @@ theorem hartogsFigure_eq_of_isEmpty [IsEmpty ι] {r : ℝ} (hr : 0 < r) (s : ℝ
   exact fun h _ => h
 
 omit [CompleteSpace F] in
-/-- Two analytic extensions from a Hartogs figure agree throughout the full unit polydisc.
-This uniqueness theorem is proved independently of the extension-existence theorem. -/
+/-- Two analytic extensions from a Hartogs figure agree throughout the full unit polydisc. This
+uniqueness theorem is proved independently of the extension-existence theorem. -/
 theorem eqOn_of_eqOn_hartogsFigure {r : ℝ} (hr : 0 < r) (s : ℝ)
     {f g : ((ι → ℂ) × ℂ) → F}
     (hf : AnalyticOnNhd ℂ f (ball 0 1 ×ˢ ball 0 1))
@@ -115,8 +137,8 @@ holomorphic function extends across a compact subset if its complement in the do
 connected. No boundedness of the function near the hole is required, and the domain itself
 need not be connected.
 
-The dimension and connected-complement hypotheses are essential. The open domain itself
-need not be bounded, and an empty domain or empty compact set is allowed. -/
+The dimension and connected-complement hypotheses are essential. The open domain itself need not
+be bounded, and an empty domain or empty compact set is allowed. -/
 theorem exists_analyticOnNhd_extension_of_isCompact
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     (hdim : 2 ≤ Module.finrank ℂ E) {U K : Set E}

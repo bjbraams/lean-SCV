@@ -9,6 +9,13 @@ globs = [
   "SeveralComplexVariables", "SeveralComplexVariables.+"
 ]
 
+# Palomar registry: statement file (Mathlib only) and its proofs from the library.
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"
+
 [[lean_exe]]
 name = "main"
 root = "Main"

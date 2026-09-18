@@ -5,49 +5,71 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.TubeDomain.Basic
-public import SeveralComplexVariables.HolomorphicConvexity.Hull
 public import Mathlib.Analysis.Complex.AbsMax
 public import Mathlib.Analysis.Convex.Segment
+public import SeveralComplexVariables.HolomorphicConvexity.Hull
+public import SeveralComplexVariables.TubeDomain.Basic
 
 /-!
 # Parabolic analytic discs in tubes and the hull of two segments
 
 For a vertex `p` and two points `t₁, t₂` of the real base, the triangle with these vertices is
-parametrized by `p + u • v₁ + v • v₂` with `|u| ≤ v ≤ 1`, where `v₁ = (t₁ - t₂)/2` and
-`v₂ = (t₁ + t₂)/2 - p`. The parabolic analytic disc `ζ ↦ p + ζ • v₁ + (c ζ² + 1 - c) • v₂`,
-restricted to the planar region where its real part lies in the triangle, has boundary over the
-two sides `[p, t₁]` and `[p, t₂]`. By the planar maximum principle, every point of the disc lies
-in the holomorphic hull of the boundary, relative to any tube whose base contains the triangle.
-As `c` varies, the discs cover all points of the triangle with `|u| < v < 1`. No coordinate
+parametrized by `p + u • v₁ + v • v₂` with `|u| ≤ v ≤ 1`, where `v₁ = (t₁ - t₂)/2` and `v₂ = (t₁
++ t₂)/2 - p`. The parabolic analytic disc `ζ ↦ p + ζ • v₁ + (c ζ² + 1 - c) • v₂`, restricted to
+the planar region where its real part lies in the triangle, has boundary over the two sides `[p,
+t₁]` and `[p, t₂]`. By the planar maximum principle, every point of the disc lies in the
+holomorphic hull of the boundary, relative to any tube whose base contains the triangle. As `c`
+varies, the discs cover all points of the triangle with `|u| < v < 1`. No coordinate
 normalization is needed, and the two points may be linearly dependent.
 
-References: Korevaar–Wiegerinck, Exercise 6.28; Hörmander §2.5, Lemma 2.5.11.
+References: [Korevaar–Wiegerinck][KorevaarWiegerinck2017], Exercise 6.28;
+[Hörmander][Hormander1973] §2.5, Lemma 2.5.11.
+
+## Main definitions
+
+* `triDir₁`: The half-difference direction of a triangle with vertex `p` and points `t₁, t₂`.
+* `triDir₂`: The half-sum direction of a triangle with vertex `p` and points `t₁, t₂`.
+* `triPt`: The point of the triangle with parameters `u, v`.
+* `tri`: The triangle with vertex `p` and points `t₁, t₂`, scaled by `b` toward `p`.
+* `parabolaHeight`: The real-quadratic function defining the parabolic disc region.
+* `parabolaRegion`: The planar region over which the parabolic disc lies inside the triangle.
+* `parabolaDisc`: The parabolic analytic disc with parameter `c`, translated by the imaginary vector
+  `η`.
+
+## Main results
+
+* `convex_tri`: Scaled triangles are convex.
+* `segment_subset_tri`: The segment between `t₁` and `t₂` lies in the triangle of scale one.
+
+## References
+
+* [L. Hörmander, *An Introduction to Complex Analysis in Several Variables*][Hormander1973]
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter Metric Complex
 open scoped Topology
 
-namespace SeveralComplexVariables
+namespace SeveralComplexVariables.BochnerTube
 
 variable {ι : Type*}
 
 section Triangle
 
 /-- The half-difference direction of a triangle with vertex `p` and points `t₁, t₂`. -/
-def triDir₁ (_p t₁ t₂ : ι → ℝ) : ι → ℝ := (1 / 2 : ℝ) • (t₁ - t₂)
+@[expose] def triDir₁ (_p t₁ t₂ : ι → ℝ) : ι → ℝ := (1 / 2 : ℝ) • (t₁ - t₂)
 
 /-- The half-sum direction of a triangle with vertex `p` and points `t₁, t₂`. -/
-def triDir₂ (p t₁ t₂ : ι → ℝ) : ι → ℝ := (1 / 2 : ℝ) • (t₁ + t₂) - p
+@[expose] def triDir₂ (p t₁ t₂ : ι → ℝ) : ι → ℝ := (1 / 2 : ℝ) • (t₁ + t₂) - p
 
 /-- The point of the triangle with parameters `u, v`. -/
-def triPt (p t₁ t₂ : ι → ℝ) (u v : ℝ) : ι → ℝ :=
+@[expose] def triPt (p t₁ t₂ : ι → ℝ) (u v : ℝ) : ι → ℝ :=
   p + u • triDir₁ p t₁ t₂ + v • triDir₂ p t₁ t₂
 
 /-- The triangle with vertex `p` and points `t₁, t₂`, scaled by `b` toward `p`. -/
-def tri (p t₁ t₂ : ι → ℝ) (b : ℝ) : Set (ι → ℝ) :=
+@[expose] def tri (p t₁ t₂ : ι → ℝ) (b : ℝ) : Set (ι → ℝ) :=
   {x | ∃ u v : ℝ, |u| ≤ v ∧ v ≤ b ∧ x = triPt p t₁ t₂ u v}
 
 variable (p t₁ t₂ : ι → ℝ)
@@ -188,11 +210,11 @@ variable (p t₁ t₂ : ι → ℝ)
 def parabolaHeight (c : ℝ) (ζ : ℂ) : ℝ := c * (ζ.re ^ 2 - ζ.im ^ 2) + (1 - c)
 
 /-- The planar region over which the parabolic disc lies inside the triangle. -/
-def parabolaRegion (c : ℝ) : Set ℂ :=
+@[expose] def parabolaRegion (c : ℝ) : Set ℂ :=
   {ζ | |ζ.re| < parabolaHeight c ζ ∧ parabolaHeight c ζ < 1}
 
 /-- The parabolic analytic disc with parameter `c`, translated by the imaginary vector `η`. -/
-def parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) : ι → ℂ :=
+@[expose] def parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) : ι → ℂ :=
   ofRealPi p + ζ • ofRealPi (triDir₁ p t₁ t₂) +
     (c * ζ ^ 2 + (1 - c)) • ofRealPi (triDir₂ p t₁ t₂) + I • ofRealPi η
 
@@ -214,8 +236,8 @@ theorem imPi_smul_ofRealPi (ζ : ℂ) (v : ι → ℝ) : imPi (ζ • ofRealPi v
 theorem re_parabolaCoeff (c : ℝ) (ζ : ℂ) : (c * ζ ^ 2 + (1 - c) : ℂ).re = parabolaHeight c ζ := by
   simp [parabolaHeight, sq, Complex.mul_re]
 
-/-- The real part of a disc point is the triangle point with parameters given by the real
-part of `ζ` and the height. -/
+/-- The real part of a disc point is the triangle point with parameters given by the real part of
+`ζ` and the height. -/
 theorem rePi_parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) :
     rePi (parabolaDisc p t₁ t₂ c η ζ) = triPt p t₁ t₂ ζ.re (parabolaHeight c ζ) := by
   unfold parabolaDisc triPt
@@ -387,4 +409,4 @@ theorem exists_parabolaDisc_of_lt {u v : ℝ} (huv : |u| < v) (hv1 : v < 1) (η 
 
 end Disc
 
-end SeveralComplexVariables
+end SeveralComplexVariables.BochnerTube

@@ -5,27 +5,27 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.SeparateAnalytic.Submean
+public import Mathlib.MeasureTheory.Integral.Prod
 public import Mathlib.MeasureTheory.Measure.Haar.InnerProductSpace
 public import Mathlib.MeasureTheory.Measure.Lebesgue.Complex
 public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-public import Mathlib.MeasureTheory.Integral.Prod
+public import SeveralComplexVariables.SeparateAnalytic.Submean
 
 /-!
 # Ball submean estimates for holomorphic norms
 
-Averaging unit complex rotations converts the circle submean inequality into a volume
-submean inequality on closed balls of a finite-dimensional complex normed space carrying
-an additive Haar volume. This avoids polar-coordinate integration and applies to all
-positive powers of norms, including the roots used in Hartogs' lemma. The one-variable
-case is the disc inequality; the case of a finite coordinate space is used for the base
-variables in Hartogs' separate-analyticity theorem.
+Averaging unit complex rotations converts the circle submean inequality into a volume submean
+inequality on closed balls of a finite-dimensional complex normed space carrying an additive
+Haar volume. This avoids polar-coordinate integration and applies to all positive powers of
+norms, including the roots used in Hartogs' lemma. The one-variable case is the disc inequality;
+the case of a finite coordinate space is used for the base variables in Hartogs'
+separate-analyticity theorem.
 
 ## Main results
 
-`volume_mul_norm_rpow_le_integral_closedBall` is the volume submean inequality for
-positive powers of holomorphic norms on a closed ball.
-`integral_closedBall_smul_rotation` averages unit complex rotations.
+`volume_mul_norm_rpow_le_integral_closedBall` is the volume submean inequality for positive
+powers of holomorphic norms on a closed ball. `integral_closedBall_smul_rotation` averages unit
+complex rotations.
 -/
 
 public section
@@ -38,8 +38,8 @@ namespace SeveralComplexVariables
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
   [MeasureSpace E] [BorelSpace E] [(volume : Measure E).IsAddHaarMeasure]
 
-/-- Unit complex rotations preserve the integral of any real function on a closed ball.
-Rotation preserves the unit ball, so it has unit determinant and preserves Haar volume. -/
+/-- Unit complex rotations preserve the integral of any real function on a closed ball. Rotation
+preserves the unit ball, so it has unit determinant and preserves Haar volume. -/
 private theorem integral_closedBall_smul_rotation (u : E → ℝ) (R : ℝ)
     {w : ℂ} (hw : ‖w‖ = 1) :
     ∫ z in closedBall (0 : E) R, u (w • z) = ∫ z in closedBall (0 : E) R, u z := by
@@ -62,8 +62,8 @@ private theorem integral_closedBall_smul_rotation (u : E → ℝ) (R : ℝ)
   simpa only [hpre, he] using hmp.setIntegral_preimage_emb
     e.toHomeomorph.isClosedEmbedding.measurableEmbedding u (closedBall 0 R)
 
-/-- Averaging rotations turns circle submean inequalities into a ball inequality.
-Only continuity on the ball is required of the real-valued function. -/
+/-- Averaging rotations turns circle submean inequalities into a ball inequality. Only continuity on
+the ball is required of the real-valued function. -/
 theorem volume_mul_le_integral_closedBall_of_circle_submean {u : E → ℝ} {R A : ℝ}
     (hu : ContinuousOn u (closedBall 0 R))
     (hmean : ∀ z ∈ closedBall (0 : E) R,
@@ -100,8 +100,8 @@ theorem volume_mul_le_integral_closedBall_of_circle_submean {u : E → ℝ} {R A
   apply (mul_le_mul_iff_right₀ Real.two_pi_pos).mp
   nlinarith only [hbound]
 
-/-- Every positive power of a holomorphic norm satisfies the volume submean
-inequality on a closed ball. No completeness of the target is needed. -/
+/-- Every positive power of a holomorphic norm satisfies the volume submean inequality on a closed
+ball. No completeness of the target is needed. -/
 theorem volume_mul_norm_rpow_le_integral_closedBall
     {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
     {f : E → F} {c : E} {R p : ℝ} (hp : 0 < p)

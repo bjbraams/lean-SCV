@@ -5,33 +5,42 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.HolomorphicConvexity.Hull
-public import SeveralComplexVariables.LocallyUniform
-public import SeveralComplexVariables.FunctionSpace
 public import Mathlib.Topology.Baire.CompleteMetrizable
 public import Mathlib.Topology.Baire.Lemmas
 public import Mathlib.Topology.Compactness.SigmaCompact
+public import SeveralComplexVariables.FunctionSpace
+public import SeveralComplexVariables.HolomorphicConvexity.Hull
+public import SeveralComplexVariables.LocallyUniform
 
 /-!
 # Holomorphically convex exhaustions and escaping sequences
 
-Separation outside a hull can be amplified by powers to make a function arbitrarily
-small on the original set and arbitrarily large at the chosen point. This step is proved.
-The compact exhaustion is constructed by repeatedly enlarging compact sets and taking
-their holomorphic hulls. The escaping-sequence characterization follows from Baire's
-theorem in the complete space of holomorphic functions. Exhaustions use Mathlib's `CompactExhaustion`
-on the open subtype, rather than a new topological structure.
+Separation outside a hull can be amplified by powers to make a function arbitrarily small on the
+original set and arbitrarily large at the chosen point. This step is proved. The compact
+exhaustion is constructed by repeatedly enlarging compact sets and taking their holomorphic
+hulls. The escaping-sequence characterization follows from Baire's theorem in the complete space
+of holomorphic functions. Exhaustions use Mathlib's `CompactExhaustion` on the open subtype,
+rather than a new topological structure.
 
-References: Range II §3.2; Fritzsche–Grauert II §6; Scheidemann §7.1.
+References: [Range][Range1986] II §3.2; [Fritzsche–Grauert][FritzscheGrauert2002] II §6;
+[Scheidemann][Scheidemann2005] §7.1.
 
 ## Main results
 
-`IsHolomorphicallyConvex.exists_compactExhaustion` produces a compact exhaustion by
-hull-fixed sets. `isHolomorphicallyConvex_iff_unbounded_on_escaping_sequences` is the
-escaping-sequence characterization.
+`IsHolomorphicallyConvex.exists_compactExhaustion` produces a compact exhaustion by hull-fixed
+sets. `isHolomorphicallyConvex_iff_unbounded_on_escaping_sequences` is the escaping-sequence
+characterization.
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
+* [V. Scheidemann, *Introduction to Complex Analysis in Several Variables*][Scheidemann2005]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter
 open scoped Topology
@@ -40,8 +49,8 @@ namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- Powers of a separating function give arbitrary smallness on the set and an arbitrary
-large value at an exterior hull point. Empty sets are included. -/
+/-- Powers of a separating function give arbitrary smallness on the set and an arbitrary large value
+at an exterior hull point. Empty sets are included. -/
 theorem exists_small_large_separator {U K : Set E} {a : E}
     (ha : a ∈ U) (hn : a ∉ holomorphicHull U K) {ε : ℝ} (hε : 0 < ε) (R : ℝ) :
     ∃ f : E → ℂ, AnalyticOnNhd ℂ f U ∧ (∀ z ∈ K, ‖f z‖ < ε) ∧ R < ‖f a‖ := by
@@ -69,18 +78,25 @@ theorem exists_small_large_separator {U K : Set E} {a : E}
       _ < ε := (lt_div_iff₀ hA).mp hk |> (by simpa [mul_comm] using ·)
   · simpa [div_self (norm_pos_iff.mp hfa), Complex.norm_of_nonneg hA.le, abs_of_pos hA] using hRA
 
-variable {ι : Type*} [Fintype ι]
+variable [FiniteDimensional ℂ E]
 
-/-- A holomorphically convex open set has a compact exhaustion by sets fixed by the
-relative holomorphic hull, by recursive refinement of a compact exhaustion. -/
-theorem IsHolomorphicallyConvex.exists_compactExhaustion {U : Set (ι → ℂ)}
+/-- Finite-dimensional source spaces are proper. -/
+local instance : ProperSpace E := FiniteDimensional.proper ℂ E
+
+/-- Finite-dimensional source spaces have countable bases. -/
+local instance : SecondCountableTopology E :=
+  (Module.finBasis ℂ E).equivFunL.toHomeomorph.secondCountableTopology
+
+/-- A holomorphically convex open set has a compact exhaustion by sets fixed by the relative
+holomorphic hull, by recursive refinement of a compact exhaustion. -/
+theorem IsHolomorphicallyConvex.exists_compactExhaustion {U : Set E}
     (hU : IsHolomorphicallyConvex U) (ho : IsOpen U) :
     ∃ K : CompactExhaustion U, ∀ j,
-      IsHolomorphicallyConvexIn U ((Subtype.val : U → (ι → ℂ)) '' K j) := by
+      IsHolomorphicallyConvexIn U ((Subtype.val : U → E) '' K j) := by
   let : LocallyCompactSpace U := ho.locallyCompactSpace
   let B := CompactExhaustion.choice U
   let H (S : Set U) : Set U :=
-    (Subtype.val : U → (ι → ℂ)) ⁻¹' holomorphicHull U (Subtype.val '' S)
+    (Subtype.val : U → E) ⁻¹' holomorphicHull U (Subtype.val '' S)
   have himage (S : Set U) : Subtype.val '' H S = holomorphicHull U (Subtype.val '' S) := by
     apply image_preimage_eq_of_subset
     intro z hz
@@ -96,7 +112,8 @@ theorem IsHolomorphicallyConvex.exists_compactExhaustion {U : Set (ι → ℂ)}
     rw [himage]
     exact isHolomorphicallyConvexIn_holomorphicHull _ _
   let enlarge (S : {S : Set U // IsCompact S}) : {S : Set U // IsCompact S} :=
-    ⟨(exists_compact_superset S.property).choose, (exists_compact_superset S.property).choose_spec.1⟩
+    ⟨(exists_compact_superset S.property).choose, (exists_compact_superset
+      S.property).choose_spec.1⟩
   have henlarge (S : {S : Set U // IsCompact S}) : S.val ⊆ interior (enlarge S).val :=
     (exists_compact_superset S.property).choose_spec.2
   let K : ℕ → {S : Set U // IsCompact S} := fun j =>
@@ -121,15 +138,15 @@ theorem IsHolomorphicallyConvex.exists_compactExhaustion {U : Set (ι → ℂ)}
     | zero => exact hfixed _
     | succ j => exact hfixed _
 
-/-- A sequence escapes compact subsets when it eventually leaves every compact set in
-the ambient domain. Its membership in the domain is a separate hypothesis. -/
-def EscapesCompactSubsets (U : Set E) (p : ℕ → E) : Prop :=
+/-- A sequence escapes compact subsets when it eventually leaves every compact set in the ambient
+domain. Its membership in the domain is a separate hypothesis. -/
+@[expose] def EscapesCompactSubsets (U : Set E) (p : ℕ → E) : Prop :=
   ∀ K : Set E, IsCompact K → K ⊆ U → ∀ᶠ j in atTop, p j ∉ K
 
-/-- A Baire argument turns functions tending to zero in the compact-open topology,
-but arbitrarily large somewhere on a sequence, into one function unbounded there. -/
+/-- A Baire argument turns functions tending to zero in the compact-open topology, but arbitrarily
+large somewhere on a sequence, into one function unbounded there. -/
 private theorem exists_unbounded_of_small_functions
-    (V : TopologicalSpace.Opens (ι → ℂ)) (p : ℕ → V)
+    (V : TopologicalSpace.Opens E) (p : ℕ → V)
     (hsmall : ∀ M : ℝ, ∃ F : ℕ → HolomorphicMap V ℂ,
       Tendsto F atTop (𝓝 0) ∧ ∀ n, ∃ j, M < ‖(F n).val (p j)‖) :
     ∃ f : HolomorphicMap V ℂ, ¬ BddAbove (range (fun j => ‖f.val (p j)‖)) := by
@@ -169,25 +186,25 @@ private theorem exists_unbounded_of_small_functions
 and small separating functions give an unbounded holomorphic function on any escaping
 sequence; conversely, a noncompact hull contains an escaping sequence. -/
 theorem isHolomorphicallyConvex_iff_unbounded_on_escaping_sequences
-    {U : Set (ι → ℂ)} (ho : IsOpen U) :
+    {U : Set E} (ho : IsOpen U) :
     IsHolomorphicallyConvex U ↔
-      ∀ p : ℕ → (ι → ℂ), (∀ j, p j ∈ U) → EscapesCompactSubsets U p →
-        ∃ f : (ι → ℂ) → ℂ, AnalyticOnNhd ℂ f U ∧
+      ∀ p : ℕ → E, (∀ j, p j ∈ U) → EscapesCompactSubsets U p →
+        ∃ f : E → ℂ, AnalyticOnNhd ℂ f U ∧
           ¬ BddAbove (Set.range (fun j => ‖f (p j)‖)) := by
   classical
-  let V : TopologicalSpace.Opens (ι → ℂ) := ⟨U, ho⟩
+  let V : TopologicalSpace.Opens E := ⟨U, ho⟩
   let : LocallyCompactSpace V := ho.locallyCompactSpace
   let K := CompactExhaustion.choice V
-  let C (n : ℕ) : Set (ι → ℂ) := Subtype.val '' K n
+  let C (n : ℕ) : Set E := Subtype.val '' K n
   have hC (n : ℕ) : IsCompact (C n) := (K.isCompact n).image continuous_subtype_val
   have hCU (n : ℕ) : C n ⊆ U := by
     rintro _ ⟨z, _, rfl⟩
     exact z.property
-  have hcofinal {S : Set (ι → ℂ)} (hS : IsCompact S) (hSU : S ⊆ U) :
+  have hcofinal {S : Set E} (hS : IsCompact S) (hSU : S ⊆ U) :
       ∃ n, S ⊆ C n := by
-    have he : Subtype.val '' ((Subtype.val : V → (ι → ℂ)) ⁻¹' S) = S :=
+    have he : Subtype.val '' ((Subtype.val : V → E) ⁻¹' S) = S :=
       image_preimage_eq_of_subset (by intro z hz; exact ⟨⟨z, hSU hz⟩, rfl⟩)
-    have hc : IsCompact ((Subtype.val : V → (ι → ℂ)) ⁻¹' S) :=
+    have hc : IsCompact ((Subtype.val : V → E) ⁻¹' S) :=
       Topology.IsEmbedding.subtypeVal.isCompact_iff.mpr (he.symm ▸ hS)
     obtain ⟨n, hn⟩ := K.exists_superset_of_isCompact hc
     exact ⟨n, fun z hz => ⟨⟨z, hSU hz⟩, hn hz, rfl⟩⟩
@@ -195,7 +212,7 @@ theorem isHolomorphicallyConvex_iff_unbounded_on_escaping_sequences
   · intro hconv p hp hescape
     obtain ⟨g, hg⟩ := exists_unbounded_of_small_functions V (fun j => ⟨p j, hp j⟩) (by
       intro M
-      have hsep (n : ℕ) : ∃ f : (ι → ℂ) → ℂ, AnalyticOnNhd ℂ f U ∧
+      have hsep (n : ℕ) : ∃ f : E → ℂ, AnalyticOnNhd ℂ f U ∧
           (∀ z ∈ C n, ‖f z‖ < 1 / ((n : ℝ) + 1)) ∧ ∃ j, M < ‖f (p j)‖ := by
         obtain ⟨j, hj⟩ := (hescape (holomorphicHull U (C n))
           (hconv _ (hC n) (hCU n)) (holomorphicHull_subset _ _)).exists

@@ -5,37 +5,59 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Analyticity
-public import SeveralComplexVariables.Derivatives
 public import Mathlib.Analysis.Calculus.InverseFunctionTheorem.ContDiff
 public import Mathlib.Topology.OpenPartialHomeomorph.Composition
+public import SeveralComplexVariables.Analyticity
+public import SeveralComplexVariables.Derivatives
 
 /-!
 # Biholomorphic maps between open sets
 
-`IsBiholomorphic` adds holomorphy of both maps to Mathlib's `OpenPartialHomeomorph`.
-The source and target are already open; connectedness and nonemptiness are not required.
-The derivative identities work in complex normed spaces. Equality of dimensions requires
-a nonempty source. Local inverse results use finite-dimensional spaces and the existing
-holomorphic–analytic equivalence and Mathlib's inverse function theorem.
+`IsBiholomorphic` adds holomorphy of both maps to Mathlib's `OpenPartialHomeomorph`. The source
+and target are already open; connectedness and nonemptiness are not required. The derivative
+identities work in complex normed spaces. Equality of dimensions requires a nonempty source.
+Local inverse results use finite-dimensional spaces and the existing holomorphic–analytic
+equivalence and Mathlib's inverse function theorem.
 
-Reference: Range (1986), I §2.4, Theorem 2.5 and Corollary 2.6.
-The chain rule and coordinate Jacobian are in `Derivatives`.
+Reference: [Range][Range1986] (1986), I §2.4, Theorem 2.5 and Corollary 2.6. The chain rule and
+coordinate Jacobian are in `Derivatives`.
+
+## Main definitions
+
+* `IsBiholomorphic`: An equivalence between open sets is biholomorphic when both maps are
+  holomorphic on their respective open domains.
+* `affineOpenPartialHomeomorph`: An invertible complex linear map followed by a translation, as an
+  equivalence of the whole spaces.
+* `shearOpenPartialHomeomorph`: A continuous shear has an explicit inverse obtained by subtracting
+  the same function.
+
+## Main results
+
+* `exists_biholomorphic_of_isInvertible_fderiv`: **Holomorphic inverse mapping theorem.** An
+  invertible complex derivative gives a biholomorphic restriction to an open neighborhood inside the
+  given open set.
+* `exists_open_injOn_of_injective_fderiv`: **[Range][Range1986] I, Corollary 2.6.** An injective
+  complex derivative gives local injectivity, also when the target has larger dimension.
+
+## References
+
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter
-open scoped Classical Topology ContDiff
+open scoped Topology ContDiff
 
 namespace SeveralComplexVariables
 
 variable {E F G : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F] [NormedAddCommGroup G] [NormedSpace ℂ G]
 
-/-- An equivalence between open sets is biholomorphic when both maps are holomorphic
-on their respective open domains. No connectedness or nonemptiness is imposed. -/
-def IsBiholomorphic (e : OpenPartialHomeomorph E F) : Prop :=
+/-- An equivalence between open sets is biholomorphic when both maps are holomorphic on their
+respective open domains. No connectedness or nonemptiness is imposed. -/
+@[expose] def IsBiholomorphic (e : OpenPartialHomeomorph E F) : Prop :=
   DifferentiableOn ℂ e e.source ∧ DifferentiableOn ℂ e.symm e.target
 
 /-- The inverse of a biholomorphic map is biholomorphic. -/
@@ -54,8 +76,8 @@ theorem IsBiholomorphic.trans {e : OpenPartialHomeomorph E F}
   · exact he'.1.comp (he.1.mono inter_subset_left) (fun _ hx => hx.2)
   · exact he.2.comp (he'.2.mono inter_subset_left) (fun _ hx => hx.2)
 
-/-- Restriction to the intersection of the source with the interior of any set
-preserves biholomorphy. For an open set this is ordinary restriction. -/
+/-- Restriction to the intersection of the source with the interior of any set preserves
+biholomorphy. For an open set this is ordinary restriction. -/
 theorem IsBiholomorphic.restr {e : OpenPartialHomeomorph E F} (he : IsBiholomorphic e)
     (s : Set E) : IsBiholomorphic (e.restr s) :=
   ⟨he.1.mono inter_subset_left, he.2.mono inter_subset_left⟩
@@ -101,8 +123,8 @@ theorem IsBiholomorphic.finrank_eq {e : OpenPartialHomeomorph E F}
   obtain ⟨L, hL⟩ := he.isInvertible_fderiv ha
   exact L.toLinearEquiv.finrank_eq
 
-/-- Holomorphy of a function on the target is equivalent to holomorphy after a
-biholomorphic change of coordinates on the source. -/
+/-- Holomorphy of a function on the target is equivalent to holomorphy after a biholomorphic change
+of coordinates on the source. -/
 theorem IsBiholomorphic.differentiableOn_comp_iff {e : OpenPartialHomeomorph E F}
     (he : IsBiholomorphic e) {g : F → G} :
     DifferentiableOn ℂ (g ∘ e) e.source ↔ DifferentiableOn ℂ g e.target := by
@@ -127,7 +149,7 @@ theorem exists_biholomorphic_of_isInvertible_fderiv {U : Set E} (hU : IsOpen U)
   let := FiniteDimensional.complete ℂ E
   let := FiniteDimensional.complete ℂ F
   obtain ⟨L, hL⟩ := hinv
-  have hfa := hf.analyticOnNhd_finiteDimensional hU a ha
+  have hfa := hf.analyticOnNhd_of_finiteDimensional hU a ha
   have hc : ContDiffAt ℂ ω f a := hfa.contDiffAt
   have hd : HasFDerivAt f (L : E →L[ℂ] F) a := by
     rw [hL]
@@ -159,7 +181,8 @@ theorem isInvertible_fderiv_iff_exists_biholomorphic {U : Set E} (hU : IsOpen U)
   rintro ⟨e, he, hae, _, rfl⟩
   exact he.isInvertible_fderiv hae
 
-/-- **Range I, Corollary 2.6.** An injective complex derivative gives local injectivity,
+/-- **[Range][Range1986] I, Corollary 2.6.** An injective complex derivative gives local
+injectivity,
 also when the target has larger dimension. No surjectivity assumption is needed. -/
 theorem exists_open_injOn_of_injective_fderiv {U : Set E} (hU : IsOpen U)
     {f : E → F} (hf : DifferentiableOn ℂ f U) {a : E} (ha : a ∈ U)
@@ -186,9 +209,9 @@ end Inverse
 
 section Examples
 
-/-- An invertible complex linear map followed by a translation, as an equivalence
-of the whole spaces. -/
-def affineOpenPartialHomeomorph (L : E ≃L[ℂ] F) (b : F) : OpenPartialHomeomorph E F :=
+/-- An invertible complex linear map followed by a translation, as an equivalence of the whole
+spaces. -/
+@[expose] def affineOpenPartialHomeomorph (L : E ≃L[ℂ] F) (b : F) : OpenPartialHomeomorph E F :=
   (L.toHomeomorph.trans (Homeomorph.addRight b)).toOpenPartialHomeomorph
 
 /-- The forward affine map applies the linear map and then adds the translation. -/
@@ -209,7 +232,7 @@ theorem isBiholomorphic_affine (L : E ≃L[ℂ] F) (b : F) :
   · exact (L.symm.differentiable.comp (differentiable_id.add_const (-b))).differentiableOn
 
 /-- A continuous shear has an explicit inverse obtained by subtracting the same function. -/
-def shearOpenPartialHomeomorph (h : F → E) (hh : Continuous h) :
+@[expose] def shearOpenPartialHomeomorph (h : F → E) (hh : Continuous h) :
     OpenPartialHomeomorph (E × F) (E × F) :=
   ({ toFun := fun p => (p.1 + h p.2, p.2)
      invFun := fun p => (p.1 - h p.2, p.2)
@@ -242,16 +265,17 @@ end Examples
 
 section Coordinates
 
-variable {ι : Type*} [Fintype ι]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-/-- Nonempty biholomorphically equivalent coordinate domains have the same number
-of complex coordinates, including the possibility of zero coordinates. -/
+omit [DecidableEq ι] in
+/-- Nonempty biholomorphically equivalent coordinate domains have the same number of complex
+coordinates, including the possibility of zero coordinates. -/
 theorem IsBiholomorphic.card_eq {κ : Type*} [Fintype κ]
     {e : OpenPartialHomeomorph (ι → ℂ) (κ → ℂ)} (he : IsBiholomorphic e)
     (hne : e.source.Nonempty) : Fintype.card ι = Fintype.card κ := by
   simpa using he.finrank_eq hne
 
-/-- The coordinate determinant criterion in Range's local inverse theorem. -/
+/-- The coordinate determinant criterion in [Range][Range1986]'s local inverse theorem. -/
 theorem exists_biholomorphic_of_det_complexJacobian_ne_zero {U : Set (ι → ℂ)}
     (hU : IsOpen U) {f : (ι → ℂ) → (ι → ℂ)} (hf : DifferentiableOn ℂ f U)
     {a : ι → ℂ} (ha : a ∈ U) (hd : (complexJacobian f a).det ≠ 0) :

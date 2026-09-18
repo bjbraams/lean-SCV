@@ -5,42 +5,61 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Calculus.Deriv.Comp
+public import Mathlib.Analysis.Calculus.Deriv.Slope
 public import SeveralComplexVariables.LeviConvexity
 public import SeveralComplexVariables.Subharmonic.SmoothCriterion
-public import Mathlib.Analysis.Calculus.Deriv.Slope
-public import Mathlib.Analysis.Calculus.Deriv.Comp
 
 /-!
 # Independence of the defining function
 
 Two local `C²` defining functions of the same open set at the same boundary point have
-positively proportional derivatives, and their second derivatives are proportional by the
-same factor on tangent vectors. Consequently the complex tangent space and the sign of the
-Levi form on it do not depend on the choice of defining function, and the Levi condition can
-be verified on a single defining function.
+positively proportional derivatives, and their second derivatives are proportional by the same
+factor on tangent vectors. Consequently the complex tangent space and the sign of the Levi form
+on it do not depend on the choice of defining function, and the Levi condition can be verified
+on a single defining function.
 
-The proofs avoid the implicit function theorem and the positive-factor lemma of Range
-(Lemma 2.5). First derivatives are compared through one-sided difference quotients along
-lines entering the set; second derivatives through second-order expansions along parabolic
-curves `t ↦ p + t v + β t² ν`, whose sign is controlled by the defining property.
+The proofs avoid the implicit function theorem and the positive-factor lemma of
+[Range][Range1986] (Lemma 2.5). First derivatives are compared through one-sided difference
+quotients along lines entering the set; second derivatives through second-order expansions along
+parabolic curves `t ↦ p + t v + β t² ν`, whose sign is controlled by the defining property.
 
-References: Range (1986), Chapter II, Lemma 2.5 and the discussion after (2.19);
-Fritzsche–Grauert (2002), Chapter II, Lemma 4.1.
+References: [Range][Range1986] (1986), Chapter II, Lemma 2.5 and the discussion after (2.19);
+[Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Lemma 4.1.
+
+## Main results
+
+* `IsLocalDefiningFunction.exists_fderiv_eq_smul`: **First-order comparison.** The derivatives of
+  two defining functions at the same boundary point are positively proportional.
+* `IsLocalDefiningFunction.fderiv_fderiv_eq`: **Second-order comparison.** On tangent vectors, the
+  second derivatives of two defining functions are proportional with the same positive factor as
+  their first derivatives.
+* `isLeviPseudoconvexAt_iff_of_defining`: **The Levi condition can be checked on one defining
+  function.**
+
+## References
+
+* [K. Fritzsche and H. Grauert, *From Holomorphic Functions to Complex
+  Manifolds*][FritzscheGrauert2002]
+* [R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
+  Variables*][Range1986]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Complex Filter Metric Set
 open scoped Topology
 
 namespace SeveralComplexVariables
 
+open TaylorBounds
+
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 section LinearAlgebra
 
-/-- A nonzero functional whose closed negative half-space contains the open negative half-space
-of another nonzero functional is a positive multiple of it. -/
+/-- A nonzero functional whose closed negative half-space contains the open negative half-space of
+another nonzero functional is a positive multiple of it. -/
 theorem exists_pos_smul_eq_of_neg_imp_nonpos {ℓ₁ ℓ₂ : E →L[ℝ] ℝ} (h₁ : ℓ₁ ≠ 0) (h₂ : ℓ₂ ≠ 0)
     (h : ∀ v, ℓ₂ v < 0 → ℓ₁ v ≤ 0) : ∃ c : ℝ, 0 < c ∧ ℓ₁ = c • ℓ₂ := by
   obtain ⟨u, hu⟩ : ∃ u, ℓ₂ u ≠ 0 := by
@@ -80,7 +99,8 @@ theorem exists_pos_smul_eq_of_neg_imp_nonpos {ℓ₁ ℓ₂ : E →L[ℝ] ℝ} (
     exact le_antisymm h1 h2
   have heq : ℓ₁ = c • ℓ₂ := by
     ext v
-    have hv : ℓ₂ (v - ℓ₂ v • u₀) = 0 := by rw [map_sub, map_smul, hℓu₀, smul_eq_mul, mul_one, sub_self]
+    have hv : ℓ₂ (v - ℓ₂ v • u₀) = 0 := by rw [map_sub, map_smul, hℓu₀, smul_eq_mul, mul_one,
+      sub_self]
     have := hker _ hv
     rw [map_sub, map_smul, smul_eq_mul, sub_eq_zero] at this
     rw [this, smul_apply, smul_eq_mul, hc, mul_comm]
@@ -97,8 +117,8 @@ section Comparison
 
 variable {U : Set E} {p : E} {ρ ρ₁ ρ₂ : E → ℝ} {V V₁ V₂ : Set E}
 
-/-- Second-order expansion of a `C²` function along the parabolic curve
-`t ↦ p + t • v + (β * t ^ 2) • ν`. -/
+/-- Second-order expansion of a `C²` function along the parabolic curve `t ↦ p + t • v + (β * t ^ 2)
+• ν`. -/
 theorem exists_parabola_bound (hρ : ContDiffAt ℝ 2 ρ p) (v ν : E) (β : ℝ) {η : ℝ} (hη : 0 < η) :
     ∃ δ > 0, ∀ t : ℝ, 0 < t → t < δ →
       |ρ (p + t • v + (β * t ^ 2) • ν) - ρ p - (t * fderiv ℝ ρ p v + β * t ^ 2 * fderiv ℝ ρ p ν +
@@ -111,7 +131,7 @@ theorem exists_parabola_bound (hρ : ContDiffAt ℝ 2 ρ p) (v ν : E) (β : ℝ
   obtain ⟨δ', hδ', htaylor⟩ := exists_taylor_bound hρ (ε := η / (2 * (M₀ ^ 2 + 1))) (by positivity)
   refine ⟨min 1 (min (η / (2 * (M₁ + 1))) (δ' / (2 * (M₀ + 1)))), by positivity, fun t ht htδ => ?_⟩
   obtain ⟨ht1, htM₁, htδ'⟩ :=
-    le_one_and_mul_add_le_of_le_min hη hM₀0 hM₁0 hδ' ht (le_of_lt htδ)
+    le_one_and_mul_add_le_of_le_min hM₀0 hM₁0 ht (le_of_lt htδ)
   set k : E := t • v + (β * t ^ 2) • ν with hk
   have hkn : ‖k‖ ≤ t * M₀ := by
     calc ‖k‖ ≤ ‖t • v‖ + ‖(β * t ^ 2) • ν‖ := norm_add_le _ _
@@ -173,10 +193,10 @@ theorem exists_parabola_bound (hρ : ContDiffAt ℝ 2 ρ p) (v ν : E) (β : ℝ
         ((1 / 2 : ℝ) * B k k - t ^ 2 / 2 * B v v) := by
     rw [hlin]; ring
   rw [hkey]
-  exact taylor_remainder_add_cubic_le ht hη hM₀0 hM₁0 htM₁ hR hquad_bd
+  exact taylor_remainder_add_cubic_le ht hη htM₁ hR hquad_bd
 
-/-- A defining function is negative along a line entering the set, and the derivative of any
-other defining function in that direction is nonpositive. -/
+/-- A defining function is negative along a line entering the set, and the derivative of any other
+defining function in that direction is nonpositive. -/
 theorem IsLocalDefiningFunction.fderiv_nonpos_of_fderiv_neg (h₁ : IsLocalDefiningFunction U p ρ₁ V₁)
     (h₂ : IsLocalDefiningFunction U p ρ₂ V₂) {v : E} (hv : fderiv ℝ ρ₂ p v < 0) :
     fderiv ℝ ρ₁ p v ≤ 0 := by

@@ -5,36 +5,41 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.PowerSeriesConvergence.Analytic
 public import SeveralComplexVariables.LaurentSeries
 public import SeveralComplexVariables.PolydiscTaylor
+public import SeveralComplexVariables.PowerSeriesConvergence.Analytic
 
 /-!
 # Extension to Reinhardt hulls
 
-Power series extend analytic functions from complete Reinhardt domains. More generally,
-a connected Reinhardt domain meeting every coordinate hyperplane has a power-series
-extension to its geometric logarithmic hull, even if it does not contain the origin.
-The hull here includes zero coordinates. This is extension between subsets of ℂⁿ;
-no abstract envelope or Riemann domain is constructed.
+Power series extend analytic functions from complete Reinhardt domains. More generally, a
+connected Reinhardt domain meeting every coordinate hyperplane has a power-series extension to
+its geometric logarithmic hull, even if it does not contain the origin. The hull here includes
+zero coordinates. This is extension between subsets of ℂⁿ; no abstract envelope or Riemann
+domain is constructed.
 
-Laurent expansion gives power-series extension to logarithmic and complete Reinhardt hulls.
-The geometric inclusion of the complete hull in the logarithmic hull for open Reinhardt
-sets containing zero is proved independently of Laurent expansion.
-Analyticity of the extended sums follows
-from the proved arbitrary-coefficient convergence theorem. References: Korevaar–Wiegerinck
-(2017), Corollary 2.4.3, Theorem 2.5.1, Corollary 2.5.2, and Theorem 2.8.2.
+Laurent expansion gives power-series extension to logarithmic and complete Reinhardt hulls. The
+geometric inclusion of the complete hull in the logarithmic hull for open Reinhardt sets
+containing zero is proved independently of Laurent expansion. Analyticity of the extended sums
+follows from the proved arbitrary-coefficient convergence theorem. References:
+[Korevaar–Wiegerinck][KorevaarWiegerinck2017] (2017), Corollary 2.4.3, Theorem 2.5.1, Corollary
+2.5.2, and Theorem 2.8.2.
 
 ## Main results
 
-`taylor_representation_completeReinhardt` is the Taylor series of a holomorphic
-function on a complete Reinhardt domain. `exists_extension_logarithmicReinhardtHull_of_zero_mem`
-and `exists_extension_completeReinhardtHull` extend to the logarithmic and complete
-hulls. `completeReinhardtHull_subset_logarithmicReinhardtHull` is the geometric
-inclusion when the set is open and contains the origin.
+`IsCompleteReinhardt.subset_convergenceDomain_and_eqOn_powerSeriesSum` is the Taylor series of a
+holomorphic function on a complete Reinhardt domain.
+`exists_extension_logarithmicReinhardtHull_of_zero_mem` and `exists_extension_completeReinhardtHull`
+extend to the logarithmic and complete hulls.
+`completeReinhardtHull_subset_logarithmicReinhardtHull` is the geometric inclusion when the set is
+open and contains the origin.
+
+## References
+
+* [J. Korevaar and J. Wiegerinck, *Several Complex Variables*][KorevaarWiegerinck2017]
 -/
 
-@[expose] public noncomputable section
+public noncomputable section
 
 open Set Filter
 open scoped Topology NNReal
@@ -44,14 +49,14 @@ namespace SeveralComplexVariables
 variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 /-- Banach-valued normalized multivariate Taylor coefficients at the origin. -/
-def taylorCoefficientsAtZero (f : (Fin n → ℂ) → F) : MvPowerSeries (Fin n) F :=
+@[expose] def taylorCoefficientsAtZero (f : (Fin n → ℂ) → F) : MvPowerSeries (Fin n) F :=
   fun m => (∏ i, (m i).factorial : ℂ)⁻¹ • multiIndexDeriv m f 0
 
 set_option maxHeartbeats 800000 in
-/-- On a complete Reinhardt open set, the Taylor series at zero represents the function,
-and the entire set lies inside its absolute-convergence domain.
-The proof applies the existing polydisc Taylor theorem and coefficient estimates. -/
-theorem taylor_representation_completeReinhardt {U : Set (Fin n → ℂ)}
+/-- On a complete Reinhardt open set, the Taylor series at zero represents the function, and the
+entire set lies inside its absolute-convergence domain. The proof applies the existing polydisc
+Taylor theorem and coefficient estimates. -/
+theorem IsCompleteReinhardt.subset_convergenceDomain_and_eqOn_powerSeriesSum {U : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hc : IsCompleteReinhardt U) {f : (Fin n → ℂ) → F}
     (hf : AnalyticOnNhd ℂ f U) :
     U ⊆ powerSeriesConvergenceDomain (taylorCoefficientsAtZero f) ∧
@@ -63,24 +68,27 @@ theorem taylor_representation_completeReinhardt {U : Set (Fin n → ℂ)}
     intro z hz
     obtain ⟨r, hrU, hzr⟩ := hc.isReinhardt.exists_strict_modulus_majorant ho hz
     have hr : ∀ i, (0 : ℝ) < r i := fun i => lt_of_le_of_lt (norm_nonneg _) (hzr i)
-    have hBU : closedPolydiscWithRadii 0 (fun i => (r i : ℝ)) ⊆ U := by
+    have hBU : closedPolydisc 0 (fun i => (r i : ℝ)) ⊆ U := by
       intro y hy
       apply hc hrU
       intro i
-      simpa only [Complex.norm_of_nonneg (NNReal.coe_nonneg _), Pi.zero_apply, dist_zero_right] using
-        (mem_closedPolydiscWithRadii.mp hy i)
+      simpa only [Complex.norm_of_nonneg (NNReal.coe_nonneg _), Pi.zero_apply, dist_zero_right]
+        using
+        (mem_closedPolydisc.mp hy i)
     have hfc := hf.continuousOn.mono hBU
-    have hfa : ∀ y ∈ closedPolydiscWithRadii 0 (fun i => (r i : ℝ)), ∀ i,
+    have hfa : ∀ y ∈ closedPolydisc 0 (fun i => (r i : ℝ)), ∀ i,
         AnalyticAt ℂ (fun v => f (Function.update y i v)) (y i) := by
       intro y hy i
       have hd : Differentiable ℂ (fun v => Function.update y i v) :=
         fun v => (hasDerivAt_update y i v).differentiableAt
       exact (hf y (hBU hy)).comp_of_eq (hd.analyticAt (y i)) (by simp)
-    obtain ⟨M, hM⟩ := (isCompact_closedPolydiscWithRadii 0 (fun i => (r i : ℝ))).bddAbove_image hfc.norm
-    have hMb : ∀ y ∈ closedPolydiscWithRadii 0 (fun i => (r i : ℝ)), ‖f y‖ ≤ M :=
+    obtain ⟨M, hM⟩ := (isCompact_closedPolydisc 0 (fun i => (r i : ℝ))).bddAbove_image
+      hfc.norm
+    have hMb : ∀ y ∈ closedPolydisc 0 (fun i => (r i : ℝ)), ‖f y‖ ≤ M :=
       fun y hy => hM ⟨y, hy, rfl⟩
     have hM0 : 0 ≤ M := (norm_nonneg (f 0)).trans
-      (hMb 0 (mem_closedPolydiscWithRadii.mpr (fun i => by simpa only [Pi.zero_apply, dist_self] using (hr i).le)))
+      (hMb 0 (mem_closedPolydisc.mpr (fun i => by simpa only [Pi.zero_apply, dist_self]
+        using (hr i).le)))
     have he : ∀ m : Fin n →₀ ℕ, taylorCoefficientsAtZero f m =
         polydiscCauchyCoeffWithRadii f 0 (fun i => (r i : ℝ)) m :=
       fun m => (polydiscCauchyCoeffWithRadii_eq_multiIndexDeriv hr hfc hfa m).symm
@@ -91,7 +99,8 @@ theorem taylor_representation_completeReinhardt {U : Set (Fin n → ℂ)}
     have hnorm : Summable (fun m : Fin n → ℕ =>
         ‖(∏ i, z i ^ m i) • polydiscCauchyCoeffWithRadii f 0 (fun i => (r i : ℝ)) m‖) :=
       ((hasSum_pi_geometric (fun i => ‖z i‖ / (r i : ℝ)) hq).summable.mul_left M).of_nonneg_of_le
-        (fun _ => norm_nonneg _) (fun m => norm_polydiscTaylor_term_le hr hM0 hMb (fun _ => le_rfl) m)
+        (fun _ => norm_nonneg _) (fun m => norm_polydiscTaylor_term_le hr hM0 hMb (fun _ =>
+          le_rfl) m)
     have hsum := hasSum_polydiscTaylor (f := f) (c := 0) (h := z) hr (fun i => hzr i) hfc hfa hMb
     let e : (Fin n →₀ ℕ) ≃ (Fin n → ℕ) := Finsupp.equivFunOnFinite
     constructor
@@ -112,7 +121,7 @@ theorem analyticOnNhd_taylorSum_logarithmicReinhardtHull {U : Set (Fin n → ℂ
     (hf : AnalyticOnNhd ℂ f U) :
     AnalyticOnNhd ℂ (powerSeriesSum (taylorCoefficientsAtZero f)) (logarithmicReinhardtHull U) ∧
       EqOn (powerSeriesSum (taylorCoefficientsAtZero f)) f U := by
-  obtain ⟨hD, he⟩ := taylor_representation_completeReinhardt ho hc hf
+  obtain ⟨hD, he⟩ := IsCompleteReinhardt.subset_convergenceDomain_and_eqOn_powerSeriesSum ho hc hf
   exact ⟨(analyticOnNhd_powerSeriesSum _).mono
     (logarithmicReinhardtHull_min hD (isReinhardt_powerSeriesConvergenceDomain _)
       (hasGeometricallyConvexModuli_powerSeriesConvergenceDomain _)), he⟩
@@ -125,12 +134,14 @@ theorem exists_powerSeries_extension_of_meets_coordinateHyperplanes
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U)
     (hmeet : ∀ i, ∃ z ∈ U, z i = 0) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U) :
     ∃ c : MvPowerSeries (Fin n) F,
-      logarithmicReinhardtHull U ⊆ powerSeriesConvergenceDomain c ∧ EqOn (powerSeriesSum c) f U := by
+      logarithmicReinhardtHull U ⊆ powerSeriesConvergenceDomain c ∧ EqOn (powerSeriesSum c) f U :=
+        by
   classical
   obtain ⟨z₀, hz₀⟩ := hc.nonempty
   obtain ⟨r, hrU, hrz⟩ := hR.exists_strict_modulus_majorant ho hz₀
   have hr : ∀ i, (0 : ℝ) < r i := fun i => lt_of_le_of_lt (norm_nonneg _) (hrz i)
-  obtain ⟨hsum, hnorm, hneg, _, _⟩ := multivariableLaurent_expansion ho hc hR hf hr hrU
+  obtain ⟨hsum, hnorm, hneg, _, _⟩ := multivariableLaurent_expansion ho hc.isPreconnected hR hf hr
+    hrU
   let e : (Fin n →₀ ℕ) → (Fin n → ℤ) := fun m i => (m i : ℤ)
   have hinj : Function.Injective e := by
     intro m k he
@@ -170,7 +181,8 @@ theorem exists_extension_logarithmicReinhardtHull_of_meets_coordinateHyperplanes
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc : IsConnected U) (hR : IsReinhardt U)
     (hmeet : ∀ i, ∃ z ∈ U, z i = 0) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U) :
     ∃ g, AnalyticOnNhd ℂ g (logarithmicReinhardtHull U) ∧ EqOn g f U := by
-  obtain ⟨c, hD, he⟩ := exists_powerSeries_extension_of_meets_coordinateHyperplanes ho hc hR hmeet hf
+  obtain ⟨c, hD, he⟩ := exists_powerSeries_extension_of_meets_coordinateHyperplanes ho hc hR hmeet
+    hf
   exact ⟨powerSeriesSum c, (analyticOnNhd_powerSeriesSum c).mono hD, he⟩
 
 /-- Corollary 2.5.2: a connected Reinhardt domain containing zero admits extension to its
@@ -182,9 +194,9 @@ theorem exists_extension_logarithmicReinhardtHull_of_zero_mem
   exists_extension_logarithmicReinhardtHull_of_meets_coordinateHyperplanes ho hc hR
     (fun _ => ⟨0, hzero, rfl⟩) hf
 
-/-- The geometric logarithmic hull of an open Reinhardt set containing zero contains its
-complete Reinhardt hull. Interpolate a strict modulus majorant with radius vectors
-converging to zero; the calculation also includes vanishing coordinates. -/
+/-- The geometric logarithmic hull of an open Reinhardt set containing zero contains its complete
+Reinhardt hull. Interpolate a strict modulus majorant with radius vectors converging to zero;
+the calculation also includes vanishing coordinates. -/
 theorem completeReinhardtHull_subset_logarithmicReinhardtHull
     {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hR : IsReinhardt U) (hzero : 0 ∈ U) :
     completeReinhardtHull U ⊆ logarithmicReinhardtHull U := by
