@@ -22,6 +22,13 @@ cylinder.
 
 This is the continuation step in the proof of Hartogs' separate-analyticity theorem.
 Reference: Hörmander (1973), proof of Theorem 2.2.8; Boas (2013), Section 2.4.
+
+## Main results
+
+`fiberCoeff` is the Taylor coefficient of a fiber slice. `analyticOnNhd_fiberCoeff`
+is its holomorphy in the base. `exists_eventually_norm_le_of_fiber_analytic` is
+local boundedness on the larger cylinder. `exists_hartogs_fiber_radii` chooses the
+intermediate radii for the geometric majorant.
 -/
 
 @[expose] public noncomputable section
@@ -33,6 +40,30 @@ namespace SeveralComplexVariables
 
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
+
+omit [CompleteSpace F] in
+/-- Radii for the geometric majorant in Hartogs' fiber extension: an intermediate
+circle `σ < ρ` and a contraction ratio `q < 1`. -/
+theorem exists_hartogs_fiber_radii {b w₁ : ℂ} {R : ℝ} (hdist : dist w₁ b < R) :
+    ∃ σ ρ ε q : ℝ, dist w₁ b < σ ∧ σ < ρ ∧ ρ < R ∧ 0 < σ ∧ 0 < ρ ∧ 0 < ε ∧
+      0 < q ∧ q < 1 ∧ q = σ * (ρ⁻¹ + ε) := by
+  obtain ⟨ρ, hρ₁, hρR⟩ := exists_between hdist
+  have hρ : 0 < ρ := dist_nonneg.trans_lt hρ₁
+  set σ : ℝ := (dist w₁ b + ρ) / 2
+  have hσ₁ : dist w₁ b < σ := by dsimp [σ]; linarith
+  have hσρ : σ < ρ := by dsimp [σ]; linarith
+  have hσ0 : 0 < σ := by
+    dsimp [σ]
+    nlinarith [dist_nonneg (x := w₁) (y := b)]
+  set ε : ℝ := (1 - σ / ρ) / (2 * σ)
+  have hσρ' : σ / ρ < 1 := (div_lt_one hρ).mpr hσρ
+  have hε0 : 0 < ε := div_pos (by linarith) (by positivity)
+  set q : ℝ := σ * (ρ⁻¹ + ε)
+  have hq_eq : q = (1 + σ / ρ) / 2 := by
+    dsimp [q, ε]; field_simp; ring
+  have hq1 : q < 1 := by rw [hq_eq]; linarith
+  have hq0 : 0 < q := by rw [hq_eq]; positivity
+  exact ⟨σ, ρ, ε, q, hσ₁, hσρ, hρR, hσ0, hρ, hε0, hq0, hq1, rfl⟩
 
 omit [CompleteSpace F] in
 /-- Cauchy's estimate for the scalar values of the Cauchy power series coefficients,
@@ -169,39 +200,24 @@ theorem exists_eventually_norm_le_of_fiber_analytic {D : Set E} (hD : IsOpen D) 
     (hfib : ∀ z ∈ D, AnalyticOnNhd ℂ (fun w => f (z, w)) (ball b R))
     {z₁ : E} (hz₁ : z₁ ∈ D) {w₁ : ℂ} (hw₁ : w₁ ∈ ball b R) :
     ∃ M : ℝ, ∀ᶠ q in 𝓝 (z₁, w₁), ‖f q‖ ≤ M := by
-  -- radii in the fiber
   have hdist : dist w₁ b < R := mem_ball.mp hw₁
-  have hd0 : 0 ≤ dist w₁ b := dist_nonneg
-  obtain ⟨ρ, hρ₁, hρR⟩ := exists_between hdist
-  have hρ : 0 < ρ := hd0.trans_lt hρ₁
-  obtain ⟨σ, hσ⟩ : ∃ σ : ℝ, σ = (dist w₁ b + ρ) / 2 := ⟨_, rfl⟩
-  have hσ₁ : dist w₁ b < σ := by rw [hσ]; linarith
-  have hσρ : σ < ρ := by rw [hσ]; linarith
-  have hσ0 : 0 < σ := by rw [hσ]; linarith
-  obtain ⟨ε, hε⟩ : ∃ ε : ℝ, ε = (1 - σ / ρ) / (2 * σ) := ⟨_, rfl⟩
-  have hσρ' : σ / ρ < 1 := (div_lt_one hρ).mpr hσρ
-  have hε0 : 0 < ε := hε ▸ div_pos (by linarith) (by positivity)
-  obtain ⟨q, hq⟩ : ∃ q : ℝ, q = σ * (ρ⁻¹ + ε) := ⟨_, rfl⟩
-  have hq_eq : q = (1 + σ / ρ) / 2 := by
-    rw [hq, hε]; field_simp; ring
-  have hq1 : q < 1 := by rw [hq_eq]; linarith
-  have hq0 : 0 < q := by rw [hq_eq]; positivity
-  -- a small closed cylinder inside the region of joint analyticity
+  obtain ⟨σ, ρ, ε, q, hσ₁, hσρ, hρR, hσ0, hρ, hε0, hq0, hq1, hq⟩ :=
+    exists_hartogs_fiber_radii hdist
   obtain ⟨r₀, hr₀, hr₀D⟩ := nhds_basis_closedBall.mem_iff.mp (hD.mem_nhds hz₁)
-  obtain ⟨r, hr⟩ : ∃ r : ℝ, r = min r₀ (ε₁ / 2) := ⟨_, rfl⟩
-  have hr0 : 0 < r := hr ▸ lt_min hr₀ (by positivity)
-  have hrε : r < ε₁ := hr ▸ (min_le_right _ _).trans_lt (by linarith)
+  set r : ℝ := min r₀ (ε₁ / 2)
+  have hr0 : 0 < r := lt_min hr₀ (by positivity)
+  have hrε : r < ε₁ := (min_le_right _ _).trans_lt (by linarith)
   have hrD : closedBall z₁ r ⊆ D :=
-    (closedBall_subset_closedBall (hr ▸ min_le_left _ _)).trans hr₀D
+    (closedBall_subset_closedBall (min_le_left _ _)).trans hr₀D
   have hcyl : closedBall z₁ r ×ˢ closedBall b r ⊆ D ×ˢ ball b ε₁ :=
     prod_mono hrD (closedBall_subset_ball hrε)
   obtain ⟨M₀, hM₀⟩ := ((isCompact_closedBall z₁ r).prod
     (isCompact_closedBall b r)).exists_bound_of_continuousOn (hf.continuousOn.mono hcyl)
-  obtain ⟨M₁, hM₁⟩ : ∃ M₁ : ℝ, M₁ = max M₀ 1 := ⟨_, rfl⟩
-  have hM₁1 : 1 ≤ M₁ := hM₁ ▸ le_max_right _ _
+  set M₁ : ℝ := max M₀ 1
+  have hM₁1 : 1 ≤ M₁ := le_max_right _ _
   have hM₁0 : 0 < M₁ := by linarith
   have hM₁' : ∀ z ∈ closedBall z₁ r, ∀ w ∈ closedBall b r, ‖f (z, w)‖ ≤ M₁ :=
-    fun z hz w hw => (hM₀ (z, w) ⟨hz, hw⟩).trans (hM₁ ▸ le_max_left _ _)
+    fun z hz w hw => (hM₀ (z, w) ⟨hz, hw⟩).trans (le_max_left _ _)
   -- slice analyticity on the small and large closed discs
   have hgr : ∀ z ∈ D, AnalyticOnNhd ℂ (fun w => f (z, w)) (closedBall b r) := by
     intro z hz w hw

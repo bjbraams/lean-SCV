@@ -40,49 +40,141 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 variable {U : Set E} {p : E} {ρ : E → ℝ} {V : Set E}
 
+/-- An inward direction for a defining function: the real derivative equals `1`. -/
+theorem IsLocalDefiningFunction.exists_inward_direction (h : IsLocalDefiningFunction U p ρ V) :
+    ∃ ν : E, fderiv ℝ ρ p ν = 1 ∧ 0 < ‖ν‖ :=
+  exists_apply_eq_one h.fderiv_ne
+
+/-- A neighborhood of `p` on which the derivative is Lipschitz-bounded and still points inward. -/
+theorem IsLocalDefiningFunction.exists_ball_fderiv_bound_and_inward
+    (h : IsLocalDefiningFunction U p ρ V) {ν : E} (hν : fderiv ℝ ρ p ν = 1) :
+    ∃ Lip δ₀ : ℝ, 0 < Lip ∧ 0 < δ₀ ∧ ball p δ₀ ⊆
+      {y | y ∈ V ∧ ‖fderiv ℝ ρ y‖ ≤ Lip ∧ (1 / 2 : ℝ) ≤ fderiv ℝ ρ y ν} := by
+  set ℓ := fderiv ℝ ρ p
+  set Lip := ‖ℓ‖ + 1
+  have hLip0 : 0 < Lip := by positivity
+  have hDcont : ContinuousOn (fderiv ℝ ρ) V :=
+    h.contDiffOn.continuousOn_fderiv_of_isOpen h.isOpen (by norm_num)
+  have hcontp : ContinuousAt (fderiv ℝ ρ) p := hDcont.continuousAt (h.isOpen.mem_nhds h.mem)
+  have hev : ∀ᶠ y in 𝓝 p, y ∈ V ∧ ‖fderiv ℝ ρ y‖ ≤ Lip ∧ (1 / 2 : ℝ) ≤ fderiv ℝ ρ y ν := by
+    have h1 : ∀ᶠ y in 𝓝 p, y ∈ V := h.isOpen.mem_nhds h.mem
+    have h2 : ∀ᶠ y in 𝓝 p, ‖fderiv ℝ ρ y‖ ≤ Lip :=
+      (continuous_norm.continuousAt.comp hcontp).eventually
+        (eventually_le_nhds (show ‖fderiv ℝ ρ p‖ < Lip by linarith))
+    have h3 : ∀ᶠ y in 𝓝 p, (1 / 2 : ℝ) ≤ fderiv ℝ ρ y ν := by
+      have hc : ContinuousAt (fun y => fderiv ℝ ρ y ν) p :=
+        (ContinuousLinearMap.apply ℝ ℝ ν).continuous.continuousAt.comp hcontp
+      exact hc.eventually (eventually_ge_nhds (show (1 / 2 : ℝ) < fderiv ℝ ρ p ν by
+        rw [hν]; norm_num))
+    exact h1.and (h2.and h3) |>.mono fun y hy => ⟨hy.1, hy.2.1, hy.2.2⟩
+  obtain ⟨δ₀, hδ₀, hball₀⟩ := Metric.mem_nhds_iff.mp hev
+  exact ⟨Lip, δ₀, hLip0, hδ₀, hball₀⟩
+
+/-- Lower bound: distance to the complement is at least a multiple of `|ρ|`. -/
+theorem IsLocalDefiningFunction.mul_abs_le_infDist (hU : IsOpen U) (hp : p ∈ frontier U)
+    (h : IsLocalDefiningFunction U p ρ V) {Lip δ₀ : ℝ} (hLip0 : 0 < Lip) (hδ₀ : 0 < δ₀)
+    (hball₀ : ball p δ₀ ⊆ {y | y ∈ V ∧ ‖fderiv ℝ ρ y‖ ≤ Lip})
+    {z : E} (hz : z ∈ ball p (δ₀ / 2)) (hzU : z ∈ U)
+    (hρsmall : |ρ z| < Lip * δ₀ / 2) : |ρ z| / Lip ≤ infDist z Uᶜ := by
+  have hUc : Uᶜ.Nonempty := ⟨p, notMem_of_mem_frontier hU hp⟩
+  have hdiff : ∀ y ∈ V, DifferentiableAt ℝ ρ y := fun y hy =>
+    (h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hy)).differentiableAt (by norm_num)
+  have hρz : ρ z < 0 := h.neg_of_mem (hball₀ (ball_subset_ball (half_le_self hδ₀.le) hz)).1 hzU
+  have hρabs : |ρ z| = -ρ z := abs_of_neg hρz
+  rw [le_infDist hUc]
+  intro y hy
+  by_cases hyV : y ∈ ball p δ₀
+  · have hρy : 0 ≤ ρ y := by
+      by_contra hneg
+      push Not at hneg
+      exact hy (h.mem_of_neg (hball₀ hyV).1 hneg)
+    have hmv := Convex.norm_image_sub_le_of_norm_fderiv_le (f := ρ) (s := ball p δ₀) (C := Lip)
+      (fun x hx => hdiff x (hball₀ hx).1) (fun x hx => (hball₀ hx).2) (convex_ball p δ₀)
+      (ball_subset_ball (half_le_self hδ₀.le) hz) hyV
+    rw [Real.norm_eq_abs, ← dist_eq_norm, dist_comm] at hmv
+    have : |ρ z| ≤ |ρ y - ρ z| := by
+      rw [hρabs, abs_of_nonneg (by linarith)]
+      linarith
+    rw [div_le_iff₀ hLip0]
+    linarith
+  · have hdz : δ₀ / 2 ≤ dist z y := by
+      have h1 : δ₀ ≤ dist y p := not_lt.mp (by simpa [mem_ball] using hyV)
+      have h2 : dist z p < δ₀ / 2 := mem_ball.mp hz
+      have := dist_triangle y z p
+      rw [dist_comm y z] at this
+      linarith
+    have : |ρ z| / Lip ≤ δ₀ / 2 := by
+      rw [div_le_iff₀ hLip0]
+      linarith
+    exact this.trans hdz
+
+/-- Upper bound: walking inward along `ν` reaches the complement at distance `O(|ρ|)`. -/
+theorem IsLocalDefiningFunction.infDist_le_mul_abs (h : IsLocalDefiningFunction U p ρ V)
+    {ν : E} {Lip δ₀ : ℝ} (hδ₀ : 0 < δ₀) (hν0 : 0 < ‖ν‖)
+    (hball₀ : ball p δ₀ ⊆
+      {y | y ∈ V ∧ ‖fderiv ℝ ρ y‖ ≤ Lip ∧ (1 / 2 : ℝ) ≤ fderiv ℝ ρ y ν})
+    {z : E} (hz : z ∈ ball p (δ₀ / 2)) (hzU : z ∈ U)
+    (hρsmall : |ρ z| < δ₀ / (4 * ‖ν‖)) : infDist z Uᶜ ≤ 2 * ‖ν‖ * |ρ z| := by
+  have hdiff : ∀ y ∈ V, DifferentiableAt ℝ ρ y := fun y hy =>
+    (h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hy)).differentiableAt (by norm_num)
+  have hzV : z ∈ V := (hball₀ (ball_subset_ball (half_le_self hδ₀.le) hz)).1
+  have hρz : ρ z < 0 := h.neg_of_mem hzV hzU
+  have hρabs : |ρ z| = -ρ z := abs_of_neg hρz
+  set T : ℝ := 2 * |ρ z|
+  have hT0 : 0 ≤ T := by positivity
+  have hseg : ∀ t ∈ Icc (0 : ℝ) T, z + t • ν ∈ ball p δ₀ := by
+    intro t ht
+    have h1 : ‖t • ν‖ ≤ T * ‖ν‖ := by
+      rw [norm_smul, Real.norm_eq_abs, abs_of_nonneg ht.1]
+      exact mul_le_mul_of_nonneg_right ht.2 (norm_nonneg _)
+    have h2 : T * ‖ν‖ < δ₀ / 2 := by
+      rw [lt_div_iff₀ (by positivity)] at hρsmall
+      nlinarith
+    rw [mem_ball, dist_eq_norm]
+    calc ‖z + t • ν - p‖ ≤ ‖z - p‖ + ‖t • ν‖ := by
+          rw [add_sub_right_comm]; exact norm_add_le _ _
+      _ < δ₀ / 2 + δ₀ / 2 := by
+          have := mem_ball.mp hz
+          rw [dist_eq_norm] at this
+          linarith
+      _ = δ₀ := by ring
+  have hderiv : ∀ t ∈ Icc (0 : ℝ) T, HasDerivAt (fun t : ℝ => ρ (z + t • ν))
+      (fderiv ℝ ρ (z + t • ν) ν) t := by
+    intro t ht
+    have hl : HasDerivAt (fun t : ℝ => z + t • ν) ν t := by
+      simpa using ((hasDerivAt_id t).smul_const ν).const_add z
+    exact (hdiff _ (hball₀ (hseg t ht)).1).hasFDerivAt.comp_hasDerivAt t hl
+  have hmono := Convex.mul_sub_le_image_sub_of_le_deriv (convex_Icc 0 T)
+    (f := fun t : ℝ => ρ (z + t • ν)) (C := 1 / 2)
+    (fun t ht => (hderiv t ht).continuousAt.continuousWithinAt)
+    (fun t ht => (hderiv t (interior_subset ht)).differentiableAt.differentiableWithinAt)
+    (fun t ht => by
+      rw [(hderiv t (interior_subset ht)).deriv]
+      exact (hball₀ (hseg t (interior_subset ht))).2.2)
+    0 (left_mem_Icc.mpr hT0) T (right_mem_Icc.mpr hT0) hT0
+  simp only [zero_smul, add_zero, sub_zero] at hmono
+  have hρT : 0 ≤ ρ (z + T • ν) := by
+    dsimp [T] at hmono ⊢
+    rw [hρabs] at hmono ⊢
+    linarith
+  have hnot : z + T • ν ∉ U := fun hmem =>
+    absurd (h.neg_of_mem (hball₀ (hseg T (right_mem_Icc.mpr hT0))).1 hmem) (not_lt.mpr hρT)
+  calc infDist z Uᶜ ≤ dist z (z + T • ν) := infDist_le_dist_of_mem hnot
+    _ = T * ‖ν‖ := by
+        rw [dist_eq_norm, sub_add_cancel_left, norm_neg, norm_smul, Real.norm_eq_abs,
+          abs_of_nonneg hT0]
+    _ = 2 * ‖ν‖ * |ρ z| := by dsimp [T]; ring
+
 /-- Near a boundary point, a defining function is comparable to the distance to the
 complement: `c₂ * |ρ z| ≤ infDist z Uᶜ ≤ C₁ * |ρ z|` for `z ∈ U` near `p`. -/
 theorem IsLocalDefiningFunction.exists_infDist_bounds (hU : IsOpen U) (hp : p ∈ frontier U)
     (h : IsLocalDefiningFunction U p ρ V) :
     ∃ C₁ c₂ δ : ℝ, 0 < C₁ ∧ 0 < c₂ ∧ 0 < δ ∧ ∀ z ∈ ball p δ, z ∈ U →
       c₂ * |ρ z| ≤ infDist z Uᶜ ∧ infDist z Uᶜ ≤ C₁ * |ρ z| := by
-  set ℓ := fderiv ℝ ρ p with hℓ
-  have hUc : Uᶜ.Nonempty := ⟨p, notMem_of_mem_frontier hU hp⟩
-  -- an inward direction
-  obtain ⟨c₀, hc₀⟩ : ∃ c₀, ℓ c₀ ≠ 0 := by
-    by_contra hcon
-    push Not at hcon
-    exact h.fderiv_ne (ContinuousLinearMap.ext hcon)
-  set ν : E := (1 / ℓ c₀) • c₀ with hν
-  have hℓν : ℓ ν = 1 := by
-    rw [hν, map_smul, smul_eq_mul, one_div, inv_mul_cancel₀ hc₀]
-  have hν0 : 0 < ‖ν‖ := by
-    rw [norm_pos_iff]
-    intro hzero
-    rw [hzero, map_zero] at hℓν
-    exact zero_ne_one hℓν
-  -- continuity of the derivative near `p`
-  have hDcont : ContinuousOn (fderiv ℝ ρ) V :=
-    h.contDiffOn.continuousOn_fderiv_of_isOpen h.isOpen (by norm_num)
-  have hdiff : ∀ z ∈ V, DifferentiableAt ℝ ρ z := fun z hz =>
-    (h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hz)).differentiableAt (by norm_num)
-  set Lip := ‖ℓ‖ + 1 with hLip
-  have hLip0 : 0 < Lip := by positivity
-  have hev : ∀ᶠ y in 𝓝 p, y ∈ V ∧ ‖fderiv ℝ ρ y‖ ≤ Lip ∧ (1 / 2 : ℝ) ≤ fderiv ℝ ρ y ν := by
-    have h1 : ∀ᶠ y in 𝓝 p, y ∈ V := h.isOpen.mem_nhds h.mem
-    have hcontp : ContinuousAt (fderiv ℝ ρ) p := hDcont.continuousAt (h.isOpen.mem_nhds h.mem)
-    have h2 : ∀ᶠ y in 𝓝 p, ‖fderiv ℝ ρ y‖ ≤ Lip := by
-      have := (continuous_norm.continuousAt.comp hcontp).eventually
-        (eventually_le_nhds (show ‖fderiv ℝ ρ p‖ < Lip by rw [hLip]; linarith))
-      exact this
-    have h3 : ∀ᶠ y in 𝓝 p, (1 / 2 : ℝ) ≤ fderiv ℝ ρ y ν := by
-      have hc : ContinuousAt (fun y => fderiv ℝ ρ y ν) p :=
-        (ContinuousLinearMap.apply ℝ ℝ ν).continuous.continuousAt.comp hcontp
-      exact hc.eventually (eventually_ge_nhds (show (1 / 2 : ℝ) < fderiv ℝ ρ p ν by
-        rw [← hℓ, hℓν]; norm_num))
-    exact h1.and (h2.and h3) |>.mono fun y hy => ⟨hy.1, hy.2.1, hy.2.2⟩
-  obtain ⟨δ₀, hδ₀, hball₀⟩ := Metric.mem_nhds_iff.mp hev
-  -- `ρ` is small near `p`
+  obtain ⟨ν, hℓν, hν0⟩ := h.exists_inward_direction
+  obtain ⟨Lip, δ₀, hLip0, hδ₀, hball₀⟩ := h.exists_ball_fderiv_bound_and_inward hℓν
+  have hdiff : ∀ y ∈ V, DifferentiableAt ℝ ρ y := fun y hy =>
+    (h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hy)).differentiableAt (by norm_num)
   have hρcont : ContinuousAt ρ p := (hdiff p h.mem).continuousAt
   have hsmall : ∀ᶠ z in 𝓝 p, |ρ z| < min (Lip * δ₀ / 2) (δ₀ / (4 * ‖ν‖)) := by
     have hcabs : ContinuousAt (fun z => |ρ z|) p := hρcont.abs
@@ -92,89 +184,13 @@ theorem IsLocalDefiningFunction.exists_infDist_bounds (hU : IsOpen U) (hp : p �
   refine ⟨2 * ‖ν‖, 1 / Lip, min (δ₀ / 2) δ₁, by positivity, by positivity, by positivity, ?_⟩
   intro z hz hzU
   have hzδ₀ : z ∈ ball p (δ₀ / 2) := ball_subset_ball (min_le_left _ _) hz
-  have hzV : z ∈ V := (hball₀ (ball_subset_ball (half_le_self hδ₀.le) hzδ₀)).1
-  have hρz : ρ z < 0 := h.neg_of_mem hzV hzU
-  have hρabs : |ρ z| = -ρ z := abs_of_neg hρz
   have hρsmall : |ρ z| < min (Lip * δ₀ / 2) (δ₀ / (4 * ‖ν‖)) :=
     hball₁ (ball_subset_ball (min_le_right _ _) hz)
-  constructor
-  · -- lower bound
-    rw [le_infDist hUc]
-    intro y hy
-    by_cases hyV : y ∈ ball p δ₀
-    · have hρy : 0 ≤ ρ y := by
-        by_contra hneg
-        push Not at hneg
-        exact hy (h.mem_of_neg (hball₀ hyV).1 hneg)
-      have hmv := Convex.norm_image_sub_le_of_norm_fderiv_le (f := ρ) (s := ball p δ₀) (C := Lip)
-        (fun x hx => hdiff x (hball₀ hx).1) (fun x hx => (hball₀ hx).2.1) (convex_ball p δ₀)
-        (ball_subset_ball (half_le_self hδ₀.le) hzδ₀) hyV
-      rw [Real.norm_eq_abs, ← dist_eq_norm, dist_comm] at hmv
-      have : |ρ z| ≤ |ρ y - ρ z| := by
-        rw [hρabs, abs_of_nonneg (by linarith)]
-        linarith
-      rw [div_mul_eq_mul_div, one_mul, div_le_iff₀ hLip0]
-      linarith
-    · have hdz : δ₀ / 2 ≤ dist z y := by
-        have h1 : δ₀ ≤ dist y p := not_lt.mp (by simpa [mem_ball] using hyV)
-        have h2 : dist z p < δ₀ / 2 := mem_ball.mp hzδ₀
-        have := dist_triangle y z p
-        rw [dist_comm y z] at this
-        linarith
-      have : |ρ z| / Lip ≤ δ₀ / 2 := by
-        rw [div_le_iff₀ hLip0]
-        have := (lt_min_iff.mp hρsmall).1
-        linarith
-      rw [div_mul_eq_mul_div, one_mul]
-      exact this.trans hdz
-  · -- upper bound: move inward along `ν`
-    set T : ℝ := 2 * |ρ z| with hT
-    have hT0 : 0 ≤ T := by positivity
-    have hseg : ∀ t ∈ Icc (0 : ℝ) T, z + t • ν ∈ ball p δ₀ := by
-      intro t ht
-      have h1 : ‖t • ν‖ ≤ T * ‖ν‖ := by
-        rw [norm_smul, Real.norm_eq_abs, abs_of_nonneg ht.1]
-        exact mul_le_mul_of_nonneg_right ht.2 (norm_nonneg _)
-      have h2 : T * ‖ν‖ < δ₀ / 2 := by
-        have := (lt_min_iff.mp hρsmall).2
-        rw [hT]
-        rw [lt_div_iff₀ (by positivity)] at this
-        nlinarith
-      rw [mem_ball, dist_eq_norm]
-      calc ‖z + t • ν - p‖ ≤ ‖z - p‖ + ‖t • ν‖ := by
-            rw [add_sub_right_comm]; exact norm_add_le _ _
-        _ < δ₀ / 2 + δ₀ / 2 := by
-            have := mem_ball.mp hzδ₀
-            rw [dist_eq_norm] at this
-            linarith
-        _ = δ₀ := by ring
-    -- the function along the segment grows at rate at least `1 / 2`
-    have hderiv : ∀ t ∈ Icc (0 : ℝ) T, HasDerivAt (fun t : ℝ => ρ (z + t • ν))
-        (fderiv ℝ ρ (z + t • ν) ν) t := by
-      intro t ht
-      have hl : HasDerivAt (fun t : ℝ => z + t • ν) ν t := by
-        simpa using ((hasDerivAt_id t).smul_const ν).const_add z
-      exact (hdiff _ (hball₀ (hseg t ht)).1).hasFDerivAt.comp_hasDerivAt t hl
-    have hmono := Convex.mul_sub_le_image_sub_of_le_deriv (convex_Icc 0 T)
-      (f := fun t : ℝ => ρ (z + t • ν)) (C := 1 / 2)
-      (fun t ht => (hderiv t ht).continuousAt.continuousWithinAt)
-      (fun t ht => (hderiv t (interior_subset ht)).differentiableAt.differentiableWithinAt)
-      (fun t ht => by
-        rw [(hderiv t (interior_subset ht)).deriv]
-        exact (hball₀ (hseg t (interior_subset ht))).2.2)
-      0 (left_mem_Icc.mpr hT0) T (right_mem_Icc.mpr hT0) hT0
-    simp only [zero_smul, add_zero, sub_zero] at hmono
-    have hρT : 0 ≤ ρ (z + T • ν) := by
-      rw [hT] at hmono ⊢
-      rw [hρabs] at hmono ⊢
-      linarith
-    have hnot : z + T • ν ∉ U := fun hmem =>
-      absurd (h.neg_of_mem (hball₀ (hseg T (right_mem_Icc.mpr hT0))).1 hmem) (not_lt.mpr hρT)
-    calc infDist z Uᶜ ≤ dist z (z + T • ν) := infDist_le_dist_of_mem hnot
-      _ = T * ‖ν‖ := by
-          rw [dist_eq_norm, sub_add_cancel_left, norm_neg, norm_smul, Real.norm_eq_abs,
-            abs_of_nonneg hT0]
-      _ = 2 * ‖ν‖ * |ρ z| := by rw [hT]; ring
+  refine ⟨?_, ?_⟩
+  · rw [div_mul_eq_mul_div, one_mul]
+    exact h.mul_abs_le_infDist hU hp hLip0 hδ₀
+      (fun y hy => ⟨(hball₀ hy).1, (hball₀ hy).2.1⟩) hzδ₀ hzU (lt_min_iff.mp hρsmall).1
+  · exact h.infDist_le_mul_abs hδ₀ hν0 hball₀ hzδ₀ hzU (lt_min_iff.mp hρsmall).2
 
 /-- The complex quadratic coefficient of a real bilinear form along a complex line. -/
 def leviQuadratic (B : E →L[ℝ] E →L[ℝ] ℝ) (w : E) : ℂ :=
@@ -209,23 +225,13 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
   have hM₁0 : 0 ≤ M₁ := by positivity
   obtain ⟨δ', hδ', htaylor⟩ := exists_taylor_bound hρp (ε := η / (2 * (M₀ ^ 2 + 1))) (by positivity)
   obtain ⟨δW, hδW, hballW⟩ := Metric.mem_nhds_iff.mp hW
-  refine ⟨min 1 (min (η / (2 * (M₁ + 1))) (min (δ' / (2 * (M₀ + 1))) (δW / (2 * (M₀ + 1))))),
-    by positivity, fun r hr hr₀ ζ hζ => ?_⟩
-  have hr1 : r ≤ 1 := hr₀.trans (min_le_left _ _)
-  have hrM₁ : r * (M₁ + 1) ≤ η / 2 := by
-    have := hr₀.trans ((min_le_right _ _).trans (min_le_left _ _))
-    rw [le_div_iff₀ (by positivity)] at this
-    linarith
-  have hrδ' : r * (M₀ + 1) < δ' := by
-    have := hr₀.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
-    rw [le_div_iff₀ (by positivity)] at this
-    have hpos : 0 < r * (M₀ + 1) := by positivity
-    linarith
-  have hrδW : r * (M₀ + 1) < δW := by
-    have := hr₀.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))
-    rw [le_div_iff₀ (by positivity)] at this
-    have hpos : 0 < r * (M₀ + 1) := by positivity
-    linarith
+  set δt := min δ' δW
+  have hδt : 0 < δt := lt_min hδ' hδW
+  refine ⟨min 1 (min (η / (2 * (M₁ + 1))) (δt / (2 * (M₀ + 1)))), by positivity,
+    fun r hr hr₀ ζ hζ => ?_⟩
+  obtain ⟨hr1, hrM₁, hrδt⟩ := le_one_and_mul_add_le_of_le_min hη hM₀0 hM₁0 hδt hr hr₀
+  have hrδ' : r * (M₀ + 1) < δ' := hrδt.trans_le (min_le_left _ _)
+  have hrδW : r * (M₀ + 1) < δW := hrδt.trans_le (min_le_right _ _)
   -- the increment and its pieces
   set h₁ : E := ζ • w with hh₁
   set h₂ : E := ζ ^ 2 • c + (κ * r ^ 2) • ν with hh₂
@@ -299,12 +305,8 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
   have hR : |ρ (p + (h₁ + h₂)) - ρ p - ℓ (h₁ + h₂) - (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂)|
       ≤ η / (2 * (M₀ ^ 2 + 1)) * (r * M₀) ^ 2 :=
     ht.trans (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (norm_nonneg _) hn 2) (by positivity))
-  have hRle : η / (2 * (M₀ ^ 2 + 1)) * (r * M₀) ^ 2 ≤ η / 2 * r ^ 2 := by
-    rw [mul_pow, div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
-    have : M₀ ^ 2 ≤ M₀ ^ 2 + 1 := by linarith
-    calc η * (r ^ 2 * M₀ ^ 2) ≤ η * (r ^ 2 * (M₀ ^ 2 + 1)) := by gcongr
-      _ = η / 2 * r ^ 2 * (2 * (M₀ ^ 2 + 1)) := by ring
-  -- assemble
+  have hcub : |B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂| ≤ M₁ * r ^ 3 :=
+    (abs_add_le _ _).trans (by rw [hM₁, add_mul]; exact add_le_add hB₁₂ hB₂₂)
   rw [hsplit]
   have hkey : ρ (p + (h₁ + h₂)) - (-(κ * r ^ 2) + ‖ζ‖ ^ 2 * leviForm ρ p w) =
       (ρ (p + (h₁ + h₂)) - ρ p - ℓ (h₁ + h₂) - (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂)) +
@@ -312,24 +314,26 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
     rw [h.eq_zero, hlin, hquad, hquad₁]
     linarith [hcancel]
   rw [hkey]
-  calc |(ρ (p + (h₁ + h₂)) - ρ p - ℓ (h₁ + h₂) - (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂)) +
-        (B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂)|
-      ≤ |ρ (p + (h₁ + h₂)) - ρ p - ℓ (h₁ + h₂) - (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂)| +
-        (|B h₁ h₂| + |(1 / 2 : ℝ) * B h₂ h₂|) :=
-        (abs_add_le _ _).trans (add_le_add le_rfl (abs_add_le _ _))
-    _ ≤ η / 2 * r ^ 2 + M₁ * r ^ 3 := by
-        rw [hM₁, add_mul]
-        exact add_le_add (hR.trans hRle) (add_le_add hB₁₂ hB₂₂)
-    _ ≤ η / 2 * r ^ 2 + η / 2 * r ^ 2 := by
-        refine add_le_add le_rfl ?_
-        calc M₁ * r ^ 3 = r * M₁ * r ^ 2 := by ring
-          _ ≤ η / 2 * r ^ 2 := by
-              refine mul_le_mul_of_nonneg_right ?_ (by positivity)
-              have : r * M₁ ≤ r * (M₁ + 1) := mul_le_mul_of_nonneg_left (by linarith) hr.le
-              linarith
-    _ = η * r ^ 2 := by ring
+  exact taylor_remainder_add_cubic_le hr hη hM₀0 hM₁0 hrM₁ hR hcub
 
 variable {n : ℕ}
+
+/-- The Levi polynomial disc of small radius lies in `U` when the Levi form is negative. -/
+theorem IsLocalDefiningFunction.disc_subset_of_estimate {U : Set (Fin n → ℂ)}
+    {p : Fin n → ℂ} {ρ : (Fin n → ℂ) → ℝ} {V : Set (Fin n → ℂ)}
+    (h : IsLocalDefiningFunction U p ρ V) {φ : ℂ → Fin n → ℂ} {r κ η L : ℝ}
+    (hr : 0 < r) (hκ : 0 < κ) (hL : L < 0) (hηκ : η ≤ κ / 2)
+    (hest : ∀ ζ, ‖ζ‖ ≤ r → φ ζ ∈ V ∧
+      |ρ (φ ζ) - (-(κ * r ^ 2) + ‖ζ‖ ^ 2 * L)| ≤ η * r ^ 2) :
+    ∀ ζ ∈ closedBall (0 : ℂ) r, φ ζ ∈ U := by
+  intro ζ hζ
+  obtain ⟨hmem, hρ⟩ := hest ζ (mem_closedBall_zero_iff.mp hζ)
+  apply h.mem_of_neg hmem
+  have h1 := (abs_le.mp hρ).2
+  have h2 : ‖ζ‖ ^ 2 * L ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (by positivity) hL.le
+  have h3 : η * r ^ 2 ≤ κ / 2 * r ^ 2 := mul_le_mul_of_nonneg_right hηκ (by positivity)
+  have h4 : 0 < κ / 2 * r ^ 2 := by positivity
+  linarith
 
 /-- **Levi's theorem in coordinates.** A domain of holomorphy in `Fin n → ℂ` is Levi
 pseudoconvex: the Levi form of every local defining function is positive semidefinite on the
@@ -340,17 +344,13 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
   intro p hp ρ V h w hw
   by_contra hneg
   push Not at hneg
-  set L := leviForm ρ p w with hL
-  set ℓ := fderiv ℝ ρ p with hℓ
-  set B := fderiv ℝ (fderiv ℝ ρ) p with hB
+  set L := leviForm ρ p w
+  set ℓ := fderiv ℝ ρ p
+  set B := fderiv ℝ (fderiv ℝ ρ) p
   obtain ⟨c, hc⟩ := exists_complexPart_eq h.fderiv_ne (-leviQuadratic B w)
-  obtain ⟨c₀, hc₀⟩ : ∃ c₀, ℓ c₀ ≠ 0 := by
-    by_contra hcon
-    push Not at hcon
-    exact h.fderiv_ne (ContinuousLinearMap.ext hcon)
-  set ν : Fin n → ℂ := (-1 / ℓ c₀) • c₀ with hν
-  have hℓν : ℓ ν = -1 := by
-    rw [hν, map_smul, smul_eq_mul, div_mul_cancel₀ _ hc₀]
+  obtain ⟨ν0, hν0, _⟩ := exists_apply_eq_one h.fderiv_ne
+  set ν : Fin n → ℂ := -ν0
+  have hℓν : ℓ ν = -1 := by rw [map_neg, hν0]
   obtain ⟨C₁, c₂, δ, hC₁, hc₂, hδ, hdist⟩ := h.exists_infDist_bounds ho hp
   set κ : ℝ := c₂ * (-L) / (8 * C₁) with hκ
   have hκ0 : 0 < κ := by
@@ -369,17 +369,9 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
       ((analyticAt_id.pow 2).smul analyticAt_const)).add analyticAt_const
   have hest' : ∀ ζ : ℂ, ‖ζ‖ ≤ r → φ ζ ∈ V ∩ ball p δ ∧
       |ρ (φ ζ) - (-(κ * r ^ 2) + ‖ζ‖ ^ 2 * L)| ≤ η * r ^ 2 := hest r hr le_rfl
-  -- the disc lies in `U`
-  have hdiscU : ∀ ζ ∈ closedBall (0 : ℂ) r, φ ζ ∈ U := by
-    intro ζ hζ
-    have hζ' : ‖ζ‖ ≤ r := mem_closedBall_zero_iff.mp hζ
-    obtain ⟨hmem, hρ⟩ := hest' ζ hζ'
-    apply h.mem_of_neg hmem.1
-    have h1 := (abs_le.mp hρ).2
-    have h2 : ‖ζ‖ ^ 2 * L ≤ 0 := mul_nonpos_of_nonneg_of_nonpos (by positivity) hneg.le
-    have h3 : η * r ^ 2 ≤ κ / 2 * r ^ 2 := mul_le_mul_of_nonneg_right hηκ (by positivity)
-    have h4 : 0 < κ / 2 * r ^ 2 := by positivity
-    linarith
+  have hdiscU : ∀ ζ ∈ closedBall (0 : ℂ) r, φ ζ ∈ U :=
+    h.disc_subset_of_estimate hr hκ0 hneg hηκ fun ζ hζ =>
+      ⟨(hest' ζ hζ).1.1, (hest' ζ hζ).2⟩
   -- the boundary circle is deep inside
   set m : ℝ := c₂ * (-L) / 2 * r ^ 2 with hm
   have hm0 : 0 < m := by

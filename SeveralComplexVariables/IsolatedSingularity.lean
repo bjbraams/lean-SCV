@@ -14,6 +14,12 @@ An arbitrary finite-dimensional complex normed source is reduced by a continuous
 coordinate equivalence to the proved punctured-polydisc theorem. The extension is then
 glued to the original function. No boundedness hypothesis is imposed near the puncture.
 Reference: Scheidemann (2005), Corollary 2.3.2.
+
+## Main results
+
+`exists_extension_punctured_open` removes an isolated singularity of a Banach-valued
+holomorphic map on an open set in complex dimension at least two, without a local
+boundedness hypothesis.
 -/
 
 public noncomputable section

@@ -14,6 +14,12 @@ includes the contour derivative and a continuous boundary function.
 
 This is simplex-independent infrastructure for continued Cauchy representations.
 It does not assert a Jordan-curve theorem or homotopy invariance of contours.
+
+## Main results
+
+`analyticOnNhd_integral_mul_compact_kernel` is holomorphy in the remaining
+variables of a compactly parametrized integral against an integrable weight.
+`analyticOnNhd_circleIntegral_kernel_mul` is the circle specialization.
 -/
 
 open Complex MeasureTheory Filter Metric Set

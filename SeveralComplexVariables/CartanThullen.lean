@@ -26,6 +26,14 @@ disconnected open sets.
 
 References: Range II §3.6; Fritzsche–Grauert II §§5–6; Scheidemann §7.3;
 Jakóbczak–Jarnicki §2.7; Hörmander §2.5.
+
+## Main results
+
+`isDomainOfHolomorphy_iff_isHolomorphicallyConvex` is the Cartan–Thullen equivalence.
+`isDomainOfHolomorphy_iff_exists_domainOfExistence` produces a single completely
+nonextendable function. `isDomainOfHolomorphy_iff_hasHolomorphicHullDistanceProperty`
+and `isDomainOfHolomorphy_iff_hasHolomorphicHullRadiusProperty` are the hull-radius
+forms. `isHolomorphicallyConvex_of_convex` is the convex example.
 -/
 
 public noncomputable section
@@ -233,15 +241,15 @@ theorem isDomainOfHolomorphy_iff_exists_domainOfExistence (ho : IsOpen U) :
 
 /-- Exact preservation of compact hull boundary distance characterizes domains of
 holomorphy, by the equivalence with holomorphic convexity. -/
-theorem isDomainOfHolomorphy_iff_hullDistanceProperty (ho : IsOpen U) :
+theorem isDomainOfHolomorphy_iff_hasHolomorphicHullDistanceProperty (ho : IsOpen U) :
     IsDomainOfHolomorphy U ↔ HasHolomorphicHullDistanceProperty U :=
-  ⟨fun h => h.hullDistanceProperty ho,
+  ⟨fun h => h.hasHolomorphicHullDistanceProperty ho,
     fun h => (h.isHolomorphicallyConvex ho).isDomainOfHolomorphy ho⟩
 
 /-- The uniform polydisc-radius formulation is another Cartan–Thullen characterization. -/
-theorem isDomainOfHolomorphy_iff_hullRadiusProperty (ho : IsOpen U) :
+theorem isDomainOfHolomorphy_iff_hasHolomorphicHullRadiusProperty (ho : IsOpen U) :
     IsDomainOfHolomorphy U ↔ HasHolomorphicHullRadiusProperty U :=
-  ⟨fun h => h.hullRadiusProperty ho,
+  ⟨fun h => h.hasHolomorphicHullRadiusProperty ho,
     fun h => (h.isHolomorphicallyConvex ho).isDomainOfHolomorphy ho⟩
 
 /-- Convex open coordinate domains are holomorphically convex. This deduction uses the

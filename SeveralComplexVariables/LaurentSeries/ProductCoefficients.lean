@@ -12,6 +12,14 @@ public import SeveralComplexVariables.LaurentSeries.Iterated
 
 Circle coefficients are analytic in the remaining coordinates. Iteration therefore
 proves independence of the coordinate radii on products of connected circular domains.
+
+## Main results
+
+`analyticOnNhd_circleLaurentCoeff_cons` is holomorphy of a circle coefficient in the
+remaining coordinates. `multivariableLaurentCoeff_eq_on_product` is independence of
+radii on a product of connected circular domains.
+`multivariableLaurentCoeff_neg_on_product` vanishes negative exponents in a factor
+that is a disc.
 -/
 
 @[expose] public noncomputable section

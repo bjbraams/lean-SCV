@@ -58,6 +58,37 @@ theorem optionSplit_symm_apply (z' : κ → ℂ) (w : ℂ) :
   rw [ContinuousLinearEquiv.symm_apply_eq]
   rfl
 
+/-- Updating the missing coordinate of a split point changes only the fiber. -/
+theorem optionSplit_symm_update_none (z' : κ → ℂ) (w v : ℂ) :
+    update ((optionSplit κ).symm (z', w)) none v = (optionSplit κ).symm (z', v) := by
+  rw [optionSplit_symm_apply, optionSplit_symm_apply]
+  funext o
+  cases o <;> simp [update]
+
+/-- Updating a present coordinate of a split point changes only the corresponding base
+coordinate. -/
+theorem optionSplit_symm_update_some (z' : κ → ℂ) (w v : ℂ) (i : κ) :
+    update ((optionSplit κ).symm (z', w)) (some i) v =
+      (optionSplit κ).symm (update z' i v, w) := by
+  rw [optionSplit_symm_apply, optionSplit_symm_apply]
+  funext o
+  cases o with
+  | none => simp
+  | some j => by_cases hji : j = i <;> simp [hji, update]
+
+/-- Closed balls in the product coordinates are products of closed balls. -/
+theorem optionSplit_symm_mem_closedBall {c : Option κ → ℂ} {R : ℝ} (hR : 0 ≤ R)
+    (z' : κ → ℂ) (w : ℂ) :
+    (optionSplit κ).symm (z', w) ∈ closedBall c R ↔
+      z' ∈ closedBall ((optionSplit κ) c).1 R ∧ w ∈ closedBall ((optionSplit κ) c).2 R := by
+  have hnone : (optionSplit κ).symm (z', w) none = w := by rw [optionSplit_symm_apply]; rfl
+  have hsome (i : κ) : (optionSplit κ).symm (z', w) (some i) = z' i := by
+    rw [optionSplit_symm_apply]; rfl
+  rw [mem_closedBall, dist_pi_le_iff hR, Option.forall, mem_closedBall, mem_closedBall,
+    dist_pi_le_iff hR, hnone]
+  simp only [hsome, optionSplit_apply]
+  exact and_comm
+
 end Split
 
 /-- The induction step of Hartogs' theorem: one further coordinate. The hypothesis is
@@ -69,20 +100,6 @@ theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ]
     (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) :
     AnalyticOnNhd ℂ f U := by
   set L := optionSplit κ with hL
-  have hsymm : ∀ z' w, L.symm (z', w) = fun o => o.elim w z' := optionSplit_symm_apply
-  have hnone (z' : κ → ℂ) (w : ℂ) : L.symm (z', w) none = w := by rw [hsymm]; rfl
-  have hsome (z' : κ → ℂ) (w : ℂ) (i : κ) : L.symm (z', w) (some i) = z' i := by rw [hsymm]; rfl
-  have hupd_none (z' : κ → ℂ) (w v : ℂ) : update (L.symm (z', w)) none v = L.symm (z', v) := by
-    rw [hsymm, hsymm]
-    funext o
-    cases o <;> simp
-  have hupd_some (z' : κ → ℂ) (w v : ℂ) (i : κ) :
-      update (L.symm (z', w)) (some i) v = L.symm (update z' i v, w) := by
-    rw [hsymm, hsymm]
-    funext o
-    cases o with
-    | none => simp
-    | some j => by_cases hji : j = i <;> simp [hji]
   -- analyticity of the base slices, by the induction hypothesis
   have hslice_base (w : ℂ) :
       AnalyticOnNhd ℂ (fun z' => f (L.symm (z', w))) {z' | L.symm (z', w) ∈ U} := by
@@ -90,17 +107,19 @@ theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ]
     intro z' hz' i
     have h := hf _ hz' (some i)
     dsimp only at h
-    rw [hsome] at h
+    have : L.symm (z', w) (some i) = z' i := by rw [optionSplit_symm_apply]; rfl
+    rw [this] at h
     convert h using 2
-    rw [hupd_some]
+    rw [optionSplit_symm_update_some]
   -- analyticity of the fiber slices
   have hslice_fiber (z' : κ → ℂ) :
       AnalyticOnNhd ℂ (fun w => f (L.symm (z', w))) {w | L.symm (z', w) ∈ U} := by
     intro w hw
     have h := hf _ hw none
-    rw [hnone] at h
+    have : L.symm (z', w) none = w := by rw [optionSplit_symm_apply]; rfl
+    rw [this] at h
     convert h using 2
-    rw [hupd_none]
+    rw [optionSplit_symm_update_none]
   -- the decidability instance of the coordinate type is adjusted by `convert`
   refine analyticOnNhd_of_separately_analytic_locally_bounded hU
     (fun z hz i => by convert hf z hz i) ?_
@@ -110,10 +129,7 @@ theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ]
   set w₀ : ℂ := (L c).2 with hw₀
   have hmem (z' : κ → ℂ) (w : ℂ) :
       L.symm (z', w) ∈ closedBall c R ↔ z' ∈ closedBall z₀ R ∧ w ∈ closedBall w₀ R := by
-    rw [mem_closedBall, dist_pi_le_iff hR.le, Option.forall, mem_closedBall, mem_closedBall,
-      dist_pi_le_iff hR.le, hnone]
-    simp only [hsome]
-    exact and_comm
+    simpa [hz₀, hw₀] using optionSplit_symm_mem_closedBall hR.le z' w
   -- Baire: a bounded cylinder over the whole closed base ball
   have hR2 : 0 < R / 2 := by positivity
   obtain ⟨W, hWo, hWne, hWsub, M₁, hM₁⟩ := exists_open_bounded_cylinder_of_separately_continuous

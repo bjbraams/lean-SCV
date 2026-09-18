@@ -19,6 +19,13 @@ removability and analytic germs without depending on Hartogs extension or local-
 
 References: Scheidemann (2005), Sections 4.1--4.2; Korevaar--Wiegerinck (2017),
 Sections 4.6--4.7. The density and extension-uniqueness results allow normed vector targets.
+
+## Main results
+
+`subset_closure_nonzero_of_analyticOnNhd` is density of the nonvanishing locus.
+`eqOn_of_eqOn_nonzero_of_analyticOnNhd` is uniqueness of continuous extensions
+across a zero set. `eventuallyEq_zero_or_eventuallyEq_zero_of_mul` is the product
+rule for vanishing germs.
 -/
 
 public section

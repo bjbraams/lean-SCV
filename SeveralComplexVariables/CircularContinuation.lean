@@ -19,6 +19,13 @@ homogeneous polynomials. Convergence is grouped by total degree, not by individu
 coordinate monomials. Cauchy projections identify the terms on circular domains,
 and geometric majorants give locally uniform convergence on the balanced hull.
 Reference: Scheidemann (2005), Theorem 2.1.8. Banach-valued targets are allowed.
+
+## Main results
+
+`homogeneousTerm` is the degree-`k` diagonal of a multilinear Taylor series.
+`homogeneous_expansion_balancedHull` is locally uniform convergence of the
+homogeneous expansion on the balanced hull. `exists_extension_balancedHull` is
+continuation from a circular domain to its balanced hull.
 -/
 
 public noncomputable section
@@ -36,7 +43,7 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   p k (fun _ => z)
 
 omit [FiniteDimensional ℂ E] [CompleteSpace F] in
-/-- The defining formula of a homogeneous term. -/
+/-- A homogeneous term is the corresponding multilinear map on the constant tuple. -/
 theorem homogeneousTerm_apply (p : FormalMultilinearSeries ℂ E F) (k : ℕ) (z : E) :
     homogeneousTerm p k z = p k (fun _ => z) := rfl
 

@@ -17,6 +17,14 @@ Nontrivial analytic germs have a nonzero derivative of finite order. Minimizing
 this order along a zero set supplies an analytic function with nonzero derivative
 that vanishes on that set. Persistence of zeros supplies the converse inclusion
 after straightening this auxiliary function.
+
+## Main results
+
+`AnalyticAt.eventuallyEq_zero_of_iteratedFDeriv_eq_zero` is vanishing of a germ whose
+iterated derivatives all vanish. `exists_analytic_zeroSet_superset_fderiv_ne_zero`
+produces an analytic function with nonzero derivative vanishing on a given zero set.
+`eventually_zeroSet_eq_linear_zeroSet` is the local graph description after
+straightening.
 -/
 
 @[expose] public noncomputable section

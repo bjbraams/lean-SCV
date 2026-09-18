@@ -66,7 +66,7 @@ theorem IsRegularAnalyticSetAt.exists_open {A : Set E} {a : E} {q : ℕ}
   exact ⟨e.source, e.open_source, ha, fun b hb => ⟨hb.2, e, L, he, hb.1, hL, hEq⟩⟩
 
 /-- The regular locus is relatively open in the subset, without any global analyticity assumption. -/
-theorem analyticRegularLocus_isOpen_relative (A : Set E) :
+theorem isOpen_relative_analyticRegularLocus (A : Set E) :
     IsOpen {a : A | a.val ∈ analyticRegularLocus A} := by
   rw [isOpen_iff_mem_nhds]
   rintro a ⟨q, hq⟩
@@ -76,14 +76,14 @@ theorem analyticRegularLocus_isOpen_relative (A : Set E) :
   exact ⟨q, hreg b ⟨hb, b.property⟩⟩
 
 /-- The singular locus is relatively closed in the subset. This does not assert that it is analytic. -/
-theorem analyticSingularLocus_isClosed_relative (A : Set E) :
+theorem isClosed_relative_analyticSingularLocus (A : Set E) :
     IsClosed {a : A | a.val ∈ analyticSingularLocus A} := by
   have he : {a : A | a.val ∈ analyticSingularLocus A} =
       {a : A | a.val ∈ analyticRegularLocus A}ᶜ := by
     ext a
     simp [analyticSingularLocus]
   rw [he]
-  exact (analyticRegularLocus_isOpen_relative A).isClosed_compl
+  exact (isOpen_relative_analyticRegularLocus A).isClosed_compl
 
 /-- On an analytic subset of `U`, the singular locus is relatively closed also in `U`. -/
 theorem IsAnalyticSet.isOpen_sdiff_singularLocus {U A : Set E} (hA : IsAnalyticSet U A) :

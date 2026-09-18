@@ -15,6 +15,11 @@ Every scalar analytic unit germ has an analytic root of each positive integral d
 We normalize the value to one before using Mathlib's analytic complex power function;
 no global choice of logarithm on the domain is required. These elementary local facts
 are used, for example, when absorbing units into irreducible factorizations.
+
+## Main results
+
+`exists_isUnit_pow_eq` produces an analytic unit root of each positive integral
+degree. `exists_analyticAt_pow_eq` is the corresponding statement for representatives.
 -/
 
 @[expose] public noncomputable section

@@ -14,6 +14,14 @@ Adding an unused scalar variable preserves irreducible germs. Consequently a
 nonzero parameter germ is relatively prime to every germ whose restriction to
 the scalar fiber is nonzero. This is the local algebra needed for persistence
 of relative primality.
+
+## Main results
+
+`basePullback` and `fiberPullback` are restriction to the parameter space and to
+the scalar fiber. `irreducible_basePullback` preserves irreducibility.
+`isRelPrime_basePullback_of_fiber_ne_zero` is relative primality of a nonzero
+parameter germ to a germ with nonzero fiber restriction.
+`eventually_fiber_ne_zero_ofAnalyticAt` is persistence of a nonzero fiber germ.
 -/
 
 @[expose] public noncomputable section

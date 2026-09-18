@@ -18,6 +18,13 @@ Supporting modules separate one-variable nonsingularity, immersion points, the
 codimension-one reduction, and exclusion of the critical set.
 
 Reference: Fritzsche–Grauert I, Theorem 8.5 and Corollary 8.6.
+
+## Main results
+
+`isInvertible_fderiv_of_injOn` is nonsingularity of an injective holomorphic map
+in equal dimensions. `exists_biholomorphic_of_injOn` produces a biholomorphism onto
+the image. `isOpen_image_of_holomorphic_injOn` is openness of the image.
+`det_complexJacobian_ne_zero_of_injOn` is the Jacobian form in coordinates.
 -/
 
 public noncomputable section

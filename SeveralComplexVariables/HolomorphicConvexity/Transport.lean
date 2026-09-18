@@ -17,6 +17,12 @@ are proved directly from the hull definition and compactness; they do not depend
 Cartan–Thullen or any analytic continuation placeholder.
 
 References: Range II §3.3; Scheidemann §7.1; Jakóbczak–Jarnicki §2.7.
+
+## Main results
+
+`IsHolomorphicallyConvex.prod` is stability under products.
+`IsBiholomorphic.image_holomorphicHull` transports relative hulls.
+`IsBiholomorphic.isHolomorphicallyConvex_iff` is invariance of holomorphic convexity.
 -/
 
 public section

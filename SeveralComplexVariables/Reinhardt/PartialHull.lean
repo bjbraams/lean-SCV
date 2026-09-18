@@ -18,6 +18,13 @@ Laurent coefficients give locally uniform convergence and an analytic sum on the
 These coefficient-series results are independent of the Laurent expansion
 theorem; extension of arbitrary holomorphic functions is deduced from that theorem.
 Reference: Scheidemann (2005), Corollary 2.1.15.
+
+## Main results
+
+`IsCompleteReinhardtIn` is completeness in a selected set of coordinates.
+`partialReinhardtHull` is the corresponding hull. `exists_extension_partialReinhardtHull`
+extends a holomorphic function to that hull. `hasSumLocallyUniformlyOn_laurent_partialReinhardtHull`
+is locally uniform convergence of the relevant Laurent terms.
 -/
 
 public section

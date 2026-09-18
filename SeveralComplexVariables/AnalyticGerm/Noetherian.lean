@@ -20,6 +20,12 @@ normalizes a nonzero element of an ideal, divides by it, and uses finite
 generation of the resulting submodule of the finite module of remainder coefficients.
 The dimension induction, zero-dimensional base case, and coordinate transport are
 proved here from that step. No claim is made for infinite-dimensional source spaces.
+
+## Main results
+
+`ideal_fg` is finite generation of ideals of finite-dimensional analytic germs.
+`ideal_fg_prod` is the analytic induction step. `isNoetherianRing_coordinates` is
+Noetherianity on coordinate spaces, from which the general instance is transported.
 -/
 
 @[expose] public noncomputable section

@@ -73,7 +73,8 @@ theorem exists_mvPolynomial_eval_eq_sum (s : Finset (Fin n →₀ ℕ)) (c : (Fi
   refine Finset.sum_congr rfl fun m _ => ?_
   ring
 
-/-- The same statement for multi-indices given as functions. -/
+/-- A finite sum of monomials with complex coefficients, indexed by functions `Fin n → ℕ`,
+is the evaluation of a polynomial. -/
 theorem exists_mvPolynomial_eval_eq_sum' (s : Finset (Fin n → ℕ)) (c : (Fin n → ℕ) → ℂ) :
     ∃ P : MvPolynomial (Fin n) ℂ, ∀ z : Fin n → ℂ,
       MvPolynomial.eval z P = ∑ m ∈ s, (∏ i, z i ^ m i) * c m := by

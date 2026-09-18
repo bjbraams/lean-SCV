@@ -18,6 +18,13 @@ The projections, their mutual orthogonality, and convergence in the compact-open
 holomorphic space are derived from the Laurent expansion theorem.
 Only the elementary analytic consequences of Scheidemann (2005), Section 2.2, are used;
 no representation theory of compact groups is introduced.
+
+## Main results
+
+`exists_finite_laurent_approximation` approximates a holomorphic function uniformly
+on a compact set by a finite Laurent sum. `exists_laurentCoeffCLM` and
+`exists_laurentTermCLM` are the continuous coefficient and term projections on the
+compact-open holomorphic space.
 -/
 
 public noncomputable section

@@ -23,6 +23,12 @@ theorem in the complete space of holomorphic functions. Exhaustions use Mathlib'
 on the open subtype, rather than a new topological structure.
 
 References: Range II §3.2; Fritzsche–Grauert II §6; Scheidemann §7.1.
+
+## Main results
+
+`IsHolomorphicallyConvex.exists_compactExhaustion` produces a compact exhaustion by
+hull-fixed sets. `isHolomorphicallyConvex_iff_unbounded_on_escaping_sequences` is the
+escaping-sequence characterization.
 -/
 
 @[expose] public noncomputable section

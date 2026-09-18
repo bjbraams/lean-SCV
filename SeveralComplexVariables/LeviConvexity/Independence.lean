@@ -110,16 +110,8 @@ theorem exists_parabola_bound (hρ : ContDiffAt ℝ 2 ρ p) (v ν : E) (β : ℝ
   have hM₁0 : 0 ≤ M₁ := by positivity
   obtain ⟨δ', hδ', htaylor⟩ := exists_taylor_bound hρ (ε := η / (2 * (M₀ ^ 2 + 1))) (by positivity)
   refine ⟨min 1 (min (η / (2 * (M₁ + 1))) (δ' / (2 * (M₀ + 1)))), by positivity, fun t ht htδ => ?_⟩
-  have ht1 : t ≤ 1 := (htδ.trans_le (min_le_left _ _)).le
-  have htM₁ : t * (M₁ + 1) ≤ η / 2 := by
-    have := (htδ.trans_le ((min_le_right _ _).trans (min_le_left _ _))).le
-    rw [le_div_iff₀ (by positivity)] at this
-    linarith
-  have htδ' : t * (M₀ + 1) < δ' := by
-    have := (htδ.trans_le ((min_le_right _ _).trans (min_le_right _ _))).le
-    rw [le_div_iff₀ (by positivity)] at this
-    have hpos : 0 < t * (M₀ + 1) := by positivity
-    linarith
+  obtain ⟨ht1, htM₁, htδ'⟩ :=
+    le_one_and_mul_add_le_of_le_min hη hM₀0 hM₁0 hδ' ht (le_of_lt htδ)
   set k : E := t • v + (β * t ^ 2) • ν with hk
   have hkn : ‖k‖ ≤ t * M₀ := by
     calc ‖k‖ ≤ ‖t • v‖ + ‖(β * t ^ 2) • ν‖ := norm_add_le _ _
@@ -171,34 +163,17 @@ theorem exists_parabola_bound (hρ : ContDiffAt ℝ 2 ρ p) (v ν : E) (β : ℝ
             β ^ 2 * t ^ 3 * (‖B‖ * ‖ν‖ * ‖ν‖)) := by
           gcongr
       _ = M₁ * t ^ 3 := by rw [hM₁]; ring
-  have hR : |ρ (p + k) - ρ p - fderiv ℝ ρ p k - (1 / 2 : ℝ) * B k k| ≤ η / 2 * t ^ 2 := by
-    refine le_trans htay ?_
-    calc η / (2 * (M₀ ^ 2 + 1)) * ‖k‖ ^ 2 ≤ η / (2 * (M₀ ^ 2 + 1)) * (t * M₀) ^ 2 := by
-          gcongr
-      _ ≤ η / 2 * t ^ 2 := by
-          rw [mul_pow, div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
-          have : M₀ ^ 2 ≤ M₀ ^ 2 + 1 := by linarith
-          calc η * (t ^ 2 * M₀ ^ 2) ≤ η * (t ^ 2 * (M₀ ^ 2 + 1)) := by gcongr
-            _ = η / 2 * t ^ 2 * (2 * (M₀ ^ 2 + 1)) := by ring
+  have hR : |ρ (p + k) - ρ p - fderiv ℝ ρ p k - (1 / 2 : ℝ) * B k k| ≤
+      η / (2 * (M₀ ^ 2 + 1)) * (t * M₀) ^ 2 := by
+    refine htay.trans ?_
+    gcongr
   rw [hsplit]
   have hkey : ρ (p + k) - ρ p - (t * fderiv ℝ ρ p v + β * t ^ 2 * fderiv ℝ ρ p ν +
       t ^ 2 / 2 * B v v) = (ρ (p + k) - ρ p - fderiv ℝ ρ p k - (1 / 2 : ℝ) * B k k) +
         ((1 / 2 : ℝ) * B k k - t ^ 2 / 2 * B v v) := by
     rw [hlin]; ring
   rw [hkey]
-  calc |(ρ (p + k) - ρ p - fderiv ℝ ρ p k - (1 / 2 : ℝ) * B k k) +
-        ((1 / 2 : ℝ) * B k k - t ^ 2 / 2 * B v v)|
-      ≤ |ρ (p + k) - ρ p - fderiv ℝ ρ p k - (1 / 2 : ℝ) * B k k| +
-        |(1 / 2 : ℝ) * B k k - t ^ 2 / 2 * B v v| := abs_add_le _ _
-    _ ≤ η / 2 * t ^ 2 + M₁ * t ^ 3 := add_le_add hR hquad_bd
-    _ ≤ η / 2 * t ^ 2 + η / 2 * t ^ 2 := by
-        refine add_le_add le_rfl ?_
-        calc M₁ * t ^ 3 = t * M₁ * t ^ 2 := by ring
-          _ ≤ η / 2 * t ^ 2 := by
-              refine mul_le_mul_of_nonneg_right ?_ (by positivity)
-              have : t * M₁ ≤ t * (M₁ + 1) := mul_le_mul_of_nonneg_left (by linarith) ht.le
-              linarith
-    _ = η * t ^ 2 := by ring
+  exact taylor_remainder_add_cubic_le ht hη hM₀0 hM₁0 htM₁ hR hquad_bd
 
 /-- A defining function is negative along a line entering the set, and the derivative of any
 other defining function in that direction is nonpositive. -/

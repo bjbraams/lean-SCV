@@ -16,6 +16,13 @@ public import Mathlib.Topology.LocallyConstant.Basic
 
 The space of admissible positive radii is connected. Local independence on circular
 product neighborhoods therefore gives global independence of the coefficient torus.
+
+## Main results
+
+`IsReinhardt.isConnected_positive_radii` is connectedness of the positive radius
+vectors in a connected open Reinhardt domain. `multivariableLaurentCoeff_eq_of_radii`
+is independence of the torus. `multivariableLaurentCoeff_neg_eq_zero` vanishes
+coefficients with a negative exponent in a coordinate that meets a hyperplane.
 -/
 
 @[expose] public noncomputable section

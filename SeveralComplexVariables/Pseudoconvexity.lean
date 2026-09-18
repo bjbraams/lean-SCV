@@ -49,6 +49,27 @@ open scoped Topology
 
 namespace SeveralComplexVariables
 
+/-- Clamp a real parameter to the unit interval. -/
+def clampIcc01 (t : ℝ) : ℝ := max 0 (min 1 t)
+
+/-- Clamping to `[0, 1]` is continuous. -/
+theorem continuous_clampIcc01 : Continuous clampIcc01 := by
+  unfold clampIcc01
+  fun_prop
+
+/-- The clamp of any real lies in `[0, 1]`. -/
+theorem clampIcc01_mem_Icc (t : ℝ) : clampIcc01 t ∈ Icc (0 : ℝ) 1 :=
+  ⟨le_max_left _ _, max_le zero_le_one (min_le_left _ _)⟩
+
+/-- Clamping is the identity on `[0, 1]`. -/
+theorem clampIcc01_eq_of_mem_Icc {t : ℝ} (ht : t ∈ Icc (0 : ℝ) 1) : clampIcc01 t = t := by
+  simp only [clampIcc01]
+  rw [min_eq_right ht.2, max_eq_right ht.1]
+
+/-- Clamping is idempotent. -/
+theorem clampIcc01_idem (t : ℝ) : clampIcc01 (clampIcc01 t) = clampIcc01 t :=
+  clampIcc01_eq_of_mem_Icc (clampIcc01_mem_Icc t)
+
 section BoundaryDistance
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
@@ -104,18 +125,18 @@ theorem IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist {U : Set (Fin n 
     (infDist_pos_iff_notMem_closure hc).mp (by rwa [ho.isClosed_compl.closure_eq, notMem_compl_iff])
   have hcont : ContinuousOn (fun z => -Real.log (infDist z Uᶜ)) U :=
     ((continuous_infDist_pt Uᶜ).continuousOn.log fun z hz => (hpos z hz).ne').neg
-  refine plurisubharmonicOn_of_submeanAt hcont.upperSemicontinuousOn fun a ha w => ?_
+  refine plurisubharmonicOn_of_hasSubmeanAt hcont.upperSemicontinuousOn fun a ha w => ?_
   -- the constant slice
   by_cases hw : w = 0
   · simp only [hw, smul_zero, add_zero]
-    exact submeanAt_const _ 0
+    exact hasSubmeanAt_const _ 0
   obtain ⟨i, hi⟩ := Function.ne_iff.mp hw
   have hline : Continuous fun t : ℂ => a + t • w := continuous_line a w
   obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hline.continuousAt.preimage_mem_nhds (by
     show U ∈ 𝓝 ((fun t : ℂ => a + t • w) 0)
     simp only [zero_smul, add_zero]
     exact ho.mem_nhds ha))
-  refine submeanAt_of_forall_lt hρ fun r hr hrρ => ?_
+  refine hasSubmeanAt_of_forall_lt hρ fun r hr hrρ => ?_
   have hdisc : ∀ t ∈ closedBall (0 : ℂ) r, a + t • w ∈ U := fun t ht =>
     hball (closedBall_subset_ball hrρ ht)
   have hslice_cont : ContinuousOn (fun t : ℂ => -Real.log (infDist (a + t • w) Uᶜ)) (sphere 0 r) :=
@@ -242,15 +263,11 @@ theorem IsPseudoconvex.satisfiesContinuityPrinciple {U : Set E} (h : IsPseudocon
     SatisfiesContinuityPrinciple U := by
   obtain ⟨hU, φ, hφc, hφpsh, hφex⟩ := h
   intro a b ha hb hbd h0
-  -- clamp the parameter to the unit interval
-  set p : ℝ → ℝ := fun t => max 0 (min 1 t) with hp
-  have hpc : Continuous p := by fun_prop
-  have hpI : ∀ t, p t ∈ Icc (0 : ℝ) 1 := fun t =>
-    ⟨le_max_left _ _, max_le zero_le_one (min_le_left _ _)⟩
-  have hpid : ∀ t ∈ Icc (0 : ℝ) 1, p t = t := fun t ht => by
-    simp only [hp]
-    rw [min_eq_right ht.2, max_eq_right ht.1]
-  have hpp : ∀ t, p (p t) = p t := fun t => hpid _ (hpI t)
+  set p := clampIcc01
+  have hpc : Continuous p := continuous_clampIcc01
+  have hpI : ∀ t, p t ∈ Icc (0 : ℝ) 1 := clampIcc01_mem_Icc
+  have hpid : ∀ t ∈ Icc (0 : ℝ) 1, p t = t := fun t ht => clampIcc01_eq_of_mem_Icc ht
+  have hpp : ∀ t, p (p t) = p t := clampIcc01_idem
   set Φ : ℝ × ℂ → E := fun q => a (p q.1) + q.2 • b (p q.1) with hΦ
   have hΦc : Continuous Φ := by fun_prop
   -- the compact set of boundary points and initial disc points
@@ -348,15 +365,11 @@ theorem IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple_fin {U : Se
     intro t _ ζ _
     rw [hU']
     exact mem_univ _
-  -- clamp the parameter to the unit interval
-  set p : ℝ → ℝ := fun t => max 0 (min 1 t) with hp
-  have hpc : Continuous p := by fun_prop
-  have hpI : ∀ t, p t ∈ Icc (0 : ℝ) 1 := fun t =>
-    ⟨le_max_left _ _, max_le zero_le_one (min_le_left _ _)⟩
-  have hpid : ∀ t ∈ Icc (0 : ℝ) 1, p t = t := fun t ht => by
-    simp only [hp]
-    rw [min_eq_right ht.2, max_eq_right ht.1]
-  have hpp : ∀ t, p (p t) = p t := fun t => hpid _ (hpI t)
+  set p := clampIcc01
+  have hpc : Continuous p := continuous_clampIcc01
+  have hpI : ∀ t, p t ∈ Icc (0 : ℝ) 1 := clampIcc01_mem_Icc
+  have hpid : ∀ t ∈ Icc (0 : ℝ) 1, p t = t := fun t ht => clampIcc01_eq_of_mem_Icc ht
+  have hpp : ∀ t, p (p t) = p t := clampIcc01_idem
   set Φ : ℝ × ℂ → Fin n → ℂ := fun q => φ (p q.1) q.2 with hΦ
   have hΦc : Continuous Φ := hφc.comp ((hpc.comp continuous_fst).prodMk continuous_snd)
   -- the compact set of boundary points and initial disc points

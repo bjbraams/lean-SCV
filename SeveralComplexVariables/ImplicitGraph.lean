@@ -14,6 +14,12 @@ The implicit mapping theorem supplies a homeomorphism from a regular local zero 
 to the parameter neighborhood. This is an elementary statement about subsets of product
 spaces, without a manifold or analytic-space structure.
 Reference: Scheidemann (2005), Corollary 3.1.5.
+
+## Main results
+
+`implicitGraphHomeomorph` is the local graph homeomorphism of a regular zero set in
+a product. `exists_implicit_zero_homeomorph` packages existence of that
+homeomorphism from the implicit mapping theorem.
 -/
 
 public noncomputable section

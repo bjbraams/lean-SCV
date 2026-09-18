@@ -99,7 +99,7 @@ theorem IsWeierstrassPreparationAt.unique {d : ℕ} {f u v : (ι → ℂ) × ℂ
 
 /-- Uniqueness of the factors and coefficients on a whole product domain follows
 from germ uniqueness and the identity theorem. This applies to the polydisc of preparation. -/
-theorem IsWeierstrassPreparationAt.uniqueOn {d : ℕ} {f u v : (ι → ℂ) × ℂ → ℂ}
+theorem IsWeierstrassPreparationAt.unique_on {d : ℕ} {f u v : (ι → ℂ) × ℂ → ℂ}
     {a b : Fin d → (ι → ℂ) → ℂ} {V : Set (ι → ℂ)} {R : ℝ}
     (h : IsWeierstrassPreparationAt f u a) (h' : IsWeierstrassPreparationAt f v b)
     (hf : AnalyticAt ℂ f 0)
@@ -229,7 +229,7 @@ theorem IsWeierstrassPreparationAt.comp_equiv {F : Type*} [NormedAddCommGroup F]
 /-- **Weierstrass preparation for analytic germs on any finite-dimensional parameter space.**
 Obtained by transporting the coordinate version along a basis; no choice of coordinates
 occurs in the statement. -/
-theorem weierstrass_preparation_at_findim [FiniteDimensional ℂ E] {d : ℕ} {f : E × ℂ → ℂ}
+theorem weierstrass_preparation_at_finiteDimensional [FiniteDimensional ℂ E] {d : ℕ} {f : E × ℂ → ℂ}
     (hf : AnalyticAt ℂ f 0) (horder : analyticOrderAt (fun w : ℂ => f (0, w)) 0 = d) :
     ∃ (u : E × ℂ → ℂ) (a : Fin d → E → ℂ),
       IsWeierstrassPreparationAt f u a ∧

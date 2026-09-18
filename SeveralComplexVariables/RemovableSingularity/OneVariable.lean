@@ -15,6 +15,12 @@ Mathlib's Banach-valued isolated-singularity theorem applies at every zero of a
 nonzero scalar analytic function. Redefining the function by its punctured limit
 at each zero gives one extension on the whole open set. This is the slice theorem
 used in the several-variable Riemann extension argument.
+
+## Main results
+
+`exists_analyticOnNhd_extension_zeroSet_oneVariable` extends a Banach-valued
+holomorphic function across the zeros of a nonzero scalar analytic function of one
+variable.
 -/
 
 public noncomputable section

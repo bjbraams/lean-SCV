@@ -89,7 +89,7 @@ theorem triPt_mem_union_segment {u v : ℝ} (huv : |u| = v) (hv1 : v ≤ 1) :
     simp only
     module
 
-/-- The top side of the triangle. -/
+/-- The segment between `t₁` and `t₂` lies in the triangle of scale one. -/
 theorem segment_subset_tri : segment ℝ t₁ t₂ ⊆ tri p t₁ t₂ 1 := by
   intro x hx
   rw [segment_eq_image'] at hx
@@ -167,7 +167,7 @@ theorem tri_scale {b : ℝ} (hb : 0 < b) :
         _ = b := mul_one b
     · simp only [triPt, hd₁, hd₂, smul_smul, mul_comm b]
 
-/-- The sides of a scaled triangle lie on the sides of the original. -/
+/-- For `0 ≤ b ≤ 1`, the segment from `p` toward `t` scaled by `b` lies on the original segment. -/
 theorem segment_scaled_subset {b : ℝ} (hb0 : 0 ≤ b) (hb1 : b ≤ 1) (t : ι → ℝ) :
     segment ℝ p (p + b • (t - p)) ⊆ segment ℝ p t := by
   intro x hx
@@ -222,7 +222,7 @@ theorem rePi_parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) :
   rw [rePi_add, rePi_add, rePi_add, rePi_ofRealPi, rePi_smul_ofRealPi, rePi_smul_ofRealPi,
     rePi_I_smul_ofRealPi, re_parabolaCoeff, add_zero]
 
-/-- The imaginary part of a disc point. -/
+/-- The imaginary part of a disc point expands in the triangle directions, shifted by `η`. -/
 theorem imPi_parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) :
     imPi (parabolaDisc p t₁ t₂ c η ζ) =
       ζ.im • triDir₁ p t₁ t₂ + (c * ζ ^ 2 + (1 - c) : ℂ).im • triDir₂ p t₁ t₂ + η := by
@@ -247,14 +247,14 @@ theorem isOpen_parabolaRegion (c : ℝ) : IsOpen (parabolaRegion c) :=
   (isOpen_lt (by fun_prop) (continuous_parabolaHeight c)).inter
     (isOpen_lt (continuous_parabolaHeight c) continuous_const)
 
-/-- The closed version of the region. -/
+/-- The closure of the parabolic region is contained in the corresponding closed sublevel set. -/
 theorem closure_parabolaRegion_subset (c : ℝ) :
     closure (parabolaRegion c) ⊆ {ζ | |ζ.re| ≤ parabolaHeight c ζ ∧ parabolaHeight c ζ ≤ 1} :=
   closure_minimal (fun ζ hζ => ⟨hζ.1.le, hζ.2.le⟩)
     ((isClosed_le (by fun_prop) (continuous_parabolaHeight c)).inter
       (isClosed_le (continuous_parabolaHeight c) continuous_const))
 
-/-- Top-side points of the closed region are vertices. -/
+/-- If the height equals one and `|Re ζ| ≤ 1`, then `|Re ζ| = 1`. -/
 theorem abs_re_eq_one_of_parabolaHeight_eq_one {c : ℝ} (hc : 0 < c) {ζ : ℂ}
     (hre : |ζ.re| ≤ 1) (h : parabolaHeight c ζ = 1) : |ζ.re| = 1 := by
   unfold parabolaHeight at h

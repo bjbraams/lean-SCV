@@ -19,6 +19,13 @@ Subsets and finite unions satisfy the local containment condition.
 Locally bounded Banach-valued analytic functions extend uniquely across such sets.
 The proof restricts to a locally containing zero set, applies Riemann extension,
 then recovers agreement on the larger original domain by density and continuity.
+
+## Main results
+
+`LocallyContainedInAnalyticZeroSet` is the thinness predicate: near every point of
+the open domain, the set lies in a proper scalar analytic zero set.
+`exists_analyticOnNhd_extension_across_locallyContainedZeroSet` is Riemann extension
+across such a set for locally bounded Banach-valued maps.
 -/
 
 public section

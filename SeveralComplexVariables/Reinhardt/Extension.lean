@@ -24,6 +24,14 @@ sets containing zero is proved independently of Laurent expansion.
 Analyticity of the extended sums follows
 from the proved arbitrary-coefficient convergence theorem. References: Korevaar–Wiegerinck
 (2017), Corollary 2.4.3, Theorem 2.5.1, Corollary 2.5.2, and Theorem 2.8.2.
+
+## Main results
+
+`taylor_representation_completeReinhardt` is the Taylor series of a holomorphic
+function on a complete Reinhardt domain. `exists_extension_logarithmicReinhardtHull_of_zero_mem`
+and `exists_extension_completeReinhardtHull` extend to the logarithmic and complete
+hulls. `completeReinhardtHull_subset_logarithmicReinhardtHull` is the geometric
+inclusion when the set is open and contains the origin.
 -/
 
 @[expose] public noncomputable section

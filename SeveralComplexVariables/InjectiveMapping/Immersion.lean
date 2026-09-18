@@ -14,6 +14,13 @@ public import Mathlib.LinearAlgebra.Dual.Lemmas
 Scalar projections with nonzero differential admit local coordinates. Restricting to
 a level hyperplane lowers the source dimension and preserves injectivity. This gives
 immersion points without assuming that source and target dimensions agree.
+
+## Main results
+
+`exists_fderiv_ne_zero_of_injOn` finds a point of nonzero derivative on a nonempty
+open set in positive dimension. `exists_scalar_projection_fderiv_ne_zero` produces a
+scalar coordinate with nonzero derivative. `exists_injective_fderiv_of_injOn` is the
+immersion-point theorem after restricting to a level hyperplane.
 -/
 
 public noncomputable section

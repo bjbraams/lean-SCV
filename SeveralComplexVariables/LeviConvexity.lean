@@ -73,6 +73,24 @@ theorem complexPart_smul (ℓ : E →L[ℝ] ℝ) (ζ : ℂ) (c : E) :
 theorem re_complexPart (ℓ : E →L[ℝ] ℝ) (c : E) : (complexPart ℓ c).re = ℓ c := by
   simp [complexPart]
 
+/-- A nonzero real functional attains every real value. -/
+theorem exists_apply_eq {ℓ : E →L[ℝ] ℝ} (hℓ : ℓ ≠ 0) (c : ℝ) : ∃ ν, ℓ ν = c := by
+  obtain ⟨v, hv⟩ : ∃ v, ℓ v ≠ 0 := by
+    by_contra h
+    push Not at h
+    exact hℓ (ContinuousLinearMap.ext h)
+  refine ⟨(c / ℓ v) • v, ?_⟩
+  rw [map_smul, smul_eq_mul, div_mul_cancel₀ _ hv]
+
+/-- A nonzero real functional attains the value `1` on a nonzero vector. -/
+theorem exists_apply_eq_one {ℓ : E →L[ℝ] ℝ} (hℓ : ℓ ≠ 0) : ∃ ν, ℓ ν = 1 ∧ 0 < ‖ν‖ := by
+  obtain ⟨ν, hν⟩ := exists_apply_eq hℓ 1
+  refine ⟨ν, hν, ?_⟩
+  rw [norm_pos_iff]
+  intro h0
+  rw [h0, map_zero] at hν
+  exact zero_ne_one hν
+
 /-- A nonzero real functional has a vector on which its complex-linear part is nonzero. -/
 theorem exists_complexPart_ne_zero {ℓ : E →L[ℝ] ℝ} (hℓ : ℓ ≠ 0) : ∃ c, complexPart ℓ c ≠ 0 := by
   obtain ⟨c, hc⟩ : ∃ c, ℓ c ≠ 0 := by
@@ -108,7 +126,9 @@ end ComplexPart
 
 section Defining
 
-/-- A local `C²` defining function for `U` at `p` on the open neighborhood `V`. -/
+/-- A local `C²` defining function for `U` at `p` on the open neighborhood `V`: `ρ p = 0`,
+the real derivative of `ρ` at `p` is nonzero, and `U ∩ V` is the negative sublevel set of `ρ`
+in `V`. -/
 structure IsLocalDefiningFunction (U : Set E) (p : E) (ρ : E → ℝ) (V : Set E) : Prop where
   isOpen : IsOpen V
   mem : p ∈ V
@@ -117,7 +137,7 @@ structure IsLocalDefiningFunction (U : Set E) (p : E) (ρ : E → ℝ) (V : Set 
   fderiv_ne : fderiv ℝ ρ p ≠ 0
   inter_eq : U ∩ V = {z | ρ z < 0} ∩ V
 
-/-- An open set has `C²` boundary if every boundary point has a local defining function. -/
+/-- A set has `C²` boundary if every boundary point has a local defining function. -/
 def HasC2Boundary (U : Set E) : Prop :=
   ∀ p ∈ frontier U, ∃ (ρ : E → ℝ) (V : Set E), IsLocalDefiningFunction U p ρ V
 

@@ -16,6 +16,12 @@ algebras. The forward map below is restriction. Injectivity uses density;
 surjectivity uses the proved second Riemann extension theorem.
 Disconnected and empty domains are allowed. No assertion about continuity of the
 inverse is needed for this algebraic formulation.
+
+## Main results
+
+`analyticSetRestrictionAlgEquiv` is Scheidemann's second Riemann theorem as an
+isomorphism of holomorphic algebras across an analytic set of slice codimension at
+least two. `analyticSetRestrictionAlgEquiv_apply` is restriction of representatives.
 -/
 
 @[expose] public noncomputable section

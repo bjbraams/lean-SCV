@@ -13,6 +13,13 @@ public import Mathlib.Analysis.Normed.Module.Connected
 
 An open Reinhardt set contains a product of connected circular domains around
 each point, including points on coordinate hyperplanes.
+
+## Main results
+
+`IsReinhardt.exists_circular_product_neighborhood` produces such a product
+neighborhood of any point. `isConnected_complex_annulus` and
+`isConnected_norm_preimage_ball` record connectedness of the circular factors,
+including degenerate annuli that meet a coordinate hyperplane.
 -/
 
 @[expose] public noncomputable section

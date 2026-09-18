@@ -12,6 +12,12 @@ public import SeveralComplexVariables.LaurentSeries.Basic
 
 Fubini's theorem writes a torus integral with the first circle integrated first.
 Consequently Laurent coefficients can be computed one coordinate at a time.
+
+## Main results
+
+`torusIntegral_succ_inner` is Fubini for the first circle of a coordinate torus.
+`multivariableLaurentCoeff_succ` identifies the multivariable coefficient with an
+iterated one-variable coefficient in the remaining coordinates.
 -/
 
 @[expose] public noncomputable section

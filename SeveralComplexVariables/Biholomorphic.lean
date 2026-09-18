@@ -191,7 +191,7 @@ of the whole spaces. -/
 def affineOpenPartialHomeomorph (L : E ≃L[ℂ] F) (b : F) : OpenPartialHomeomorph E F :=
   (L.toHomeomorph.trans (Homeomorph.addRight b)).toOpenPartialHomeomorph
 
-/-- The forward affine map has its usual formula. -/
+/-- The forward affine map applies the linear map and then adds the translation. -/
 @[simp] theorem affineOpenPartialHomeomorph_apply (L : E ≃L[ℂ] F) (b : F) (x : E) :
     affineOpenPartialHomeomorph L b x = L x + b := rfl
 

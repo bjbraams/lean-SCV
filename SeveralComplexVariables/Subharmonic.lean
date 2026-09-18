@@ -44,13 +44,13 @@ namespace SeveralComplexVariables
 /-- The local submean property at a point: for every sufficiently small radius, the
 function is integrable on the circle and its value at the center is bounded by its
 circle average. -/
-def SubmeanAt (u : ℂ → ℝ) (a : ℂ) : Prop :=
+def HasSubmeanAt (u : ℂ → ℝ) (a : ℂ) : Prop :=
   ∀ᶠ r in 𝓝[>] (0 : ℝ), CircleIntegrable u a r ∧ u a ≤ circleAverage u a r
 
 /-- A real function is subharmonic on a set if it is upper semicontinuous there and has
 the local submean property at each of its points. The set is intended to be open. -/
 def SubharmonicOn (u : ℂ → ℝ) (U : Set ℂ) : Prop :=
-  UpperSemicontinuousOn u U ∧ ∀ a ∈ U, SubmeanAt u a
+  UpperSemicontinuousOn u U ∧ ∀ a ∈ U, HasSubmeanAt u a
 
 variable {u v : ℂ → ℝ} {U V : Set ℂ} {a : ℂ}
 
@@ -59,7 +59,7 @@ theorem SubharmonicOn.upperSemicontinuousOn (h : SubharmonicOn u U) :
     UpperSemicontinuousOn u U := h.1
 
 /-- A subharmonic function has the local submean property at each point of its domain. -/
-theorem SubharmonicOn.submeanAt (h : SubharmonicOn u U) (ha : a ∈ U) : SubmeanAt u a :=
+theorem SubharmonicOn.hasSubmeanAt (h : SubharmonicOn u U) (ha : a ∈ U) : HasSubmeanAt u a :=
   h.2 a ha
 
 /-- Subharmonicity restricts to subsets. -/
@@ -67,15 +67,15 @@ theorem SubharmonicOn.mono (h : SubharmonicOn u U) (hV : V ⊆ U) : SubharmonicO
   ⟨h.1.mono hV, fun a ha => h.2 a (hV ha)⟩
 
 /-- The local submean property provides a radius below which the inequality holds. -/
-theorem SubmeanAt.exists_forall_lt (h : SubmeanAt u a) :
+theorem HasSubmeanAt.exists_forall_lt (h : HasSubmeanAt u a) :
     ∃ ρ > 0, ∀ r, 0 < r → r < ρ → CircleIntegrable u a r ∧ u a ≤ circleAverage u a r := by
   obtain ⟨ρ, hρ, hsub⟩ := mem_nhdsGT_iff_exists_Ioo_subset.mp h
   exact ⟨ρ, hρ, fun r h0 hr => hsub ⟨h0, hr⟩⟩
 
 /-- Conversely, a radius bound gives the local submean property. -/
-theorem submeanAt_of_forall_lt {ρ : ℝ} (hρ : 0 < ρ)
+theorem hasSubmeanAt_of_forall_lt {ρ : ℝ} (hρ : 0 < ρ)
     (h : ∀ r, 0 < r → r < ρ → CircleIntegrable u a r ∧ u a ≤ circleAverage u a r) :
-    SubmeanAt u a :=
+    HasSubmeanAt u a :=
   mem_nhdsGT_iff_exists_Ioo_subset.mpr ⟨ρ, hρ, fun r hr => h r hr.1 hr.2⟩
 
 /-- Subharmonicity is a local property. -/
@@ -92,16 +92,16 @@ theorem subharmonicOn_of_locally (h : ∀ a ∈ U, ∃ V ∈ 𝓝 a, Subharmonic
 section Algebra
 
 /-- Constants have the local submean property. -/
-theorem submeanAt_const (c : ℝ) (a : ℂ) : SubmeanAt (fun _ => c) a :=
+theorem hasSubmeanAt_const (c : ℝ) (a : ℂ) : HasSubmeanAt (fun _ => c) a :=
   Filter.Eventually.of_forall fun _ => ⟨circleIntegrable_const c a _, by rw [circleAverage_const]⟩
 
 /-- Constants are subharmonic. -/
 theorem subharmonicOn_const (c : ℝ) (U : Set ℂ) : SubharmonicOn (fun _ => c) U :=
-  ⟨continuousOn_const.upperSemicontinuousOn, fun a _ => submeanAt_const c a⟩
+  ⟨continuousOn_const.upperSemicontinuousOn, fun a _ => hasSubmeanAt_const c a⟩
 
 /-- The local submean property is additive. -/
-theorem SubmeanAt.add (hu : SubmeanAt u a) (hv : SubmeanAt v a) :
-    SubmeanAt (fun z => u z + v z) a := by
+theorem HasSubmeanAt.add (hu : HasSubmeanAt u a) (hv : HasSubmeanAt v a) :
+    HasSubmeanAt (fun z => u z + v z) a := by
   filter_upwards [hu, hv] with r ⟨hui, hu'⟩ ⟨hvi, hv'⟩
   refine ⟨hui.add hvi, ?_⟩
   rw [circleAverage_fun_add hui hvi]
@@ -113,8 +113,8 @@ theorem SubharmonicOn.add (hu : SubharmonicOn u U) (hv : SubharmonicOn v U) :
   ⟨hu.1.add hv.1, fun a ha => (hu.2 a ha).add (hv.2 a ha)⟩
 
 /-- Nonnegative multiples preserve the local submean property. -/
-theorem SubmeanAt.const_mul {c : ℝ} (hc : 0 ≤ c) (hu : SubmeanAt u a) :
-    SubmeanAt (fun z => c * u z) a := by
+theorem HasSubmeanAt.const_mul {c : ℝ} (hc : 0 ≤ c) (hu : HasSubmeanAt u a) :
+    HasSubmeanAt (fun z => c * u z) a := by
   filter_upwards [hu] with r ⟨hui, hu'⟩
   refine ⟨(circleIntegrable_def _ a r).mpr (((circleIntegrable_def u a r).mp hui).const_mul c), ?_⟩
   simp only [← smul_eq_mul, circleAverage_fun_smul]
@@ -139,8 +139,8 @@ theorem CircleIntegrable.max {c : ℂ} {R : ℝ} (hu : CircleIntegrable u c R)
   exact ⟨hu.1.sup hv.1, hu.2.sup hv.2⟩
 
 /-- The pointwise maximum preserves the local submean property. -/
-theorem SubmeanAt.sup (hu : SubmeanAt u a) (hv : SubmeanAt v a) :
-    SubmeanAt (fun z => max (u z) (v z)) a := by
+theorem HasSubmeanAt.sup (hu : HasSubmeanAt u a) (hv : HasSubmeanAt v a) :
+    HasSubmeanAt (fun z => max (u z) (v z)) a := by
   filter_upwards [hu, hv] with r ⟨hui, hu'⟩ ⟨hvi, hv'⟩
   have hm := CircleIntegrable.max hui hvi
   refine ⟨hm, max_le ?_ ?_⟩
@@ -160,9 +160,9 @@ variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 /-- A continuous function whose circle averages over all small circles equal its value at
 the center has the local submean property; this applies to harmonic functions. -/
-theorem submeanAt_of_circleAverage_eq {ρ : ℝ} (hρ : 0 < ρ) (hc : ContinuousOn u (ball a ρ))
-    (h : ∀ r, 0 < r → r < ρ → circleAverage u a r = u a) : SubmeanAt u a :=
-  submeanAt_of_forall_lt hρ fun r hr hrρ =>
+theorem hasSubmeanAt_of_circleAverage_eq {ρ : ℝ} (hρ : 0 < ρ) (hc : ContinuousOn u (ball a ρ))
+    (h : ∀ r, 0 < r → r < ρ → circleAverage u a r = u a) : HasSubmeanAt u a :=
+  hasSubmeanAt_of_forall_lt hρ fun r hr hrρ =>
     ⟨(hc.mono (sphere_subset_closedBall.trans (closedBall_subset_ball hrρ))).circleIntegrable
       hr.le, (h r hr hrρ).ge⟩
 
@@ -190,7 +190,7 @@ theorem SubharmonicOn.re_of_analyticOnNhd {f : ℂ → ℂ} (hf : AnalyticOnNhd 
     fun a ha => ?_⟩
   obtain ⟨ρ, hρ, h⟩ := circleAverage_re_eq_of_analyticAt (hf a ha)
   obtain ⟨ρ', hρ', hball⟩ := Metric.mem_nhds_iff.mp (hf a ha).eventually_analyticAt
-  refine submeanAt_of_circleAverage_eq (lt_min hρ hρ') ?_ fun r hr hrρ => h r hr (hrρ.trans_le (min_le_left _ _))
+  refine hasSubmeanAt_of_circleAverage_eq (lt_min hρ hρ') ?_ fun r hr hrρ => h r hr (hrρ.trans_le (min_le_left _ _))
   exact Complex.continuous_re.comp_continuousOn
     ((AnalyticOnNhd.continuousOn fun z hz => hball (ball_subset_ball (min_le_right _ _) hz)))
 
@@ -206,7 +206,7 @@ theorem SubharmonicOn.norm_rpow_of_analyticOnNhd (hU : IsOpen U) {f : ℂ → F}
   refine ⟨(hf.continuousOn.norm.rpow_const fun _ _ => Or.inr hp.le).upperSemicontinuousOn,
     fun a ha => ?_⟩
   obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hU.mem_nhds ha)
-  refine submeanAt_of_forall_lt hρ fun r hr hrρ => ?_
+  refine hasSubmeanAt_of_forall_lt hρ fun r hr hrρ => ?_
   have hsub : closedBall a r ⊆ U := (closedBall_subset_ball hrρ).trans hball
   refine ⟨((hf.mono hsub).continuousOn.norm.rpow_const fun _ _ => Or.inr hp.le).mono
     sphere_subset_closedBall |>.circleIntegrable hr.le, ?_⟩
@@ -220,7 +220,7 @@ theorem SubharmonicOn.log_norm_of_analyticOnNhd (hU : IsOpen U) {f : ℂ → ℂ
     refine ContinuousOn.log hf.continuousOn.norm fun z hz => norm_ne_zero_iff.mpr (hne z hz)
   refine ⟨hcont.upperSemicontinuousOn, fun a ha => ?_⟩
   obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hU.mem_nhds ha)
-  refine submeanAt_of_forall_lt hρ fun r hr hrρ => ?_
+  refine hasSubmeanAt_of_forall_lt hρ fun r hr hrρ => ?_
   have hsub : closedBall a r ⊆ U := (closedBall_subset_ball hrρ).trans hball
   refine ⟨(hcont.mono (sphere_subset_closedBall.trans hsub)).circleIntegrable hr.le, ?_⟩
   exact log_norm_le_circleAverage hr (hf.mono hsub) (hne a ha)
@@ -293,7 +293,7 @@ theorem circleAverage_lt_of_lt {r M : ℝ} (hr : 0 < r) (hint : CircleIntegrable
 /-- A subharmonic function attaining its supremum at a point is constant near that point. -/
 theorem SubharmonicOn.eventually_eq_of_isMaxOn (hU : IsOpen U) (hu : SubharmonicOn u U)
     (ha : a ∈ U) (hmax : ∀ z ∈ U, u z ≤ u a) : ∀ᶠ z in 𝓝 a, u z = u a := by
-  obtain ⟨ρ₁, hρ₁, hsub⟩ := (hu.submeanAt ha).exists_forall_lt
+  obtain ⟨ρ₁, hρ₁, hsub⟩ := (hu.hasSubmeanAt ha).exists_forall_lt
   obtain ⟨ρ₂, hρ₂, hball⟩ := Metric.mem_nhds_iff.mp (hU.mem_nhds ha)
   filter_upwards [ball_mem_nhds a (lt_min hρ₁ hρ₂)] with z hz
   by_cases hza : z = a

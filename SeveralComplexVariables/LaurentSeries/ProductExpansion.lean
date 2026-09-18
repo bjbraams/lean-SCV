@@ -13,6 +13,12 @@ public import SeveralComplexVariables.LaurentSeries.Convergence
 On circular products, induction on the number of coordinates combines the circle
 Laurent theorem with Fubini for absolutely summable families. Circular product
 neighborhoods then give pointwise expansion on every Reinhardt domain.
+
+## Main results
+
+`hasSum_multivariableLaurent_on_product` is the expansion on a finite product of
+circular domains. `hasSum_multivariableLaurent` is the pointwise expansion at an
+arbitrary point of an open Reinhardt domain.
 -/
 
 @[expose] public noncomputable section

@@ -12,6 +12,15 @@ public import SeveralComplexVariables.Polydisc
 
 The vector-valued iterated Cauchy formula assumes continuity and coordinatewise analyticity
 on the closed polydisc. It does not depend on the several-variable Osgood theorem.
+The distinguished boundary is the coordinate torus of the closed polydisc
+`closedPolydiscWithRadii`.
+
+## Main results
+
+`polydisc_cauchyWithRadii` is the iterated formula with a separate radius in each
+coordinate; `polydisc_cauchy` is the equal-radius specialization.
+`torusIntegrable_cauchyKernelWithRadii` records integrability of the Cauchy kernel on
+that torus whenever the evaluation point lies in the open polydisc.
 -/
 
 @[expose] public section

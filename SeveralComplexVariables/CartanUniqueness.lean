@@ -22,6 +22,12 @@ The proof averages the bounded iterates and uses Montel's theorem to extract a l
 uniform limit. Derivative convergence gives identity derivative at the fixed point.
 Telescoping gives invariance of the limit under the original map, so local injectivity
 and the identity principle force the original map to be the identity.
+
+## Main results
+
+`eqOn_id_of_mapsTo_of_fderiv_eq_id` is Cartan's uniqueness theorem: a holomorphic
+self-map of a bounded domain which fixes a point and has identity derivative there
+is the identity on the connected component of that point.
 -/
 
 public section

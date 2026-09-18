@@ -18,6 +18,12 @@ spaces the norm is the supremum norm, so the balls here are equal-radius polydis
 The radius formulation of hull-distance preservation implies holomorphic convexity by
 relative closedness, boundedness, and positive distance from the complement. These purely
 topological implications do not depend on Cartan–Thullen or Taylor continuation.
+
+## Main results
+
+`HasHolomorphicHullRadiusProperty` is uniform polydisc-radius preservation on hulls.
+`HasHolomorphicHullDistanceProperty` is exact preservation of extended boundary
+distance. Each implies the other, and each implies `IsHolomorphicallyConvex`.
 -/
 
 @[expose] public noncomputable section
@@ -76,7 +82,7 @@ def HasHolomorphicHullDistanceProperty (U : Set (ι → ℂ)) : Prop :=
     boundaryEDistance U (holomorphicHull U K) = boundaryEDistance U K
 
 /-- The radius property implies exact boundary-distance preservation. -/
-theorem HasHolomorphicHullRadiusProperty.distanceProperty {U : Set (ι → ℂ)}
+theorem HasHolomorphicHullRadiusProperty.hasHolomorphicHullDistanceProperty {U : Set (ι → ℂ)}
     (h : HasHolomorphicHullRadiusProperty U) : HasHolomorphicHullDistanceProperty U := by
   intro K hK hKU
   apply le_antisymm (boundaryEDistance_anti (subset_holomorphicHull hKU))
@@ -88,7 +94,7 @@ theorem HasHolomorphicHullRadiusProperty.distanceProperty {U : Set (ι → ℂ)}
   simpa using ofReal_le_boundaryEDistance_iff.mpr hh
 
 /-- Boundary-distance preservation implies the uniform radius property. -/
-theorem HasHolomorphicHullDistanceProperty.radiusProperty {U : Set (ι → ℂ)}
+theorem HasHolomorphicHullDistanceProperty.hasHolomorphicHullRadiusProperty {U : Set (ι → ℂ)}
     (h : HasHolomorphicHullDistanceProperty U) : HasHolomorphicHullRadiusProperty U := by
   intro K hK hKU r _ hr
   apply ofReal_le_boundaryEDistance_iff.mp
@@ -115,6 +121,6 @@ theorem HasHolomorphicHullRadiusProperty.isHolomorphicallyConvex
 /-- The boundary-distance characterization implies holomorphic convexity. -/
 theorem HasHolomorphicHullDistanceProperty.isHolomorphicallyConvex
     {U : Set (ι → ℂ)} (h : HasHolomorphicHullDistanceProperty U) (ho : IsOpen U) :
-    IsHolomorphicallyConvex U := h.radiusProperty.isHolomorphicallyConvex ho
+    IsHolomorphicallyConvex U := h.hasHolomorphicHullRadiusProperty.isHolomorphicallyConvex ho
 
 end SeveralComplexVariables

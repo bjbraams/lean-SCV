@@ -16,6 +16,13 @@ hull closes the modulus trace under geometric interpolation, including zeros, an
 rotation symmetry. Both are minimal hulls of sets; neither definition builds in openness.
 For open complete Reinhardt sets in finite dimension, the two logarithmic convexity
 predicates agree. References: Korevaar–Wiegerinck (2017), §§2.2–2.5 and §2.8.
+
+## Main results
+
+`completeReinhardtHull` and `logarithmicReinhardtHull` are the two hulls.
+`completeReinhardtHull_min` and `logarithmicReinhardtHull_min` are minimality.
+`hasGeometricallyConvexModuli_iff` compares geometric and logarithmic convexity
+on open complete Reinhardt sets.
 -/
 
 @[expose] public noncomputable section

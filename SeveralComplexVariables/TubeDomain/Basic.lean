@@ -20,6 +20,20 @@ preconnected, tubes are invariant under imaginary translations, and sup-norm bal
 a point of a tube lie in the tube when the corresponding real ball lies in the base.
 
 References: Scheidemann §6.1; Hörmander §2.5, Definition 2.5.9.
+
+## Notation
+
+`tubeDomain Ω` is the set of points of `ι → ℂ` whose real parts lie in `Ω`.
+`rePi`, `imPi`, and `ofRealPi` are the real-part, imaginary-part, and
+complexification maps.
+
+## Main results
+
+`isOpen_tubeDomain`, `convex_tubeDomain`, and `isPreconnected_tubeDomain` transport
+openness, convexity, and preconnectedness from the base. `tubeDomain_union` and
+`tubeDomain_inter` commute with unions and intersections.
+`ball_subset_tubeDomain` places a sup-norm ball in the tube when the corresponding
+real ball lies in the base.
 -/
 
 @[expose] public noncomputable section

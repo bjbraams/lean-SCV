@@ -14,6 +14,13 @@ public import Mathlib.Analysis.Calculus.MeanValue
 Coordinate Cauchy estimates give joint local Lipschitz bounds for locally bounded,
 separately holomorphic functions. This supplies the continuity hypothesis of Osgood's
 theorem and the equicontinuity estimate used in Montel's theorem.
+
+## Main results
+
+`exists_lipschitzOnWith_of_separately_analytic_locally_bounded` converts a local bound
+on a separately holomorphic map into a joint local Lipschitz bound, hence into joint
+continuity. `analyticOnNhd_of_separately_analytic_locally_bounded` is the corresponding
+analyticity statement, using Osgood after that continuity.
 -/
 
 public section

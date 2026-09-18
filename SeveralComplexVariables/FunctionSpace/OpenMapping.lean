@@ -19,6 +19,13 @@ This supplies the open-mapping argument needed for holomorphic function spaces w
 their compact-open topology. Baire's theorem first gives neighborhoods in closures of
 images; successive approximations and completeness remove the closure. The compatible
 metrics need not arise from norms and scalar multiplication need not preserve them.
+
+## Main results
+
+`isOpenMap_of_surjective_complete` is the open mapping theorem for a surjective
+continuous linear map between complete metrizable complex vector spaces.
+`image_mem_nhds_of_surjective` is the neighborhood form used for restriction
+inverses.
 -/
 
 public noncomputable section

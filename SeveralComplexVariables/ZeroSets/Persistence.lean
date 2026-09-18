@@ -15,6 +15,12 @@ A zero inside a disc persists under small continuous changes of a holomorphic
 function, provided the original function has no zeros on the boundary. The proof
 uses the maximum modulus principle for the reciprocal of a hypothetically
 nonvanishing perturbation; no root counting is required.
+
+## Main results
+
+`exists_zero_of_norm_lt_boundary` persists a zero inside a disc under a small
+perturbation with no boundary zeros. `eventually_exists_zero_in_fiber` is
+persistence of zeros in a holomorphic family.
 -/
 
 @[expose] public noncomputable section

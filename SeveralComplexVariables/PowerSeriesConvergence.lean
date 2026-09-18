@@ -16,6 +16,13 @@ public import SeveralComplexVariables.CartanThullen
 An open complete logarithmically convex Reinhardt domain is holomorphically convex,
 by monomial separation. Cartan–Thullen supplies a function with precisely that domain
 of existence. Its Taylor series at zero has the prescribed convergence domain.
+
+## Main results
+
+`exists_powerSeriesConvergenceDomain_eq` realizes every nonempty open complete
+logarithmically convex Reinhardt set as a scalar power-series convergence domain.
+`isLogarithmicallyConvex_iff_exists_powerSeriesConvergenceDomain` is the corresponding
+characterization among open complete Reinhardt sets.
 -/
 
 @[expose] public noncomputable section

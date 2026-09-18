@@ -15,6 +15,12 @@ An analytic function on an annular cylinder together with full disc fibers over 
 nonempty open part of the base extends to the full cylinder. No local boundedness near
 the missing part is assumed. The proof uses a fixed circle integral and the identity
 principle in the base. Reference: Korevaar–Wiegerinck (2017), Theorem 2.6.1.
+
+## Main results
+
+`hartogsCylinder` is an annular cylinder together with full disc fibers over part of
+the base. `exists_extension_hartogsCylinder` is Hartogs continuation across that
+figure, without a local boundedness hypothesis on the missing part.
 -/
 
 @[expose] public noncomputable section

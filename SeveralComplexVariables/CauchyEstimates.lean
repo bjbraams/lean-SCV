@@ -16,6 +16,13 @@ These estimates reuse the one-variable Cauchy estimate on coordinate slices. The
 has the supremum norm, so a coordinate disc fits in the ball of the same radius.
 Derivatives are also uniformly bounded on small closed thickenings of compact subsets
 of a one-variable holomorphic domain.
+
+## Main results
+
+`norm_partialDeriv_le` is the Cauchy estimate for a coordinate derivative on a
+polydisc. `norm_partialDeriv_le_of_slice` is the one-variable slice form.
+`AnalyticOnNhd.exists_cthickening_deriv_bound` bounds derivatives uniformly on a
+closed thickening of a compact subset of a one-variable domain.
 -/
 
 public section

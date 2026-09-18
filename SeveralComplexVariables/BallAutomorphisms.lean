@@ -234,14 +234,6 @@ theorem ballMobius_mapsTo_involutive [FiniteDimensional ℂ E] {a : E} (ha : a �
   dsimp [d]
   module
 
-/-- The proved analytic and geometric identities underlying the ball involution. -/
-theorem ballMobius_properties [FiniteDimensional ℂ E] {a : E} (ha : a ∈ ball 0 1) :
-    DifferentiableOn ℂ (ballMobius a) (ball 0 1) ∧
-      MapsTo (ballMobius a) (ball 0 1) (ball 0 1) ∧
-      (∀ z ∈ ball 0 1, ballMobius a (ballMobius a z) = z) ∧ ballMobius a a = 0 := by
-  exact ⟨differentiableOn_ballMobius ha, (ballMobius_mapsTo_involutive ha).1,
-    (ballMobius_mapsTo_involutive ha).2, ballMobius_apply_self a⟩
-
 /-- The standard involution as an equivalence of open unit balls, with an explicit formula. -/
 def ballMobiusOpenPartialHomeomorph [FiniteDimensional ℂ E] (a : E) (ha : a ∈ ball 0 1) :
     OpenPartialHomeomorph E E where
@@ -249,19 +241,19 @@ def ballMobiusOpenPartialHomeomorph [FiniteDimensional ℂ E] (a : E) (ha : a �
   invFun := ballMobius a
   source := ball 0 1
   target := ball 0 1
-  map_source' := (ballMobius_properties ha).2.1
-  map_target' := (ballMobius_properties ha).2.1
-  left_inv' := (ballMobius_properties ha).2.2.1
-  right_inv' := (ballMobius_properties ha).2.2.1
-  continuousOn_toFun := (ballMobius_properties ha).1.continuousOn
-  continuousOn_invFun := (ballMobius_properties ha).1.continuousOn
+  map_source' := (ballMobius_mapsTo_involutive ha).1
+  map_target' := (ballMobius_mapsTo_involutive ha).1
+  left_inv' := (ballMobius_mapsTo_involutive ha).2
+  right_inv' := (ballMobius_mapsTo_involutive ha).2
+  continuousOn_toFun := (differentiableOn_ballMobius ha).continuousOn
+  continuousOn_invFun := (differentiableOn_ballMobius ha).continuousOn
   open_source := isOpen_ball
   open_target := isOpen_ball
 
 /-- Both directions of the explicit ball equivalence are holomorphic. -/
 theorem isBiholomorphic_ballMobius [FiniteDimensional ℂ E] (a : E) (ha : a ∈ ball 0 1) :
     IsBiholomorphic (ballMobiusOpenPartialHomeomorph a ha) :=
-  ⟨(ballMobius_properties ha).1, (ballMobius_properties ha).1⟩
+  ⟨differentiableOn_ballMobius ha, differentiableOn_ballMobius ha⟩
 
 /-- The unit ball is homogeneous under biholomorphic automorphisms: any interior point
 can be sent to any other, by composing two explicit ball involutions. -/
@@ -274,11 +266,11 @@ theorem exists_ball_automorphism [FiniteDimensional ℂ E] {a b : E}
   refine ⟨A.trans B, (isBiholomorphic_ballMobius a ha).trans (isBiholomorphic_ballMobius b hb),
     ?_, ?_, ?_⟩
   · rw [OpenPartialHomeomorph.trans_source]
-    exact inter_eq_left.mpr (ballMobius_properties ha).2.1
+    exact inter_eq_left.mpr (ballMobius_mapsTo_involutive ha).1
   · rw [OpenPartialHomeomorph.trans_target]
-    exact inter_eq_left.mpr (ballMobius_properties hb).2.1
+    exact inter_eq_left.mpr (ballMobius_mapsTo_involutive hb).1
   · change ballMobius b (ballMobius a a) = b
-    rw [(ballMobius_properties ha).2.2.2, ballMobius_apply_zero]
+    rw [ballMobius_apply_self a, ballMobius_apply_zero]
 
 /-- The derivative at zero of an origin-preserving biholomorphism between unit balls
 preserves norms. Schwarz bounds for the map and its inverse prove both inequalities,

@@ -18,6 +18,15 @@ Coordinate differentiation is defined using one-variable slices, and identified 
 evaluation of the Fréchet derivative on a coordinate vector. Holomorphy of derivatives
 is inherited from Mathlib's general Fréchet derivative theorem. Mixed derivatives can be
 indexed by coordinate lists or multi-indices; permutation invariance identifies these forms.
+
+## Main results
+
+`partialDeriv` is the coordinate derivative of a map on `ι → ℂ`.
+`partialDeriv_eq_fderiv` identifies it with the Fréchet derivative on a coordinate
+vector. `iteratedPartialDeriv` and `multiIndexDeriv` are mixed derivatives, identified
+by `iteratedPartialDeriv_eq_multiIndexDeriv`. `iteratedPartialDeriv_perm` is
+permutation invariance. `complexJacobian` is the Jacobian matrix of coordinate
+derivatives.
 -/
 
 @[expose] public noncomputable section

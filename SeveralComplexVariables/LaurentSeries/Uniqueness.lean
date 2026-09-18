@@ -14,6 +14,12 @@ public import SeveralComplexVariables.LocallyUniform
 Uniform convergence on one positive coordinate torus permits coefficient extraction.
 The coefficients of a locally uniformly convergent Laurent series are therefore unique,
 independently of the existence theorem and without a connectedness hypothesis.
+
+## Main results
+
+`tendsto_multivariableLaurentCoeff` extracts coefficients from uniform convergence
+on a torus. `eq_multivariableLaurentCoeff_of_hasSumLocallyUniformlyOn` is uniqueness
+of the coefficient family of a locally uniformly convergent expansion.
 -/
 
 @[expose] public noncomputable section

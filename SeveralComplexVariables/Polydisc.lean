@@ -16,6 +16,20 @@ Geometry for the polydisc Cauchy formula. Equal-radius polydiscs use the supremu
 these are not Euclidean balls. Origin-centred open and closed polydiscs are complete Reinhardt
 sets. Containment of the closed polydisc determined by each point's moduli characterizes the
 complete Reinhardt property.
+
+## Notation
+
+`polydiscWithRadii c r` and `closedPolydiscWithRadii c r` are products of coordinate
+discs of radii `r i`. `closedPolydisc c R` is the equal-radius case, coinciding with the
+closed sup-norm ball for `0 ≤ R`. The distinguished boundary is parametrized by
+`torusMap`.
+
+## Main results
+
+`isCompleteReinhardt_iff_closedPolydiscWithRadii_subset` characterizes complete Reinhardt
+sets. `polydiscWithRadii_const_eq_ball` identifies equal positive radii with the open
+sup-norm ball. `closure_polydiscWithRadii` identifies the closure of a positive-radius
+open polydisc with the corresponding closed polydisc.
 -/
 
 @[expose] public section
@@ -29,7 +43,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E
 
 /-! ### Closed polydiscs -/
 
-/-- The closed polydisc of equal radii.  For `0 ≤ R` this coincides with the closed ball for the
+/-- The closed polydisc of equal radii. For `0 ≤ R` this coincides with the closed ball for the
 sup-norm. -/
 def closedPolydisc {ι : Type*} (c : ι → ℂ) (R : ℝ) : Set (ι → ℂ) :=
   Set.pi univ fun i => closedBall (c i) R
@@ -47,7 +61,7 @@ def closedPolydiscWithRadii {ι : Type*} (c : ι → ℂ) (r : ι → ℝ) : Set
     z ∈ polydiscWithRadii c r ↔ ∀ i, dist (z i) (c i) < r i := by
   simp [polydiscWithRadii, mem_ball]
 
-/-- Membership in a closed polydisc is a coordinatewise weak distance bound. -/
+/-- Membership in a closed polydisc is a coordinatewise non-strict distance bound. -/
 @[simp] lemma mem_closedPolydiscWithRadii {ι : Type*} {c z : ι → ℂ} {r : ι → ℝ} :
     z ∈ closedPolydiscWithRadii c r ↔ ∀ i, dist (z i) (c i) ≤ r i := by
   simp [closedPolydiscWithRadii, mem_closedBall]
@@ -126,7 +140,7 @@ theorem closure_polydiscWithRadii {ι : Type*} (c : ι → ℂ) {r : ι → ℝ}
   simp only [polydiscWithRadii, closedPolydiscWithRadii, closure_pi_set,
     closure_ball _ (ne_of_gt (hr _))]
 
-/-- Equal coordinate radii recover the original closed-polydisc definition. -/
+/-- Equal coordinate radii recover `closedPolydisc`. -/
 @[simp] lemma closedPolydiscWithRadii_const {ι : Type*} (c : ι → ℂ) (R : ℝ) :
     closedPolydiscWithRadii c (fun _ => R) = closedPolydisc c R := rfl
 

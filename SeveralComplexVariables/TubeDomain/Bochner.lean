@@ -27,11 +27,29 @@ References: Hörmander §2.5, Theorem 2.5.10 (b); Scheidemann §6.3, Theorem 6.3
 @[expose] public noncomputable section
 
 open Set Filter Metric Complex
-open scoped Topology
+open scoped Topology Classical
 
 namespace SeveralComplexVariables
 
 variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
+
+/-- First time a path starting in an open set leaves that set. -/
+theorem Path.extend_exists_first_notMem {X : Type*} [TopologicalSpace X] {x y : X}
+    (γ : Path x y) {A : Set X} (hA : IsOpen A)
+    (hx : γ.extend 0 ∈ A) (hy : γ.extend 1 ∉ A) :
+    ∃ t, t ∈ Icc (0 : ℝ) 1 ∧ γ.extend t ∉ A ∧ 0 < t ∧
+      ∀ s, 0 ≤ s → s < t → γ.extend s ∈ A := by
+  set S : Set ℝ := Icc (0 : ℝ) 1 ∩ γ.extend ⁻¹' Aᶜ
+  have hSc : IsClosed S := isClosed_Icc.inter (hA.isClosed_compl.preimage γ.continuous_extend)
+  have hSne : S.Nonempty := ⟨1, ⟨zero_le_one, le_rfl⟩, hy⟩
+  have hSbdd : BddBelow S := ⟨0, fun t ht => ht.1.1⟩
+  have hsS : sInf S ∈ S := hSc.csInf_mem hSne hSbdd
+  have hs01 : sInf S ∈ Icc (0 : ℝ) 1 := hsS.1
+  have h0S : (0 : ℝ) ∉ S := fun h => h.2 hx
+  have hs0 : 0 < sInf S := lt_of_le_of_ne hs01.1 fun h => h0S (h ▸ hsS)
+  refine ⟨sInf S, hs01, hsS.2, hs0, fun s hs0' hst => ?_⟩
+  by_contra h
+  exact notMem_of_lt_csInf hst hSbdd ⟨⟨hs0', hst.le.trans hs01.2⟩, h⟩
 
 /-- The union of an open convex set with a ball around a point of its closure is star-convex
 with respect to that point. -/
@@ -83,43 +101,27 @@ theorem exists_extension_tubeDomain_convexHull_fin {Ω : Set (Fin n → ℝ)} (h
       obtain ⟨u, hu⟩ := hmem
       rw [← hu]
       exact hγ u
-    set S : Set ℝ := Icc (0 : ℝ) 1 ∩ γ.extend ⁻¹' (maxStar F Ω p)ᶜ with hS
-    have hSc : IsClosed S := isClosed_Icc.inter (hÃo.isClosed_compl.preimage γ.continuous_extend)
-    have hSne : S.Nonempty := ⟨1, ⟨zero_le_one, le_rfl⟩, by
-      show γ.extend 1 ∉ maxStar F Ω p
-      rw [Path.extend_one]
-      exact hx₀⟩
-    have hSbdd : BddBelow S := ⟨0, fun t ht => ht.1.1⟩
-    have hsS : sInf S ∈ S := hSc.csInf_mem hSne hSbdd
-    have hs01 : sInf S ∈ Icc (0 : ℝ) 1 := hsS.1
-    have hx₁ : γ.extend (sInf S) ∉ maxStar F Ω p := hsS.2
-    have h0S : (0 : ℝ) ∉ S := fun h => h.2 (by
-      show γ.extend 0 ∈ maxStar F Ω p
-      rw [Path.extend_zero]
-      exact hpÃ)
-    have hs0 : 0 < sInf S := lt_of_le_of_ne hs01.1 fun h => h0S (h ▸ hsS)
-    have hprefix : ∀ t, 0 ≤ t → t < sInf S → γ.extend t ∈ maxStar F Ω p := by
-      intro t ht0 hts
-      by_contra h
-      exact notMem_of_lt_csInf hts hSbdd ⟨⟨ht0, hts.le.trans hs01.2⟩, h⟩
-    have hx₁Ω : γ.extend (sInf S) ∈ Ω := hγΩ _
-    have htend : Tendsto γ.extend (𝓝[<] sInf S) (𝓝 (γ.extend (sInf S))) :=
+    obtain ⟨t₁, ht₁I, hx₁, hs0, hprefix⟩ :=
+      Path.extend_exists_first_notMem γ hÃo (by rw [Path.extend_zero]; exact hpÃ)
+        (by rw [Path.extend_one]; exact hx₀)
+    have hx₁Ω : γ.extend t₁ ∈ Ω := hγΩ _
+    have htend : Tendsto γ.extend (𝓝[<] t₁) (𝓝 (γ.extend t₁)) :=
       (γ.continuous_extend.tendsto _).mono_left nhdsWithin_le_nhds
-    have hx₁cl : γ.extend (sInf S) ∈ closure (maxStar F Ω p) := by
+    have hx₁cl : γ.extend t₁ ∈ closure (maxStar F Ω p) := by
       apply mem_closure_of_tendsto htend
       filter_upwards [Ioo_mem_nhdsLT hs0] with t ht
       exact hprefix t ht.1.le ht.2
     obtain ⟨r₁, hr₁, hr₁Ω⟩ := Metric.isOpen_iff.mp hΩ _ hx₁Ω
-    have hev : ∀ᶠ t in 𝓝[<] sInf S, γ.extend t ∈ ball (γ.extend (sInf S)) r₁ :=
+    have hev : ∀ᶠ t in 𝓝[<] t₁, γ.extend t ∈ ball (γ.extend t₁) r₁ :=
       htend (isOpen_ball.mem_nhds (mem_ball_self hr₁))
     obtain ⟨t₀, ht₀, ht₀ball⟩ := Filter.nonempty_of_mem (Filter.inter_mem (Ioo_mem_nhdsLT hs0) hev)
     have ht₀Ã : γ.extend t₀ ∈ maxStar F Ω p := hprefix t₀ ht₀.1.le ht₀.2
-    have hA₁o : IsOpen (maxStar F Ω p ∪ ball (γ.extend (sInf S)) r₁) := hÃo.union isOpen_ball
-    have hA₁s : StarConvex ℝ (γ.extend (sInf S)) (maxStar F Ω p ∪ ball (γ.extend (sInf S)) r₁) :=
+    have hA₁o : IsOpen (maxStar F Ω p ∪ ball (γ.extend t₁) r₁) := hÃo.union isOpen_ball
+    have hA₁s : StarConvex ℝ (γ.extend t₁) (maxStar F Ω p ∪ ball (γ.extend t₁) r₁) :=
       starConvex_union_ball_of_mem_closure hÃc hÃo hx₁cl hr₁
-    have hx₁A₁ : γ.extend (sInf S) ∈ maxStar F Ω p ∪ ball (γ.extend (sInf S)) r₁ :=
+    have hx₁A₁ : γ.extend t₁ ∈ maxStar F Ω p ∪ ball (γ.extend t₁) r₁ :=
       Or.inr (mem_ball_self hr₁)
-    have hBmem : convexHull ℝ (maxStar F Ω p ∪ ball (γ.extend (sInf S)) r₁) ∈ starFamily F Ω p := by
+    have hBmem : convexHull ℝ (maxStar F Ω p ∪ ball (γ.extend t₁) r₁) ∈ starFamily F Ω p := by
       refine ⟨hA₁o.convexHull, (convex_convexHull ℝ _).starConvex
         (subset_convexHull ℝ _ (Or.inl hpÃ)), ?_⟩
       intro f₀ hf₀
@@ -137,33 +139,20 @@ theorem exists_extension_tubeDomain_convexHull_fin {Ω : Set (Fin n → ℝ)} (h
           (hg₀.mono (tubeDomain_mono inter_subset_right)) hK hKU
           ⟨0, ⟨le_rfl, ht₀.1.le⟩, ?_⟩ hg₀f ⟨t₀, ⟨ht₀.1.le, le_rfl⟩, rfl⟩
         simp
-      have hAB : EqOn g₀ f₀ (tubeDomain (maxStar F Ω p ∩ ball (γ.extend (sInf S)) r₁)) := by
-        have hpt : γ.extend t₀ ∈ maxStar F Ω p ∩ ball (γ.extend (sInf S)) r₁ := ⟨ht₀Ã, ht₀ball⟩
+      have hAB : EqOn g₀ f₀ (tubeDomain (maxStar F Ω p ∩ ball (γ.extend t₁) r₁)) := by
+        have hpt : γ.extend t₀ ∈ maxStar F Ω p ∩ ball (γ.extend t₁) r₁ := ⟨ht₀Ã, ht₀ball⟩
         exact (hg₀.mono (tubeDomain_mono inter_subset_left)).eqOn_of_preconnected_of_eventuallyEq
           (hf₀.mono (tubeDomain_mono (inter_subset_right.trans hr₁Ω)))
           (isPreconnected_tubeDomain (hÃc.inter (convex_ball _ r₁)).isPreconnected)
           (ofRealPi_mem_tubeDomain.mpr hpt) hnear
       set g₁ : (Fin n → ℂ) → F := fun z => if z ∈ tubeDomain (maxStar F Ω p) then g₀ z else f₀ z
-        with hg₁
-      have hg₁a : AnalyticOnNhd ℂ g₁ (tubeDomain (maxStar F Ω p ∪ ball (γ.extend (sInf S)) r₁)) := by
-        intro z hz
-        rw [tubeDomain_union] at hz
-        rcases hz with hzA | hzB
-        · have : g₁ =ᶠ[𝓝 z] g₀ :=
-            eventuallyEq_of_mem ((isOpen_tubeDomain hÃo).mem_nhds hzA) fun w hw => by
-              simp [hg₁, hw]
-          exact (hg₀ z hzA).congr this.symm
-        · have : g₁ =ᶠ[𝓝 z] f₀ := by
-            refine eventuallyEq_of_mem ((isOpen_tubeDomain isOpen_ball).mem_nhds hzB) fun w hw => ?_
-            by_cases hwA : w ∈ tubeDomain (maxStar F Ω p)
-            · simp only [hg₁, hwA, ite_true]
-              exact hAB ⟨hwA, hw⟩
-            · simp only [hg₁, hwA, ite_false]
-          exact (hf₀ z (tubeDomain_mono hr₁Ω hzB)).congr this.symm
+      have hg₁a : AnalyticOnNhd ℂ g₁ (tubeDomain (maxStar F Ω p ∪ ball (γ.extend t₁) r₁)) :=
+        analyticOnNhd_ite_tubeDomain hÃo isOpen_ball hg₀
+          (hf₀.mono (tubeDomain_mono hr₁Ω)) hAB
       have hg₁f : g₁ =ᶠ[𝓝 (ofRealPi p)] f₀ := by
         have : g₁ =ᶠ[𝓝 (ofRealPi p)] g₀ :=
           eventuallyEq_of_mem ((isOpen_tubeDomain hÃo).mem_nhds (ofRealPi_mem_tubeDomain.mpr hpÃ))
-            fun w hw => by simp [hg₁, hw]
+            fun w hw => by simp [g₁, hw]
         exact this.trans hg₀f
       obtain ⟨g₂, hg₂, hg₂g₁⟩ :=
         exists_extension_tubeDomain_convexHull_of_starConvex hA₁o hA₁s hx₁A₁ hg₁a

@@ -14,6 +14,12 @@ public import SeveralComplexVariables.CauchyIntegral
 Coordinate derivatives commute with renaming coordinates. The polydisc Cauchy formula
 is transported along any enumeration of a finite index type; its value is independent
 of that enumeration whenever the Cauchy hypotheses hold.
+
+## Main results
+
+`partialDeriv_reindex` and `iteratedPartialDeriv_reindex` transport coordinate
+derivatives along a renaming of coordinates. `polydisc_cauchy_reindex` transports
+the polydisc Cauchy formula along any enumeration of a finite index type.
 -/
 
 public section

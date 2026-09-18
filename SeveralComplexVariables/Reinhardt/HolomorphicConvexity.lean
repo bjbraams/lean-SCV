@@ -15,6 +15,12 @@ public import SeveralComplexVariables.HolomorphicConvexity.Hull
 An exterior point is separated from each compact subset by a monomial. The entire
 holomorphic hull of the compact set therefore stays in the domain. Its compactness
 implies compactness of the relative holomorphic hull.
+
+## Main results
+
+`exists_monomial_separator_of_isCompact` separates an exterior point from a compact
+subset by a monomial. `isHolomorphicallyConvex_of_completeReinhardt` is holomorphic
+convexity of an open complete logarithmically convex Reinhardt domain.
 -/
 
 @[expose] public noncomputable section

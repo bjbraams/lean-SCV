@@ -13,6 +13,12 @@ public import SeveralComplexVariables.Analyticity
 Local continuous extensions of a function on a dense subset agree. The filter limit
 along that subset therefore gives a single analytic extension on the whole domain.
 This elementary construction uses no sheaf machinery and imposes no connectedness.
+
+## Main results
+
+`exists_analyticOnNhd_extension_of_local` glues local analytic extensions from a
+dense subset. `subset_closure_nonzero_of_nonzero_germs` is density of the
+nonvanishing locus from nonzero germs, without analyticity of a global function.
 -/
 
 public noncomputable section

@@ -14,6 +14,12 @@ public import Mathlib.MeasureTheory.Integral.CircleIntegral
 A compact contour integral of a jointly analytic Banach-valued kernel is analytic
 in the parameters. This is the parameter-dependent Cauchy integral used for Riemann
 extension. The contour is fixed while its kernel may depend on all parameters.
+
+## Main results
+
+`analyticOnNhd_circleIntegral_kernel` is holomorphy of a circle integral of a jointly
+analytic Banach-valued kernel. `analyticOnNhd_integral_smul_compact_kernel` is the
+compactly parametrized form.
 -/
 
 public section

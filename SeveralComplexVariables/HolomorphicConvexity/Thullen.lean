@@ -24,6 +24,14 @@ the overlap. This proves radius preservation, exact hull boundary distance, and 
 convexity for domains of holomorphy.
 
 References: Scheidemann §6.2 and §7.3; Hörmander §2.5; Korevaar–Wiegerinck §6.4.
+
+## Main results
+
+`taylor_continuation_on_holomorphicHull` is Thullen's Taylor continuation lemma for
+Banach-valued functions. `IsDomainOfHolomorphy.holomorphic_radius_bound` is the
+weighted radius bound. `IsDomainOfHolomorphy.hasHolomorphicHullRadiusProperty` and
+`hasHolomorphicHullDistanceProperty` are the hull-radius and boundary-distance forms.
+`IsDomainOfHolomorphy.isHolomorphicallyConvex` is the forward Cartan–Thullen implication.
 -/
 
 @[expose] public noncomputable section
@@ -283,7 +291,7 @@ theorem IsDomainOfHolomorphy.holomorphic_radius_bound {U K : Set (Fin n → ℂ)
     exact ⟨taylorSumAt f a, h.1, h.2.1⟩
 
 /-- Domains of holomorphy preserve uniform polydisc radii on compact hulls. -/
-theorem IsDomainOfHolomorphy.hullRadiusProperty {U : Set (Fin n → ℂ)}
+theorem IsDomainOfHolomorphy.hasHolomorphicHullRadiusProperty {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : HasHolomorphicHullRadiusProperty U := by
   intro K hK hKU r hr hball a ha
   exact hU.ball_subset_of_continuation ho ha.1 hr fun _ hf =>
@@ -291,14 +299,14 @@ theorem IsDomainOfHolomorphy.hullRadiusProperty {U : Set (Fin n → ℂ)}
 
 /-- The boundary distance of a compact holomorphic hull equals that of the original
 compact set in a domain of holomorphy. -/
-theorem IsDomainOfHolomorphy.hullDistanceProperty {U : Set (Fin n → ℂ)}
+theorem IsDomainOfHolomorphy.hasHolomorphicHullDistanceProperty {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : HasHolomorphicHullDistanceProperty U :=
-  (hU.hullRadiusProperty ho).distanceProperty
+  (hU.hasHolomorphicHullRadiusProperty ho).hasHolomorphicHullDistanceProperty
 
 /-- **Cartan–Thullen, forward implication.** A domain of holomorphy is holomorphically
 convex, by Thullen's Taylor continuation lemma and the hull-radius criterion. -/
 theorem IsDomainOfHolomorphy.isHolomorphicallyConvex {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : IsHolomorphicallyConvex U :=
-  (hU.hullRadiusProperty ho).isHolomorphicallyConvex ho
+  (hU.hasHolomorphicHullRadiusProperty ho).isHolomorphicallyConvex ho
 
 end SeveralComplexVariables

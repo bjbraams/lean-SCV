@@ -20,6 +20,12 @@ an additive Haar volume. This avoids polar-coordinate integration and applies to
 positive powers of norms, including the roots used in Hartogs' lemma. The one-variable
 case is the disc inequality; the case of a finite coordinate space is used for the base
 variables in Hartogs' separate-analyticity theorem.
+
+## Main results
+
+`volume_mul_norm_rpow_le_integral_closedBall` is the volume submean inequality for
+positive powers of holomorphic norms on a closed ball.
+`integral_closedBall_smul_rotation` averages unit complex rotations.
 -/
 
 public section

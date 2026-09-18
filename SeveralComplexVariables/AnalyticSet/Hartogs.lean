@@ -15,6 +15,14 @@ A Hartogs figure avoiding an analytic exceptional set determines an extension on
 the whole cylinder. The complement of a proper analytic subset is connected, so
 the identity principle identifies this extension with the original function.
 Isolated two-dimensional slices supply such figures near the exceptional set.
+
+## Main results
+
+`IsAnalyticSet.exists_extension_of_hartogsCylinder_subset` extends across a Hartogs
+figure that avoids the analytic set. `exists_hartogs_neighborhood` produces such a
+figure near an isolated two-dimensional slice.
+`IsAnalyticSet.exists_local_extension_of_isolated_two_slice` is local extension
+from that figure.
 -/
 
 @[expose] public noncomputable section

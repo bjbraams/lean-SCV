@@ -12,9 +12,16 @@ public import SeveralComplexVariables.RemovableSingularity.Cauchy
 # Circle coefficients for analytic Laurent series
 
 Laurent coefficients on a circle satisfy Cauchy bounds and depend holomorphically
-on holomorphic parameters. Cauchy’s formula on an annulus proves the Laurent
+on holomorphic parameters. Cauchy's formula on an annulus proves the Laurent
 expansion, independence of radius, and vanishing of negative coefficients on a
 disc. These results are independent of the multivariable Laurent expansion.
+
+## Main results
+
+`circleLaurentCoeff` is the coefficient of `z ^ k` on the circle of radius `r`.
+`circleLaurentCoeff_eq_of_connected` is independence of radius on a connected set of
+admissible radii. `circleLaurentCoeff_neg_eq_zero` is vanishing of negative coefficients
+on a disc. `circleLaurent_expansion` is the two-sided series on an annulus.
 -/
 
 @[expose] public noncomputable section

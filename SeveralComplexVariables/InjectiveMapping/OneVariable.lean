@@ -18,6 +18,13 @@ public import Mathlib.Analysis.Normed.Module.Connected
 The open mapping theorem makes the inverse continuous. Isolated zeros of the derivative
 make it holomorphic off the image of the base point, so the removable singularity theorem
 makes it holomorphic there too. The chain rule then excludes a zero derivative.
+
+## Main results
+
+`deriv_ne_zero_of_injOn` is nonsingularity of an injective holomorphic function of
+one complex variable. `not_eventually_constant_of_injOn_complex` and
+`not_eventually_deriv_eq_zero_of_injOn` exclude a locally constant germ and a
+locally vanishing derivative.
 -/
 
 public noncomputable section

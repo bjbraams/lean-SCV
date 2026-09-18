@@ -66,7 +66,7 @@ theorem existsUnique_division [FiniteDimensional ℂ E]
     rw [analyticOrderAt_pow (analyticAt_id (𝕜 := ℂ)) d, analyticOrderAt_id]; simp
   obtain ⟨f0, hf0, rfl⟩ := exists_rep f
   obtain ⟨q, a, Hdiv, huniqdiv⟩ :=
-    weierstrass_division_at_findim (analyticAt_weierstrassPolynomial ha0) hf0 horder
+    weierstrass_division_at_finiteDimensional (analyticAt_weierstrassPolynomial ha0) hf0 horder
   set r : Polynomial (AnalyticGerm (0 : E)) :=
     remainderOfCoefficients (fun j => ofAnalyticAt (a j) (Hdiv.coefficient_analytic j)) with hr_def
   have hrdeg : r.degree < (d : WithBot ℕ) := degree_remainderOfCoefficients_lt _
@@ -122,7 +122,7 @@ theorem existsUnique_preparation [FiniteDimensional ℂ E]
       f = ↑up.1 * polynomialHom up.2 := by
   obtain ⟨f0, hf0, rfl⟩ := exists_rep f
   rw [orderInLastVariable_ofAnalyticAt] at hd
-  obtain ⟨u, a, H, huniq⟩ := weierstrass_preparation_at_findim hf0 hd
+  obtain ⟨u, a, H, huniq⟩ := weierstrass_preparation_at_finiteDimensional hf0 hd
   obtain ⟨hunit, hfact⟩ := H.germ_factorization hf0
   set w : Polynomial (AnalyticGerm (0 : E)) :=
     ofCoefficients (fun j => ofAnalyticAt (a j) (H.coefficient_analytic j)) with hw_def

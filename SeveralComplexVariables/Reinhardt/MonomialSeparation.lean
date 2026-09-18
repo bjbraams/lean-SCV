@@ -15,6 +15,13 @@ public import Mathlib.Analysis.SpecificLimits.Basic
 Logarithmic separation can be restricted to the nonzero coordinates of an exterior
 point. Approximating the nonnegative separating weights by integer exponents then
 gives a monomial separating that point from a compact subset of the domain.
+
+## Main results
+
+`exists_logarithmic_lift` produces a logarithmic lift of a modulus vector with some
+zero coordinates. `exists_nat_weights` approximates nonnegative separating weights
+by integer exponents. `exists_monomial_separator_of_finite_radii` is the resulting
+monomial separator.
 -/
 
 @[expose] public noncomputable section

@@ -21,6 +21,12 @@ additive Haar volume, such as a finite complex coordinate space.
 The proof combines dominated convergence for the positive excess above the
 limiting bound with the ball submean inequality. A ball centered at a nearby point
 fits inside a fixed ball; nonnegativity bounds its integral by the fixed integral.
+
+## Main results
+
+`eventually_norm_rpow_lt_on_ball` is Hartogs' lemma: a pointwise eventual bound on
+positive powers of holomorphic norms becomes uniform on a neighborhood of each
+point. `exists_radius_area_bound` produces a nearby ball of controlled volume.
 -/
 
 public section

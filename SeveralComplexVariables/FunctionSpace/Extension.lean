@@ -18,6 +18,15 @@ the smaller domain is nonempty. When it is surjective, its inverse is continuous
 compact-open topology, by the Fréchet open-mapping argument for complete metrizable
 topological vector spaces.
 Reference: Scheidemann (2005), Proposition 2.1.3 and Exercise 2.1.13.
+
+## Main results
+
+`holomorphicRestrictCLM` is restriction as a continuous linear map.
+`exists_holomorphicRestrictionEquiv` is a compact-open isomorphism when restriction
+is bijective. `HolomorphicAlgebra` is the scalar holomorphic algebra, with
+`holomorphicRestrictAlgHom` and `holomorphicRestrictionAlgEquiv` as the algebraic
+restriction maps. `exists_holomorphicAlgebraEquiv_of_commonExtension` is an algebra
+isomorphism from a common extension domain.
 -/
 
 public noncomputable section

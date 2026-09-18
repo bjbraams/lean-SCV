@@ -18,6 +18,12 @@ cylinder, retaining the entire interior of the second factor.
 
 This is the initial cylinder in the proof of Hartogs' theorem in Boas (2013),
 Section 2.4. No joint continuity or boundedness is assumed.
+
+## Main results
+
+`exists_open_bounded_cylinder_of_separately_continuous` produces an open cylinder
+of uniform boundedness. `exists_analytic_cylinder_of_separately_analytic` is joint
+analyticity on that cylinder for separately analytic functions of two variables.
 -/
 
 public section

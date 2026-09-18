@@ -16,6 +16,13 @@ The critical set cannot have a regular hypersurface point: restriction to that
 hypersurface has an immersion point, where an invertible transverse minor forces
 nonsingularity. The Jacobian determinant is not identically zero, and any nonempty
 zero set of it has a regular hypersurface point. Thus the critical set is empty.
+
+## Main results
+
+`not_isRegularAnalyticSetAt_criticalSet` excludes a regular hypersurface point of
+the critical set. `analyticOnNhd_det_complexJacobian` is holomorphy of the Jacobian
+determinant. `isInvertible_fderiv_of_injOn_coordinates` is nonsingularity in
+coordinates, by emptiness of that critical set.
 -/
 
 public noncomputable section

@@ -48,7 +48,7 @@ noncomputable def picardApprox (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i,
         (hg.sub (hh.mul prev.2))).choose_spec.choose_spec.1.quotient_holomorphic⟩
 
 /-- The remainder coefficients accompanying `picardApprox`'s quotient at each step. -/
-noncomputable def picardApproxA (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i, 0 < r i) (hR : 0 < R)
+noncomputable def picardApproxCoeff (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i, 0 < r i) (hR : 0 < R)
     (h g : (ι → ℂ) × ℂ → ℂ) (hg : DifferentiableOn ℂ g (polydiscWithRadii 0 r ×ˢ ball 0 R))
     (hh : DifferentiableOn ℂ h (polydiscWithRadii 0 r ×ˢ ball 0 R)) (k : ℕ) :
     Fin d → (ι → ℂ) → ℂ :=
@@ -56,13 +56,13 @@ noncomputable def picardApproxA (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i
     (hg.sub (hh.mul (picardApprox d r R hr hR h g hg hh k).2))).choose_spec.choose
 
 /-- Each Picard step genuinely divides `g - h * (previous step)` by `z ^ d`. -/
-theorem picardApprox_succ_isDiv (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i, 0 < r i) (hR : 0 < R)
+theorem picardApprox_succ_isWeierstrassDivisionOn (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i, 0 < r i) (hR : 0 < R)
     (h g : (ι → ℂ) × ℂ → ℂ) (hg : DifferentiableOn ℂ g (polydiscWithRadii 0 r ×ˢ ball 0 R))
     (hh : DifferentiableOn ℂ h (polydiscWithRadii 0 r ×ˢ ball 0 R)) (k : ℕ) :
     IsWeierstrassDivisionOn (fun z => z.2 ^ d)
       (g - h * (picardApprox d r R hr hR h g hg hh k).1)
       (picardApprox d r R hr hR h g hg hh (k + 1)).1
-      (picardApproxA d r R hr hR h g hg hh k) (polydiscWithRadii 0 r) R :=
+      (picardApproxCoeff d r R hr hR h g hg hh k) (polydiscWithRadii 0 r) R :=
   (coordinatePower_division d hR
     (hg.sub (hh.mul (picardApprox d r R hr hR h g hg hh k).2))).choose_spec.choose_spec.1
 
@@ -80,7 +80,7 @@ theorem picardApprox_succ_bound (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i
 
 /-- Uniqueness of `coordinatePower_division`, specialized to a Picard step: any other valid
 decomposition of the same numerator agrees with the Picard step's output. -/
-theorem picardApprox_succ_uniq (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i, 0 < r i) (hR : 0 < R)
+theorem picardApprox_succ_unique (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i, 0 < r i) (hR : 0 < R)
     (h g : (ι → ℂ) × ℂ → ℂ) (hg : DifferentiableOn ℂ g (polydiscWithRadii 0 r ×ˢ ball 0 R))
     (hh : DifferentiableOn ℂ h (polydiscWithRadii 0 r ×ˢ ball 0 R)) (k : ℕ)
     (q' : (ι → ℂ) × ℂ → ℂ) (a' : Fin d → (ι → ℂ) → ℂ)
@@ -88,7 +88,7 @@ theorem picardApprox_succ_uniq (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i,
       (g - h * (picardApprox d r R hr hR h g hg hh k).1) q' a' (polydiscWithRadii 0 r) R) :
     EqOn (picardApprox d r R hr hR h g hg hh (k + 1)).1 q'
         (polydiscWithRadii 0 r ×ˢ ball 0 R) ∧
-      ∀ j, EqOn (picardApproxA d r R hr hR h g hg hh k j) (a' j) (polydiscWithRadii 0 r) :=
+      ∀ j, EqOn (picardApproxCoeff d r R hr hR h g hg hh k j) (a' j) (polydiscWithRadii 0 r) :=
   (coordinatePower_division d hR
     (hg.sub (hh.mul (picardApprox d r R hr hR h g hg hh k).2))).choose_spec.choose_spec.2.2 q' a'
     hdiv'
@@ -140,10 +140,10 @@ theorem picardApprox_diff_bound (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i
     set sk := (picardApprox d r R hr hR h g hg hh k).1 with hskdef
     set sk1 := (picardApprox d r R hr hR h g hg hh (k + 1)).1 with hsk1def
     set sk2 := (picardApprox d r R hr hR h g hg hh (k + 2)).1 with hsk2def
-    set ak := picardApproxA d r R hr hR h g hg hh k with hakdef
-    set ak1 := picardApproxA d r R hr hR h g hg hh (k + 1) with hak1def
-    have hdivk := picardApprox_succ_isDiv d r R hr hR h g hg hh k
-    have hdivk1 := picardApprox_succ_isDiv d r R hr hR h g hg hh (k + 1)
+    set ak := picardApproxCoeff d r R hr hR h g hg hh k with hakdef
+    set ak1 := picardApproxCoeff d r R hr hR h g hg hh (k + 1) with hak1def
+    have hdivk := picardApprox_succ_isWeierstrassDivisionOn d r R hr hR h g hg hh k
+    have hdivk1 := picardApprox_succ_isWeierstrassDivisionOn d r R hr hR h g hg hh (k + 1)
     have hQA : IsWeierstrassDivisionOn (fun z => z.2 ^ d) (h * (sk1 - sk))
         (sk1 - sk2) (fun j => ak j - ak1 j) (polydiscWithRadii 0 r) R := by
       refine ⟨(picardApprox d r R hr hR h g hg hh (k + 1)).2.sub
@@ -405,14 +405,14 @@ theorem exists_weierstrassRemainder_eq_of_tendstoUniformlyOn_picardApprox
   set Fk : ℕ → ℂ → ℂ := fun k ζ' =>
     g (w, ζ') - h (w, ζ') * (sSeq k).1 (w, ζ') - ζ' ^ d * (sSeq (k + 1)).1 (w, ζ') with hFkdef
   have hFkeq : ∀ k, ∀ ζ' ∈ ball (0 : ℂ) R, Fk k ζ' =
-      weierstrassRemainder (picardApproxA d r R hr hR h g hg hh k) (w, ζ') := by
+      weierstrassRemainder (picardApproxCoeff d r R hr hR h g hg hh k) (w, ζ') := by
     intro k ζ' hζ'
-    have hthis := (picardApprox_succ_isDiv d r R hr hR h g hg hh k).eq
+    have hthis := (picardApprox_succ_isWeierstrassDivisionOn d r R hr hR h g hg hh k).eq
       (⟨hw, hζ'⟩ : (w, ζ') ∈ polydiscWithRadii 0 r ×ˢ ball 0 R)
     show g (w, ζ') - h (w, ζ') * (sSeq k).1 (w, ζ') - ζ' ^ d * (sSeq (k + 1)).1 (w, ζ') = _
     have hthis' : g (w, ζ') - h (w, ζ') * (sSeq k).1 (w, ζ') =
         (sSeq (k + 1)).1 (w, ζ') * ζ' ^ d +
-          weierstrassRemainder (picardApproxA d r R hr hR h g hg hh k) (w, ζ') := hthis
+          weierstrassRemainder (picardApproxCoeff d r R hr hR h g hg hh k) (w, ζ') := hthis
     rw [hthis']; ring
   have hFkTU : TendstoUniformlyOn Fk (fun ζ' => rFun (w, ζ')) atTop (ball (0 : ℂ) R) :=
     tendstoUniformlyOn_picardRemainder d r R hr hR h g hg hh hhb M hM0 S hSbound hw
@@ -428,7 +428,7 @@ theorem exists_weierstrassRemainder_eq_of_tendstoUniformlyOn_picardApprox
       differentiableOn_snd_slice (sSeq (k+1)).2 hw
     exact (h1.sub (h2.mul h3)).sub ((differentiableOn_pow d).mul h4)
   exact eq_taylorPolynomial_of_tendstoUniformlyOn
-    (a := fun k j => picardApproxA d r R hr hR h g hg hh k j w)
+    (a := fun k j => picardApproxCoeff d r R hr hR h g hg hh k j w)
     hR hFkeq hFkTU hFkDiff hζ
 
 /-- **Direct uniqueness for the perturbed coordinate-power fixed-point equation.**

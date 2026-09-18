@@ -16,6 +16,14 @@ Arbitrary Banach-valued coefficient families converge locally uniformly on the i
 of their absolute-convergence set, and their sum is analytic there. Absolute-convergence
 sets are geometrically convex in moduli even at zero coordinates and boundary points.
 Reference: Korevaar–Wiegerinck (2017), Theorem 2.4.2.
+
+## Main results
+
+`powerSeriesSum` is the sum of a Banach-valued power series on its convergence domain.
+`hasSumLocallyUniformlyOn_powerSeries` is locally uniform convergence there.
+`analyticOnNhd_powerSeriesSum` is analyticity of the sum.
+`hasGeometricallyConvexModuli_powerSeriesConvergenceDomain` is geometric convexity
+of the moduli, including zero coordinates.
 -/
 
 @[expose] public noncomputable section

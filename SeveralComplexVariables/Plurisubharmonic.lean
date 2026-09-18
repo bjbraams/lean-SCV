@@ -51,16 +51,16 @@ theorem PlurisubharmonicOn.slice (h : PlurisubharmonicOn f U) {a : E} (ha : a �
     SubharmonicOn (fun t : ℂ => f (a + t • w)) {t | a + t • w ∈ U} := h.2 a ha w
 
 /-- The local submean property of the slice through a point of the domain. -/
-theorem PlurisubharmonicOn.submeanAt_slice (h : PlurisubharmonicOn f U) {a : E} (ha : a ∈ U)
-    (w : E) : SubmeanAt (fun t : ℂ => f (a + t • w)) 0 :=
-  (h.slice ha w).submeanAt (by simpa using ha)
+theorem PlurisubharmonicOn.hasSubmeanAt_slice (h : PlurisubharmonicOn f U) {a : E} (ha : a ∈ U)
+    (w : E) : HasSubmeanAt (fun t : ℂ => f (a + t • w)) 0 :=
+  (h.slice ha w).hasSubmeanAt (by simpa using ha)
 
 /-- Plurisubharmonicity restricts to subsets. -/
 theorem PlurisubharmonicOn.mono (h : PlurisubharmonicOn f U) (hV : V ⊆ U) :
     PlurisubharmonicOn f V :=
   ⟨h.1.mono hV, fun a ha w => (h.2 a (hV ha) w).mono fun _ ht => hV ht⟩
 
-/-- Continuity of a complex line. -/
+/-- The complex line `t ↦ a + t • w` is continuous. -/
 theorem continuous_line (a w : E) : Continuous fun t : ℂ => a + t • w := by fun_prop
 
 /-- The slice of an upper semicontinuous function is upper semicontinuous. -/
@@ -69,8 +69,8 @@ theorem upperSemicontinuousOn_slice (h : UpperSemicontinuousOn f U) (a w : E) :
   h.comp (continuous_line a w).continuousOn fun _ ht => ht
 
 /-- Translating the parameter of a function with the local submean property. -/
-theorem SubmeanAt.comp_add_right {u : ℂ → ℝ} {t₀ : ℂ}
-    (h : SubmeanAt (fun t => u (t + t₀)) 0) : SubmeanAt u t₀ := by
+theorem HasSubmeanAt.comp_add_right {u : ℂ → ℝ} {t₀ : ℂ}
+    (h : HasSubmeanAt (fun t => u (t + t₀)) 0) : HasSubmeanAt u t₀ := by
   filter_upwards [h] with r ⟨hint, hle⟩
   have hmap : ∀ θ : ℝ, circleMap 0 r θ + t₀ = circleMap t₀ r θ := fun θ => by
     simp [circleMap, add_comm]
@@ -81,11 +81,11 @@ theorem SubmeanAt.comp_add_right {u : ℂ → ℝ} {t₀ : ℂ}
 
 /-- Plurisubharmonicity follows from upper semicontinuity and the local submean property of
 the slices through each point of the domain. -/
-theorem plurisubharmonicOn_of_submeanAt (husc : UpperSemicontinuousOn f U)
-    (h : ∀ a ∈ U, ∀ w : E, SubmeanAt (fun t : ℂ => f (a + t • w)) 0) :
+theorem plurisubharmonicOn_of_hasSubmeanAt (husc : UpperSemicontinuousOn f U)
+    (h : ∀ a ∈ U, ∀ w : E, HasSubmeanAt (fun t : ℂ => f (a + t • w)) 0) :
     PlurisubharmonicOn f U := by
   refine ⟨husc, fun a ha w => ⟨upperSemicontinuousOn_slice husc a w, fun t₀ ht₀ => ?_⟩⟩
-  apply SubmeanAt.comp_add_right
+  apply HasSubmeanAt.comp_add_right
   have := h (a + t₀ • w) ht₀ w
   convert this using 2 with t
   simp only [add_smul, add_assoc, add_comm (t • w) (t₀ • w)]
@@ -139,7 +139,7 @@ theorem SubharmonicOn.of_convexOn {u : ℂ → ℝ} {W : Set ℂ} (hW : IsOpen W
     (hu : ConvexOn ℝ W u) (hc : ContinuousOn u W) : SubharmonicOn u W := by
   refine ⟨hc.upperSemicontinuousOn, fun a ha => ?_⟩
   obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hW.mem_nhds ha)
-  refine submeanAt_of_forall_lt hρ fun r hr hrρ => ?_
+  refine hasSubmeanAt_of_forall_lt hρ fun r hr hrρ => ?_
   have hsub : closedBall a r ⊆ W := (closedBall_subset_ball hrρ).trans hball
   have hint : CircleIntegrable u a r :=
     (hc.mono (sphere_subset_closedBall.trans hsub)).circleIntegrable hr.le

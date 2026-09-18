@@ -11,6 +11,12 @@ A locally uniform integrable bound on a holomorphic integrand also bounds its de
 on smaller balls, by the Schwarz estimate. This avoids explicit logarithmic estimates when
 the parameters occur in complex powers. Measurability of the derivative is kept as a
 separate hypothesis so that the integration space needs no topology.
+
+## Main results
+
+`analyticOnNhd_integral_of_locally_dominated` is holomorphy of a parameter-dependent
+integral under a locally integrable dominant, without a logarithmic estimate on the
+parameter.
 -/
 
 open Complex MeasureTheory Filter Metric Set

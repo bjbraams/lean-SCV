@@ -14,6 +14,13 @@ public import Mathlib.Analysis.Normed.Ring.InfiniteSum
 
 Inner and outer coefficient tori bound the two halves of each coordinate series
 by geometric sequences. Their finite products give summable local majorants.
+
+## Main results
+
+`exists_local_laurent_majorant` produces a geometric bound from inner and outer
+tori. `summable_norm_multivariableLaurent` is absolute summability of the terms.
+`hasSumLocallyUniformlyOn_multivariableLaurent_of_pointwise` upgrades a pointwise
+summable expansion to locally uniform convergence.
 -/
 
 @[expose] public noncomputable section

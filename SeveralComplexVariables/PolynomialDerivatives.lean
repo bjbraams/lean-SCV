@@ -13,7 +13,14 @@ public import Mathlib.Analysis.Analytic.Polynomial
 # Formal and analytic coordinate derivatives of complex polynomials
 
 The formal partial derivatives of a multivariate polynomial agree with the analytic coordinate
-derivatives of its evaluation.
+derivatives of its evaluation. No finiteness assumption on the variable type is needed for
+the one-variable slice identity.
+
+## Main results
+
+`hasDerivAt_eval_update` identifies `pderiv i p` with the derivative of the `i`-th
+coordinate slice of `eval`. `partialDeriv_eval` is the corresponding statement for the
+several-variable coordinate derivative `partialDeriv`.
 -/
 
 open scoped Classical

@@ -46,7 +46,7 @@ theorem polydiscCauchyCoeffWithRadii_const (f : (Fin d → ℂ) → E) (c : Fin 
     (R : ℝ) (m : Fin d → ℕ) :
     polydiscCauchyCoeffWithRadii f c (fun _ => R) m = polydiscCauchyCoeff f c R m := rfl
 
-/-- Isolate one factor of the Cauchy kernel. -/
+/-- Updating the pole in coordinate `i` isolates that factor of the Cauchy kernel. -/
 theorem cauchyKernel_update (m : Fin d → ℕ) (w z : Fin d → ℂ) (i : Fin d) (v : ℂ) :
     cauchyKernel m (update w i v) z =
       (∏ j ∈ Finset.univ.erase i, (z j - w j)⁻¹ ^ (m j + 1)) *

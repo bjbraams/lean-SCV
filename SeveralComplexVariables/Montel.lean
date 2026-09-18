@@ -21,6 +21,13 @@ For uniformly bounded sequences, a subsequence theorem is also provided on arbit
 finite-dimensional complex source spaces. Vitali convergence follows from compactness
 and the identity theorem: pointwise
 convergence on a nonempty open subset determines every cluster limit uniquely.
+
+## Main results
+
+`equicontinuous_of_holomorphic_bounded_on_compacts` is equicontinuity of a family
+bounded on compact sets. `isCompact_closure_of_holomorphic_bounded_on_compacts` is
+Montel's theorem for finite-dimensional targets. `vitali_theorem` is Vitali
+convergence from pointwise convergence on a nonempty open subset.
 -/
 
 public section

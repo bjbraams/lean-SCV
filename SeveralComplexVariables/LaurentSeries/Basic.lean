@@ -14,6 +14,16 @@ public import Mathlib.MeasureTheory.Integral.Pi
 
 Integer-indexed coefficients are defined by integration on a coordinate torus.
 Their bounds and their action on monomials do not require a Laurent expansion theorem.
+Negative powers are written `z i ^ (-m i - 1)` in the integrand; this is compatible with
+Lean's totalized integer powers at zero once the torus avoids the coordinate hyperplanes.
+
+## Main results
+
+`multivariableLaurentCoeff` is the coefficient of multi-index `m` on the torus of radii
+`r`. `multivariableLaurentTerm` is the corresponding monomial term.
+`norm_multivariableLaurentCoeff_le` is the Cauchy bound.
+`multivariableLaurentCoeff_monomial` evaluates the coefficient on a monomial.
+`multivariableLaurentCoeff_fin_one` recovers the one-variable `circleLaurentCoeff`.
 -/
 
 @[expose] public noncomputable section

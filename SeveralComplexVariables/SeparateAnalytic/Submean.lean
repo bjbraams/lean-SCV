@@ -17,6 +17,12 @@ particular, the exponent may be less than one, as needed for the roots of Taylor
 coefficients in the proof of Hartogs' separate-analyticity theorem.
 
 Hahn–Banach transfers the scalar estimate to arbitrary complex normed targets.
+
+## Main results
+
+`norm_rpow_le_circleAverage` is the circle submean inequality for every positive
+real power of a holomorphic norm. `log_norm_le_circleAverage` is Jensen's formula
+for a nonvanishing holomorphic function.
 -/
 
 public section

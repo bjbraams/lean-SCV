@@ -32,7 +32,7 @@ References: Hörmander §2.5, Theorem 2.5.10 (a); Scheidemann §6.3, Theorem 6.3
 @[expose] public noncomputable section
 
 open Set Filter Metric Complex
-open scoped Topology
+open scoped Topology Classical
 
 namespace SeveralComplexVariables
 
@@ -156,6 +156,29 @@ theorem maxStar_maximal (hp : p ∈ maxStar F Ω p) {B : Set (Fin n → ℝ)} (h
       (ofRealPi_mem_tubeDomain.mpr hp)) hGg
   exact this.trans hgf
 
+omit [CompleteSpace F] in
+/-- Piecewise gluing of holomorphic functions on tubes over an open union, agreeing on the
+intersection. -/
+theorem analyticOnNhd_ite_tubeDomain {A B : Set (Fin n → ℝ)} (hA : IsOpen A) (hB : IsOpen B)
+    {g h : (Fin n → ℂ) → F}
+    (hg : AnalyticOnNhd ℂ g (tubeDomain A)) (hh : AnalyticOnNhd ℂ h (tubeDomain B))
+    (heq : EqOn g h (tubeDomain (A ∩ B))) :
+    AnalyticOnNhd ℂ (fun z => if z ∈ tubeDomain A then g z else h z) (tubeDomain (A ∪ B)) := by
+  classical
+  intro z hz
+  rw [tubeDomain_union] at hz
+  rcases hz with hzA | hzB
+  · have : (fun z => if z ∈ tubeDomain A then g z else h z) =ᶠ[𝓝 z] g :=
+      eventuallyEq_of_mem ((isOpen_tubeDomain hA).mem_nhds hzA) fun w hw => by simp [hw]
+    exact (hg z hzA).congr this.symm
+  · have : (fun z => if z ∈ tubeDomain A then g z else h z) =ᶠ[𝓝 z] h := by
+      refine eventuallyEq_of_mem ((isOpen_tubeDomain hB).mem_nhds hzB) fun w hw => ?_
+      by_cases hwA : w ∈ tubeDomain A
+      · simp only [hwA, ite_true]
+        exact heq ⟨hwA, hw⟩
+      · simp only [hwA, ite_false]
+    exact (hh z hzB).congr this.symm
+
 end Family
 
 section Triangle
@@ -261,20 +284,80 @@ theorem thickening_tri_subset_of_maximal (hA : IsOpen A) (hAs : StarConvex ℝ p
         (isPreconnected_tubeDomain_of_starConvex (hAs.inter hNs) hpAN)
         (ofRealPi_mem_tubeDomain.mpr hpAN) (hHg _ (ofRealPi_mem_tubeDomain.mpr hpL))
     refine ⟨fun z => if z ∈ tubeDomain A then g z else H z, ?_, fun z hz => by simp [hz]⟩
-    intro z hz
-    rw [tubeDomain_union] at hz
-    rcases hz with hzA | hzN
-    · have : (fun z => if z ∈ tubeDomain A then g z else H z) =ᶠ[𝓝 z] g :=
-        eventuallyEq_of_mem ((isOpen_tubeDomain hA).mem_nhds hzA) fun w hw => by simp [hw]
-      exact (hg z hzA).congr this.symm
-    · have : (fun z => if z ∈ tubeDomain A then g z else H z) =ᶠ[𝓝 z] H := by
-        refine eventuallyEq_of_mem ((isOpen_tubeDomain hNo).mem_nhds hzN) fun w hw => ?_
-        by_cases hwA : w ∈ tubeDomain A
-        · simp only [hwA, ite_true]
-          exact (hAN ⟨hwA, hw⟩).symm
-        · simp only [hwA, ite_false]
-      exact (hHN z hzN).congr this.symm
+    exact analyticOnNhd_ite_tubeDomain hA hNo hg hHN (fun z hz => (hAN hz).symm)
   exact subset_union_right.trans hsub
+
+/-- A triangle with vanishing direction vectors is the vertex. -/
+theorem tri_subset_of_dirs_zero {b : ℝ} {B : Set (Fin n → ℝ)}
+    (h1 : triDir₁ p t₁ t₂ = 0) (h2 : triDir₂ p t₁ t₂ = 0) (hpB : p ∈ B) :
+    tri p t₁ t₂ b ⊆ B := by
+  rintro x ⟨u, v, -, -, rfl⟩
+  simpa [triPt, h1, h2] using hpB
+
+/-- One scale step in the triangle lemma: a slightly larger scaled triangle still lies in `A`. -/
+theorem tri_subset_scale_step_of_maximal (hA : IsOpen A) (hAs : StarConvex ℝ p A) (hp : p ∈ A)
+    (hmax : ∀ B : Set (Fin n → ℝ), IsOpen B → StarConvex ℝ p B →
+      (∀ g : (Fin n → ℂ) → F, AnalyticOnNhd ℂ g (tubeDomain A) →
+        ∃ G : (Fin n → ℂ) → F, AnalyticOnNhd ℂ G (tubeDomain B) ∧ EqOn G g (tubeDomain A)) →
+      B ⊆ A)
+    {δ D ε δ₁ a a' : ℝ} (hδ : 0 < δ) (hDpos : 0 < D)
+    (hD : D = ‖triDir₁ p t₁ t₂‖ + ‖triDir₂ p t₁ t₂‖)
+    (hS : ∀ w ∈ tubeDomain (segment ℝ p t₁ ∪ segment ℝ p t₂), ball w δ ⊆ tubeDomain A)
+    (hδ₁ : δ₁ = δ / (4 * D)) (hε : ε = min (1 / 2) (δ / (4 * D)))
+    (ha0 : 0 ≤ a) (ha1 : a ≤ 1) (htri : tri p t₁ t₂ a ⊆ A)
+    (_haa' : a ≤ a') (_ha'1 : a' ≤ 1) (ha'δ : a' ≤ a + δ₁) :
+    tri p t₁ t₂ a' ⊆ A := by
+  set b : ℝ := (1 - ε) * a
+  have hεle : ε ≤ 1 / 2 := by rw [hε]; exact min_le_left _ _
+  have hεpos : 0 < ε := by rw [hε]; positivity
+  have hε1 : 0 ≤ 1 - ε := sub_nonneg.mpr (hεle.trans (by norm_num))
+  have hb0 : 0 ≤ b := mul_nonneg hε1 ha0
+  have hba : b ≤ a := mul_le_of_le_one_left ha0 (by linarith)
+  have hlt : b = 0 ∨ b < a := by
+    rcases ha0.lt_or_eq with h | h
+    · right; exact mul_lt_of_lt_one_left h (by linarith)
+    · left; dsimp [b]; rw [← h, mul_zero]
+  have hthick := thickening_tri_subset_of_maximal hA hAs hp hmax hδ hS ha1 hb0 hba hlt htri
+  rintro x ⟨u, v, huv, hva', rfl⟩
+  by_cases hvb : v ≤ b
+  · exact hthick (self_subset_thickening hδ _ ⟨u, v, huv, hvb, rfl⟩)
+  · push Not at hvb
+    have hv0 : 0 < v := hb0.trans_lt hvb
+    set μ : ℝ := b / v
+    have hμ0 : 0 ≤ μ := div_nonneg hb0 hv0.le
+    have hμ1 : μ ≤ 1 := (div_le_one hv0).mpr hvb.le
+    have hμv : μ * v = b := div_mul_cancel₀ b hv0.ne'
+    apply hthick
+    rw [Metric.mem_thickening_iff]
+    refine ⟨triPt p t₁ t₂ (μ * u) (μ * v), ⟨μ * u, μ * v, ?_, ?_, rfl⟩, ?_⟩
+    · rw [abs_mul, abs_of_nonneg hμ0]
+      exact mul_le_mul_of_nonneg_left huv hμ0
+    · rw [hμv]
+    · rw [dist_eq_norm]
+      have hdiff : triPt p t₁ t₂ u v - triPt p t₁ t₂ (μ * u) (μ * v) =
+          ((1 - μ) * u) • triDir₁ p t₁ t₂ + ((1 - μ) * v) • triDir₂ p t₁ t₂ := by
+        simp only [triPt]
+        module
+      have h1 : v - b ≤ (a' - a) + ε * a := by
+        dsimp [b]
+        nlinarith [hva']
+      have h2 : (a' - a) + ε * a ≤ δ₁ + ε := by nlinarith
+      have hεD : ε ≤ δ / (4 * D) := by rw [hε]; exact min_le_right _ _
+      calc ‖triPt p t₁ t₂ u v - triPt p t₁ t₂ (μ * u) (μ * v)‖
+          = ‖((1 - μ) * u) • triDir₁ p t₁ t₂ + ((1 - μ) * v) • triDir₂ p t₁ t₂‖ := by rw [hdiff]
+        _ ≤ ‖((1 - μ) * u) • triDir₁ p t₁ t₂‖ + ‖((1 - μ) * v) • triDir₂ p t₁ t₂‖ :=
+            norm_add_le _ _
+        _ = (1 - μ) * |u| * ‖triDir₁ p t₁ t₂‖ + (1 - μ) * v * ‖triDir₂ p t₁ t₂‖ := by
+            rw [norm_smul, norm_smul, Real.norm_eq_abs, Real.norm_eq_abs, abs_mul, abs_mul,
+              abs_of_nonneg (by linarith : (0 : ℝ) ≤ 1 - μ), abs_of_pos hv0]
+        _ ≤ (1 - μ) * v * ‖triDir₁ p t₁ t₂‖ + (1 - μ) * v * ‖triDir₂ p t₁ t₂‖ := by
+            gcongr
+        _ = (v - b) * D := by rw [hD, ← hμv]; ring
+        _ ≤ (δ₁ + ε) * D := mul_le_mul_of_nonneg_right (h1.trans h2) hDpos.le
+        _ ≤ (δ / (4 * D) + δ / (4 * D)) * D :=
+            mul_le_mul_of_nonneg_right (add_le_add (le_of_eq hδ₁) hεD) hDpos.le
+        _ = δ / 2 := by field_simp; ring
+        _ < δ := half_lt_self hδ
 
 /-- **The triangle lemma.** Under maximality, the full triangle with vertex `p` and two
 points of `A` lies in `A`. -/
@@ -302,61 +385,10 @@ theorem tri_subset_of_maximal (hA : IsOpen A) (hAs : StarConvex ℝ p A) (hp : p
       norm_eq_zero.mp (by linarith [norm_nonneg (triDir₁ p t₁ t₂), norm_nonneg (triDir₂ p t₁ t₂)])
     have h2 : triDir₂ p t₁ t₂ = 0 :=
       norm_eq_zero.mp (by linarith [norm_nonneg (triDir₁ p t₁ t₂), norm_nonneg (triDir₂ p t₁ t₂)])
-    rintro x ⟨u, v, -, -, rfl⟩
-    simpa [triPt, h1, h2] using hp
-  set δ₁ : ℝ := δ / (4 * D) with hδ₁def
-  set ε : ℝ := min (1 / 2) (δ / (4 * D)) with hεdef
+    exact tri_subset_of_dirs_zero h1 h2 hp
+  set δ₁ : ℝ := δ / (4 * D)
+  set ε : ℝ := min (1 / 2) (δ / (4 * D))
   have hδ₁ : 0 < δ₁ := by positivity
-  have hε0 : 0 < ε := by positivity
-  have hε1 : ε ≤ 1 / 2 := min_le_left _ _
-  have hεD : ε ≤ δ / (4 * D) := min_le_right _ _
-  have key : ∀ a : ℝ, 0 ≤ a → a ≤ 1 → tri p t₁ t₂ a ⊆ A →
-      ∀ a' : ℝ, a ≤ a' → a' ≤ 1 → a' ≤ a + δ₁ → tri p t₁ t₂ a' ⊆ A := by
-    intro a ha0 ha1 htri a' haa' ha'1 ha'δ
-    set b : ℝ := (1 - ε) * a with hb
-    have hb0 : 0 ≤ b := mul_nonneg (by linarith) ha0
-    have hba : b ≤ a := by nlinarith
-    have hlt : b = 0 ∨ b < a := by
-      rcases ha0.lt_or_eq with h | h
-      · right; nlinarith
-      · left; rw [hb, ← h, mul_zero]
-    have hthick := thickening_tri_subset_of_maximal hA hAs hp hmax hδ hS ha1 hb0 hba hlt htri
-    rintro x ⟨u, v, huv, hva', rfl⟩
-    by_cases hvb : v ≤ b
-    · exact hthick (self_subset_thickening hδ _ ⟨u, v, huv, hvb, rfl⟩)
-    · push Not at hvb
-      have hv0 : 0 < v := hb0.trans_lt hvb
-      set μ : ℝ := b / v with hμ
-      have hμ0 : 0 ≤ μ := div_nonneg hb0 hv0.le
-      have hμ1 : μ ≤ 1 := (div_le_one hv0).mpr hvb.le
-      have hμv : μ * v = b := div_mul_cancel₀ b hv0.ne'
-      apply hthick
-      rw [Metric.mem_thickening_iff]
-      refine ⟨triPt p t₁ t₂ (μ * u) (μ * v), ⟨μ * u, μ * v, ?_, ?_, rfl⟩, ?_⟩
-      · rw [abs_mul, abs_of_nonneg hμ0]
-        exact mul_le_mul_of_nonneg_left huv hμ0
-      · rw [hμv]
-      · rw [dist_eq_norm]
-        have hdiff : triPt p t₁ t₂ u v - triPt p t₁ t₂ (μ * u) (μ * v) =
-            ((1 - μ) * u) • triDir₁ p t₁ t₂ + ((1 - μ) * v) • triDir₂ p t₁ t₂ := by
-          simp only [triPt]
-          module
-        have h1 : v - b ≤ (a' - a) + ε * a := by rw [hb]; nlinarith
-        have h2 : (a' - a) + ε * a ≤ δ₁ + ε := by nlinarith
-        calc ‖triPt p t₁ t₂ u v - triPt p t₁ t₂ (μ * u) (μ * v)‖
-            = ‖((1 - μ) * u) • triDir₁ p t₁ t₂ + ((1 - μ) * v) • triDir₂ p t₁ t₂‖ := by rw [hdiff]
-          _ ≤ ‖((1 - μ) * u) • triDir₁ p t₁ t₂‖ + ‖((1 - μ) * v) • triDir₂ p t₁ t₂‖ :=
-              norm_add_le _ _
-          _ = (1 - μ) * |u| * ‖triDir₁ p t₁ t₂‖ + (1 - μ) * v * ‖triDir₂ p t₁ t₂‖ := by
-              rw [norm_smul, norm_smul, Real.norm_eq_abs, Real.norm_eq_abs, abs_mul, abs_mul,
-                abs_of_nonneg (by linarith : (0 : ℝ) ≤ 1 - μ), abs_of_pos hv0]
-          _ ≤ (1 - μ) * v * ‖triDir₁ p t₁ t₂‖ + (1 - μ) * v * ‖triDir₂ p t₁ t₂‖ := by
-              gcongr
-          _ = (v - b) * D := by rw [hD, ← hμv]; ring
-          _ ≤ (δ₁ + ε) * D := mul_le_mul_of_nonneg_right (h1.trans h2) hDpos.le
-          _ ≤ (δ / (4 * D) + δ / (4 * D)) * D := by gcongr
-          _ = δ / 2 := by field_simp; ring
-          _ < δ := half_lt_self hδ
   have hind : ∀ k : ℕ, tri p t₁ t₂ (min 1 (k * δ₁)) ⊆ A := by
     intro k
     induction k with
@@ -365,8 +397,8 @@ theorem tri_subset_of_maximal (hA : IsOpen A) (hAs : StarConvex ℝ p A) (hp : p
       simpa using hp
     | succ k ih =>
       have hk0 : (0 : ℝ) ≤ k * δ₁ := by positivity
-      refine key (min 1 (k * δ₁)) (le_min zero_le_one hk0) (min_le_left _ _) ih _ ?_
-        (min_le_left _ _) ?_
+      refine tri_subset_scale_step_of_maximal hA hAs hp hmax hδ hDpos hD hS rfl rfl
+        (le_min zero_le_one hk0) (min_le_left _ _) ih ?_ (min_le_left _ _) ?_
       · exact min_le_min_left _ (by push_cast; nlinarith)
       · rcases le_or_gt 1 (k * δ₁) with h | h
         · rw [min_eq_left h]

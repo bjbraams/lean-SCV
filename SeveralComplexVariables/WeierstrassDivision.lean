@@ -566,7 +566,7 @@ theorem IsWeierstrassDivisionAt.comp_equiv {F : Type*} [NormedAddCommGroup F]
 /-- **Weierstrass division for analytic germs on any finite-dimensional parameter space.**
 Obtained by transporting the coordinate version along a basis; no choice of coordinates
 occurs in the statement. -/
-theorem weierstrass_division_at_findim [FiniteDimensional ℂ E] {d : ℕ} {f g : E × ℂ → ℂ}
+theorem weierstrass_division_at_finiteDimensional [FiniteDimensional ℂ E] {d : ℕ} {f g : E × ℂ → ℂ}
     (hf : AnalyticAt ℂ f 0) (hg : AnalyticAt ℂ g 0)
     (horder : analyticOrderAt (fun w : ℂ => f (0, w)) 0 = d) :
     ∃ (q : E × ℂ → ℂ) (a : Fin d → E → ℂ),

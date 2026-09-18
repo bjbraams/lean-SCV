@@ -16,6 +16,12 @@ constant separator of a hypothetical separation and apply the identity principle
 More generally, the same holds for relatively closed sets locally contained in proper
 analytic zero sets, by the locally bounded Riemann extension theorem.
 This consequence is kept above removability to preserve the dependency order.
+
+## Main results
+
+`isConnected_nonzero_of_analyticOnNhd` is connectedness of the nonvanishing locus
+of a nonzero scalar holomorphic function. `isConnected_sdiff_of_locallyContainedInAnalyticZeroSet`
+is the corresponding statement for a relatively closed thin exceptional set.
 -/
 
 public section

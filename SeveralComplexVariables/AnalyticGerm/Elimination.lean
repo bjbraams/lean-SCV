@@ -16,6 +16,14 @@ public import Mathlib.LinearAlgebra.Matrix.ToLinearEquiv
 A distinguished polynomial and a relatively prime polynomial germ have nonzero
 resultant. The proof uses Weierstrass division to show injectivity of the Sylvester
 map. Its adjugate then supplies a nonzero parameter germ in the generated ideal.
+
+## Main results
+
+`resultant_ne_zero_of_isRelPrime_polynomialHom` is nonvanishing of the resultant of
+a distinguished polynomial and a relatively prime polynomial germ.
+`exists_base_combination_of_isRelPrime` produces a nonzero parameter germ in the
+generated ideal. `sylvesterMap_injective_of_isRelPrime` is injectivity of the
+Sylvester map.
 -/
 
 @[expose] public noncomputable section

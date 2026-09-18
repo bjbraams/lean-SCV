@@ -15,6 +15,12 @@ Joint continuity and separate holomorphy imply joint analyticity on an open subs
 finite complex coordinate space. The stronger Hartogs theorem without continuity is not
 proved here. The polydisc Cauchy formula and its series construction live in the imported
 modules and remain available through this file.
+
+## Main results
+
+`analyticOnNhd_pi_of_analyticOnNhd_update` is Osgood's theorem on an arbitrary finite
+coordinate space `ι → ℂ`: continuity on an open set together with holomorphy in each
+coordinate separately yields joint analyticity.
 -/
 
 public section

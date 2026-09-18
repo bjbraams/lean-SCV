@@ -34,8 +34,8 @@ namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- The Levi form of a real function at `a` in direction `w`: one quarter of the real Hessian
-evaluated on `(w, w)` plus the real Hessian evaluated on `(I • w, I • w)`. -/
+/-- The Levi form of a real function at `a` in direction `w`: one quarter of the sum of the
+real Hessian evaluated on `(w, w)` and on `(I • w, I • w)`. -/
 def leviForm (f : E → ℝ) (a w : E) : ℝ :=
   (iteratedFDeriv ℝ 2 f a ![w, w] + iteratedFDeriv ℝ 2 f a ![I • w, I • w]) / 4
 
@@ -47,7 +47,7 @@ theorem leviForm_eq_fderiv (f : E → ℝ) (a w : E) :
 /-- The real-linear map `t ↦ t • w` from `ℂ` to `E`. -/
 def lineCLM (w : E) : ℂ →L[ℝ] E := (ContinuousLinearMap.id ℝ ℂ).smulRight w
 
-/-- Evaluation of the complex line map. -/
+/-- The complex line map sends `t` to `t • w`. -/
 @[simp] theorem lineCLM_apply (w : E) (t : ℂ) : lineCLM w t = t • w := rfl
 
 variable {f : E → ℝ} {U : Set E}
@@ -102,7 +102,7 @@ theorem PlurisubharmonicOn.leviForm_nonneg (hU : IsOpen U) (hf : ContDiffOn ℝ 
   have ha' : a + (0 : ℂ) • w ∈ U := by simpa using ha
   have hc : ContDiffAt ℝ 2 (fun t : ℂ => f (a + t • w)) 0 :=
     (hf.contDiffAt (hU.mem_nhds ha')).comp 0 (contDiff_line a w).contDiffAt
-  have := (hpsh.submeanAt_slice ha w).laplacian_nonneg hc
+  have := (hpsh.hasSubmeanAt_slice ha w).laplacian_nonneg hc
   rw [laplacian_slice (hf.contDiffAt (hU.mem_nhds ha'))] at this
   simp only [zero_smul, add_zero] at this
   linarith

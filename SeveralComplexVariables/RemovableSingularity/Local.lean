@@ -17,6 +17,11 @@ original function along it. The circle avoids the defining zero set. One-variabl
 removability identifies the integral with the original function off the zero set;
 parameter-dependent integration proves joint analyticity. The target is a complex
 Banach space, and no Weierstrass or Hartogs extension theorem is used.
+
+## Main results
+
+`exists_local_extension_zeroSet_of_bounded` is local Riemann extension across a
+scalar zero set for a locally bounded Banach-valued holomorphic map.
 -/
 
 public noncomputable section

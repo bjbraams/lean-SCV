@@ -17,6 +17,12 @@ A small circle on that line avoids its zeros. Compactness then gives a fixed cir
 that continues to avoid the zeros under small translations of its centre. A slightly
 larger closed disc remains in the original open domain. No preparation or division
 theorem is used.
+
+## Main results
+
+`exists_nonzero_line_of_analyticAt` produces a complex line on which a nonzero germ
+is not identically zero. `exists_translated_circle_avoiding_zeroSet` produces a
+circle that continues to avoid the zeros under small translations of its centre.
 -/
 
 public section

@@ -19,6 +19,13 @@ In particular the empty hull is empty. Relative closedness is expressed on the a
 subtype; no ambient closedness or compactness of the hull is assumed.
 
 References: Range II §3.2; Scheidemann §6.2; Jakóbczak–Jarnicki §2.7.
+
+## Main results
+
+`holomorphicHull` is the scalar hull relative to an ambient set, tested by all real
+modulus bounds. `IsHolomorphicallyConvex` is the property that compact subsets of an
+open set have compact hulls in that set. `exists_separator_of_notMem_holomorphicHull`
+separates a point outside the hull. `holomorphicHull_idem` is idempotence.
 -/
 
 @[expose] public noncomputable section

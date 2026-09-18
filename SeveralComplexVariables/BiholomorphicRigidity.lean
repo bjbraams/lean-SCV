@@ -19,6 +19,13 @@ theorem. The independent analytic step uses Cauchy's derivative formula to
 show that a rotation-equivariant holomorphic map is linear. Equality is asserted on the
 source, not for arbitrary ambient representatives outside it.
 Reference: Scheidemann (2005), Section 3.3.
+
+## Main results
+
+`IsBiholomorphic.eqOn_of_value_fderiv_eq` is rigidity from equality of 1-jets.
+`IsBiholomorphic.exists_linearEquiv_of_circular` is linearity of a biholomorphism
+of circular domains fixing the origin. `eqOn_fderiv_of_circle_equivariant` is the
+analytic step that a rotation-equivariant holomorphic map is linear.
 -/
 
 public section

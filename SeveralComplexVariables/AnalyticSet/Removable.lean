@@ -18,6 +18,14 @@ For disconnected domains we retain the empty-interior condition explicitly.
 
 References: Range I, Theorem 3.8; Fritzsche–Grauert I, 8.1–8.2;
 Scheidemann 4.1.6, 4.2.1–4.2.2.
+
+## Main results
+
+`IsAnalyticSet.interior_eq_empty` is emptiness of the interior of a proper analytic
+subset of a preconnected domain. `IsAnalyticSet.locallyContainedInAnalyticZeroSet`
+places a proper analytic subset in proper scalar zero sets.
+`IsAnalyticSet.exists_extension_of_locally_bounded` is the first Riemann extension
+theorem for locally bounded Banach-valued maps.
 -/
 
 public section

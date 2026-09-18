@@ -24,6 +24,13 @@ The codomain is a complex Banach space.
 Locally bounded removal across a proper holomorphic zero set is proved by a local
 Cauchy construction and gluing. It includes singular zero sets and does not require
 Weierstrass preparation, division, or any algebraic regularity of the zero set.
+
+## Main results
+
+`analyticOnNhd_of_continuousOn_off_countable` (and `_pi`, `_finiteDimensional`)
+remove a countable exceptional set from a continuous function. `exists_analyticOnNhd_extension_across_zeroSet`
+is Riemann extension across a proper holomorphic zero set, for locally bounded
+Banach-valued maps.
 -/
 
 public section

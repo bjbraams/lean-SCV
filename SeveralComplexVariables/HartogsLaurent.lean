@@ -18,6 +18,12 @@ Two such circles bound the positive and negative Laurent terms by geometric
 series. At the zero section the negative coefficients vanish. These estimates
 upgrade a pointwise fiber expansion to locally uniform convergence without
 using an admitted expansion theorem.
+
+## Main results
+
+`IsHartogs.exists_circle_bound` is a uniform bound on nearby fibers from a compact
+circle in a Hartogs set. `hasSumLocallyUniformlyOn_hartogsLaurent` upgrades a
+pointwise fiber expansion to locally uniform convergence on the Hartogs set.
 -/
 
 @[expose] public noncomputable section

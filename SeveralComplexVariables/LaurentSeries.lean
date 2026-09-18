@@ -19,6 +19,14 @@ statement compatible with Lean's totalized integer powers at zero.
 
 The proof combines successive circle expansions, independence of coefficient tori,
 and summable local geometric bounds. References: Korevaar–Wiegerinck (2017), Theorem 2.7.1 and Lemma 2.8.1.
+
+## Main results
+
+`multivariableLaurent_expansion` is the expansion theorem on a connected open
+Reinhardt domain. `hasSumUniformlyOn_multivariableLaurent` is uniform convergence
+on compact subsets of the domain. `multivariableLaurentCoeff_eq_zero_of_not_nonneg`
+vanishes coefficients with a negative exponent in a coordinate that meets a
+hyperplane. Supporting lemmas live in the `LaurentSeries` submodules.
 -/
 
 @[expose] public noncomputable section
