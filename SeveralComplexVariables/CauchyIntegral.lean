@@ -28,7 +28,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E
 omit [CompleteSpace E] in
 /-- The vector-valued Cauchy kernel of a continuous function is integrable on a torus whenever
 the evaluation point lies in the interior polydisc. -/
-lemma torusIntegrable_cauchyKernelWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fin n → ℂ} {R : Fin n → ℝ}
+theorem torusIntegrable_cauchyKernelWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fin n → ℂ} {R : Fin n → ℝ}
     (hR : ∀ i, 0 < R i) (hw : ∀ i, ‖w i - c i‖ < R i)
     (hfc : ContinuousOn f (closedPolydiscWithRadii c R)) :
     TorusIntegrable (fun z => (∏ i, (z i - w i)⁻¹) • f z) c R := by
@@ -49,7 +49,7 @@ lemma torusIntegrable_cauchyKernelWithRadii {n : ℕ} {f : (Fin n → ℂ) → E
   exact (hker.smul hfθ).integrableOn_compact isCompact_Icc
 
 /-- Splitting off the first coordinate factors the finite-product Cauchy kernel. -/
-lemma cauchyKernel_cons {n : ℕ} (x : ℂ) (y : Fin n → ℂ) (w : Fin (n + 1) → ℂ) :
+theorem cauchyKernel_cons {n : ℕ} (x : ℂ) (y : Fin n → ℂ) (w : Fin (n + 1) → ℂ) :
     (∏ i, ((Fin.cons x y : Fin (n + 1) → ℂ) i - w i)⁻¹) =
       (x - w 0)⁻¹ * ∏ i, (y i - w i.succ)⁻¹ := by
   simp [Fin.prod_univ_succ, mul_comm]
@@ -168,7 +168,7 @@ theorem polydisc_cauchyWithRadii {n : ℕ} {f : (Fin n → ℂ) → E} {c w : Fi
 
 omit [CompleteSpace E] in
 /-- Equal-radius compatibility form of Cauchy-kernel integrability. -/
-lemma torusIntegrable_cauchyKernel {n : ℕ} {f : (Fin n → ℂ) → E}
+theorem torusIntegrable_cauchyKernel {n : ℕ} {f : (Fin n → ℂ) → E}
     {c w : Fin n → ℂ} {R : ℝ} (hR : 0 < R) (hw : ∀ i, ‖w i - c i‖ < R)
     (hfc : ContinuousOn f (closedPolydisc c R)) :
     TorusIntegrable (fun z => (∏ i, (z i - w i)⁻¹) • f z) c (fun _ => R) :=

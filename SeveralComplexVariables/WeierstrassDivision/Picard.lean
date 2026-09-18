@@ -43,8 +43,8 @@ noncomputable def picardApprox (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i,
   | 0 => ⟨0, differentiableOn_const 0⟩
   | (k + 1) =>
     let prev := picardApprox d r R hr hR h g hg hh k
-    ⟨(coordinatePower_division d hr hR (hg.sub (hh.mul prev.2))).choose,
-      (coordinatePower_division d hr hR
+    ⟨(coordinatePower_division d hR (hg.sub (hh.mul prev.2))).choose,
+      (coordinatePower_division d hR
         (hg.sub (hh.mul prev.2))).choose_spec.choose_spec.1.quotient_holomorphic⟩
 
 /-- The remainder coefficients accompanying `picardApprox`'s quotient at each step. -/
@@ -52,7 +52,7 @@ noncomputable def picardApproxA (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i
     (h g : (ι → ℂ) × ℂ → ℂ) (hg : DifferentiableOn ℂ g (polydiscWithRadii 0 r ×ˢ ball 0 R))
     (hh : DifferentiableOn ℂ h (polydiscWithRadii 0 r ×ˢ ball 0 R)) (k : ℕ) :
     Fin d → (ι → ℂ) → ℂ :=
-  (coordinatePower_division d hr hR
+  (coordinatePower_division d hR
     (hg.sub (hh.mul (picardApprox d r R hr hR h g hg hh k).2))).choose_spec.choose
 
 /-- Each Picard step genuinely divides `g - h * (previous step)` by `z ^ d`. -/
@@ -63,7 +63,7 @@ theorem picardApprox_succ_isDiv (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i
       (g - h * (picardApprox d r R hr hR h g hg hh k).1)
       (picardApprox d r R hr hR h g hg hh (k + 1)).1
       (picardApproxA d r R hr hR h g hg hh k) (polydiscWithRadii 0 r) R :=
-  (coordinatePower_division d hr hR
+  (coordinatePower_division d hR
     (hg.sub (hh.mul (picardApprox d r R hr hR h g hg hh k).2))).choose_spec.choose_spec.1
 
 /-- The quotient bound of `coordinatePower_division`, specialized to a Picard step. -/
@@ -74,7 +74,7 @@ theorem picardApprox_succ_bound (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i
       ‖(g - h * (picardApprox d r R hr hR h g hg hh k).1) z‖ ≤ M) :
     ∀ z ∈ polydiscWithRadii 0 r ×ˢ ball 0 R,
       ‖(picardApprox d r R hr hR h g hg hh (k + 1)).1 z‖ ≤ ((d + 1 : ℕ) : ℝ) / R ^ d * M :=
-  (coordinatePower_division d hr hR
+  (coordinatePower_division d hR
     (hg.sub (hh.mul (picardApprox d r R hr hR h g hg hh k).2))).choose_spec.choose_spec.2.1 M
     hM0 hb
 
@@ -89,15 +89,15 @@ theorem picardApprox_succ_uniq (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i,
     EqOn (picardApprox d r R hr hR h g hg hh (k + 1)).1 q'
         (polydiscWithRadii 0 r ×ˢ ball 0 R) ∧
       ∀ j, EqOn (picardApproxA d r R hr hR h g hg hh k j) (a' j) (polydiscWithRadii 0 r) :=
-  (coordinatePower_division d hr hR
+  (coordinatePower_division d hR
     (hg.sub (hh.mul (picardApprox d r R hr hR h g hg hh k).2))).choose_spec.choose_spec.2.2 q' a'
     hdiv'
 
 /-- Iterated derivatives converge along a locally uniform limit of holomorphic
 one-variable functions, evaluated at any point of the domain. -/
 theorem tendsto_iteratedDeriv_of_tendstoLocallyUniformlyOn {V : Set ℂ} (hV : IsOpen V) (j : ℕ) :
-    ∀ (F : ℕ → ℂ → ℂ) (f' : ℂ → ℂ) (hF : TendstoLocallyUniformlyOn F f' atTop V)
-      (_hFa : ∀ n, DifferentiableOn ℂ (F n) V) {x : ℂ} (_hx : x ∈ V),
+    ∀ (F : ℕ → ℂ → ℂ) (f' : ℂ → ℂ), TendstoLocallyUniformlyOn F f' atTop V →
+      (∀ n, DifferentiableOn ℂ (F n) V) → ∀ {x : ℂ}, x ∈ V →
       Tendsto (fun n => iteratedDeriv j (F n) x) atTop (𝓝 (iteratedDeriv j f' x)) := by
   induction j with
   | zero =>
@@ -161,7 +161,7 @@ theorem picardApprox_diff_bound (d : ℕ) (r : ι → ℝ) (R : ℝ) (hr : ∀ i
           (sk2 w * w.2 ^ d + weierstrassRemainder ak1 w) := by
         rw [← e1', ← e2']; ring
       rw [this]; ring
-    obtain ⟨q'', a'', hdiv'', hbound'', huniq''⟩ := coordinatePower_division d hr hR
+    obtain ⟨q'', a'', hdiv'', hbound'', huniq''⟩ := coordinatePower_division d hR
       (hh.mul ((picardApprox d r R hr hR h g hg hh (k + 1)).2.sub
         (picardApprox d r R hr hR h g hg hh k).2))
     have hEq := (huniq'' (sk1 - sk2) (fun j => ak j - ak1 j) hQA).1
@@ -435,7 +435,7 @@ theorem exists_weierstrassRemainder_eq_of_tendstoUniformlyOn_picardApprox
 If `h` is uniformly small relative to `R` on a domain, any two decompositions of the
 *same* `g` against the divisor `z ^ d + h`, each individually bounded there, agree. -/
 theorem eqOn_of_isWeierstrassDivisionOn_selfPerturbed {d : ℕ} {r : ι → ℝ} {R : ℝ}
-    (hr : ∀ i, 0 < r i) (hR : 0 < R) (h g s s' : (ι → ℂ) × ℂ → ℂ) (a a' : Fin d → (ι → ℂ) → ℂ)
+    (hR : 0 < R) (h g s s' : (ι → ℂ) × ℂ → ℂ) (a a' : Fin d → (ι → ℂ) → ℂ)
     (hh : DifferentiableOn ℂ h (polydiscWithRadii 0 r ×ˢ ball 0 R))
     (hhb : ∀ z ∈ polydiscWithRadii 0 r ×ˢ ball 0 R, ‖h z‖ ≤ R ^ d / (2 * (d + 1)))
     (hdiv : IsWeierstrassDivisionOn (fun z => z.2 ^ d) (g - h * s) s a (polydiscWithRadii 0 r) R)
@@ -472,7 +472,7 @@ theorem eqOn_of_isWeierstrassDivisionOn_selfPerturbed {d : ℕ} {r : ι → ℝ}
       rw [this]; ring
     have hhdiff : DifferentiableOn ℂ (h * (s' - s)) (polydiscWithRadii 0 r ×ˢ ball 0 R) :=
       hh.mul (hdiv'.quotient_holomorphic.sub hdiv.quotient_holomorphic)
-    obtain ⟨q'', a'', hdiv'', hbound'', huniq''⟩ := coordinatePower_division d hr hR hhdiff
+    obtain ⟨q'', a'', hdiv'', hbound'', huniq''⟩ := coordinatePower_division d hR hhdiff
     have hEq := (huniq'' (s - s') (fun j => a j - a' j) hQAdiv).1
     have hb : ∀ z ∈ polydiscWithRadii 0 r ×ˢ ball 0 R, ‖(h * (s' - s)) z‖ ≤
         (R ^ d / (2 * (d + 1))) * M' := by

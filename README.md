@@ -18,7 +18,7 @@ no admitted statements.
 
 - `SeveralComplexVariables.lean` is the root module. It imports every file of the library
   and its docstring summarizes the contents topic by topic.
-- `SeveralComplexVariables/` holds the library: 146 files in 66 top-level modules and 17
+- `SeveralComplexVariables/` holds the library: 143 files in 64 top-level modules and 17
   subdirectories, grouped by topic (`AnalyticGerm`, `AnalyticSet`, `HolomorphicConvexity`,
   `LaurentSeries`, `LeviConvexity`, `Reinhardt`, `RemovableSingularity`, `Runge`,
   `SeparateAnalytic`, `Subharmonic`, `TubeDomain`, `WeierstrassDivision`, `ZeroSets`, and

@@ -26,6 +26,8 @@ namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
+/-- Osgood's theorem on `Fin d → ℂ`, before reindexing to an arbitrary finite coordinate
+type. -/
 private theorem analyticOnNhd_fin_of_analyticOnNhd_update {d : ℕ}
     {U : Set (Fin d → ℂ)} {f : (Fin d → ℂ) → E}
     (hU : IsOpen U) (hfc : ContinuousOn f U)

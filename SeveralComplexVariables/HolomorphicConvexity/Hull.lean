@@ -7,6 +7,7 @@ module
 
 public import SeveralComplexVariables.Analyticity
 public import Mathlib.Analysis.Normed.Group.Bounded
+public import Mathlib.Analysis.Normed.Module.HahnBanach
 
 /-!
 # Holomorphic hulls relative to an ambient set
@@ -60,6 +61,23 @@ theorem norm_le_on_holomorphicHull {U K : Set E} {f : E → ℂ}
     (hf : AnalyticOnNhd ℂ f U) {M : ℝ} (hM : ∀ w ∈ K, ‖f w‖ ≤ M) :
     ∀ z ∈ holomorphicHull U K, ‖f z‖ ≤ M :=
   fun _ hz => hz.2 f hf M hM
+
+/-- Norm bounds transfer from a set to its scalar holomorphic hull for Banach-valued
+holomorphic maps, by norming functionals. -/
+theorem norm_le_on_holomorphicHull_vector {U K : Set E} {G : E → F}
+    (hG : AnalyticOnNhd ℂ G U) {M : ℝ} (hM : ∀ w ∈ K, ‖G w‖ ≤ M) :
+    ∀ z ∈ holomorphicHull U K, ‖G z‖ ≤ M := by
+  intro z hz
+  obtain ⟨ℓ, hℓ, hℓz⟩ := exists_dual_vector'' ℂ (G z)
+  have hcomp : AnalyticOnNhd ℂ (fun w => ℓ (G w)) U :=
+    (ℓ.analyticOnNhd univ).comp hG (mapsTo_univ _ _)
+  have := hz.2 _ hcomp M fun w hw =>
+    calc ‖ℓ (G w)‖ ≤ ‖ℓ‖ * ‖G w‖ := ℓ.le_opNorm _
+      _ ≤ 1 * M := by
+          gcongr
+          exact hM w hw
+      _ = M := one_mul M
+  rwa [hℓz, RCLike.norm_ofReal, abs_norm] at this
 
 /-- Holomorphic hulls are monotone in the set being tested. -/
 theorem holomorphicHull_mono {U K L : Set E} (hKL : K ⊆ L) :

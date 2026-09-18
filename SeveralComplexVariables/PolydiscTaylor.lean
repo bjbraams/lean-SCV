@@ -28,17 +28,18 @@ namespace SeveralComplexVariables
 
 variable {d : ℕ} {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
-/-- The scalar Taylor series as an existing Mathlib multivariate formal power series. -/
-def holomorphicTaylorSeries (f : (Fin d → ℂ) → ℂ) (c : Fin d → ℂ) : MvPowerSeries (Fin d) ℂ :=
-  fun m => (∏ i, (m i).factorial : ℂ)⁻¹ * multiIndexDeriv m f c
+/-- The Taylor series of a Banach-valued function as a Mathlib multivariate formal power
+series: the normalized mixed derivatives at the center. -/
+def holomorphicTaylorSeries (f : (Fin d → ℂ) → E) (c : Fin d → ℂ) : MvPowerSeries (Fin d) E :=
+  fun m => (∏ i, (m i).factorial : ℂ)⁻¹ • multiIndexDeriv m f c
 
 /-- Formal Taylor coefficients coincide with the integral Cauchy coefficients. -/
-theorem coeff_holomorphicTaylorSeries {f : (Fin d → ℂ) → ℂ} {c : Fin d → ℂ}
+theorem coeff_holomorphicTaylorSeries {f : (Fin d → ℂ) → E} {c : Fin d → ℂ}
     {R : Fin d → ℝ} (hR : ∀ i, 0 < R i)
     (hfc : ContinuousOn f (closedPolydiscWithRadii c R))
     (hfa : ∀ z ∈ closedPolydiscWithRadii c R, ∀ i,
       AnalyticAt ℂ (fun v => f (update z i v)) (z i)) (m : Fin d →₀ ℕ) :
-    MvPowerSeries.coeff m (holomorphicTaylorSeries f c) = polydiscCauchyCoeffWithRadii f c R m := by
+    holomorphicTaylorSeries f c m = polydiscCauchyCoeffWithRadii f c R m := by
   exact (polydiscCauchyCoeffWithRadii_eq_multiIndexDeriv hR hfc hfa m).symm
 
 /-- The ungrouped multi-index geometric expansion of the Cauchy kernel. -/
@@ -100,6 +101,7 @@ theorem torusIntegrable_cauchyKernel_multi {f : (Fin d → ℂ) → E}
   exact (hk.smul hfθ).integrableOn_compact isCompact_Icc
 
 omit [CompleteSpace E] in
+/-- Bound for the Cauchy–Taylor integrand on the distinguished boundary. -/
 private theorem norm_cauchyTaylor_integrand_le {f : (Fin d → ℂ) → E}
     {c h : Fin d → ℂ} {R : Fin d → ℝ} {M : ℝ} (hR : ∀ i, 0 < R i)
     (hM : ∀ z ∈ closedPolydiscWithRadii c R, ‖f z‖ ≤ M)

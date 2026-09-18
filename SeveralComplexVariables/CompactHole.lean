@@ -17,9 +17,9 @@ Ehrenpreis' proof of Hartogs' extension theorem. Let `D ⊆ ℂ × G` be open wi
 finite-dimensional complex normed space, `K ⊆ D` compact with `D \ K` connected, and `f`
 holomorphic on `D \ K`. A smooth cutoff `φ` equal to one near `K` with compact support in `D`
 gives the smooth function `F₀ = (1 - φ) f`, extended by zero across `K`. Its antiholomorphic
-derivatives `∂F₀/∂z̄` along every direction are compactly supported, and their symmetry, from the
+derivatives `∂F₀/∂\bar z` along every direction are compactly supported, and their symmetry, from the
 symmetry of the second derivative of `F₀`, shows that the Cauchy transform `u` in the first
-variable of `∂F₀/∂z̄₁` has the same antiholomorphic derivatives as `F₀`. Hence `F₀ - u` is
+variable of `∂F₀/∂\bar z₁` has the same antiholomorphic derivatives as `F₀`. Hence `F₀ - u` is
 holomorphic on `D`. On the open set of points of `D` whose second coordinate lies outside the
 projection of the support of `φ`, both `F₀ = f` and `u = 0`; this set is nonempty because the
 projection of `D` cannot be compact, and the identity principle on `D \ K` finishes the proof.
@@ -41,8 +41,8 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 /-- The antiholomorphic derivatives of a `C²` function commute: the antiholomorphic part along
-`v'` of the derivative of `∂F₀/∂z̄_v` equals the antiholomorphic part along `v` of the derivative
-of `∂F₀/∂z̄_{v'}`. -/
+`v'` of the derivative of `∂F₀/∂\bar z_v` equals the antiholomorphic part along `v` of the derivative
+of `∂F₀/∂\bar z_{v'}`. -/
 theorem dbarAlong_fderiv_dbarAlong_fderiv_symm {F₀ : E → F} {x : E} (hF : ContDiffAt ℝ 2 F₀ x)
     (v v' : E) :
     dbarAlong (fderiv ℝ (fun y => dbarAlong (fderiv ℝ F₀ y) v) x) v' =
@@ -112,19 +112,22 @@ theorem nonempty_holeCutoffData {D K : Set (ℂ × G)} (hD : IsOpen D) (hK : IsC
       ((cthickening_mono (by linarith) K).trans hδD)
 
 omit [FiniteDimensional ℂ G] [NormedSpace ℂ F] [CompleteSpace F] in
+/-- The hole lies in the support of the cutoff. -/
 theorem HoleCutoffData.subset_s {D K : Set (ℂ × G)} (h : HoleCutoffData D K) : K ⊆ h.s :=
   fun x hx => by
     rw [← h.support_eq, mem_support, h.eq_one x (h.subset_U hx)]
     exact one_ne_zero
 
 omit [FiniteDimensional ℂ G] [NormedSpace ℂ F] [CompleteSpace F] in
+/-- The cutoff vanishes outside its support. -/
 theorem HoleCutoffData.eq_zero_of_notMem {D K : Set (ℂ × G)} (h : HoleCutoffData D K)
     {x : ℂ × G} (hx : x ∉ h.s) : h.φ x = 0 := by
   rw [← h.support_eq] at hx
   exact notMem_support.mp hx
 
 omit [FiniteDimensional ℂ G] [NormedSpace ℂ F] [CompleteSpace F] in
-theorem HoleCutoffData.notMem_K_of_notMem_closure {D K : Set (ℂ × G)} (h : HoleCutoffData D K)
+/-- Points outside the closure of the support are outside the hole. -/
+theorem HoleCutoffData.notMem_hole_of_notMem_closure {D K : Set (ℂ × G)} (h : HoleCutoffData D K)
     {x : ℂ × G} (hx : x ∉ closure h.s) : x ∉ K :=
   fun hxK => hx (subset_closure (h.subset_s hxK))
 
@@ -134,12 +137,14 @@ def holeCutoff (K : Set (ℂ × G)) (φ : ℂ × G → ℝ) (f : ℂ × G → F)
   if x ∈ K then 0 else (1 - φ x) • f x
 
 omit [NormedAddCommGroup G] [NormedSpace ℂ G] [FiniteDimensional ℂ G] [CompleteSpace F] in
+/-- The modified function vanishes where the cutoff equals one. -/
 theorem holeCutoff_eq_zero_of_one {K : Set (ℂ × G)} {φ : ℂ × G → ℝ} {f : ℂ × G → F} {x : ℂ × G}
     (hx : φ x = 1) : holeCutoff K φ f x = 0 := by
   unfold holeCutoff
   split_ifs <;> simp [hx]
 
 omit [NormedAddCommGroup G] [NormedSpace ℂ G] [FiniteDimensional ℂ G] [CompleteSpace F] in
+/-- Off the hole and off the support of the cutoff, the modified function is `f`. -/
 theorem holeCutoff_eq_of_zero {K : Set (ℂ × G)} {φ : ℂ × G → ℝ} {f : ℂ × G → F} {x : ℂ × G}
     (hxK : x ∉ K) (hx : φ x = 0) : holeCutoff K φ f x = f x := by
   simp [holeCutoff, hxK, hx]
@@ -170,7 +175,7 @@ omit [FiniteDimensional ℂ G] [CompleteSpace F] in
 theorem holeCutoff_eventuallyEq (x : ℂ × G) (hx : x ∉ closure h.s) :
     holeCutoff K h.φ f =ᶠ[𝓝 x] f :=
   eventuallyEq_of_mem (isClosed_closure.isOpen_compl.mem_nhds hx) fun _ hy =>
-    holeCutoff_eq_of_zero (h.notMem_K_of_notMem_closure hy)
+    holeCutoff_eq_of_zero (h.notMem_hole_of_notMem_closure hy)
       (h.eq_zero_of_notMem fun hs => hy (subset_closure hs))
 
 open scoped Classical in
@@ -179,11 +184,13 @@ def dbarExt (D : Set (ℂ × G)) (F₀ : ℂ × G → F) (v : ℂ × G) (x : ℂ
   if x ∈ D then dbarAlong (fderiv ℝ F₀ x) v else 0
 
 omit [FiniteDimensional ℂ G] [CompleteSpace F] in
+/-- On `D`, the extended derivative is the antiholomorphic derivative. -/
 theorem dbarExt_eventuallyEq (hD : IsOpen D) {F₀ : ℂ × G → F} {v x : ℂ × G} (hx : x ∈ D) :
     dbarExt D F₀ v =ᶠ[𝓝 x] fun y => dbarAlong (fderiv ℝ F₀ y) v :=
   eventuallyEq_of_mem (hD.mem_nhds hx) fun y hy => by simp [dbarExt, hy]
 
 omit [FiniteDimensional ℂ G] [CompleteSpace F] in
+/-- The value of the extended derivative at a point of `D`. -/
 theorem dbarExt_of_mem {F₀ : ℂ × G → F} {v x : ℂ × G} (hx : x ∈ D) :
     dbarExt D F₀ v x = dbarAlong (fderiv ℝ F₀ x) v := by simp [dbarExt, hx]
 
@@ -193,11 +200,12 @@ theorem dbarExt_holeCutoff_eq_zero (hf : AnalyticOnNhd ℂ f (D \ K)) (v : ℂ �
     (hx : x ∉ closure h.s) : dbarExt D (holeCutoff K h.φ f) v x = 0 := by
   by_cases hxD : x ∈ D
   · rw [dbarExt_of_mem hxD, (holeCutoff_eventuallyEq h (f := f) x hx).fderiv_eq,
-      (hf x ⟨hxD, h.notMem_K_of_notMem_closure hx⟩).differentiableAt.fderiv_restrictScalars ℝ,
+      (hf x ⟨hxD, h.notMem_hole_of_notMem_closure hx⟩).differentiableAt.fderiv_restrictScalars ℝ,
       dbarAlong_restrictScalars]
   · simp [dbarExt, hxD]
 
 omit [FiniteDimensional ℂ G] in
+/-- The extended antiholomorphic derivatives of the modified function are `C¹`. -/
 theorem contDiff_dbarExt_holeCutoff (hD : IsOpen D) (hKc : IsClosed K)
     (hf : AnalyticOnNhd ℂ f (D \ K)) (v : ℂ × G) :
     ContDiff ℝ 1 (dbarExt D (holeCutoff K h.φ f) v) := by
@@ -218,6 +226,8 @@ theorem contDiff_dbarExt_holeCutoff (hD : IsOpen D) (hKc : IsClosed K)
     exact contDiffAt_const.congr_of_eventuallyEq heq
 
 omit [FiniteDimensional ℂ G] [CompleteSpace F] in
+/-- The extended antiholomorphic derivatives of the modified function have compact
+support. -/
 theorem hasCompactSupport_dbarExt_holeCutoff (hf : AnalyticOnNhd ℂ f (D \ K)) (v : ℂ × G) :
     HasCompactSupport (dbarExt D (holeCutoff K h.φ f) v) :=
   HasCompactSupport.intro h.isCompact_closure fun _ hx => dbarExt_holeCutoff_eq_zero h hf v hx
@@ -314,7 +324,7 @@ theorem exists_analyticOnNhd_extension_of_isCompact_prod {D K : Set (ℂ × G)} 
     intro x hx
     have hxs : x ∉ closure h.s := fun hc => hx.2 (mem_image_of_mem _ hc)
     have hF : F₀ x = f x :=
-      holeCutoff_eq_of_zero (h.notMem_K_of_notMem_closure hxs)
+      holeCutoff_eq_of_zero (h.notMem_hole_of_notMem_closure hxs)
         (h.eq_zero_of_notMem fun hs => hxs (subset_closure hs))
     have hu0 : u x = 0 := by
       have hz : ∀ z : ℂ, dbarExt D F₀ e₁ (z, x.2) = 0 := fun z =>

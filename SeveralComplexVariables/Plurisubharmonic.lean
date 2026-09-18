@@ -42,9 +42,11 @@ def PlurisubharmonicOn (f : E → ℝ) (U : Set E) : Prop :=
 
 variable {f g : E → ℝ} {U V : Set E}
 
+/-- A plurisubharmonic function is upper semicontinuous. -/
 theorem PlurisubharmonicOn.upperSemicontinuousOn (h : PlurisubharmonicOn f U) :
     UpperSemicontinuousOn f U := h.1
 
+/-- Complex-line slices of a plurisubharmonic function are subharmonic. -/
 theorem PlurisubharmonicOn.slice (h : PlurisubharmonicOn f U) {a : E} (ha : a ∈ U) (w : E) :
     SubharmonicOn (fun t : ℂ => f (a + t • w)) {t | a + t • w ∈ U} := h.2 a ha w
 
@@ -53,6 +55,7 @@ theorem PlurisubharmonicOn.submeanAt_slice (h : PlurisubharmonicOn f U) {a : E} 
     (w : E) : SubmeanAt (fun t : ℂ => f (a + t • w)) 0 :=
   (h.slice ha w).submeanAt (by simpa using ha)
 
+/-- Plurisubharmonicity restricts to subsets. -/
 theorem PlurisubharmonicOn.mono (h : PlurisubharmonicOn f U) (hV : V ⊆ U) :
     PlurisubharmonicOn f V :=
   ⟨h.1.mono hV, fun a ha w => (h.2 a (hV ha) w).mono fun _ ht => hV ht⟩
@@ -89,17 +92,21 @@ theorem plurisubharmonicOn_of_submeanAt (husc : UpperSemicontinuousOn f U)
 
 section Algebra
 
+/-- Constants are plurisubharmonic. -/
 theorem plurisubharmonicOn_const (c : ℝ) (U : Set E) : PlurisubharmonicOn (fun _ => c) U :=
   ⟨continuousOn_const.upperSemicontinuousOn, fun _ _ _ => subharmonicOn_const c _⟩
 
+/-- Sums of plurisubharmonic functions are plurisubharmonic. -/
 theorem PlurisubharmonicOn.add (hf : PlurisubharmonicOn f U) (hg : PlurisubharmonicOn g U) :
     PlurisubharmonicOn (fun z => f z + g z) U :=
   ⟨hf.1.add hg.1, fun a ha w => (hf.2 a ha w).add (hg.2 a ha w)⟩
 
+/-- Nonnegative multiples of plurisubharmonic functions are plurisubharmonic. -/
 theorem PlurisubharmonicOn.const_mul {c : ℝ} (hc : 0 ≤ c) (hf : PlurisubharmonicOn f U) :
     PlurisubharmonicOn (fun z => c * f z) U :=
   ⟨(subharmonicOn_const_mul_usc hc hf.1), fun a ha w => (hf.2 a ha w).const_mul hc⟩
 
+/-- The pointwise maximum of two plurisubharmonic functions is plurisubharmonic. -/
 theorem PlurisubharmonicOn.sup (hf : PlurisubharmonicOn f U) (hg : PlurisubharmonicOn g U) :
     PlurisubharmonicOn (fun z => max (f z) (g z)) U :=
   ⟨hf.1.sup hg.1, fun a ha w => (hf.2 a ha w).sup (hg.2 a ha w)⟩

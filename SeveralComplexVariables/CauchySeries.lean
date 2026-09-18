@@ -45,13 +45,13 @@ noncomputable def multiIndexMonomial {d n : ℕ} (m : Fin d → ℕ)
     (fun q => ContinuousLinearMap.proj q.1)).domDomCongr e
 
 /-- On the diagonal, `multiIndexMonomial` evaluates to the usual multi-index monomial. -/
-lemma multiIndexMonomial_apply {d n : ℕ} (m : Fin d → ℕ)
+theorem multiIndexMonomial_apply {d n : ℕ} (m : Fin d → ℕ)
     (hm : ∑ i, m i = n) (w : Fin d → ℂ) :
     multiIndexMonomial m hm (fun _ => w) = ∏ i, w i ^ m i := by
   simp [multiIndexMonomial, Fintype.prod_sigma]
 
 /-- The operator norm of `multiIndexMonomial` is at most one for the sup norm. -/
-lemma norm_multiIndexMonomial_le {d n : ℕ} (m : Fin d → ℕ)
+theorem norm_multiIndexMonomial_le {d n : ℕ} (m : Fin d → ℕ)
     (hm : ∑ i, m i = n) : ‖multiIndexMonomial m hm‖ ≤ 1 := by
   rw [multiIndexMonomial, ContinuousMultilinearMap.norm_domDomCongr]
   refine (ContinuousMultilinearMap.norm_compContinuousLinearMap_le _ _).trans ?_
@@ -62,7 +62,7 @@ lemma norm_multiIndexMonomial_le {d n : ℕ} (m : Fin d → ℕ)
   simpa using norm_le_pi_norm w q.1
 
 /-- Absolute summability of a finite product of geometric series. -/
-lemma summable_norm_pi_geometric {K : Type*} [NormedCommRing K]
+theorem summable_norm_pi_geometric {K : Type*} [NormedCommRing K]
     {d : ℕ} (x : Fin d → K) (hx : ∀ i, ‖x i‖ < 1) :
     Summable fun m : Fin d → ℕ => ‖∏ i, x i ^ m i‖ := by
   induction d with
@@ -83,7 +83,7 @@ lemma summable_norm_pi_geometric {K : Type*} [NormedCommRing K]
         norm_mul_le (x 0 ^ p.1) (∏ i, x i.succ ^ p.2 i)
 
 /-- The multivariable geometric series sums to the product of its one-variable sums. -/
-lemma hasSum_pi_geometric {K : Type*} [NormedField K] [CompleteSpace K]
+theorem hasSum_pi_geometric {K : Type*} [NormedField K] [CompleteSpace K]
     {d : ℕ} (x : Fin d → K) (hx : ∀ i, ‖x i‖ < 1) :
     HasSum (fun m : Fin d → ℕ => ∏ i, x i ^ m i) (∏ i, (1 - x i)⁻¹) := by
   induction d with
@@ -115,7 +115,8 @@ lemma hasSum_pi_geometric {K : Type*} [NormedField K] [CompleteSpace K]
         simp [e, Fin.prod_univ_succ]
       · simp [Fin.prod_univ_succ, mul_comm]
 
-private lemma hasSum_antidiagonalTuple_geometric {K : Type*} [NormedField K] [CompleteSpace K]
+/-- A multivariable geometric series, summed by total degree. -/
+private theorem hasSum_antidiagonalTuple_geometric {K : Type*} [NormedField K] [CompleteSpace K]
     {d : ℕ} (x : Fin d → K)
     (hx : ∀ i, ‖x i‖ < 1) :
     HasSum (fun n : ℕ => ∑ m ∈ Finset.Nat.antidiagonalTuple d n, ∏ i, x i ^ m i)
@@ -158,7 +159,7 @@ noncomputable def polydiscCauchySeries {d : ℕ} (f : (Fin d → ℂ) → E)
 
 omit [CompleteSpace E] in
 /-- Evaluation of the homogeneous terms of `polydiscCauchySeries` on the diagonal. -/
-lemma polydiscCauchySeries_apply {d n : ℕ} (f : (Fin d → ℂ) → E)
+theorem polydiscCauchySeries_apply {d n : ℕ} (f : (Fin d → ℂ) → E)
     (c h : Fin d → ℂ) (R : ℝ) :
     polydiscCauchySeries f c R n (fun _ => h) =
       ∑ m : Finset.Nat.antidiagonalTuple d n,
@@ -168,7 +169,7 @@ lemma polydiscCauchySeries_apply {d n : ℕ} (f : (Fin d → ℂ) → E)
 omit [CompleteSpace E] in
 /-- Cauchy's coefficient estimate for the multi-index coefficients of a bounded function on a
 closed polydisc. -/
-lemma norm_polydiscCauchyCoeff_le {d : ℕ} {f : (Fin d → ℂ) → E}
+theorem norm_polydiscCauchyCoeff_le {d : ℕ} {f : (Fin d → ℂ) → E}
     {c : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
     (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (m : Fin d → ℕ) :
     ‖polydiscCauchyCoeff f c R m‖ ≤ M * R⁻¹ ^ (∑ i, m i) := by
@@ -204,7 +205,8 @@ lemma norm_polydiscCauchyCoeff_le {d : ℕ} {f : (Fin d → ℂ) → E}
         rw [← mul_pow, mul_inv_cancel₀ hR.ne', one_pow, mul_one]
 
 omit [CompleteSpace E] in
-private lemma norm_polydiscCauchySeries_mul_pow_le {d : ℕ} {f : (Fin d → ℂ) → E}
+/-- Cauchy estimate for the homogeneous terms of the polydisc Cauchy series. -/
+private theorem norm_polydiscCauchySeries_mul_pow_le {d : ℕ} {f : (Fin d → ℂ) → E}
     {c : Fin d → ℂ} {R M r : ℝ} (hR : 0 < R) (hr : 0 ≤ r)
     (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (n : ℕ) :
     ‖polydiscCauchySeries f c R n‖ * r ^ n ≤
@@ -251,7 +253,8 @@ private lemma norm_polydiscCauchySeries_mul_pow_le {d : ℕ} {f : (Fin d → ℂ
         ring
 
 omit [CompleteSpace E] in
-private lemma summable_norm_polydiscCauchySeries_mul_pow {d : ℕ}
+/-- Below the radius, the Cauchy estimates give a summable geometric majorant. -/
+private theorem summable_norm_polydiscCauchySeries_mul_pow {d : ℕ}
     {f : (Fin d → ℂ) → E} {c : Fin d → ℂ} {R M r : ℝ} (hR : 0 < R)
     (hr : 0 ≤ r) (hrR : r < R)
     (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) :
@@ -282,7 +285,8 @@ private lemma summable_norm_polydiscCauchySeries_mul_pow {d : ℕ}
     (norm_polydiscCauchySeries_mul_pow_le hR hr hM) ?_
   exact hmajor
 
-private lemma hasSum_polydiscCauchyKernel {d : ℕ} {z c h : Fin d → ℂ}
+/-- Expansion of the polydisc Cauchy kernel by total degree. -/
+private theorem hasSum_polydiscCauchyKernel {d : ℕ} {z c h : Fin d → ℂ}
     (hz : ∀ i, z i ≠ c i) (hh : ∀ i, ‖h i‖ < ‖z i - c i‖) :
     HasSum (fun n : ℕ => ∑ m : Finset.Nat.antidiagonalTuple d n,
         (∏ i, h i ^ (m : Fin d → ℕ) i) *
@@ -342,7 +346,7 @@ private lemma hasSum_polydiscCauchyKernel {d : ℕ} {z c h : Fin d → ℂ}
 
 omit [CompleteSpace E] in
 /-- A uniformly absolutely summable series may be integrated termwise on a torus. -/
-lemma hasSum_torusIntegral_of_uniform {d : ℕ} {κ : Type*} [Countable κ]
+theorem hasSum_torusIntegral_of_uniform {d : ℕ} {κ : Type*} [Countable κ]
     {F : κ → (Fin d → ℂ) → E}
     {g : (Fin d → ℂ) → E} {c : Fin d → ℂ} {R : Fin d → ℝ} {a : κ → ℝ}
     (ha : Summable a)
@@ -369,6 +373,7 @@ lemma hasSum_torusIntegral_of_uniform {d : ℕ} {κ : Type*} [Countable κ]
     (ae_of_all _ fun θ => (hsum θ).const_smul (J θ))
   simpa [torusIntegral, J] using h
 
+/-- The homogeneous term of total degree `n` in the Cauchy kernel expansion. -/
 private noncomputable def polydiscCauchyTerm {d : ℕ} (f : (Fin d → ℂ) → E)
     (c h : Fin d → ℂ) (n : ℕ) (z : Fin d → ℂ) : E :=
   (∑ m : Finset.Nat.antidiagonalTuple d n,
@@ -376,7 +381,8 @@ private noncomputable def polydiscCauchyTerm {d : ℕ} (f : (Fin d → ℂ) → 
       ∏ i, (z i - c i)⁻¹ ^ ((m : Fin d → ℕ) i + 1)) • f z
 
 omit [CompleteSpace E] in
-private lemma torusIntegral_fintype_sum {d : ℕ} {α : Type*} [Fintype α]
+/-- Torus integrals commute with finite sums. -/
+private theorem torusIntegral_fintype_sum {d : ℕ} {α : Type*} [Fintype α]
     {F : α → (Fin d → ℂ) → E} {c : Fin d → ℂ} {R : Fin d → ℝ}
     (hF : ∀ a, TorusIntegrable (F a) c R) :
     torusIntegral (fun z => ∑ a, F a z) c R = ∑ a, torusIntegral (F a) c R := by
@@ -384,7 +390,8 @@ private lemma torusIntegral_fintype_sum {d : ℕ} {α : Type*} [Fintype α]
   exact integral_finsetSum _ fun a _ => (hF a).function_integrable
 
 omit [CompleteSpace E] in
-private lemma torusIntegrable_polydiscCauchySummand {d : ℕ}
+/-- Each monomial summand of the Cauchy kernel expansion is torus integrable. -/
+private theorem torusIntegrable_polydiscCauchySummand {d : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R : ℝ} (hR : 0 < R)
     (hfc : ContinuousOn f (closedPolydisc c R)) (m : Fin d → ℕ) :
     TorusIntegrable (fun z => ((∏ i, h i ^ m i) *
@@ -411,7 +418,8 @@ private lemma torusIntegrable_polydiscCauchySummand {d : ℕ}
   exact (hscalar.smul hfθ).integrableOn_compact isCompact_Icc
 
 omit [CompleteSpace E] in
-private lemma torusIntegrable_polydiscCauchyTerm {d n : ℕ}
+/-- Each homogeneous term of the Cauchy kernel expansion is torus integrable. -/
+private theorem torusIntegrable_polydiscCauchyTerm {d n : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R : ℝ} (hR : 0 < R)
     (hfc : ContinuousOn f (closedPolydisc c R)) :
     TorusIntegrable (polydiscCauchyTerm f c h n) c (fun _ => R) := by
@@ -440,7 +448,8 @@ private lemma torusIntegrable_polydiscCauchyTerm {d n : ℕ}
   exact (hscalar.smul hfθ).integrableOn_compact isCompact_Icc
 
 omit [CompleteSpace E] in
-private lemma norm_polydiscCauchyTerm_le {d n : ℕ} {f : (Fin d → ℂ) → E}
+/-- Bound for the homogeneous Cauchy terms on the distinguished boundary. -/
+private theorem norm_polydiscCauchyTerm_le {d n : ℕ} {f : (Fin d → ℂ) → E}
     {c h : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
     (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) (θ : Fin d → ℝ) :
     ‖polydiscCauchyTerm f c h n (torusMap c (fun _ => R) θ)‖ ≤
@@ -476,7 +485,8 @@ private lemma norm_polydiscCauchyTerm_le {d n : ℕ} {f : (Fin d → ℂ) → E}
         ring
 
 omit [CompleteSpace E] in
-private lemma polydiscCauchySeries_apply_eq_torusIntegral {d n : ℕ}
+/-- A term of the Cauchy series, evaluated on a diagonal, is a torus integral. -/
+private theorem polydiscCauchySeries_apply_eq_torusIntegral {d n : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R : ℝ} (hR : 0 < R)
     (hfc : ContinuousOn f (closedPolydisc c R)) :
     polydiscCauchySeries f c R n (fun _ => h) =
@@ -520,7 +530,8 @@ private lemma polydiscCauchySeries_apply_eq_torusIntegral {d n : ℕ}
       simp only [a, K, smul_smul]
 
 omit [CompleteSpace E] in
-private lemma hasSum_polydiscCauchySeries_integral {d : ℕ}
+/-- The polydisc Cauchy series sums to the Cauchy integral. -/
+private theorem hasSum_polydiscCauchySeries_integral {d : ℕ}
     {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ} {R M : ℝ} (hR : 0 < R)
     (hh : ∀ i, ‖h i‖ < R) (hfc : ContinuousOn f (closedPolydisc c R))
     (hM : ∀ z ∈ closedPolydisc c R, ‖f z‖ ≤ M) :

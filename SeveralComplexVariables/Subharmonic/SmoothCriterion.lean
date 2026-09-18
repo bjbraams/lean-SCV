@@ -109,20 +109,25 @@ theorem exists_taylor_bound {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ 
     _ ≤ ε * ‖h‖ * ‖h‖ := hmvt
     _ = ε * ‖h‖ ^ 2 := by ring
 
+/-- The integral of the cosine over a period vanishes. -/
 private theorem integral_cos_two_pi : ∫ θ in (0 : ℝ)..2 * π, Real.cos θ = 0 := by
   simp [integral_cos]
 
+/-- The integral of the sine over a period vanishes. -/
 private theorem integral_sin_two_pi : ∫ θ in (0 : ℝ)..2 * π, Real.sin θ = 0 := by
   simp [integral_sin]
 
+/-- The integral of the squared cosine over a period is `π`. -/
 private theorem integral_cos_sq_two_pi : ∫ θ in (0 : ℝ)..2 * π, Real.cos θ ^ 2 = π := by
   rw [integral_cos_sq]
   simp
 
+/-- The integral of the squared sine over a period is `π`. -/
 private theorem integral_sin_sq_two_pi : ∫ θ in (0 : ℝ)..2 * π, Real.sin θ ^ 2 = π := by
   rw [integral_sin_sq]
   simp
 
+/-- The integral of `sin θ cos θ` over a period vanishes. -/
 private theorem integral_sin_mul_cos_two_pi :
     ∫ θ in (0 : ℝ)..2 * π, Real.sin θ * Real.cos θ = 0 := by
   rw [integral_sin_mul_cos₁]

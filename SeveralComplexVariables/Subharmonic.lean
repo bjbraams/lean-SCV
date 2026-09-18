@@ -54,9 +54,11 @@ def SubharmonicOn (u : ℂ → ℝ) (U : Set ℂ) : Prop :=
 
 variable {u v : ℂ → ℝ} {U V : Set ℂ} {a : ℂ}
 
+/-- A subharmonic function is upper semicontinuous. -/
 theorem SubharmonicOn.upperSemicontinuousOn (h : SubharmonicOn u U) :
     UpperSemicontinuousOn u U := h.1
 
+/-- A subharmonic function has the local submean property at each point of its domain. -/
 theorem SubharmonicOn.submeanAt (h : SubharmonicOn u U) (ha : a ∈ U) : SubmeanAt u a :=
   h.2 a ha
 
@@ -89,12 +91,15 @@ theorem subharmonicOn_of_locally (h : ∀ a ∈ U, ∃ V ∈ 𝓝 a, Subharmonic
 
 section Algebra
 
+/-- Constants have the local submean property. -/
 theorem submeanAt_const (c : ℝ) (a : ℂ) : SubmeanAt (fun _ => c) a :=
   Filter.Eventually.of_forall fun _ => ⟨circleIntegrable_const c a _, by rw [circleAverage_const]⟩
 
+/-- Constants are subharmonic. -/
 theorem subharmonicOn_const (c : ℝ) (U : Set ℂ) : SubharmonicOn (fun _ => c) U :=
   ⟨continuousOn_const.upperSemicontinuousOn, fun a _ => submeanAt_const c a⟩
 
+/-- The local submean property is additive. -/
 theorem SubmeanAt.add (hu : SubmeanAt u a) (hv : SubmeanAt v a) :
     SubmeanAt (fun z => u z + v z) a := by
   filter_upwards [hu, hv] with r ⟨hui, hu'⟩ ⟨hvi, hv'⟩
@@ -102,10 +107,12 @@ theorem SubmeanAt.add (hu : SubmeanAt u a) (hv : SubmeanAt v a) :
   rw [circleAverage_fun_add hui hvi]
   exact add_le_add hu' hv'
 
+/-- Sums of subharmonic functions are subharmonic. -/
 theorem SubharmonicOn.add (hu : SubharmonicOn u U) (hv : SubharmonicOn v U) :
     SubharmonicOn (fun z => u z + v z) U :=
   ⟨hu.1.add hv.1, fun a ha => (hu.2 a ha).add (hv.2 a ha)⟩
 
+/-- Nonnegative multiples preserve the local submean property. -/
 theorem SubmeanAt.const_mul {c : ℝ} (hc : 0 ≤ c) (hu : SubmeanAt u a) :
     SubmeanAt (fun z => c * u z) a := by
   filter_upwards [hu] with r ⟨hui, hu'⟩
@@ -120,6 +127,7 @@ theorem subharmonicOn_const_mul_usc {X : Type*} [TopologicalSpace X] {f : X → 
   (continuous_const.mul continuous_id).continuousAt.comp_upperSemicontinuousWithinAt
     (hf z hz) (fun _ _ hxy => mul_le_mul_of_nonneg_left hxy hc)
 
+/-- Nonnegative multiples of subharmonic functions are subharmonic. -/
 theorem SubharmonicOn.const_mul {c : ℝ} (hc : 0 ≤ c) (hu : SubharmonicOn u U) :
     SubharmonicOn (fun z => c * u z) U :=
   ⟨subharmonicOn_const_mul_usc hc hu.1, fun a ha => (hu.2 a ha).const_mul hc⟩
@@ -130,6 +138,7 @@ theorem CircleIntegrable.max {c : ℂ} {R : ℝ} (hu : CircleIntegrable u c R)
   rw [circleIntegrable_def] at hu hv ⊢
   exact ⟨hu.1.sup hv.1, hu.2.sup hv.2⟩
 
+/-- The pointwise maximum preserves the local submean property. -/
 theorem SubmeanAt.sup (hu : SubmeanAt u a) (hv : SubmeanAt v a) :
     SubmeanAt (fun z => max (u z) (v z)) a := by
   filter_upwards [hu, hv] with r ⟨hui, hu'⟩ ⟨hvi, hv'⟩
@@ -138,6 +147,7 @@ theorem SubmeanAt.sup (hu : SubmeanAt u a) (hv : SubmeanAt v a) :
   · exact hu'.trans (circleAverage_mono hui hm fun z _ => le_max_left _ _)
   · exact hv'.trans (circleAverage_mono hvi hm fun z _ => le_max_right _ _)
 
+/-- The pointwise maximum of two subharmonic functions is subharmonic. -/
 theorem SubharmonicOn.sup (hu : SubharmonicOn u U) (hv : SubharmonicOn v U) :
     SubharmonicOn (fun z => max (u z) (v z)) U :=
   ⟨hu.1.sup hv.1, fun a ha => (hu.2 a ha).sup (hv.2 a ha)⟩
@@ -173,6 +183,7 @@ theorem circleAverage_re_eq_of_analyticAt {f : ℂ → ℂ} (hf : AnalyticAt ℂ
   simp only [Function.comp_def, Complex.reCLM_apply] at this
   rw [this hint, hd.circleAverage]
 
+/-- The real part of a holomorphic function is subharmonic. -/
 theorem SubharmonicOn.re_of_analyticOnNhd {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f U) :
     SubharmonicOn (fun z => (f z).re) U := by
   refine ⟨(Complex.continuous_re.comp_continuousOn hf.continuousOn).upperSemicontinuousOn,
@@ -183,6 +194,7 @@ theorem SubharmonicOn.re_of_analyticOnNhd {f : ℂ → ℂ} (hf : AnalyticOnNhd 
   exact Complex.continuous_re.comp_continuousOn
     ((AnalyticOnNhd.continuousOn fun z hz => hball (ball_subset_ball (min_le_right _ _) hz)))
 
+/-- Minus the real part of a holomorphic function is subharmonic. -/
 theorem SubharmonicOn.neg_re_of_analyticOnNhd {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f U) :
     SubharmonicOn (fun z => -(f z).re) U := by
   have := SubharmonicOn.re_of_analyticOnNhd (U := U) (f := fun z => -f z) (hf.neg)

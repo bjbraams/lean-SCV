@@ -15,8 +15,8 @@ public import Mathlib.RingTheory.Polynomial.UniqueFactorization
 # Noetherianity of analytic germ rings
 
 Jakóbczak–Jarnicki, Proposition 1.8.6: scalar analytic germs on finite-dimensional
-complex spaces form Noetherian rings. The analytic induction step is explicitly
-pending: normalize a nonzero element of an ideal, divide by it, and use finite
+complex spaces form Noetherian rings. The analytic induction step
+normalizes a nonzero element of an ideal, divides by it, and uses finite
 generation of the resulting submodule of the finite module of remainder coefficients.
 The dimension induction, zero-dimensional base case, and coordinate transport are
 proved here from that step. No claim is made for infinite-dimensional source spaces.
@@ -131,11 +131,11 @@ theorem ideal_fg_prod [FiniteDimensional ℂ E]
     have hΦsymm0 : AnalyticAt ℂ L.symm (L (0 : E × ℂ)) := by
       rw [hL0]; exact L.symm.toContinuousLinearMap.analyticAt 0
     set Φ : AnalyticGerm (0 : E × ℂ) ≃ₐ[ℂ] AnalyticGerm (0 : E × ℂ) :=
-      pullbackEquiv_of_eq L.toHomeomorph 0 hΦ hΦsymm0 hL0 with hΦdef
+      pullbackEquivOfEq L.toHomeomorph 0 hΦ hΦsymm0 hL0 with hΦdef
     have hΦg : Φ (ofAnalyticAt g0 hg0A) = ofAnalyticAt (g0 ∘ L) (hg0A.comp_of_eq hΦ hL0) :=
-      pullbackEquiv_of_eq_ofAnalyticAt L.toHomeomorph 0 hΦ hΦsymm0 hL0 g0 hg0A
+      pullbackEquivOfEq_ofAnalyticAt L.toHomeomorph 0 hΦ hΦsymm0 hL0 g0 hg0A
     have hΦbij : Function.Bijective (Φ : AnalyticGerm (0 : E × ℂ) → AnalyticGerm (0 : E × ℂ)) :=
-      pullbackEquiv_of_eq_bijective L.toHomeomorph 0 hΦ hΦsymm0 hL0
+      pullbackEquivOfEq_bijective L.toHomeomorph 0 hΦ hΦsymm0 hL0
     have hΦorder : orderInLastVariable (Φ (ofAnalyticAt g0 hg0A)) = d := by
       rw [hΦg, orderInLastVariable_ofAnalyticAt]
       exact hd
@@ -170,9 +170,9 @@ theorem prime_of_irreducible_of_baseUFD [FiniteDimensional ℂ E]
   have hΦsymm0 : AnalyticAt ℂ L.symm (L (0 : E × ℂ)) := by
     rw [hL0]; exact L.symm.toContinuousLinearMap.analyticAt 0
   set Φ : AnalyticGerm (0 : E × ℂ) ≃ₐ[ℂ] AnalyticGerm (0 : E × ℂ) :=
-    pullbackEquiv_of_eq L.toHomeomorph 0 hΦ hΦsymm0 hL0 with hΦdef
+    pullbackEquivOfEq L.toHomeomorph 0 hΦ hΦsymm0 hL0 with hΦdef
   have hΦg : Φ (ofAnalyticAt g0 hg0A) = ofAnalyticAt (g0 ∘ L) (hg0A.comp_of_eq hΦ hL0) :=
-    pullbackEquiv_of_eq_ofAnalyticAt L.toHomeomorph 0 hΦ hΦsymm0 hL0 g0 hg0A
+    pullbackEquivOfEq_ofAnalyticAt L.toHomeomorph 0 hΦ hΦsymm0 hL0 g0 hg0A
   have hΦorder : orderInLastVariable (Φ (ofAnalyticAt g0 hg0A)) = d := by
     rw [hΦg, orderInLastVariable_ofAnalyticAt]
     exact hd
@@ -207,7 +207,7 @@ theorem isNoetherianRing_coordinates (n : ℕ) :
         (linearEquivPullbackZero e.toContinuousLinearEquiv).toRingEquiv
 
 /-- Scalar analytic germs at any point of a finite-dimensional complex normed space
-form a Noetherian ring. This instance depends on the pending analytic induction step. -/
+form a Noetherian ring. This instance combines the analytic induction step with the dimension induction. -/
 instance [FiniteDimensional ℂ E] (x : E) : IsNoetherianRing (AnalyticGerm x) := by
   let e := (Module.finBasis ℂ E).equivFunL
   let := isNoetherianRing_coordinates (Module.finrank ℂ E)

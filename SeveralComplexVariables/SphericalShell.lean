@@ -10,11 +10,11 @@ public import Mathlib.LinearAlgebra.Dimension.Finrank
 public import Mathlib.LinearAlgebra.Complex.FiniteDimensional
 
 /-!
-# Isolated singularities and spherical shells
+# Punctured polydiscs, spherical shells, and exteriors of balls
 
 Punctured product polydiscs extend by the proved Hartogs continuity theorem, without
 boundedness assumptions. A radial argument proves connectedness of norm shells; spherical
-shell extension is then a corollary of the still-pending general compact-hole theorem.
+shell extension is then a corollary of the general compact-hole theorem.
 For Euclidean spheres instantiate the source with `EuclideanSpace ℂ ι`, not the supremum
 norm on `ι → ℂ`. References: Korevaar–Wiegerinck (2017), Applications 2.6.2 and 2.8.3.
 -/
@@ -85,7 +85,7 @@ theorem isPreconnected_normShell {E : Type*} [NormedAddCommGroup E] [NormedSpace
   exact hA.image _ hc.continuousOn
 
 /-- **Spherical-shell extension.** This works for any norm in finite complex dimension at
-least two. The proof currently depends on the pending general compact-hole theorem. -/
+least two. The proof applies the general compact-hole theorem. -/
 theorem exists_extension_sphericalShell {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     [FiniteDimensional ℂ E] (hdim : 2 ≤ Module.finrank ℂ E)
     {ρ R : ℝ} (hρ : 0 ≤ ρ) (hρR : ρ < R) {f : E → F}
@@ -98,7 +98,7 @@ theorem exists_extension_sphericalShell {E : Type*} [NormedAddCommGroup E] [Norm
   have hrank : 1 < Module.rank ℝ E := by
     rw [← Module.finrank_eq_rank]
     exact_mod_cast hdimR
-  exact exists_analyticOnNhd_extension_of_isCompact hdim isOpen_ball isPreconnected_ball
+  exact exists_analyticOnNhd_extension_of_isCompact hdim isOpen_ball
     (isCompact_closedBall 0 ρ) (closedBall_subset_ball hρR)
     (isPreconnected_normShell hrank hρ) hf
 
@@ -119,7 +119,7 @@ theorem isPreconnected_compl_closedBall_zero {E : Type*} [NormedAddCommGroup E] 
   simpa only [← iUnion_sdiff, iUnion_ball_nat, ← compl_eq_univ_sdiff] using h
 
 /-- The infinite-outer-radius case of shell extension: a function outside a closed ball
-extends to the whole space. This depends on the pending compact-hole theorem and imposes
+extends to the whole space. This follows from the compact-hole theorem and imposes
 no boundedness at infinity or near the inner sphere. -/
 theorem exists_extension_exterior_closedBall {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     [FiniteDimensional ℂ E] (hdim : 2 ≤ Module.finrank ℂ E) {ρ : ℝ} (hρ : 0 ≤ ρ)
@@ -133,7 +133,7 @@ theorem exists_extension_exterior_closedBall {E : Type*} [NormedAddCommGroup E] 
     rw [← Module.finrank_eq_rank]
     exact_mod_cast hdimR
   simpa only [← compl_eq_univ_sdiff] using exists_analyticOnNhd_extension_of_isCompact hdim
-    isOpen_univ isPreconnected_univ (isCompact_closedBall 0 ρ) (subset_univ _)
+    isOpen_univ (isCompact_closedBall 0 ρ) (subset_univ _)
     (by simpa only [← compl_eq_univ_sdiff] using isPreconnected_compl_closedBall_zero hrank hρ)
     (by simpa only [← compl_eq_univ_sdiff] using hf)
 

@@ -59,7 +59,7 @@ theorem exists_coordinatePower_leadingFactor_ne_zero {d : ℕ} {f : (ι → ℂ)
   have hf0 : DifferentiableOn ℂ f (polydiscWithRadii (0 : ι → ℂ) (fun _ => ε₀) ×ˢ ball 0 ε₀) :=
     hf.mono hε₀U
   obtain ⟨f1, c, hfdiv, hf1bound, hf1uniq⟩ :=
-    coordinatePower_division d (fun _ => hε₀) hε₀ hf0
+    coordinatePower_division d hε₀ hf0
   have hz0V : (0 : ι → ℂ) ∈ polydiscWithRadii (0 : ι → ℂ) (fun _ => ε₀) :=
     mem_polydiscWithRadii.mpr fun i => by simpa using hε₀
   have hforder : AnalyticAt ℂ (fun w : ℂ => f (0, w)) 0 :=
@@ -342,7 +342,7 @@ private theorem normalized_division_germ_unique {d : ℕ} {r₃ R₂ δ : ℝ}
     exact ⟨mem_closedPolydiscWithRadii.mpr fun i =>
       (mem_polydiscWithRadii.mp hz.1 i).le.trans hr₅ρ, ball_subset_closedBall hz.2⟩
   obtain ⟨hSeqs', haOuteqa'⟩ := eqOn_of_isWeierstrassDivisionOn_selfPerturbed
-    (fun _ => hr₅pos) hρpos hh g S s' aOut a' hhFINAL5 hhb3 hSdiv hdiv' (max C1 0) (le_max_right _ _) hM3b
+    hρpos hh g S s' aOut a' hhFINAL5 hhb3 hSdiv hdiv' (max C1 0) (le_max_right _ _) hM3b
   have hqeqq' : EqOn q q' dom5 := by
     intro z hz
     show S z / f1 z = q' z

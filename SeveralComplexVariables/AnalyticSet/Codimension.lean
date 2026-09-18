@@ -80,7 +80,7 @@ theorem HasComplexSliceCodimensionAtLeast.eq_empty_of_finrank_lt [FiniteDimensio
   exact (not_le_of_gt hq) (h a ha).le_finrank
 
 /-- A positive-dimensional isolated slice excludes an interior point. -/
-theorem HasIsolatedComplexSlice.not_mem_interior {A : Set E} {a : E} {q : ℕ}
+theorem HasIsolatedComplexSlice.notMem_interior {A : Set E} {a : E} {q : ℕ}
     (h : HasIsolatedComplexSlice A a q) (hq : 0 < q) : a ∉ interior A := by
   let : Nonempty (Fin q) := ⟨⟨0, hq⟩⟩
   obtain ⟨L, _, he⟩ := h
@@ -101,7 +101,7 @@ theorem HasComplexSliceCodimensionAtLeast.interior_eq_empty {A : Set E} {q : ℕ
     (h : HasComplexSliceCodimensionAtLeast A q) (hq : 0 < q) : interior A = ∅ := by
   apply Set.eq_empty_iff_forall_notMem.mpr
   intro a ha
-  exact (h a (interior_subset ha)).not_mem_interior hq ha
+  exact (h a (interior_subset ha)).notMem_interior hq ha
 
 /-- **Automatic local boundedness in codimension at least two.** Hartogs continuation
 around isolated two-dimensional slices gives a local holomorphic extension, whose

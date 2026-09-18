@@ -17,11 +17,11 @@ public import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 
 For a real-linear map `L` and a direction `v`, the antiholomorphic part of `L` along `v` is
 `(L v + I • L (I • v)) / 2`; for the real derivative of a function of one complex variable and
-`v = 1` this is the Wirtinger derivative `∂f/∂z̄`. A real-linear map is complex-linear exactly
+`v = 1` this is the Wirtinger derivative `∂f/∂\bar z`. A real-linear map is complex-linear exactly
 when all its antiholomorphic parts vanish.
 
 The Cauchy–Pompeiu identity states that for a compactly supported `C¹` function `φ : ℂ → F`,
-`∫ (∂φ/∂z̄)(w) / w = -π φ(0)`. The proof passes to polar coordinates: in the direction of the
+`∫ (∂φ/∂\bar z)(w) / w = -π φ(0)`. The proof passes to polar coordinates: in the direction of the
 ray the integrand is the radial derivative, whose integral over each ray is `-φ(0)`, and in the
 angular direction it is the angular derivative divided by the radius, whose integral over each
 circle vanishes by periodicity. No Green or Stokes theorem is used.
@@ -42,9 +42,10 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 section Dbar
 
 /-- The antiholomorphic part of a real-linear map along a direction: `(L v + I • L (I • v)) / 2`.
-For the real derivative of a function of one complex variable at `v = 1` this is `∂/∂z̄`. -/
+For the real derivative of a function of one complex variable at `v = 1` this is `∂/∂\bar z`. -/
 def dbarAlong (L : E →L[ℝ] F) (v : E) : F := (2 : ℂ)⁻¹ • (L v + I • L (I • v))
 
+/-- The antiholomorphic part along `v` vanishes exactly when `L` commutes with `I` on `v`. -/
 theorem dbarAlong_eq_zero_iff (L : E →L[ℝ] F) (v : E) :
     dbarAlong L v = 0 ↔ L (I • v) = I • L v := by
   unfold dbarAlong
@@ -58,14 +59,17 @@ theorem dbarAlong_eq_zero_iff (L : E →L[ℝ] F) (v : E) :
   · intro h
     rw [h, smul_smul, I_mul_I, neg_one_smul, add_neg_cancel]
 
+/-- The antiholomorphic part of the zero map vanishes. -/
 theorem dbarAlong_zero (v : E) : dbarAlong (0 : E →L[ℝ] F) v = 0 := by
   simp [dbarAlong]
 
+/-- The antiholomorphic part is additive in the map. -/
 theorem dbarAlong_add (L M : E →L[ℝ] F) (v : E) :
     dbarAlong (L + M) v = dbarAlong L v + dbarAlong M v := by
   simp only [dbarAlong, FunLike.coe_add, Pi.add_apply, smul_add]
   module
 
+/-- The antiholomorphic part respects differences of maps. -/
 theorem dbarAlong_sub (L M : E →L[ℝ] F) (v : E) :
     dbarAlong (L - M) v = dbarAlong L v - dbarAlong M v := by
   simp only [dbarAlong, FunLike.coe_sub, Pi.sub_apply, smul_sub]
@@ -99,9 +103,12 @@ def complexLinearOfDbar (L : E →L[ℝ] F) (h : ∀ v, dbarAlong L v = 0) : E �
             ← add_smul, Complex.re_add_im]
   cont := L.cont
 
+/-- The complex-linear map built from vanishing antiholomorphic parts has the same
+underlying function. -/
 @[simp] theorem coe_complexLinearOfDbar (L : E →L[ℝ] F) (h : ∀ v, dbarAlong L v = 0) :
     ⇑(complexLinearOfDbar L h) = ⇑L := rfl
 
+/-- Restricting scalars of `complexLinearOfDbar L h` recovers `L`. -/
 theorem restrictScalars_complexLinearOfDbar (L : E →L[ℝ] F) (h : ∀ v, dbarAlong L v = 0) :
     (complexLinearOfDbar L h).restrictScalars ℝ = L := by
   ext v
@@ -162,11 +169,13 @@ theorem smul_inv_smul_dbarAlong_polar (φ : ℂ → F) {r θ : ℝ} (hr : 0 < r)
   have : (r : ℂ) ≠ 0 := by exact_mod_cast hr.ne'
   field_simp
 
+/-- The radial derivative of a `C¹` function is continuous in polar coordinates. -/
 theorem continuous_polarRadialDeriv {φ : ℂ → F} (hφ : ContDiff ℝ 1 φ) :
     Continuous (polarRadialDeriv φ) := by
   unfold polarRadialDeriv
   exact ((hφ.continuous_fderiv one_ne_zero).comp (by fun_prop)).clm_apply (by fun_prop)
 
+/-- The angular derivative of a `C¹` function is continuous in polar coordinates. -/
 theorem continuous_polarAngularDeriv {φ : ℂ → F} (hφ : ContDiff ℝ 1 φ) :
     Continuous (polarAngularDeriv φ) := by
   unfold polarAngularDeriv
@@ -181,6 +190,7 @@ theorem fderiv_eq_zero_of_norm_gt {φ : ℂ → F} {R : ℝ} (hR : tsupport φ �
   rw [Metric.mem_closedBall, dist_zero_right] at this
   exact absurd this (not_le.mpr hw)
 
+/-- A uniform bound on the derivative bounds the radial derivative. -/
 theorem norm_polarRadialDeriv_le {φ : ℂ → F} {C : ℝ} (hC : ∀ w, ‖fderiv ℝ φ w‖ ≤ C) (p : ℝ × ℝ) :
     ‖polarRadialDeriv φ p‖ ≤ C := by
   unfold polarRadialDeriv
@@ -188,6 +198,7 @@ theorem norm_polarRadialDeriv_le {φ : ℂ → F} {C : ℝ} (hC : ∀ w, ‖fder
       ≤ ‖fderiv ℝ φ (p.1 * exp (p.2 * I))‖ * ‖exp (p.2 * I)‖ := ContinuousLinearMap.le_opNorm _ _
     _ ≤ C := by rw [norm_exp_ofReal_mul_I, mul_one]; exact hC _
 
+/-- A uniform bound on the derivative bounds the angular derivative. -/
 theorem norm_polarAngularDeriv_le {φ : ℂ → F} {C : ℝ} (hC : ∀ w, ‖fderiv ℝ φ w‖ ≤ C) (p : ℝ × ℝ) :
     ‖polarAngularDeriv φ p‖ ≤ C := by
   unfold polarAngularDeriv
@@ -195,15 +206,18 @@ theorem norm_polarAngularDeriv_le {φ : ℂ → F} {C : ℝ} (hC : ∀ w, ‖fde
       ≤ ‖fderiv ℝ φ (p.1 * exp (p.2 * I))‖ * ‖I * exp (p.2 * I)‖ := ContinuousLinearMap.le_opNorm _ _
     _ ≤ C := by rw [norm_mul, norm_I, norm_exp_ofReal_mul_I, one_mul, mul_one]; exact hC _
 
+/-- The modulus of `r e^{iθ}` is `|r|`. -/
 theorem norm_mul_exp_ofReal_mul_I (r θ : ℝ) : ‖(r : ℂ) * exp (θ * I)‖ = |r| := by
   rw [norm_mul, norm_exp_ofReal_mul_I, mul_one, Complex.norm_real, Real.norm_eq_abs]
 
+/-- The radial derivative vanishes beyond the support radius. -/
 theorem polarRadialDeriv_eq_zero {φ : ℂ → F} {R : ℝ} (hR : tsupport φ ⊆ Metric.closedBall 0 R)
     {p : ℝ × ℝ} (hp : R < |p.1|) : polarRadialDeriv φ p = 0 := by
   unfold polarRadialDeriv
   rw [fderiv_eq_zero_of_norm_gt hR (by rwa [norm_mul_exp_ofReal_mul_I])]
   rfl
 
+/-- The angular derivative vanishes beyond the support radius. -/
 theorem polarAngularDeriv_eq_zero {φ : ℂ → F} {R : ℝ} (hR : tsupport φ ⊆ Metric.closedBall 0 R)
     {p : ℝ × ℝ} (hp : R < |p.1|) : polarAngularDeriv φ p = 0 := by
   unfold polarAngularDeriv
@@ -292,7 +306,7 @@ theorem integral_Ioo_polarAngularDeriv {φ : ℂ → F} (hφ : ContDiff ℝ 1 φ
   exact (smul_eq_zero.mp hftc).resolve_left hr.ne'
 
 /-- **The Cauchy–Pompeiu identity.** For a compactly supported `C¹` function `φ : ℂ → F`,
-`∫ w⁻¹ • ∂φ/∂z̄ (w) = -π • φ 0`. -/
+`∫ w⁻¹ • ∂φ/∂\bar z (w) = -π • φ 0`. -/
 theorem integral_inv_smul_dbarAlong_fderiv {φ : ℂ → F} (hφ : ContDiff ℝ 1 φ)
     (hsupp : HasCompactSupport φ) :
     ∫ w, w⁻¹ • dbarAlong (fderiv ℝ φ w) 1 = -((π : ℂ) • φ 0) := by

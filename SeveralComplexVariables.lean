@@ -7,7 +7,6 @@ module
 
 public import SeveralComplexVariables.RealUniqueness
 public import SeveralComplexVariables.AnalyticGerm
-public import SeveralComplexVariables.AnalyticSet
 public import SeveralComplexVariables.AnalyticGerm.CoordinateChange
 public import SeveralComplexVariables.AnalyticGerm.Polynomial
 public import SeveralComplexVariables.AnalyticGerm.Noetherian
@@ -42,7 +41,7 @@ public import SeveralComplexVariables.ContourIntegral
 public import SeveralComplexVariables.CommonExtension
 public import SeveralComplexVariables.DomainOfHolomorphy
 public import SeveralComplexVariables.HolomorphicConvexity.Hull
-public import SeveralComplexVariables.HolomorphicConvexity.Maps
+public import SeveralComplexVariables.HolomorphicConvexity.Transport
 public import SeveralComplexVariables.HolomorphicConvexity.Exhaustion
 public import SeveralComplexVariables.HolomorphicConvexity.BoundaryDistance
 public import SeveralComplexVariables.HolomorphicConvexity.Thullen
@@ -67,13 +66,11 @@ public import SeveralComplexVariables.TubeDomain.Disc
 public import SeveralComplexVariables.TubeDomain.Gluing
 public import SeveralComplexVariables.TubeDomain.StarConvex
 public import SeveralComplexVariables.TubeDomain.Bochner
-public import SeveralComplexVariables.HolomorphicConvexity.ThullenBanach
 public import SeveralComplexVariables.LaurentSeries
 public import SeveralComplexVariables.Derivatives
 public import SeveralComplexVariables.PolynomialDerivatives
 public import SeveralComplexVariables.DominatedIntegral
 public import SeveralComplexVariables.FunctionSpace
-public import SeveralComplexVariables.Hartogs
 public import SeveralComplexVariables.HolomorphicLp
 public import SeveralComplexVariables.IdentityPrinciple
 public import SeveralComplexVariables.ImplicitMapping
@@ -97,6 +94,60 @@ public import SeveralComplexVariables.WeierstrassDivision
 public import SeveralComplexVariables.WeierstrassPreparation
 public import SeveralComplexVariables.ZeroSets
 public import SeveralComplexVariables.ZeroSets.Connected
+public import SeveralComplexVariables.AnalyticGerm.CoefficientPolynomial
+public import SeveralComplexVariables.AnalyticGerm.Elimination
+public import SeveralComplexVariables.AnalyticGerm.Fiber
+public import SeveralComplexVariables.AnalyticSet.Basic
+public import SeveralComplexVariables.AnalyticSet.Codimension
+public import SeveralComplexVariables.AnalyticSet.CoordinatePlane
+public import SeveralComplexVariables.AnalyticSet.FunctionSpace
+public import SeveralComplexVariables.AnalyticSet.Hartogs
+public import SeveralComplexVariables.AnalyticSet.Holomorphic
+public import SeveralComplexVariables.AnalyticSet.Regular
+public import SeveralComplexVariables.AnalyticSet.Removable
+public import SeveralComplexVariables.FunctionSpace.OpenMapping
+public import SeveralComplexVariables.HartogsContinuation
+public import SeveralComplexVariables.HartogsDomain
+public import SeveralComplexVariables.HartogsExtension
+public import SeveralComplexVariables.HartogsLaurent
+public import SeveralComplexVariables.HartogsSeries
+public import SeveralComplexVariables.InjectiveMapping.CorankOne
+public import SeveralComplexVariables.InjectiveMapping.CriticalSet
+public import SeveralComplexVariables.InjectiveMapping.Immersion
+public import SeveralComplexVariables.InjectiveMapping.OneVariable
+public import SeveralComplexVariables.LaurentSeries.Annulus
+public import SeveralComplexVariables.LaurentSeries.Basic
+public import SeveralComplexVariables.LaurentSeries.Coefficients
+public import SeveralComplexVariables.LaurentSeries.Convergence
+public import SeveralComplexVariables.LaurentSeries.Iterated
+public import SeveralComplexVariables.LaurentSeries.Neighborhoods
+public import SeveralComplexVariables.LaurentSeries.OneVariable
+public import SeveralComplexVariables.LaurentSeries.ProductCoefficients
+public import SeveralComplexVariables.LaurentSeries.ProductExpansion
+public import SeveralComplexVariables.LaurentSeries.Uniqueness
+public import SeveralComplexVariables.PowerSeriesConvergence.Basic
+public import SeveralComplexVariables.Reinhardt.GeometricConvexity
+public import SeveralComplexVariables.Reinhardt.HolomorphicConvexity
+public import SeveralComplexVariables.Reinhardt.Hull
+public import SeveralComplexVariables.Reinhardt.MonomialSeparation
+public import SeveralComplexVariables.RemovableSingularity.Cauchy
+public import SeveralComplexVariables.RemovableSingularity.Geometry
+public import SeveralComplexVariables.RemovableSingularity.Gluing
+public import SeveralComplexVariables.RemovableSingularity.Local
+public import SeveralComplexVariables.RemovableSingularity.OneVariable
+public import SeveralComplexVariables.SeparateAnalytic
+public import SeveralComplexVariables.SeparateAnalytic.Baire
+public import SeveralComplexVariables.SeparateAnalytic.FiberExtension
+public import SeveralComplexVariables.SeparateAnalytic.HartogsLemma
+public import SeveralComplexVariables.SeparateAnalytic.MeanValue
+public import SeveralComplexVariables.SeparateAnalytic.Submean
+public import SeveralComplexVariables.SphericalShell
+public import SeveralComplexVariables.WeierstrassDivision.Basic
+public import SeveralComplexVariables.WeierstrassDivision.CoordinatePower
+public import SeveralComplexVariables.WeierstrassDivision.Picard
+public import SeveralComplexVariables.ZeroSets.Basic
+public import SeveralComplexVariables.ZeroSets.Local
+public import SeveralComplexVariables.ZeroSets.Persistence
 
 /-!
 # Several-complex-variables infrastructure
@@ -111,8 +162,8 @@ Analytic coordinate changes give germ-ring isomorphisms; finite-family linear no
 and roots of unit germs are proved. Total germ order uses Mathlib multivariate Taylor-series
 order, with proved zero-order and sum rules, Taylor uniqueness, and the infinite-order
 criterion. Taylor series preserve multiplication, giving the order product rule.
-Coordinate invariance and exact-order normalization remain pending. Polynomial
-Weierstrass interfaces are proved. Nearby relative primality is pending, with openness derived from it.
+Coordinate invariance and exact-order normalization are proved, as are the polynomial
+Weierstrass interfaces, nearby relative primality, and openness of its locus.
 Riemann extension across scalar zero sets and locally contained relatively closed exceptional
 sets is proved for Banach-valued functions, together with uniqueness and connectedness of
 the complement. Elementary polynomial comparison, Noetherianity and unique factorization in
@@ -123,28 +174,27 @@ Continuous removal across countable sets and density of nonvanishing loci are pr
 The holomorphic identity theorem and the maximum modulus principle from an interior local
 maximum are provided explicitly, with specializations to finite complex coordinate spaces.
 Holomorphic Lp spaces are submodules of Lebesgue Lp, with unique holomorphic representatives.
-Their closedness and Banach completeness, and Hilbert completeness at exponent two, depend
-on one explicitly pending local Lp estimate.
+Their closedness and Banach completeness, and Hilbert completeness at exponent two, rest
+on a local Lp estimate proved here.
 Biholomorphic maps, the holomorphic inverse and implicit mapping theorems, derivative
 formulas, determinant criteria and local injectivity from an injective derivative are proved.
 Regular local zero sets are homeomorphic to their parameter neighborhoods by projection.
 Analytic subsets have local finite equations, proved closure properties, interior rigidity,
 dense connected complements, and locally bounded Banach-valued removal. Regular and singular
 loci are defined intrinsically, with relative openness and closedness proved. Full-rank
-flattening is proved; regular-point existence on nonempty hypersurfaces remains pending. Nonsingularity
-of injective holomorphic maps in equal dimensions is pending; biholomorphy onto the open image
-is derived from it. Slice codimension supplies dimension bounds and empty interior. Removal
+flattening and regular-point existence on nonempty hypersurfaces are proved. Injective
+holomorphic maps in equal dimensions have invertible derivative and are biholomorphic onto
+their open image. Slice codimension supplies dimension bounds and empty interior. Removal
 across coordinate subspaces of codimension two is proved directly by Hartogs continuation.
-General codimension-two removal and the holomorphic restriction algebra equivalence depend
-on one pending automatic-local-boundedness theorem; uniqueness is proved independently.
+General codimension-two removal and the holomorphic restriction algebra equivalence are
+proved through automatic local boundedness; uniqueness is proved independently.
 Circular symmetry reuses Mathlib's balanced hull; homogeneous expansion and continuation to
-that hull are pending, while homogeneity and uniqueness of extension are proved.
-Partial Reinhardt hulls have proved minimality, openness, monotonicity and idempotence;
-their mixed Taylor–Laurent extension theorem is pending. Finite Laurent approximation is
-derived from Laurent expansion; continuous coefficient projections remain pending.
+that hull, homogeneity, and uniqueness of extension are proved.
+Partial Reinhardt hulls have proved minimality, openness, monotonicity and idempotence.
+Finite Laurent approximation is derived from Laurent expansion.
 Restriction operators and scalar holomorphic algebras are constructed. Continuity of inverse
-restriction uses a pending Fréchet open-mapping step. First-jet rigidity reduces to Cartan;
-circular-domain linearity is conditional on Cartan uniqueness. Ball–polydisc inequivalence
+restriction uses the Fréchet open-mapping theorem. First-jet rigidity reduces to Cartan;
+circular-domain linearity follows from Cartan uniqueness. Ball–polydisc inequivalence
 is proved independently of Cartan uniqueness. Explicit ball
 involutions, their metric identity, and transitivity of ball automorphisms are proved.
 Reinhardt and complete Reinhardt sets provide coordinate geometry independently of openness;
@@ -153,29 +203,31 @@ Geometric logarithmic convexity includes zero coordinates and agrees with positi
 convexity on open complete Reinhardt sets. Geometric and Reinhardt hulls have proved minimality
 properties. Power-series convergence domains are complete Reinhardt and geometrically convex
 in moduli; arbitrary Banach-valued series converge locally uniformly and have analytic sums.
-Taylor extension from complete Reinhardt domains to their logarithmic hulls is proved.
-The converse scalar existence theorem remains pending. Multivariable Laurent expansion is
-pending; its consequences include hull extension for domains meeting each coordinate hyperplane.
+Taylor extension from complete Reinhardt domains to their logarithmic hulls is proved,
+as is the converse scalar existence theorem. Multivariable Laurent expansion is proved; its
+consequences include hull extension for domains meeting each coordinate hyperplane.
 Openness of the logarithmic hull and its inclusion of the complete hull for open Reinhardt
 sets containing zero are proved. Common extension domains preserve scalar ranges
 and lie in the real convex hull of the original domain.
 Holomorphic hulls have proved closure, boundedness, separation, product, and biholomorphic
 transport properties. Holomorphically convex open sets admit compact exhaustions by sets
-fixed by their hulls. The escaping-sequence characterization remains pending. Domains of
+fixed by their hulls. The escaping-sequence characterization is proved. Domains of
 holomorphy and domains of existence use local continuation through a nonempty open overlap;
 planar and real-convex open domains are proved examples. Extended boundary distance handles
-empty sets and the whole ambient space. Cartan–Thullen equivalences are deduced from two
-pending analytic inputs: Thullen's Taylor continuation lemma and the construction of a
-single completely nonextendable function. Bochner's Banach-valued tube extension is proved by
+empty sets and the whole ambient space. The Cartan–Thullen equivalences are proved from
+Thullen's Taylor continuation lemma, stated for Banach-valued functions, and the construction
+of a single completely nonextendable function. Bochner's Banach-valued tube extension is proved by
 Hörmander's argument: a Banach-valued Thullen continuation lemma, hull membership of parabolic
 analytic discs by the planar maximum principle, gluing of local continuations along convex
 sets, convexity of the maximal star-convex extension tube, and a path argument for connected
 bases; tube geometry, uniqueness and the domain-of-holomorphy characterization follow. Subharmonic and plurisubharmonic functions use the local submean
 definition; the Levi form gives the `C²` criterion; on domains of holomorphy the negative
 logarithm of the boundary distance is plurisubharmonic, giving pseudoconvexity, the affine
-continuity principle and Hartogs convexity for cylinder figures. Levi convex boundaries use
+continuity principle and Hartogs convexity for cylinder figures, with pseudoconvexity and the
+continuity principles transported to arbitrary finite-dimensional spaces. Levi convex boundaries use
 local `C²` defining functions and the Levi condition for every defining function; convex open
-sets and domains of holomorphy in `ℂⁿ` with `C²` boundary are proved Levi pseudoconvex. The Levi
+sets and domains of holomorphy with `C²` boundary in finite-dimensional complex normed spaces
+are proved Levi pseudoconvex, the latter by transport from coordinates. The Levi
 form obeys the chain rule under holomorphic maps, so `C²` plurisubharmonic functions compose
 with holomorphic maps and the Levi condition is invariant under local biholomorphisms; domains
 of holomorphy satisfy the continuity principle for holomorphic disc families. Two defining
@@ -189,8 +241,8 @@ and complete Reinhardt and circular open sets containing the origin are Runge do
 transport under polynomial automorphisms. The Oka–Weil theorem is not included.
 Hartogs geometry separates fiber symmetry, completeness and fiber preconnectedness.
 Banach-valued Hartogs–Taylor expansion is proved with holomorphic coefficients and locally
-uniform convergence. Hartogs–Laurent expansion remains pending; its statement requires
-preconnected fibers for global coefficients on the base.
+uniform convergence, and Hartogs–Laurent expansion is proved on Hartogs sets with
+preconnected fibers, which global coefficients on the base require.
 Hartogs continuation over connected bases and punctured-polydisc removal are proved without
 boundedness assumptions. Removal at arbitrary isolated points and absence of isolated scalar
 zeros are proved. Hartogs' compact-hole extension theorem is proved by Ehrenpreis' method, from

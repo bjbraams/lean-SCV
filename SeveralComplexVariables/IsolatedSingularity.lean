@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.HartogsConsequences
+public import SeveralComplexVariables.SphericalShell
 
 /-!
 # Removal of isolated singularities

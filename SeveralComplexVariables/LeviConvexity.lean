@@ -69,6 +69,7 @@ theorem complexPart_smul (ℓ : E →L[ℝ] ℝ) (ζ : ℂ) (c : E) :
   rw [complexPart, h1, h2]
   apply Complex.ext <;> simp [Complex.mul_re, Complex.mul_im]
 
+/-- The real part of the complex part of a real functional is the functional itself. -/
 theorem re_complexPart (ℓ : E →L[ℝ] ℝ) (c : E) : (complexPart ℓ c).re = ℓ c := by
   simp [complexPart]
 
@@ -135,6 +136,7 @@ def IsLeviPseudoconvexAt (U : Set E) (p : E) : Prop :=
 def IsLeviPseudoconvex (U : Set E) : Prop :=
   ∀ p ∈ frontier U, IsLeviPseudoconvexAt U p
 
+/-- The complex tangent space is closed under multiplication by `I`. -/
 theorem IsComplexTangent.smul_I {ρ : E → ℝ} {p w : E} (h : IsComplexTangent ρ p w) :
     IsComplexTangent ρ p (I • w) := by
   refine ⟨h.2, ?_⟩

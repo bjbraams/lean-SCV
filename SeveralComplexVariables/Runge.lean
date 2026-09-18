@@ -58,6 +58,7 @@ theorem analyticOnNhd_mvPolynomial (P : MvPolynomial (Fin n) ℂ) :
   rw [← MvPolynomial.coe_aeval_eq_eval]
   rfl
 
+/-- Polynomial evaluation is continuous. -/
 theorem continuous_mvPolynomial_eval (P : MvPolynomial (Fin n) ℂ) :
     Continuous fun z : Fin n → ℂ => MvPolynomial.eval z P :=
   continuousOn_univ.mp (analyticOnNhd_mvPolynomial P).continuousOn
@@ -131,13 +132,16 @@ def polynomialHull (K : Set (Fin n → ℂ)) : Set (Fin n → ℂ) :=
 /-- A set is polynomially convex if it equals its polynomial hull. -/
 def IsPolynomiallyConvex (K : Set (Fin n → ℂ)) : Prop := polynomialHull K = K
 
+/-- A set lies in its polynomial hull. -/
 theorem subset_polynomialHull (K : Set (Fin n → ℂ)) : K ⊆ polynomialHull K :=
   fun z hz _ _ hM => hM z hz
 
+/-- The polynomial hull is monotone. -/
 theorem polynomialHull_mono {K L : Set (Fin n → ℂ)} (h : K ⊆ L) :
     polynomialHull K ⊆ polynomialHull L :=
   fun _ hz P M hM => hz P M fun w hw => hM w (h hw)
 
+/-- The polynomial hull is closed. -/
 theorem isClosed_polynomialHull (K : Set (Fin n → ℂ)) : IsClosed (polynomialHull K) := by
   have : polynomialHull K = ⋂ P : MvPolynomial (Fin n) ℂ, ⋂ M : ℝ,
       ⋂ _ : (∀ w ∈ K, ‖MvPolynomial.eval w P‖ ≤ M), {z | ‖MvPolynomial.eval z P‖ ≤ M} := by
@@ -158,6 +162,7 @@ theorem polynomialHull_subset_closedBall {K : Set (Fin n → ℂ)} {B : ℝ} (hB
     exact (norm_le_pi_norm w i).trans (mem_closedBall_zero_iff.mp (hK hw))
   rwa [MvPolynomial.eval_X] at this
 
+/-- The polynomial hull of a compact set is compact. -/
 theorem isCompact_polynomialHull {K : Set (Fin n → ℂ)} (hK : IsCompact K) :
     IsCompact (polynomialHull K) := by
   obtain ⟨B, hB⟩ := hK.isBounded.subset_closedBall 0
@@ -190,6 +195,7 @@ theorem polynomialHull_eq_holomorphicHull_univ {K : Set (Fin n → ℂ)} (hK : I
   · intro hz P M hM
     exact hz.2 _ (analyticOnNhd_mvPolynomial P) M hM
 
+/-- The polynomial hull is polynomially convex. -/
 theorem isPolynomiallyConvex_polynomialHull (K : Set (Fin n → ℂ)) :
     IsPolynomiallyConvex (polynomialHull K) := by
   refine Subset.antisymm (fun z hz P M hM => ?_) (subset_polynomialHull _)
@@ -207,8 +213,10 @@ def IsRungePair (U V : Set E) : Prop :=
   U ⊆ V ∧ ∀ f : E → ℂ, AnalyticOnNhd ℂ f U → ∀ K : Set E, IsCompact K → K ⊆ U → ∀ ε > 0,
     ∃ g : E → ℂ, AnalyticOnNhd ℂ g V ∧ ∀ z ∈ K, ‖f z - g z‖ < ε
 
+/-- A Runge pair is an inclusion. -/
 theorem IsRungePair.subset {U V : Set E} (h : IsRungePair U V) : U ⊆ V := h.1
 
+/-- Every set forms a Runge pair with itself. -/
 theorem isRungePair_refl (U : Set E) : IsRungePair U U :=
   ⟨Subset.rfl, fun f hf _ _ _ ε hε => ⟨f, hf, fun _ _ => by simpa using hε⟩⟩
 

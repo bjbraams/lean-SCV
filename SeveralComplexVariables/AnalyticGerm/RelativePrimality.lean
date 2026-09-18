@@ -91,9 +91,9 @@ theorem eventually_isRelPrime_of_comp_homeomorph
   have hgy : AnalyticAt ℂ g y := by
     simpa only [Function.comp_def, e.apply_symm_apply] using
       hg.comp_of_eq (hi y) rfl
-  let q := pullbackEquiv_of_eq e (e.symm y) (he _) (hi _) (e.apply_symm_apply y)
+  let q := pullbackEquivOfEq e (e.symm y) (he _) (hi _) (e.apply_symm_apply y)
   refine ⟨hfy, hgy, IsRelPrime.of_map q ?_⟩
-  simpa only [q, pullbackEquiv_of_eq_ofAnalyticAt] using hrel
+  simpa only [q, pullbackEquivOfEq_ofAnalyticAt] using hrel
 
 /-- Relative primality persists on a parameter space times the scalar line. -/
 theorem eventually_isRelPrime_ofAnalyticAt_prod {f g : E × ℂ → ℂ}
@@ -111,16 +111,16 @@ theorem eventually_isRelPrime_ofAnalyticAt_prod {f g : E × ℂ → ℂ}
     ((ofAnalyticAt_ne_zero_iff hf).mp hzero)
   have hfL : AnalyticAt ℂ (f ∘ L) 0 := hf.comp_of_eq (L.analyticAt 0) L.map_zero
   have hgL : AnalyticAt ℂ (g ∘ L) 0 := hg.comp_of_eq (L.analyticAt 0) L.map_zero
-  let q := pullbackEquiv_of_eq L.toHomeomorph 0 (L.analyticAt 0)
+  let q := pullbackEquivOfEq L.toHomeomorph 0 (L.analyticAt 0)
     (L.symm.analyticAt (L 0)) L.map_zero
   have hq : IsRelPrime (q (ofAnalyticAt f hf)) (q (ofAnalyticAt g hg)) :=
     IsRelPrime.of_map q.symm (by simpa only [AlgEquiv.symm_apply_apply] using h)
   have hL : IsRelPrime (ofAnalyticAt (f ∘ L) hfL) (ofAnalyticAt (g ∘ L) hgL) := by
     have hqf : q (ofAnalyticAt f hf) = ofAnalyticAt (f ∘ L) hfL :=
-      pullbackEquiv_of_eq_ofAnalyticAt L.toHomeomorph 0 (L.analyticAt 0)
+      pullbackEquivOfEq_ofAnalyticAt L.toHomeomorph 0 (L.analyticAt 0)
         (L.symm.analyticAt (L 0)) L.map_zero f hf
     have hqg : q (ofAnalyticAt g hg) = ofAnalyticAt (g ∘ L) hgL :=
-      pullbackEquiv_of_eq_ofAnalyticAt L.toHomeomorph 0 (L.analyticAt 0)
+      pullbackEquivOfEq_ofAnalyticAt L.toHomeomorph 0 (L.analyticAt 0)
         (L.symm.analyticAt (L 0)) L.map_zero g hg
     rwa [hqf, hqg] at hq
   have hp := eventually_isRelPrime_of_orderInLastVariable hfL hgL hd hL
@@ -154,11 +154,11 @@ theorem eventually_isRelPrime_ofAnalyticAt {f g : E → ℂ} {x : E}
     have hH0 : H 0 = x := by simp [H]
     have hfH : AnalyticAt ℂ (f ∘ H) 0 := hf.comp_of_eq (hH 0) hH0
     have hgH : AnalyticAt ℂ (g ∘ H) 0 := hg.comp_of_eq (hH 0) hH0
-    let q := pullbackEquiv_of_eq H 0 (hH 0) (hHi _) hH0
+    let q := pullbackEquivOfEq H 0 (hH 0) (hHi _) hH0
     have hq : IsRelPrime (q (ofAnalyticAt f hf)) (q (ofAnalyticAt g hg)) :=
       IsRelPrime.of_map q.symm (by simpa only [AlgEquiv.symm_apply_apply] using h)
     have hHrel : IsRelPrime (ofAnalyticAt (f ∘ H) hfH) (ofAnalyticAt (g ∘ H) hgH) := by
-      simpa only [q, pullbackEquiv_of_eq_ofAnalyticAt] using hq
+      simpa only [q, pullbackEquivOfEq_ofAnalyticAt] using hq
     have hp := eventually_isRelPrime_ofAnalyticAt_prod hfH hgH hHrel
     simpa only [hH0] using eventually_isRelPrime_of_comp_homeomorph H hH hHi hp
 

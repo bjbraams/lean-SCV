@@ -11,15 +11,17 @@ public import Mathlib.Analysis.Normed.Module.Ball.Pointwise
 public import SeveralComplexVariables.DomainOfHolomorphy
 public import SeveralComplexVariables.PolydiscTaylor
 public import SeveralComplexVariables.PowerSeriesConvergence.Analytic
+public import Mathlib.Analysis.Normed.Module.HahnBanach
 
 /-!
 # Thullen's lemma and the boundary distance of holomorphic hulls
 
 Cauchy bounds on compact families of smaller balls control Taylor coefficients weighted
-by powers of a scalar holomorphic radius. These bounds transfer to the holomorphic hull
-and give Taylor continuation on the indicated polydisc. Agreement is asserted near the
-center, not on unrelated components of the overlap. This proves radius preservation,
-exact hull boundary distance, and holomorphic convexity for domains of holomorphy.
+by powers of a scalar holomorphic radius. These bounds transfer to the holomorphic hull,
+for Banach-valued functions by norming functionals, and give Taylor continuation on the
+indicated polydisc. Agreement is asserted near the center, not on unrelated components of
+the overlap. This proves radius preservation, exact hull boundary distance, and holomorphic
+convexity for domains of holomorphy.
 
 References: Scheidemann §6.2 and §7.3; Hörmander §2.5; Korevaar–Wiegerinck §6.4.
 -/
@@ -31,24 +33,40 @@ open scoped Topology ENNReal Pointwise
 
 namespace SeveralComplexVariables
 
-variable {n : ℕ}
+variable {n : ℕ} {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
 /-- Mixed derivative bounds transfer to the holomorphic hull of the set on which they
-hold. This elementary step is independent of the Taylor continuation theorem. -/
+hold, for Banach-valued functions. This elementary step is independent of the Taylor
+continuation theorem. -/
 theorem norm_multiIndexDeriv_le_on_holomorphicHull {U K : Set (Fin n → ℂ)}
-    (ho : IsOpen U) {f : (Fin n → ℂ) → ℂ} (hf : AnalyticOnNhd ℂ f U)
+    (ho : IsOpen U) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U)
     (m : Fin n → ℕ) {M : ℝ} (hM : ∀ z ∈ K, ‖multiIndexDeriv m f z‖ ≤ M) :
     ∀ z ∈ holomorphicHull U K, ‖multiIndexDeriv m f z‖ ≤ M :=
-  norm_le_on_holomorphicHull (hf.iteratedPartialDeriv ho (multiIndexList m)) hM
+  norm_le_on_holomorphicHull_vector (hf.iteratedPartialDeriv ho (multiIndexList m)) hM
 
-/-- The scalar Taylor sum centered at an arbitrary point, using the existing normalized
-multivariate Taylor coefficients. -/
-def taylorSumAt (f : (Fin n → ℂ) → ℂ) (a z : Fin n → ℂ) : ℂ :=
+/-- The Taylor sum of a Banach-valued function centered at an arbitrary point, using the
+normalized multivariate Taylor coefficients. -/
+def taylorSumAt (f : (Fin n → ℂ) → F) (a z : Fin n → ℂ) : F :=
   powerSeriesSum (holomorphicTaylorSeries f a) (z - a)
 
+omit [CompleteSpace F] in
+/-- Separate analyticity on a closed polydisc from joint analyticity. -/
+theorem analyticAt_update_of_analyticOnNhd_closedPolydisc {f : (Fin n → ℂ) → F}
+    {a : Fin n → ℂ} {r : ℝ} (hA : AnalyticOnNhd ℂ f (closedPolydiscWithRadii a (fun _ => r))) :
+    ∀ z ∈ closedPolydiscWithRadii a (fun _ => r), ∀ i,
+      AnalyticAt ℂ (fun v => f (Function.update z i v)) (z i) := by
+  intro z hz i
+  convert hA.analyticAt_update hz i using 1
+  funext v
+  congr 1
+  funext j
+  by_cases hj : j = i
+  · subst j; simp
+  · simp [Function.update, hj]
+
 /-- A bound on a closed coordinate ball bounds each normalized Taylor coefficient. -/
-private theorem norm_taylorCoeff_le {U : Set (Fin n → ℂ)}
-    {f : (Fin n → ℂ) → ℂ} (hf : AnalyticOnNhd ℂ f U)
+theorem norm_taylorCoeff_le {U : Set (Fin n → ℂ)}
+    {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U)
     {a : Fin n → ℂ} {r M : ℝ} (hr : 0 < r) (hball : closedBall a r ⊆ U)
     (hM : ∀ z ∈ closedBall a r, ‖f z‖ ≤ M) (m : Fin n →₀ ℕ) :
     ‖holomorphicTaylorSeries f a m‖ ≤ M * ∏ i, r⁻¹ ^ m i := by
@@ -56,23 +74,12 @@ private theorem norm_taylorCoeff_le {U : Set (Fin n → ℂ)}
     rw [closedPolydiscWithRadii_const, closedPolydisc_eq_closedBall hr.le]
   have hA : AnalyticOnNhd ℂ f (closedPolydiscWithRadii a (fun _ => r)) :=
     hf.mono (he ▸ hball)
-  have hs : ∀ z ∈ closedPolydiscWithRadii a (fun _ => r), ∀ i,
-      AnalyticAt ℂ (fun v => f (Function.update z i v)) (z i) := by
-    intro z hz i
-    convert hA.analyticAt_update hz i using 1
-    funext v
-    congr 1
-    funext j
-    by_cases hj : j = i
-    · subst j; simp
-    · simp [Function.update, hj]
-  have hc := coeff_holomorphicTaylorSeries (fun _ => hr) hA.continuousOn hs m
-  change holomorphicTaylorSeries f a m = _ at hc
-  rw [hc]
+  rw [coeff_holomorphicTaylorSeries (fun _ => hr) hA.continuousOn
+    (analyticAt_update_of_analyticOnNhd_closedPolydisc hA)]
   exact norm_polydiscCauchyCoeffWithRadii_le (fun _ => hr) (he ▸ hM) m
 
 /-- The normalized Taylor sum of an analytic germ agrees with its representative nearby. -/
-theorem taylorSumAt_eventuallyEq {f : (Fin n → ℂ) → ℂ} {a : Fin n → ℂ}
+theorem taylorSumAt_eventuallyEq {f : (Fin n → ℂ) → F} {a : Fin n → ℂ}
     (hf : AnalyticAt ℂ f a) : taylorSumAt f a =ᶠ[𝓝 a] f := by
   classical
   have hb := hf.continuousAt.norm.eventually_lt_const
@@ -84,16 +91,7 @@ theorem taylorSumAt_eventuallyEq {f : (Fin n → ℂ) → ℂ} {a : Fin n → �
     exact closedBall_subset_ball (half_lt_self hr)
   have hA : AnalyticOnNhd ℂ f (closedPolydiscWithRadii a (fun _ => r / 2)) :=
     fun z hz => (hball (hsub hz)).1
-  have hs : ∀ z ∈ closedPolydiscWithRadii a (fun _ => r / 2), ∀ i,
-      AnalyticAt ℂ (fun v => f (Function.update z i v)) (z i) := by
-    intro z hz i
-    convert hA.analyticAt_update hz i using 1
-    funext v
-    congr 1
-    funext j
-    by_cases hj : j = i
-    · subst j; simp
-    · simp [Function.update, hj]
+  have hs := analyticAt_update_of_analyticOnNhd_closedPolydisc hA
   filter_upwards [ball_mem_nhds a hr₂] with z hz
   have hh : ∀ i, ‖(z - a) i‖ < r / 2 := fun i =>
     (norm_le_pi_norm (z - a) i).trans_lt (by simpa only [mem_ball, dist_eq_norm] using hz)
@@ -105,13 +103,13 @@ theorem taylorSumAt_eventuallyEq {f : (Fin n → ℂ) → ℂ} {a : Fin n → �
     (coeff_holomorphicTaylorSeries (fun _ => hr₂) hA.continuousOn hs m).symm
   have H := (Finsupp.equivFunOnFinite.hasSum_iff).mpr hsum
   simpa only [taylorSumAt, powerSeriesSum, Pi.sub_apply, hc,
-    smul_eq_mul, add_sub_cancel, Function.comp_apply,
-    Finsupp.equivFunOnFinite_apply] using H.tsum_eq
+    add_sub_cancel, Function.comp_apply, Finsupp.equivFunOnFinite_apply] using H.tsum_eq
 
 /-- Shrinking a continuous radius on a compact set gives uniform weighted Cauchy bounds. -/
 private theorem exists_bound_taylorCoeff_mul_radius {U K : Set (Fin n → ℂ)}
     (hK : IsCompact K) (hKU : K ⊆ U)
-    {q f : (Fin n → ℂ) → ℂ} (hq : AnalyticOnNhd ℂ q U) (hf : AnalyticOnNhd ℂ f U)
+    {q : (Fin n → ℂ) → ℂ} {f : (Fin n → ℂ) → F} (hq : AnalyticOnNhd ℂ q U)
+    (hf : AnalyticOnNhd ℂ f U)
     (hr : ∀ w ∈ K, ball w ‖q w‖ ⊆ U) {t : ℝ} (ht : 0 < t) (ht1 : t < 1) :
     ∃ M : ℝ, 0 ≤ M ∧ ∀ (m : Fin n →₀ ℕ) w, w ∈ K →
       ‖holomorphicTaylorSeries f w m‖ * (t * ‖q w‖) ^ (∑ i, m i) ≤ M := by
@@ -164,18 +162,20 @@ private theorem exists_bound_taylorCoeff_mul_radius {U K : Set (Fin n → ℂ)}
       _ = M := by rw [mul_assoc, hp, mul_one]
       _ ≤ max M 0 := le_max_left _ _
 
-/-- **Thullen's lemma, with a holomorphic radius bound.** Taylor series centered at a
-hull point converge locally uniformly on the indicated polydisc and continue the original
-germ. The proof transfers uniform weighted Cauchy bounds from compact families of
-smaller balls to the hull, then compares with a product of geometric series. -/
+/-- **Thullen's lemma, with a holomorphic radius bound.** For a Banach-valued function,
+the Taylor series centered at a hull point converges locally uniformly on the indicated
+polydisc and continues the original germ. The proof transfers uniform weighted Cauchy bounds
+from compact families of smaller balls to the hull, then compares with a product of geometric
+series. -/
 theorem taylor_continuation_on_holomorphicHull {U K : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hK : IsCompact K) (hKU : K ⊆ U)
-    {q f : (Fin n → ℂ) → ℂ} (hq : AnalyticOnNhd ℂ q U) (hf : AnalyticOnNhd ℂ f U)
+    {q : (Fin n → ℂ) → ℂ} {f : (Fin n → ℂ) → F} (hq : AnalyticOnNhd ℂ q U)
+    (hf : AnalyticOnNhd ℂ f U)
     (hr : ∀ w ∈ K, ball w ‖q w‖ ⊆ U) {a : Fin n → ℂ} (ha : a ∈ holomorphicHull U K) :
     AnalyticOnNhd ℂ (taylorSumAt f a) (ball a ‖q a‖) ∧
       taylorSumAt f a =ᶠ[𝓝 a] f ∧
       HasSumLocallyUniformlyOn
-        (fun (m : Fin n →₀ ℕ) z => (∏ i, (z i - a i) ^ m i) * holomorphicTaylorSeries f a m)
+        (fun (m : Fin n →₀ ℕ) z => (∏ i, (z i - a i) ^ m i) • holomorphicTaylorSeries f a m)
         (taylorSumAt f a) (ball a ‖q a‖) := by
   classical
   have hbound {t : ℝ} (ht : 0 < t) (ht1 : t < 1) :
@@ -184,14 +184,15 @@ theorem taylor_continuation_on_holomorphicHull {U K : Set (Fin n → ℂ)}
     obtain ⟨M, hM0, hM⟩ := exists_bound_taylorCoeff_mul_radius hK hKU hq hf hr ht ht1
     refine ⟨M, hM0, fun m => ?_⟩
     have hg : AnalyticOnNhd ℂ
-        (fun w => holomorphicTaylorSeries f w m * ((t : ℂ) * q w) ^ (∑ i, m i)) U :=
-      (analyticOnNhd_const.mul (hf.iteratedPartialDeriv ho (multiIndexList m))).mul
-        ((analyticOnNhd_const.mul hq).pow _)
+        (fun w => ((t : ℂ) * q w) ^ (∑ i, m i) • holomorphicTaylorSeries f w m) U :=
+      ((analyticOnNhd_const.mul hq).pow _).smul
+        (analyticOnNhd_const.smul (hf.iteratedPartialDeriv ho (multiIndexList m)))
     have hnorm (w) :
-        ‖holomorphicTaylorSeries f w m * ((t : ℂ) * q w) ^ (∑ i, m i)‖ =
+        ‖((t : ℂ) * q w) ^ (∑ i, m i) • holomorphicTaylorSeries f w m‖ =
           ‖holomorphicTaylorSeries f w m‖ * (t * ‖q w‖) ^ (∑ i, m i) := by
-      rw [norm_mul, norm_pow, norm_mul, Complex.norm_of_nonneg ht.le]
-    exact (hnorm a) ▸ ha.2 _ hg M (fun w hw => (hnorm w).symm ▸ hM m w hw)
+      rw [norm_smul, norm_pow, norm_mul, Complex.norm_of_nonneg ht.le, mul_comm]
+    exact (hnorm a) ▸ norm_le_on_holomorphicHull_vector hg
+      (fun w hw => (hnorm w).symm ▸ hM m w hw) a ha
   have habs : ball (0 : Fin n → ℂ) ‖q a‖ ⊆
       powerSeriesAbsConvergenceSet (holomorphicTaylorSeries f a) := by
     intro z hz
@@ -234,15 +235,15 @@ theorem taylor_continuation_on_holomorphicHull {U K : Set (Fin n → ℂ)}
   have hs := (hasSumLocallyUniformlyOn_powerSeries (holomorphicTaylorSeries f a)).comp
     (fun z => z - a) hmaps (continuous_id.sub continuous_const).continuousOn
   unfold taylorSumAt
-  simpa only [HasSumLocallyUniformlyOn, Function.comp_def, Pi.sub_apply, smul_eq_mul,
+  simpa only [HasSumLocallyUniformlyOn, Function.comp_def, Pi.sub_apply,
     Finset.sum_apply] using hs
 
-/-- The constant-radius form of Thullen's continuation lemma. -/
+/-- The constant-radius form of Thullen's continuation lemma, for Banach-valued functions. -/
 theorem exists_continuation_ball_of_mem_holomorphicHull {U K : Set (Fin n → ℂ)}
     (ho : IsOpen U) (hK : IsCompact K) (hKU : K ⊆ U) {r : ℝ} (hr : 0 < r)
     (hball : ∀ w ∈ K, ball w r ⊆ U) {a : Fin n → ℂ} (ha : a ∈ holomorphicHull U K)
-    {f : (Fin n → ℂ) → ℂ} (hf : AnalyticOnNhd ℂ f U) :
-    ∃ g, AnalyticOnNhd ℂ g (ball a r) ∧ g =ᶠ[𝓝 a] f := by
+    {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f U) :
+    ∃ g : (Fin n → ℂ) → F, AnalyticOnNhd ℂ g (ball a r) ∧ g =ᶠ[𝓝 a] f := by
   have hnorm : ‖(r : ℂ)‖ = r := Complex.norm_of_nonneg hr.le
   have h := taylor_continuation_on_holomorphicHull ho hK hKU
     (q := fun _ => (r : ℂ)) analyticOnNhd_const hf (by simpa only [hnorm] using hball) ha

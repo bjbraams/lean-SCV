@@ -181,13 +181,15 @@ def IsPseudoconvex (U : Set E) : Prop :=
   IsOpen U ∧ ∃ φ : E → ℝ, ContinuousOn φ U ∧ PlurisubharmonicOn φ U ∧
     ∀ c : ℝ, IsCompact {z ∈ U | φ z ≤ c}
 
+/-- A pseudoconvex set is open. -/
 theorem IsPseudoconvex.isOpen {U : Set E} (h : IsPseudoconvex U) : IsOpen U := h.1
 
 variable {n : ℕ}
 
-/-- **Domains of holomorphy are pseudoconvex.** The exhaustion is the maximum of the negative
-logarithm of the boundary distance and the norm. -/
-theorem IsDomainOfHolomorphy.isPseudoconvex {U : Set (Fin n → ℂ)} (hU : IsDomainOfHolomorphy U)
+/-- **Domains of holomorphy in coordinates are pseudoconvex.** The exhaustion is the maximum
+of the negative logarithm of the boundary distance and the norm. The coordinate-free version
+is `IsDomainOfHolomorphy.isPseudoconvex`. -/
+theorem IsDomainOfHolomorphy.isPseudoconvex_fin {U : Set (Fin n → ℂ)} (hU : IsDomainOfHolomorphy U)
     (ho : IsOpen U) : IsPseudoconvex U := by
   refine ⟨ho, ?_⟩
   rcases eq_empty_or_nonempty Uᶜ with hc | hc
@@ -335,8 +337,10 @@ theorem SatisfiesHolomorphicContinuityPrinciple.satisfiesContinuityPrinciple {U 
 
 variable {n : ℕ}
 
-/-- **Domains of holomorphy satisfy the continuity principle for holomorphic discs.** -/
-theorem IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple {U : Set (Fin n → ℂ)}
+/-- **Domains of holomorphy in coordinates satisfy the continuity principle for holomorphic
+discs.** The coordinate-free version is
+`IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple`. -/
+theorem IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple_fin {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : SatisfiesHolomorphicContinuityPrinciple U := by
   intro φ hφc hφan hbd h0
   rcases eq_empty_or_nonempty Uᶜ with hc | hc
@@ -434,12 +438,71 @@ theorem IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple {U : Set (F
   have := (hWuniv ▸ mem_univ t : t ∈ W) ζ hζ
   simpa [hΦ, hpid t ht] using this
 
+end HolomorphicContinuity
+
+section Transport
+
+variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+  [NormedAddCommGroup F] [NormedSpace ℂ F]
+
+/-- Pseudoconvexity pulls back along a continuous linear equivalence. -/
+theorem IsPseudoconvex.of_image_equiv {U : Set E} (L : E ≃L[ℂ] F)
+    (h : IsPseudoconvex (L '' U)) : IsPseudoconvex U := by
+  obtain ⟨ho, φ, hφc, hφp, hφk⟩ := h
+  have hU : IsOpen U := by
+    have : U = L ⁻¹' (L '' U) := (L.injective.preimage_image U).symm
+    rw [this]
+    exact ho.preimage L.continuous
+  refine ⟨hU, fun z => φ (L z), hφc.comp L.continuous.continuousOn (mapsTo_image L U), ?_,
+    fun c => ?_⟩
+  · have := hφp.comp_affine (L : E →L[ℂ] F) 0
+    simp only [zero_add, ContinuousLinearEquiv.coe_coe] at this
+    exact this.mono fun z hz => mem_image_of_mem L hz
+  · have heq : {z ∈ U | φ (L z) ≤ c} = L.symm '' {w ∈ L '' U | φ w ≤ c} := by
+      ext z
+      constructor
+      · rintro ⟨hz, hc⟩
+        exact ⟨L z, ⟨mem_image_of_mem L hz, hc⟩, L.symm_apply_apply z⟩
+      · rintro ⟨w, ⟨hw, hc⟩, rfl⟩
+        refine ⟨?_, by simpa using hc⟩
+        obtain ⟨z, hz, rfl⟩ := hw
+        simpa using hz
+    rw [heq]
+    exact (hφk c).image L.symm.continuous
+
+/-- The holomorphic continuity principle pulls back along a continuous linear equivalence. -/
+theorem SatisfiesHolomorphicContinuityPrinciple.of_image_equiv {U : Set E} (L : E ≃L[ℂ] F)
+    (h : SatisfiesHolomorphicContinuityPrinciple (L '' U)) :
+    SatisfiesHolomorphicContinuityPrinciple U := by
+  intro φ hφc hφa hbd h0 t ht ζ hζ
+  have := h (fun t ζ => L (φ t ζ)) (L.continuous.comp hφc)
+    (fun t ht => (L.toContinuousLinearMap.analyticOnNhd univ).comp (hφa t ht) (mapsTo_univ _ _))
+    (fun t ht ζ hζ => mem_image_of_mem L (hbd t ht ζ hζ))
+    (fun ζ hζ => mem_image_of_mem L (h0 ζ hζ)) t ht ζ hζ
+  exact L.injective.mem_set_image.mp this
+
+variable [FiniteDimensional ℂ E]
+
+/-- **Domains of holomorphy are pseudoconvex.** The exhaustion is transported from the
+coordinate version `IsDomainOfHolomorphy.isPseudoconvex_fin`. -/
+theorem IsDomainOfHolomorphy.isPseudoconvex {U : Set E} (hU : IsDomainOfHolomorphy U)
+    (ho : IsOpen U) : IsPseudoconvex U := by
+  let L := (Module.finBasis ℂ E).equivFunL
+  exact IsPseudoconvex.of_image_equiv L ((hU.image_equiv L).isPseudoconvex_fin (L.isOpenMap U ho))
+
+/-- **Domains of holomorphy satisfy the continuity principle for holomorphic discs.** -/
+theorem IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple {U : Set E}
+    (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : SatisfiesHolomorphicContinuityPrinciple U := by
+  let L := (Module.finBasis ℂ E).equivFunL
+  exact SatisfiesHolomorphicContinuityPrinciple.of_image_equiv L
+    ((hU.image_equiv L).satisfiesHolomorphicContinuityPrinciple_fin (L.isOpenMap U ho))
+
 /-- Domains of holomorphy satisfy the affine continuity principle. -/
-theorem IsDomainOfHolomorphy.satisfiesContinuityPrinciple {U : Set (Fin n → ℂ)}
+theorem IsDomainOfHolomorphy.satisfiesContinuityPrinciple {U : Set E}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : SatisfiesContinuityPrinciple U :=
   (hU.satisfiesHolomorphicContinuityPrinciple ho).satisfiesContinuityPrinciple
 
-end HolomorphicContinuity
+end Transport
 
 section Hartogs
 

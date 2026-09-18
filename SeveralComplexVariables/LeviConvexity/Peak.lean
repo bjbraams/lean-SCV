@@ -18,9 +18,9 @@ A boundary point `p` of an open set `U` is strictly Levi pseudoconvex if the Lev
 local defining function is positive definite on the complex tangent space. Adding a multiple
 of the square of the defining function makes the Levi form positive definite on the whole
 space at `p`, by a compactness argument on the unit sphere. The Levi polynomial of the
-modified defining function `ρ̃` is the holomorphic quadratic function
-`F(z) = ∂ρ̃(p)(z - p) + Q(z - p)`, where `Q` is the complex quadratic part of the real
-Hessian; the second-order Taylor expansion gives `Re F(z) = ρ̃(z) - Lev ρ̃(p, z - p) + o(‖z - p‖²)`,
+modified defining function `\tilde ρ` is the holomorphic quadratic function
+`F(z) = ∂\tilde ρ(p)(z - p) + Q(z - p)`, where `Q` is the complex quadratic part of the real
+Hessian; the second-order Taylor expansion gives `Re F(z) = \tilde ρ(z) - Lev \tilde ρ(p, z - p) + o(‖z - p‖²)`,
 so `Re F < 0` on the domain near `p`, except at `p` where `F` vanishes. The reciprocal `1 / F` is
 then holomorphic on the domain near `p` and unbounded at `p`: a local peak function.
 

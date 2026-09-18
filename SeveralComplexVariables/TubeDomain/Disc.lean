@@ -52,15 +52,19 @@ def tri (p t₁ t₂ : ι → ℝ) (b : ℝ) : Set (ι → ℝ) :=
 
 variable (p t₁ t₂ : ι → ℝ)
 
+/-- The triangle point as a combination of the vertex and the two points. -/
 theorem triPt_eq (u v : ℝ) :
     triPt p t₁ t₂ u v = p + ((v + u) / 2) • (t₁ - p) + ((v - u) / 2) • (t₂ - p) := by
   unfold triPt triDir₁ triDir₂
   module
 
+/-- The parameters `(0, 0)` give the vertex. -/
 @[simp] theorem triPt_zero : triPt p t₁ t₂ 0 0 = p := by simp [triPt]
 
+/-- The parameters `(1, 1)` give the first point. -/
 theorem triPt_one_one : triPt p t₁ t₂ 1 1 = t₁ := by rw [triPt_eq]; module
 
+/-- The parameters `(-1, 1)` give the second point. -/
 theorem triPt_neg_one_one : triPt p t₁ t₂ (-1) 1 = t₂ := by rw [triPt_eq]; module
 
 /-- Points with `|u| = v` lie on the two sides through the vertex. -/
@@ -96,13 +100,16 @@ theorem segment_subset_tri : segment ℝ t₁ t₂ ⊆ tri p t₁ t₂ 1 := by
     simp only
     module
 
+/-- Scaled triangles increase with the scale. -/
 theorem tri_mono {b b' : ℝ} (h : b ≤ b') : tri p t₁ t₂ b ⊆ tri p t₁ t₂ b' := by
   rintro x ⟨u, v, huv, hv, rfl⟩
   exact ⟨u, v, huv, hv.trans h, rfl⟩
 
+/-- The vertex lies in every scaled triangle of nonnegative scale. -/
 theorem mem_tri_self {b : ℝ} (hb : 0 ≤ b) : p ∈ tri p t₁ t₂ b :=
   ⟨0, 0, by simp, hb, by simp⟩
 
+/-- The triangle of scale zero is the vertex. -/
 theorem tri_zero : tri p t₁ t₂ 0 = {p} := by
   ext x
   constructor
@@ -113,6 +120,7 @@ theorem tri_zero : tri p t₁ t₂ 0 = {p} := by
   · rintro rfl
     exact mem_tri_self _ _ _ le_rfl
 
+/-- Scaled triangles are convex. -/
 theorem convex_tri (b : ℝ) : Convex ℝ (tri p t₁ t₂ b) := by
   rintro x ⟨u, v, huv, hv, rfl⟩ y ⟨u', v', huv', hv', rfl⟩ a a' ha ha' haa
   refine ⟨a * u + a' * u', a * v + a' * v', ?_, ?_, ?_⟩
@@ -125,10 +133,12 @@ theorem convex_tri (b : ℝ) : Convex ℝ (tri p t₁ t₂ b) := by
   · simp only [triPt]
     linear_combination (norm := module) haa • p
 
+/-- Scaling the two points toward the vertex scales the first direction. -/
 theorem triDir₁_scale (b : ℝ) :
     triDir₁ p (p + b • (t₁ - p)) (p + b • (t₂ - p)) = b • triDir₁ p t₁ t₂ := by
   unfold triDir₁; module
 
+/-- Scaling the two points toward the vertex scales the second direction. -/
 theorem triDir₂_scale (b : ℝ) :
     triDir₂ p (p + b • (t₁ - p)) (p + b • (t₂ - p)) = b • triDir₂ p t₁ t₂ := by
   unfold triDir₂; module
@@ -186,26 +196,33 @@ def parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) : ι → ℂ :=
   ofRealPi p + ζ • ofRealPi (triDir₁ p t₁ t₂) +
     (c * ζ ^ 2 + (1 - c)) • ofRealPi (triDir₂ p t₁ t₂) + I • ofRealPi η
 
+/-- The height function of the parabolic region is continuous. -/
 theorem continuous_parabolaHeight (c : ℝ) : Continuous (parabolaHeight c) := by
   unfold parabolaHeight; fun_prop
 
+/-- The real part of a complex multiple of a real vector. -/
 theorem rePi_smul_ofRealPi (ζ : ℂ) (v : ι → ℝ) : rePi (ζ • ofRealPi v) = ζ.re • v := by
   funext i
   simp [rePi, ofRealPi, Complex.mul_re]
 
+/-- The imaginary part of a complex multiple of a real vector. -/
 theorem imPi_smul_ofRealPi (ζ : ℂ) (v : ι → ℝ) : imPi (ζ • ofRealPi v) = ζ.im • v := by
   funext i
   simp [imPi, ofRealPi, Complex.mul_im]
 
+/-- The real part of the parabolic coefficient is the height function. -/
 theorem re_parabolaCoeff (c : ℝ) (ζ : ℂ) : (c * ζ ^ 2 + (1 - c) : ℂ).re = parabolaHeight c ζ := by
   simp [parabolaHeight, sq, Complex.mul_re]
 
+/-- The real part of a disc point is the triangle point with parameters given by the real
+part of `ζ` and the height. -/
 theorem rePi_parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) :
     rePi (parabolaDisc p t₁ t₂ c η ζ) = triPt p t₁ t₂ ζ.re (parabolaHeight c ζ) := by
   unfold parabolaDisc triPt
   rw [rePi_add, rePi_add, rePi_add, rePi_ofRealPi, rePi_smul_ofRealPi, rePi_smul_ofRealPi,
     rePi_I_smul_ofRealPi, re_parabolaCoeff, add_zero]
 
+/-- The imaginary part of a disc point. -/
 theorem imPi_parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) :
     imPi (parabolaDisc p t₁ t₂ c η ζ) =
       ζ.im • triDir₁ p t₁ t₂ + (c * ζ ^ 2 + (1 - c) : ℂ).im • triDir₂ p t₁ t₂ + η := by
@@ -213,9 +230,11 @@ theorem imPi_parabolaDisc (c : ℝ) (η : ι → ℝ) (ζ : ℂ) :
   funext i
   simp [imPi, ofRealPi, Complex.mul_im]
 
+/-- The disc map is continuous. -/
 theorem continuous_parabolaDisc (c : ℝ) (η : ι → ℝ) : Continuous (parabolaDisc p t₁ t₂ c η) := by
   unfold parabolaDisc; fun_prop
 
+/-- The disc map is entire. -/
 theorem differentiable_parabolaDisc (c : ℝ) (η : ι → ℝ) :
     Differentiable ℂ (parabolaDisc p t₁ t₂ c η) := by
   rw [differentiable_pi]
@@ -223,6 +242,7 @@ theorem differentiable_parabolaDisc (c : ℝ) (η : ι → ℝ) :
   simp only [parabolaDisc, Pi.add_apply, Pi.smul_apply, smul_eq_mul, ofRealPi]
   fun_prop
 
+/-- The parabolic region is open. -/
 theorem isOpen_parabolaRegion (c : ℝ) : IsOpen (parabolaRegion c) :=
   (isOpen_lt (by fun_prop) (continuous_parabolaHeight c)).inter
     (isOpen_lt (continuous_parabolaHeight c) continuous_const)
@@ -293,6 +313,7 @@ theorem isBounded_parabolaRegion {c : ℝ} (hc : 0 < c) :
     _ ≤ 1 + (1 + 1 / c) := add_le_add hre him3
     _ = 2 + 1 / c := by ring
 
+/-- The image of the frontier of the region under the disc map is compact. -/
 theorem isCompact_image_frontier_parabolaRegion {c : ℝ} (hc : 0 < c) (η : ι → ℝ) :
     IsCompact (parabolaDisc p t₁ t₂ c η '' frontier (parabolaRegion c)) :=
   (((isBounded_parabolaRegion hc).isCompact_closure).of_isClosed_subset isClosed_frontier

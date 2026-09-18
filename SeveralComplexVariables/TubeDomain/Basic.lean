@@ -44,35 +44,46 @@ def imPi (z : ι → ℂ) : ι → ℝ := fun i => (z i).im
 /-- A real coordinate vector as a complex coordinate vector. -/
 def ofRealPi (x : ι → ℝ) : ι → ℂ := fun i => (x i : ℂ)
 
+/-- Membership in a tube is membership of the real part in the base. -/
 theorem mem_tubeDomain {Ω : Set (ι → ℝ)} {z : ι → ℂ} : z ∈ tubeDomain Ω ↔ rePi z ∈ Ω := Iff.rfl
 
+/-- The real part of a real vector is the vector. -/
 @[simp] theorem rePi_ofRealPi (x : ι → ℝ) : rePi (ofRealPi x) = x := by
   funext i; simp [rePi, ofRealPi]
 
+/-- A real vector has zero imaginary part. -/
 @[simp] theorem imPi_ofRealPi (x : ι → ℝ) : imPi (ofRealPi x) = 0 := by
   funext i; simp [imPi, ofRealPi]
 
+/-- The real part is additive. -/
 @[simp] theorem rePi_add (z w : ι → ℂ) : rePi (z + w) = rePi z + rePi w := by
   funext i; simp [rePi]
 
+/-- The real part respects differences. -/
 @[simp] theorem rePi_sub (z w : ι → ℂ) : rePi (z - w) = rePi z - rePi w := by
   funext i; simp [rePi]
 
+/-- A purely imaginary vector has zero real part. -/
 @[simp] theorem rePi_I_smul_ofRealPi (y : ι → ℝ) : rePi (I • ofRealPi y) = 0 := by
   funext i; simp [rePi, ofRealPi]
 
+/-- The real part commutes with real scalars. -/
 @[simp] theorem rePi_real_smul (t : ℝ) (z : ι → ℂ) : rePi (t • z) = t • rePi z := by
   funext i; simp [rePi, Complex.real_smul]
 
+/-- Complexification is additive. -/
 theorem ofRealPi_add (x y : ι → ℝ) : ofRealPi (x + y) = ofRealPi x + ofRealPi y := by
   funext i; simp [ofRealPi]
 
+/-- Complexification respects differences. -/
 theorem ofRealPi_sub (x y : ι → ℝ) : ofRealPi (x - y) = ofRealPi x - ofRealPi y := by
   funext i; simp [ofRealPi]
 
+/-- Complexification commutes with real scalars. -/
 theorem ofRealPi_smul (t : ℝ) (x : ι → ℝ) : ofRealPi (t • x) = t • ofRealPi x := by
   funext i; simp [ofRealPi, Complex.real_smul]
 
+/-- The complexification of zero is zero. -/
 @[simp] theorem ofRealPi_zero : ofRealPi (0 : ι → ℝ) = 0 := by
   funext i; simp [ofRealPi]
 
@@ -88,6 +99,7 @@ theorem ofRealPi_rePi_add_I_smul_ofRealPi_imPi (z : ι → ℂ) :
 @[simp] theorem ofReal_mem_tubeDomain {Ω : Set (ι → ℝ)} {x : ι → ℝ} :
     (fun i => (x i : ℂ)) ∈ tubeDomain Ω ↔ x ∈ Ω := by simp [tubeDomain]
 
+/-- A real vector lies in a tube exactly when it lies in the base. -/
 @[simp] theorem ofRealPi_mem_tubeDomain {Ω : Set (ι → ℝ)} {x : ι → ℝ} :
     ofRealPi x ∈ tubeDomain Ω ↔ x ∈ Ω := ofReal_mem_tubeDomain
 
@@ -100,18 +112,23 @@ theorem add_I_smul_ofRealPi_mem_tubeDomain {Ω : Set (ι → ℝ)} {z : ι → �
 theorem tubeDomain_mono {Ω Ξ : Set (ι → ℝ)} (h : Ω ⊆ Ξ) : tubeDomain Ω ⊆ tubeDomain Ξ :=
   fun _ hz => h hz
 
+/-- Tubes commute with intersections of bases. -/
 theorem tubeDomain_inter (Ω Ξ : Set (ι → ℝ)) :
     tubeDomain (Ω ∩ Ξ) = tubeDomain Ω ∩ tubeDomain Ξ := rfl
 
+/-- Tubes commute with unions of bases. -/
 theorem tubeDomain_union (Ω Ξ : Set (ι → ℝ)) :
     tubeDomain (Ω ∪ Ξ) = tubeDomain Ω ∪ tubeDomain Ξ := rfl
 
+/-- Tubes commute with unions of families of bases. -/
 theorem tubeDomain_sUnion (S : Set (Set (ι → ℝ))) :
     tubeDomain (⋃₀ S) = ⋃ Ω ∈ S, tubeDomain Ω := by
   ext z; simp [mem_tubeDomain]
 
+/-- The tube over the empty base is empty. -/
 @[simp] theorem tubeDomain_empty : tubeDomain (∅ : Set (ι → ℝ)) = ∅ := rfl
 
+/-- The tube over the whole real space is the whole complex space. -/
 @[simp] theorem tubeDomain_univ : tubeDomain (univ : Set (ι → ℝ)) = univ := rfl
 
 /-- A nonempty real base has a nonempty tube. -/
@@ -119,12 +136,15 @@ theorem nonempty_tubeDomain {Ω : Set (ι → ℝ)} (h : Ω.Nonempty) : (tubeDom
   obtain ⟨x, hx⟩ := h
   exact ⟨fun i => (x i : ℂ), ofReal_mem_tubeDomain.mpr hx⟩
 
+/-- The real-part projection is continuous. -/
 @[fun_prop] theorem continuous_rePi : Continuous (rePi : (ι → ℂ) → ι → ℝ) := by
   unfold rePi; fun_prop
 
+/-- The imaginary-part projection is continuous. -/
 @[fun_prop] theorem continuous_imPi : Continuous (imPi : (ι → ℂ) → ι → ℝ) := by
   unfold imPi; fun_prop
 
+/-- Complexification is continuous. -/
 @[fun_prop] theorem continuous_ofRealPi : Continuous (ofRealPi : (ι → ℝ) → ι → ℂ) := by
   unfold ofRealPi; fun_prop
 
@@ -165,9 +185,11 @@ section Norms
 
 variable [Fintype ι]
 
+/-- Complexification preserves the supremum norm. -/
 theorem norm_ofRealPi (x : ι → ℝ) : ‖ofRealPi x‖ = ‖x‖ := by
   simp [ofRealPi, Pi.norm_def]
 
+/-- The real part does not increase the supremum norm. -/
 theorem norm_rePi_le (z : ι → ℂ) : ‖rePi z‖ ≤ ‖z‖ := by
   rw [pi_norm_le_iff_of_nonneg (norm_nonneg _)]
   intro i

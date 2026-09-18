@@ -82,7 +82,7 @@ theorem hartogsFigure_eq_of_isEmpty [IsEmpty ι] {r : ℝ} (hr : 0 < r) (s : ℝ
 
 omit [CompleteSpace F] in
 /-- Two analytic extensions from a Hartogs figure agree throughout the full unit polydisc.
-This uniqueness theorem is proved independently of the pending extension-existence theorem. -/
+This uniqueness theorem is proved independently of the extension-existence theorem. -/
 theorem eqOn_of_eqOn_hartogsFigure {r : ℝ} (hr : 0 < r) (s : ℝ)
     {f g : ((ι → ℂ) × ℂ) → F}
     (hf : AnalyticOnNhd ℂ f (ball 0 1 ×ˢ ball 0 1))
@@ -112,14 +112,15 @@ end Figure
 
 /-- **Hartogs' compact-hole extension theorem.** In complex dimension at least two, a
 holomorphic function extends across a compact subset if its complement in the domain is
-connected. No boundedness of the function near the hole is required.
+connected. No boundedness of the function near the hole is required, and the domain itself
+need not be connected.
 
 The dimension and connected-complement hypotheses are essential. The open domain itself
 need not be bounded, and an empty domain or empty compact set is allowed. -/
 theorem exists_analyticOnNhd_extension_of_isCompact
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     (hdim : 2 ≤ Module.finrank ℂ E) {U K : Set E}
-    (hU : IsOpen U) (_hconn : IsPreconnected U) (hK : IsCompact K) (hKU : K ⊆ U)
+    (hU : IsOpen U) (hK : IsCompact K) (hKU : K ⊆ U)
     (hcompl : IsPreconnected (U \ K)) {f : E → F}
     (hf : AnalyticOnNhd ℂ f (U \ K)) :
     ∃ g : E → F, AnalyticOnNhd ℂ g U ∧ EqOn g f (U \ K) := by

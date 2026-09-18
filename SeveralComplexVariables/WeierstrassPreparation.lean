@@ -15,7 +15,7 @@ nonvanishing holomorphic function times a monic polynomial of degree `d`. The lo
 coefficients are holomorphic in the parameters and vanish at the parameter origin.
 
 Reference: Jakóbczak–Jarnicki, Theorem 1.7.2. Preparation and its uniqueness are derived
-from the pending analytic division theorem; no separate preparation admission is used.
+from the analytic division theorem.
 The proof includes degree zero, and empty parameter types recover one-variable theory.
 -/
 
@@ -86,7 +86,7 @@ theorem IsWeierstrassPreparationAt.division {d : ℕ} {f u : E × ℂ → ℂ}
 variable {ι : Type*} [Fintype ι]
 
 /-- Uniqueness of preparation follows from uniqueness of analytic division. Thus it
-currently depends on the pending division theorem. -/
+rests on the division theorem. -/
 theorem IsWeierstrassPreparationAt.unique {d : ℕ} {f u v : (ι → ℂ) × ℂ → ℂ}
     {a b : Fin d → (ι → ℂ) → ℂ}
     (h : IsWeierstrassPreparationAt f u a) (h' : IsWeierstrassPreparationAt f v b)

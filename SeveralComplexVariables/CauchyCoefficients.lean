@@ -196,6 +196,7 @@ theorem cauchyTransform_zero_eq {f : (Fin d → ℂ) → E} {c w : Fin d → ℂ
   simpa [cauchyTransform, cauchyKernel] using polydisc_cauchyWithRadii hR
     (fun i => by simpa [dist_eq_norm] using mem_polydiscWithRadii.mp hw i) hfc hfa
 
+/-- Prepending an index to a list increments its count there and fixes the other counts. -/
 private theorem count_cons_eq_update (is : List (Fin d)) (i : Fin d) :
     (fun j => (i :: is).count j) = update (fun j => is.count j) i (is.count i + 1) := by
   funext j
@@ -203,6 +204,7 @@ private theorem count_cons_eq_update (is : List (Fin d)) (i : Fin d) :
   · subst j; simp
   · simp [hji, Ne.symm hji]
 
+/-- The product of factorials of the counts after prepending an index. -/
 private theorem prod_factorial_count_cons (is : List (Fin d)) (i : Fin d) :
     (∏ j, (((i :: is).count j).factorial : ℂ)) =
       (∏ j, ((is.count j).factorial : ℂ)) * (is.count i + 1 : ℂ) := by

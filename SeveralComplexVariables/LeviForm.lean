@@ -14,7 +14,7 @@ public import SeveralComplexVariables.Subharmonic.SmoothCriterion
 The Levi form of a real `C²` function on a complex normed space, at a point `a` in a direction
 `w`, is defined here in coordinate-free form as one quarter of the sum of the real Hessian
 evaluated on `(w, w)` and on `(I • w, I • w)`. On `ℂⁿ` this is the classical Hermitian form
-`∑ ∂²f/∂z_ν∂z̄_μ w_ν w̄_μ`; the definition avoids Wirtinger derivatives.
+`∑ ∂²f/∂z_ν∂\bar z_μ w_ν \bar w_μ`; the definition avoids Wirtinger derivatives.
 
 The Levi form in direction `w` is one quarter of the Laplacian of the slice `t ↦ f (a + t • w)`
 at `t = 0`. Together with the Laplacian criterion for subharmonicity this gives the `C²`
@@ -39,6 +39,7 @@ evaluated on `(w, w)` plus the real Hessian evaluated on `(I • w, I • w)`. -
 def leviForm (f : E → ℝ) (a w : E) : ℝ :=
   (iteratedFDeriv ℝ 2 f a ![w, w] + iteratedFDeriv ℝ 2 f a ![I • w, I • w]) / 4
 
+/-- The Levi form in terms of the second Fréchet derivative. -/
 theorem leviForm_eq_fderiv (f : E → ℝ) (a w : E) :
     leviForm f a w = (fderiv ℝ (fderiv ℝ f) a w w + fderiv ℝ (fderiv ℝ f) a (I • w) (I • w)) / 4 := by
   simp [leviForm, iteratedFDeriv_two_apply]
@@ -46,6 +47,7 @@ theorem leviForm_eq_fderiv (f : E → ℝ) (a w : E) :
 /-- The real-linear map `t ↦ t • w` from `ℂ` to `E`. -/
 def lineCLM (w : E) : ℂ →L[ℝ] E := (ContinuousLinearMap.id ℝ ℂ).smulRight w
 
+/-- Evaluation of the complex line map. -/
 @[simp] theorem lineCLM_apply (w : E) (t : ℂ) : lineCLM w t = t • w := rfl
 
 variable {f : E → ℝ} {U : Set E}

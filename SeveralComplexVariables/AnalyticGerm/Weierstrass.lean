@@ -20,7 +20,7 @@ representatives, applying the analytic Weierstrass theorems on any finite-dimens
 parameter space, and reassembling the polynomial coefficients using the bookkeeping in
 `CoefficientPolynomial.lean`. Polynomial preservation under division (Lemma 1.8.1(a))
 follows by comparing ordinary Euclidean division of polynomials with germ division
-uniqueness. The irreducibility equivalence is pending. Finite simultaneous preparation
+uniqueness. The irreducibility equivalence is proved. Finite simultaneous preparation
 follows from the proved finite normalization theorem and the existing analytic
 preparation theorem.
 -/
@@ -113,7 +113,7 @@ theorem existsUnique_division [FiniteDimensional ℂ E]
     exact ⟨hqeq.symm, hreq.symm⟩
 
 /-- Preparation has a unique unit and distinguished polynomial of the prescribed order.
-Order zero gives polynomial one. Pending proof: convert the analytic preparation
+Order zero gives polynomial one. The proof converts the analytic preparation
 and uniqueness theorems into polynomial and unit equalities in the germ ring. -/
 theorem existsUnique_preparation [FiniteDimensional ℂ E]
     (f : AnalyticGerm (0 : E × ℂ)) {d : ℕ} (hd : orderInLastVariable f = d) :
@@ -403,7 +403,7 @@ theorem prime_polynomialHom_of_isDistinguishedAt [FiniteDimensional ℂ E]
 end AnalyticGerm
 
 /-- One coordinate system permits preparation of all members of a finite family.
-This depends on the existing preparation theorem and hence on pending analytic division.
+This depends on the preparation theorem and hence on analytic division.
 Empty parameter types, empty families, and unit germs are all included. -/
 theorem exists_weierstrass_preparation_finite {ι κ : Type*} [Fintype ι] [Fintype κ]
     {f : κ → (ι → ℂ) × ℂ → ℂ} (hf : ∀ i, AnalyticAt ℂ (f i) 0)

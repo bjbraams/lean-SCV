@@ -18,7 +18,7 @@ Mathlib's `Polynomial.IsDistinguishedAt` at the coefficient ring's maximal ideal
 
 Polynomial injectivity is proved by restriction to the zero section and Horner induction.
 Normalization of factors of distinguished polynomials (Lemma 1.8.2) is proved by reduction
-modulo the maximal ideal. Irreducibility (Lemma 1.8.1(b)) remains pending; the coefficient
+modulo the maximal ideal. Irreducibility (Lemma 1.8.1(b)) is proved in `Weierstrass.lean`; the coefficient
 bookkeeping behind Weierstrass division and preparation, and the resulting quotient
 comparison (Lemma 1.8.1(a)), are in `CoefficientPolynomial.lean` and `Weierstrass.lean`.
 The irreducibility statement explicitly excludes units in the analytic germ ring:

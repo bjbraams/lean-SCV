@@ -55,26 +55,26 @@ def pullbackEquiv (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
 /-- Pullback equivalence along a map whose value at the source point is only known up to a
 stated equation, letting the target germ's base point be phrased as any value equal to
 `e x`. Matches `pullbackEquiv` definitionally once the equation is substituted. -/
-def pullbackEquiv_of_eq (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
+def pullbackEquivOfEq (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
     (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) :
     AnalyticGerm y ≃ₐ[ℂ] AnalyticGerm x :=
   hy ▸ pullbackEquiv e x he hi
 
 /-- Applying an equation-adjusted pullback equivalence to a represented germ is
 represented by composition, matching the plain pullback. -/
-theorem pullbackEquiv_of_eq_ofAnalyticAt (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
+theorem pullbackEquivOfEq_ofAnalyticAt (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
     (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) (g : F → ℂ)
     (hg : AnalyticAt ℂ g y) :
-    pullbackEquiv_of_eq e x he hi hy (ofAnalyticAt g hg) =
+    pullbackEquivOfEq e x he hi hy (ofAnalyticAt g hg) =
       ofAnalyticAt (g ∘ e) (hg.comp_of_eq he hy) := by
   subst hy
   rfl
 
 /-- An equation-adjusted pullback equivalence is bijective, like the plain pullback
 equivalence it matches definitionally. -/
-theorem pullbackEquiv_of_eq_bijective (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
+theorem pullbackEquivOfEq_bijective (e : E ≃ₜ F) (x : E) (he : AnalyticAt ℂ e x)
     (hi : AnalyticAt ℂ e.symm (e x)) {y : F} (hy : e x = y) :
-    Function.Bijective (pullbackEquiv_of_eq e x he hi hy) := by
+    Function.Bijective (pullbackEquivOfEq e x he hi hy) := by
   subst hy
   exact (pullbackEquiv e x he hi).bijective
 

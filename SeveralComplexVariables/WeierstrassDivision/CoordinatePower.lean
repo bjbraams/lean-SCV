@@ -644,8 +644,8 @@ on a polydisc has a unique quotient and polynomial remainder on division by `w^d
 The quotient estimate applies whenever the numerator is bounded. Uniqueness follows
 from the coordinate-power uniqueness theorem above.
 Empty parameter index types and `d = 0` are included. -/
-theorem coordinatePower_division (d : ℕ) {r : ι → ℝ} {R : ℝ}
-    (hr : ∀ i, 0 < r i) (hR : 0 < R) {g : (ι → ℂ) × ℂ → ℂ}
+theorem coordinatePower_division (d : ℕ) {r : ι → ℝ} {R : ℝ} (hR : 0 < R)
+    {g : (ι → ℂ) × ℂ → ℂ}
     (hg : DifferentiableOn ℂ g (polydiscWithRadii 0 r ×ˢ ball 0 R)) :
     ∃ q : (ι → ℂ) × ℂ → ℂ, ∃ a : Fin d → (ι → ℂ) → ℂ,
       IsWeierstrassDivisionOn (fun z => z.2 ^ d) g q a (polydiscWithRadii 0 r) R ∧

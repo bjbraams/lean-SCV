@@ -15,7 +15,7 @@ public import Mathlib.RingTheory.Coprime.Basic
 # Elementary factorization of analytic germs
 
 Jakóbczak–Jarnicki, Proposition 1.8.4: scalar analytic germ rings in finite dimension
-are unique factorization domains. The pending analytic ingredient is that an
+are unique factorization domains. The analytic ingredient is that an
 irreducible germ is prime. Together with Noetherianity this supplies Mathlib's
 `UniqueFactorizationMonoid` instance and its usual existence and uniqueness results.
 
@@ -81,7 +81,7 @@ theorem prime_of_irreducible [FiniteDimensional ℂ E] {f : AnalyticGerm x}
   exact (MulEquiv.prime_iff eqvx).mp hp1
 
 /-- The finite-dimensional analytic germ ring is a unique factorization domain.
-This instance depends on the pending Noetherian induction step and prime-germ lemma. -/
+This instance combines Noetherianity with the prime-germ lemma. -/
 instance [FiniteDimensional ℂ E] : UniqueFactorizationMonoid (AnalyticGerm x) where
   irreducible_iff_prime := ⟨prime_of_irreducible, Prime.irreducible⟩
 

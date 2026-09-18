@@ -118,6 +118,7 @@ section Transport
 def mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ) (z : Fin n → ℂ) : Fin n → ℂ :=
   fun i => MvPolynomial.eval z (G i)
 
+/-- Polynomial maps are continuous. -/
 theorem continuous_mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ) :
     Continuous (mvPolynomialMap G) :=
   continuous_pi fun i => continuous_mvPolynomial_eval (G i)

@@ -35,11 +35,13 @@ def openExtension (U : TopologicalSpace.Opens (ι → ℂ)) (f : C(U, F)) (z : �
   if hz : z ∈ U then f ⟨z, hz⟩ else 0
 
 omit [Fintype ι] [NormedSpace ℂ F] in
+/-- The value of the extension by zero at a point of the open set. -/
 theorem openExtension_apply (U : TopologicalSpace.Opens (ι → ℂ))
     (f : C(U, F)) {z : ι → ℂ} (hz : z ∈ U) : openExtension U f z = f ⟨z, hz⟩ :=
   dite_eq_left hz
 
 omit [Fintype ι] [NormedSpace ℂ F] in
+/-- The extension by zero restricts to the original function. -/
 @[simp] theorem openExtension_coe (U : TopologicalSpace.Opens (ι → ℂ))
     (f : C(U, F)) (z : U) : openExtension U f z = f z := by
   simp [openExtension, z.property]

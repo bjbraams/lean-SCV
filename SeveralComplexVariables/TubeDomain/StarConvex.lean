@@ -7,7 +7,7 @@ module
 
 public import SeveralComplexVariables.TubeDomain.Disc
 public import SeveralComplexVariables.TubeDomain.Gluing
-public import SeveralComplexVariables.HolomorphicConvexity.ThullenBanach
+public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 
 /-!
 # The maximal star-convex extension tube and Bochner's theorem for star-convex bases
@@ -59,13 +59,16 @@ section Family
 variable {Ω : Set (Fin n → ℝ)} {p : Fin n → ℝ}
 
 omit [CompleteSpace F] in
+/-- The maximal base is open. -/
 theorem isOpen_maxStar : IsOpen (maxStar F Ω p) := isOpen_sUnion fun _ hA => hA.1
 
 omit [CompleteSpace F] in
+/-- The maximal base is star-convex with respect to `p`. -/
 theorem starConvex_maxStar : StarConvex ℝ p (maxStar F Ω p) :=
   starConvex_sUnion fun _ hA => hA.2.1
 
 omit [CompleteSpace F] in
+/-- Members of the family lie in the maximal base. -/
 theorem subset_maxStar_of_mem {A : Set (Fin n → ℝ)} (hA : A ∈ starFamily F Ω p) :
     A ⊆ maxStar F Ω p := subset_sUnion_of_mem hA
 
@@ -77,6 +80,7 @@ theorem ball_mem_starFamily {r : ℝ} (hr0 : 0 < r) (hr : ball p r ⊆ Ω) :
     fun f hf => ⟨f, hf.mono (tubeDomain_mono hr), EventuallyEq.rfl⟩⟩
 
 omit [CompleteSpace F] in
+/-- The center lies in the maximal base when a ball around it lies in `Ω`. -/
 theorem mem_maxStar_of_ball {r : ℝ} (hr0 : 0 < r) (hr : ball p r ⊆ Ω) : p ∈ maxStar F Ω p :=
   subset_maxStar_of_mem (ball_mem_starFamily hr0 hr) (mem_ball_self hr0)
 
@@ -201,9 +205,8 @@ theorem exists_local_continuation_tri (hA : IsOpen A) {a : ℝ} (ha1 : a ≤ 1)
         (segment_scaled_subset p ha.le ha1 t₂)
     have hball : ∀ w ∈ parabolaDisc p s₁ s₂ c (imPi ζ) '' frontier (parabolaRegion c),
         ball w δ ⊆ tubeDomain A := fun w hw => hS w (hKS hw)
-    obtain ⟨h1, h2⟩ := taylor_continuation_on_holomorphicHull_vector (isOpen_tubeDomain hA) hK hδ
-      hball hhull hg
-    exact ⟨_, h1, h2⟩
+    exact exists_continuation_ball_of_mem_holomorphicHull (isOpen_tubeDomain hA) hK
+      (fun w hw => hball w hw (mem_ball_self hδ)) hδ hball hhull hg
   · have hmem : ζ ∈ tubeDomain (segment ℝ p t₁ ∪ segment ℝ p t₂) := by
       rw [mem_tubeDomain, hre]
       exact triPt_mem_union_segment p t₁ t₂ heq (hvb.trans (hba.trans ha1))

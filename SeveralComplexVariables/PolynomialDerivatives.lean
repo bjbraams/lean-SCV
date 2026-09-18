@@ -1,11 +1,20 @@
-/- Copyright (c) 2026 Bastiaan J Braams. All rights reserved. -/
+/-
+Copyright (c) 2026 Bastiaan J Braams. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bastiaan J Braams
+-/
 module
 
 public import SeveralComplexVariables.Derivatives
 public import Mathlib.Algebra.MvPolynomial.PDeriv
 public import Mathlib.Analysis.Analytic.Polynomial
 
-/-! # Formal and analytic coordinate derivatives of complex polynomials -/
+/-!
+# Formal and analytic coordinate derivatives of complex polynomials
+
+The formal partial derivatives of a multivariate polynomial agree with the analytic coordinate
+derivatives of its evaluation.
+-/
 
 open scoped Classical
 @[expose] public noncomputable section

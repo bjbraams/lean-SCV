@@ -17,7 +17,7 @@ For a compactly supported `C¹` function `g` on `ℂ × G`, the Cauchy transform
 variable is `u(z, y) = π⁻¹ ∫ w⁻¹ • g (z - w, y)`. The kernel `w⁻¹` is locally integrable in
 the plane, so `u` is real-differentiable with derivative obtained by differentiating under the
 integral; the translation structure places the derivative on `g`. The Cauchy–Pompeiu identity
-then gives `∂u/∂z̄ = g`, and along the parameter directions the antiholomorphic part of the
+then gives `∂u/∂\bar z = g`, and along the parameter directions the antiholomorphic part of the
 derivative of `u` is the Cauchy transform of the corresponding antiholomorphic part of the
 derivative of `g`. The transform vanishes on every slice on which `g` vanishes.
 
@@ -97,11 +97,13 @@ theorem sub_notMem_of_norm_gt {R' : ℝ} (hR : tsupport g ⊆ closedBall 0 R') {
   linarith
 
 omit [NormedSpace ℂ G] [NormedSpace ℂ F] [CompleteSpace F] in
+/-- The translated function vanishes for large `w`. -/
 theorem eq_zero_of_norm_gt {R' : ℝ} (hR : tsupport g ⊆ closedBall 0 R') {x₀ x : ℂ × G}
     (hx : x ∈ ball x₀ 1) {w : ℂ} (hw : R' + ‖x₀‖ + 1 < ‖w‖) : g (x - (w, 0)) = 0 :=
   image_eq_zero_of_notMem_tsupport (sub_notMem_of_norm_gt hR hx hw)
 
 omit [CompleteSpace F] in
+/-- The derivative of the translated function vanishes for large `w`. -/
 theorem fderiv_eq_zero_of_norm_gt' {R' : ℝ} (hR : tsupport g ⊆ closedBall 0 R') {x₀ x : ℂ × G}
     (hx : x ∈ ball x₀ 1) {w : ℂ} (hw : R' + ‖x₀‖ + 1 < ‖w‖) : fderiv ℝ g (x - (w, 0)) = 0 :=
   image_eq_zero_of_notMem_tsupport fun h =>
@@ -220,7 +222,7 @@ section Pompeiu
 variable {h : ℂ × G → F}
 
 /-- The Cauchy–Pompeiu identity in the first variable with parameters: the Cauchy transform of
-`∂h/∂z̄₁` recovers `h`. -/
+`∂h/∂\bar z₁` recovers `h`. -/
 theorem integral_inv_smul_dbarAlong_fderiv_sub (hh : ContDiff ℝ 1 h) (hs : HasCompactSupport h)
     (x₀ : ℂ × G) :
     ∫ w : ℂ, w⁻¹ • dbarAlong (fderiv ℝ h (x₀ - (w, 0))) ((1 : ℂ), (0 : G)) = (π : ℂ) • h x₀ := by

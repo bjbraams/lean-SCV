@@ -49,6 +49,43 @@ def IsDomainOfExistence (U : Set E) (f : E → ℂ) : Prop :=
     ∀ V W : Set E, IsOpen V → IsConnected V → IsOpen W → W.Nonempty →
       W ⊆ U → W ⊆ V → (∃ g, AnalyticOnNhd ℂ g V ∧ EqOn g f W) → V ⊆ U
 
+/-- The domain-of-holomorphy property is invariant under continuous linear equivalences. -/
+theorem IsDomainOfHolomorphy.image_equiv {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
+    {U : Set E} (h : IsDomainOfHolomorphy U) (L : E ≃L[ℂ] F) :
+    IsDomainOfHolomorphy (L '' U) := by
+  intro V W hV hVc hW hWne hWU hWV hcont
+  have himg : ∀ z : F, z ∈ L '' U ↔ L.symm z ∈ U := fun z => by
+    constructor
+    · rintro ⟨x, hx, rfl⟩
+      simpa using hx
+    · intro hz
+      exact ⟨L.symm z, hz, L.apply_symm_apply z⟩
+  have hV' : IsOpen (L ⁻¹' V) := hV.preimage L.continuous
+  have hVc' : IsConnected (L ⁻¹' V) := by
+    rw [← L.image_symm_eq_preimage]
+    exact hVc.image _ L.symm.continuous.continuousOn
+  have hW' : IsOpen (L ⁻¹' W) := hW.preimage L.continuous
+  have hWne' : (L ⁻¹' W).Nonempty := by
+    obtain ⟨w, hw⟩ := hWne
+    exact ⟨L.symm w, by simpa using hw⟩
+  have hWU' : L ⁻¹' W ⊆ U := fun z hz => by
+    have := (himg (L z)).mp (hWU hz)
+    simpa using this
+  have hWV' : L ⁻¹' W ⊆ L ⁻¹' V := fun z hz => hWV hz
+  have hcont' : HasCommonAnalyticContinuation U (L ⁻¹' V) (L ⁻¹' W) := by
+    intro f hf
+    have hf' : AnalyticOnNhd ℂ (f ∘ L.symm) (L '' U) :=
+      hf.comp (L.symm.toContinuousLinearMap.analyticOnNhd _) fun z hz => (himg z).mp hz
+    obtain ⟨g, hg, hgf⟩ := hcont _ hf'
+    refine ⟨g ∘ L, hg.comp (L.toContinuousLinearMap.analyticOnNhd _) fun z hz => hz,
+      fun z hz => ?_⟩
+    have := hgf hz
+    simpa using this
+  have hsub : L ⁻¹' V ⊆ U := h _ _ hV' hVc' hW' hWne' hWU' hWV' hcont'
+  intro z hz
+  rw [himg]
+  exact hsub (by simpa using hz)
+
 /-- A common extension to a containing set is a common continuation on any smaller overlap. -/
 theorem IsCommonAnalyticExtension.hasCommonAnalyticContinuation {U V W : Set E}
     (h : IsCommonAnalyticExtension U V) (hWU : W ⊆ U) :

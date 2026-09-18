@@ -7,6 +7,7 @@ module
 
 public import SeveralComplexVariables.LeviConvexity
 public import SeveralComplexVariables.Pseudoconvexity
+public import SeveralComplexVariables.LeviConvexity.Invariance
 public import Mathlib.Analysis.Calculus.Deriv.MeanValue
 
 /-!
@@ -330,10 +331,11 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
 
 variable {n : ℕ}
 
-/-- **Levi's theorem.** A domain of holomorphy in `Fin n → ℂ` is Levi pseudoconvex: the Levi
-form of every local defining function is positive semidefinite on the complex tangent space at
-every boundary point. -/
-theorem IsDomainOfHolomorphy.isLeviPseudoconvex {U : Set (Fin n → ℂ)}
+/-- **Levi's theorem in coordinates.** A domain of holomorphy in `Fin n → ℂ` is Levi
+pseudoconvex: the Levi form of every local defining function is positive semidefinite on the
+complex tangent space at every boundary point. The coordinate-free version is
+`IsDomainOfHolomorphy.isLeviPseudoconvex`. -/
+theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : IsLeviPseudoconvex U := by
   intro p hp ρ V h w hw
   by_contra hneg
@@ -449,5 +451,45 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex {U : Set (Fin n → ℂ)}
     have : 0 < -L := by linarith
     positivity
   linarith
+
+section Transport
+
+variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
+  [NormedAddCommGroup F] [NormedSpace ℂ F]
+
+/-- Levi pseudoconvexity pulls back along a continuous linear equivalence. -/
+theorem IsLeviPseudoconvex.of_image_equiv {U : Set E} (L : E ≃L[ℂ] F)
+    (h : IsLeviPseudoconvex (L '' U)) : IsLeviPseudoconvex U := by
+  intro p hp ρ V hρ
+  have hfr : L p ∈ frontier (L '' U) := by
+    have hfr' := L.toHomeomorph.image_frontier U
+    rw [ContinuousLinearEquiv.coe_toHomeomorph] at hfr'
+    rw [← hfr']
+    exact mem_image_of_mem _ hp
+  have himg : L.symm ⁻¹' U = L '' U := by
+    ext z
+    constructor
+    · intro hz
+      exact ⟨L.symm z, hz, L.apply_symm_apply z⟩
+    · rintro ⟨x, hx, rfl⟩
+      simpa using hx
+  have hdef : IsLocalDefiningFunction (L '' U) (L p) (ρ ∘ L.symm) (univ ∩ L.symm ⁻¹' V) := by
+    rw [← himg]
+    exact hρ.comp_analytic isOpen_univ (mem_univ _) (L.symm.toContinuousLinearMap.analyticOnNhd _)
+      (L.symm_apply_apply p) (by rw [L.symm.fderiv]; exact L.symm.surjective)
+  have hcond := h (L p) hfr (ρ ∘ L.symm) _ hdef
+  exact (leviCondition_comp_iff hρ (L.symm.toContinuousLinearMap.analyticOnNhd univ _ (mem_univ _))
+    (L.symm_apply_apply p) L.symm L.symm.hasFDerivAt).mp hcond
+
+/-- **Levi's theorem.** A domain of holomorphy in a finite-dimensional complex normed space is
+Levi pseudoconvex: the Levi form of every local defining function is positive semidefinite on
+the complex tangent space at every boundary point. -/
+theorem IsDomainOfHolomorphy.isLeviPseudoconvex [FiniteDimensional ℂ E] {U : Set E}
+    (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) : IsLeviPseudoconvex U := by
+  let L := (Module.finBasis ℂ E).equivFunL
+  exact IsLeviPseudoconvex.of_image_equiv L
+    ((hU.image_equiv L).isLeviPseudoconvex_fin (L.isOpenMap U ho))
+
+end Transport
 
 end SeveralComplexVariables

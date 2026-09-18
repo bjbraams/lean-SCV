@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Reinhardt.Geometric
+public import SeveralComplexVariables.Reinhardt.GeometricConvexity
 public import Mathlib.Topology.MetricSpace.Pseudo.Pi
 
 /-!

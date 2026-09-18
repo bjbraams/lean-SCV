@@ -200,9 +200,10 @@ The proof uses the convergent polydisc Taylor expansion, including dimension zer
     have hcoeff : ∀ m : Fin n → ℕ,
         polydiscCauchyCoeffWithRadii g x (fun _ => r / 2) m = 0 := by
       intro m
-      simpa only [hzero, MvPowerSeries.coeff_zero, Finsupp.coe_equivFunOnFinite_symm] using
-        (coeff_holomorphicTaylorSeries (fun _ => hr₂) hA.continuousOn hslice
-          (Finsupp.equivFunOnFinite.symm m)).symm
+      have h := (coeff_holomorphicTaylorSeries (fun _ => hr₂) hA.continuousOn hslice
+        (Finsupp.equivFunOnFinite.symm m)).symm
+      rw [hzero, Finsupp.coe_equivFunOnFinite_symm] at h
+      exact h
     have he : g =ᶠ[𝓝 x] 0 := by
       filter_upwards [ball_mem_nhds x hr₂] with z hz
       have hh : ∀ i, ‖(z - x) i‖ < r / 2 := by
