@@ -32,6 +32,15 @@ principal assertion. The sources are the texts of Boas, Fritzsche–Grauert, Hö
 Jakóbczak–Jarnicki, Korevaar–Wiegerinck, Range, Scheidemann, Shabat and Suwa listed in
 `formalization.yaml`; none of the results is new. The proofs use only the axioms `propext`,
 `Quot.sound` and `Classical.choice`.
+
+## Related formalizations
+
+The development builds on Mathlib. Two results were formalized independently, and earlier, by
+Bochao Kong in the Palomar registry: the analytic Weierstrass preparation theorem (item 41; entry
+PALOMAR-2026-08-29-000010) and Rückert's basis theorem, that the ring of analytic germs is
+Noetherian (item 44; entry PALOMAR-2026-08-30-000001, which also contains the local analytic
+Nullstellensatz, not treated here). Neither is used here. Mathlib's Weierstrass preparation
+theorem concerns formal power series over complete local rings and is likewise not used.
 -/
 
 set_option autoImplicit false
@@ -58,6 +67,7 @@ noncomputable def iteratedPartialDeriv [DecidableEq ι] : List ι → ((ι → �
 
 -- BEGIN SOLUTION ONLY
 omit [CompleteSpace F] [Fintype ι] in
+/-- The submission and library definitions of iterated coordinate derivatives agree. -/
 private theorem iteratedPartialDeriv_eq [DecidableEq ι] (is : List ι) (f : (ι → ℂ) → F) :
     iteratedPartialDeriv is f = SeveralComplexVariables.iteratedPartialDeriv is f := by
   induction is with
@@ -102,7 +112,7 @@ subset agree everywhere. -/
 theorem identity_theorem {U V : Set E} (hU : IsOpen U) (hconn : IsPreconnected U) {f g : E → F}
     (hf : DifferentiableOn ℂ f U) (hg : DifferentiableOn ℂ g U) (hV : IsOpen V) (hne : V.Nonempty)
     (hVU : V ⊆ U) (heq : EqOn f g V) : EqOn f g U := by
-  exact SeveralComplexVariables.eqOn_of_holomorphic_of_eqOn hU hconn hf hg hV hne hVU heq
+  exact DifferentiableOn.eqOn_of_preconnected_of_eqOn hU hconn hf hg hV hne hVU heq
 
 /-- **7. Maximum modulus principle**, for maps into a strictly convex Banach space, in particular
 for scalar functions. -/
@@ -127,6 +137,7 @@ noncomputable def taylorSeries {n : ℕ} (f : (Fin n → ℂ) → F) (c : Fin n 
 
 -- BEGIN SOLUTION ONLY
 omit [CompleteSpace F] in
+/-- The submission Taylor series equals the library holomorphic Taylor series. -/
 private theorem taylorSeries_eq {n : ℕ} (f : (Fin n → ℂ) → F) (c : Fin n → ℂ) :
     taylorSeries f c = SeveralComplexVariables.holomorphicTaylorSeries f c := by
   funext m
@@ -519,15 +530,18 @@ def IsWeierstrassPreparationAt {d : ℕ} (f u : E × ℂ → ℂ) (a : Fin d →
 
 -- BEGIN SOLUTION ONLY
 omit [FiniteDimensional ℂ E] in
+/-- The submission ring of analytic germs is the library analytic germ subring. -/
 private theorem analyticGermRing_eq (x : E) :
     analyticGermRing x = SeveralComplexVariables.analyticGermSubring ℂ x := rfl
 
 omit [FiniteDimensional ℂ E] in
+/-- The submission and library predicates for Weierstrass division are equivalent. -/
 private theorem isWeierstrassDivisionAt_iff {d : ℕ} {f g q : E × ℂ → ℂ} {a : Fin d → E → ℂ} :
     IsWeierstrassDivisionAt f g q a ↔ SeveralComplexVariables.IsWeierstrassDivisionAt f g q a :=
   ⟨fun h => ⟨h.1, h.2.1, h.2.2⟩, fun h => ⟨h.1, h.2, h.3⟩⟩
 
 omit [FiniteDimensional ℂ E] in
+/-- The submission and library predicates for Weierstrass preparation are equivalent. -/
 private theorem isWeierstrassPreparationAt_iff {d : ℕ} {f u : E × ℂ → ℂ} {a : Fin d → E → ℂ} :
     IsWeierstrassPreparationAt f u a ↔ SeveralComplexVariables.IsWeierstrassPreparationAt f u a :=
   ⟨fun h => ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2⟩, fun h => ⟨h.1, h.2, h.3, h.4, h.5⟩⟩
@@ -668,7 +682,7 @@ theorem not_biholomorphic_polydisc_ball (hdim : 2 ≤ Fintype.card ι) :
     ¬ ∃ e : OpenPartialHomeomorph (ι → ℂ) (EuclideanSpace ℂ ι), DifferentiableOn ℂ e e.source ∧
       DifferentiableOn ℂ e.symm e.target ∧ e.source = ball 0 1 ∧ e.target = ball 0 1 := by
   rintro ⟨e, h1, h2, h⟩
-  exact SeveralComplexVariables.not_biholomorphic_polydisc_ball hdim ⟨e, ⟨h1, h2⟩, h⟩
+  exact SeveralComplexVariables.not_exists_isBiholomorphic_polydisc_ball hdim ⟨e, ⟨h1, h2⟩, h⟩
 
 /-! ## I. Common extensions, holomorphic convexity, Cartan–Thullen, and Bochner's tube theorem -/
 
@@ -799,12 +813,14 @@ def IsLeviPseudoconvexAt (U : Set E) (p : E) : Prop :=
 
 -- BEGIN SOLUTION ONLY
 omit [FiniteDimensional ℂ E] in
+/-- The submission and library predicates for local defining functions are equivalent. -/
 private theorem isLocalDefiningFunction_iff {U : Set E} {p : E} {ρ : E → ℝ} {V : Set E} :
     IsLocalDefiningFunction U p ρ V ↔ SeveralComplexVariables.IsLocalDefiningFunction U p ρ V :=
   ⟨fun h => ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, h.2.2.2.2.2⟩,
     fun h => ⟨h.1, h.2, h.3, h.4, h.5, h.6⟩⟩
 
 omit [FiniteDimensional ℂ E] in
+/-- The submission and library predicates for Levi pseudoconvexity are equivalent. -/
 private theorem isLeviPseudoconvexAt_iff {U : Set E} {p : E} :
     IsLeviPseudoconvexAt U p ↔ SeveralComplexVariables.IsLeviPseudoconvexAt U p :=
   ⟨fun h ρ V hρ => h ρ V (isLocalDefiningFunction_iff.mpr hρ),

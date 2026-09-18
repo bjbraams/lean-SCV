@@ -40,7 +40,7 @@ source uses the supremum norm and the target uses `EuclideanSpace`, explicitly. 
 * `isBiholomorphic_ballMobius`: Both directions of the explicit ball equivalence are holomorphic.
 * `exists_ball_automorphism`: The unit ball is homogeneous under biholomorphic automorphisms: any
   interior point can be sent to any other, by composing two explicit ball involutions.
-* `not_biholomorphic_polydisc_ball`: The Euclidean unit ball and the unit polydisc are not
+* `not_exists_isBiholomorphic_polydisc_ball`: The Euclidean unit ball and the unit polydisc are not
   biholomorphic in dimension at least two.
 
 ## References
@@ -332,7 +332,7 @@ theorem IsBiholomorphic.norm_fderiv_apply_eq_of_unit_ball
 Normalize at zero using a ball automorphism; Schwarz's lemma makes the derivative
 norm-preserving, contradicting the parallelogram identity. This proof is independent of Cartan
 uniqueness. The dimension hypothesis excludes the singleton and one-variable cases. -/
-theorem not_biholomorphic_polydisc_ball {ι : Type*} [Fintype ι]
+theorem not_exists_isBiholomorphic_polydisc_ball {ι : Type*} [Fintype ι]
     (hdim : 2 ≤ Fintype.card ι) :
     ¬ ∃ e : OpenPartialHomeomorph (ι → ℂ) (EuclideanSpace ℂ ι),
       IsBiholomorphic e ∧ e.source = ball 0 1 ∧ e.target = ball 0 1 := by

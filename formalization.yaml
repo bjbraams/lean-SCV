@@ -107,6 +107,26 @@ related_formalizations:
       principle, circle averages and the Laplacian. Mathlib's formal Weierstrass preparation theorem
       for power series over complete local rings is not used; the analytic division and
       preparation theorems here are proved for convergent germs.
+  - id: https://palomar-registry.org/entry?id=PALOMAR-2026-08-29-000010&version=1
+    relationship: independent
+    note: >-
+      Bochao Kong, classical-complex-wpt (repository BochaoKong/classical-complex-wpt, commit
+      b4a7273fe5c9752753c52e10494097569089642d, registered 29 August 2026): the complex-analytic
+      Weierstrass preparation theorem at the origin of C^n, with uniqueness of the factors as
+      germs. It overlaps with item 41 here (SCV.weierstrass_preparation). The present development
+      was carried out independently of it and does not use it.
+  - id: https://palomar-registry.org/entry?id=PALOMAR-2026-08-30-000001&version=1
+    relationship: independent
+    note: >-
+      Bochao Kong, nullstellensatz (repository BochaoKong/nullstellensatz, commit
+      029697242294aea7989bf5d391199696a43490df, registered 30 August 2026), built on the entry
+      above: Rückert's basis theorem for the ring of analytic germs, finite projection for
+      analytic hypersurface germs, the holomorphic constant-rank normal form, and Rückert's local
+      analytic Nullstellensatz. Its basis theorem overlaps with item 44 here (the Noetherian part
+      of SCV.analyticGermRing_isNoetherianRing_ufd), which was proved independently and without
+      using it. The other three results are not part of the present project, where the
+      Nullstellensatz is a deferred target; conversely that entry does not cover unique
+      factorization of germs or the function theory of the remaining items.
 
 classification:
   arxiv: [math.CV]
@@ -467,12 +487,10 @@ automation:
   methods:
     - method: agent
       framework: Codex
+      models: ["gpt-6-astra"]
     - method: agent
       framework: Claude Code
       models: ["claude-fable-5-1"]
-      prompting_notes: >-
-        Used for a Mathlib-style review and refactoring of the library and for preparing
-        Challenge.lean, Solution.lean, comparator.json and this file.
   notes: >-
     Human-directed, agent-assisted mathematical development, proof writing, debugging and review,
     validated throughout by Lean builds. The author chose the material, the conventions and the

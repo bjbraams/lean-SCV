@@ -86,7 +86,7 @@ theorem homogeneousTerm_eq_circleIntegral {U : Set E} (ho : IsOpen U)
       exact ⟨norm_ne_zero_iff.mp (by rw [hw']; norm_num),
         hrot.smul_mem hz hw'⟩)).const_smul
         (c := (2 * Real.pi * I : ℂ)⁻¹)
-  apply eqOn_of_holomorphic_of_eventuallyEq ho hc
+  apply DifferentiableOn.eqOn_of_preconnected_of_eventuallyEq ho hc
     (analyticOnNhd_homogeneousTerm p k U).differentiableOn hproj.differentiableOn hzero
   obtain ⟨r, hr, hball⟩ := Metric.isOpen_iff.mp ho 0 hzero
   filter_upwards [ball_mem_nhds (0 : E) hr] with z hz
@@ -207,7 +207,7 @@ theorem IsCircular.hasSumLocallyUniformlyOn_homogeneousTerm_balancedHull {U : Se
     exact Finset.analyticOnNhd_fun_sum s fun k _ =>
       analyticOnNhd_homogeneousTerm p k _
   have he : EqOn (fun z => ∑' k, homogeneousTerm p k z) f U := by
-    apply eqOn_of_holomorphic_of_eventuallyEq ho hc
+    apply DifferentiableOn.eqOn_of_preconnected_of_eventuallyEq ho hc
       (ha.mono (subset_balancedHull ℂ)).differentiableOn hf.differentiableOn hzero
     filter_upwards [hp.eventually_hasSum] with z hz
     simpa only [homogeneousTerm, zero_add] using hz.tsum_eq
@@ -229,7 +229,7 @@ theorem eqOn_balancedHull_of_eqOn {U : Set E} (ho : IsOpen U) (hzero : (0 : E) �
     {f g : E → F} (hf : AnalyticOnNhd ℂ f (balancedHull ℂ U))
     (hg : AnalyticOnNhd ℂ g (balancedHull ℂ U)) (he : EqOn f g U) :
     EqOn f g (balancedHull ℂ U) :=
-  eqOn_of_holomorphic_of_eqOn (ho.balancedHull hzero)
+  DifferentiableOn.eqOn_of_preconnected_of_eqOn (ho.balancedHull hzero)
     (isPathConnected_balancedHull ⟨0, hzero⟩).isConnected.isPreconnected
     hf.differentiableOn hg.differentiableOn ho ⟨0, hzero⟩ (subset_balancedHull ℂ) he
 

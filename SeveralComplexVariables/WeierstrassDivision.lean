@@ -569,10 +569,10 @@ theorem IsWeierstrassDivisionOn.unique {d : ℕ} {f g q q' : (ι → ℂ) × ℂ
   obtain ⟨hq, ha⟩ := (h.at_zero hV h0 hR).unique (h'.at_zero hV h0 hR)
     ((hf.analyticOnNhd_of_finiteDimensional ho) _ hz)
     ((hg.analyticOnNhd_of_finiteDimensional ho) _ hz) horder
-  exact ⟨eqOn_of_holomorphic_of_eventuallyEq ho
+  exact ⟨DifferentiableOn.eqOn_of_preconnected_of_eventuallyEq ho
       (hconn.prod (convex_ball (0 : ℂ) R).isPreconnected)
       h.differentiableOn_quotient h'.differentiableOn_quotient hz hq,
-    fun j => eqOn_of_holomorphic_of_eventuallyEq hV hconn
+    fun j => DifferentiableOn.eqOn_of_preconnected_of_eventuallyEq hV hconn
       (h.differentiableOn_coeff j) (h'.differentiableOn_coeff j) h0 (ha j)⟩
 
 /-- Division transports along a continuous linear equivalence of the parameter space. -/

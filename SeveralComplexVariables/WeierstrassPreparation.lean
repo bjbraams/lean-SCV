@@ -140,11 +140,11 @@ theorem IsWeierstrassPreparationAt.unique_on {d : ℕ} {f u v : (ι → ℂ) × 
     (ha : ∀ j, DifferentiableOn ℂ (a j) V) (hb : ∀ j, DifferentiableOn ℂ (b j) V) :
     EqOn u v (V ×ˢ ball 0 R) ∧ ∀ j, EqOn (a j) (b j) V := by
   obtain ⟨he, he'⟩ := h.unique h' hf horder
-  exact ⟨eqOn_of_holomorphic_of_eventuallyEq
+  exact ⟨DifferentiableOn.eqOn_of_preconnected_of_eventuallyEq
       (show IsOpen (V ×ˢ ball (0 : ℂ) R) from hV.prod isOpen_ball)
       (hconn.prod (convex_ball (0 : ℂ) R).isPreconnected)
       hu hv ⟨h0, mem_ball_self hR⟩ he,
-    fun j => eqOn_of_holomorphic_of_eventuallyEq hV hconn (ha j) (hb j) h0 (he' j)⟩
+    fun j => (ha j).eqOn_of_preconnected_of_eventuallyEq hV hconn (hb j) h0 (he' j)⟩
 
 /-- **Weierstrass preparation for analytic germs.** Divide `w^d` by `f`, identify the
 central coefficients using one-variable order factorization and division uniqueness,

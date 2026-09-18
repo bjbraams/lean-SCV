@@ -11,8 +11,10 @@ Runge domains. Statements are Banach-valued wherever the arguments allow.
 
 The mathematical content is described in **[SCVMainTheorems.md](SCVMainTheorems.md)**: the
 definitions and conventions, the catalogue of 65 principal results with proof sketches, and
-the extent and limits of the theory. Every catalogued result is proved; the project contains
-no admitted statements.
+the extent and limits of the theory. Every catalogued result is proved. The library and
+`Solution.lean` contain no admitted statements. For the planned Palomar submission,
+`Challenge.lean` restates 67 theorems with intentional `sorry` placeholders; their proofs
+are supplied in `Solution.lean`.
 
 ## Organization
 
@@ -25,6 +27,11 @@ no admitted statements.
   others). Every file has a documentation header and every declaration a docstring.
 - `Main.lean` is the executable stub required by the Lake configuration; it only imports the
   library.
+- `Challenge.lean` states the selected Palomar results using Mathlib alone; `Solution.lean`
+  proves the matching statements using the library.
+- `formalization.yaml` records submission metadata and scope; `comparator.json` lists the
+  declarations to compare. `make_challenge.py` generates the challenge and Comparator
+  configuration from `Solution.lean`.
 - `References/` contains the texts that guided the selection of material; see below.
 
 ## Building
@@ -33,6 +40,13 @@ The project uses Lean and Mathlib at version `v4.34.0` (see `lean-toolchain` and
 `lakefile.toml`). From the repository root:
 
     lake build
+
+To check both Palomar modules:
+
+    lake build Solution Challenge
+
+The Challenge build reports the 67 intentional `sorry` placeholders. These build checks
+are separate from Palomar's Comparator and independent kernel verification.
 
 Documentation can be generated with the `doc-gen4` dependency declared in the lakefile.
 To include the project bibliography while keeping its source at the repository root:
@@ -51,12 +65,6 @@ bibliography. This avoids requiring a documentation-source directory under the l
 - [SCVMainTheorems.md](SCVMainTheorems.md): definitions, conventions, and the catalogue of
   principal results with their proof status. This is the mathematical description of the
   project.
-- [SeveralComplexVariablesCoverage.md](SeveralComplexVariablesCoverage.md): the dated ledger
-  of changes, listing the declarations added in each session and the assessments of
-  deferred targets.
-- [AGENTS.md](AGENTS.md): instructions for contributors and for automated assistants, with
-  the build topology, proof requirements, mathematical conventions, scope, and source
-  material.
 
 ## Conventions in brief
 
@@ -85,13 +93,10 @@ The formalization follows classical introductory treatments, especially:
   North-Holland, 1973.
 - P. Jakóbczak and M. Jarnicki, *Lectures on Holomorphic Functions of Several Complex
   Variables*, manuscript, 2021.
-- J. Korevaar and J. Wiegerinck, *Several Complex Variables*, version of 23 August 2017
-  (the date printed in the local PDF, despite its 1997/revised-2021 filename).
+- J. Korevaar and J. Wiegerinck, *Several Complex Variables*, version of 23 August 2017.
 - S. G. Krantz, *Function Theory of Several Complex Variables*, 2nd ed., 1992.
 - J. Lebl, *Tasty Bits of Several Complex Variables*, 2026.
 - P. Lelong and L. Gruman, *Entire Functions of Several Complex Variables*, Springer, 1986.
-- J. Merker and E. Porten, *A Morse-theoretical proof of the Hartogs extension theorem*,
-  J. Geom. Anal. 17 (2007).
 - R. M. Range, *Holomorphic Functions and Integral Representations in Several Complex
   Variables*, Springer GTM 108, 1986.
 - V. Scheidemann, *Introduction to Complex Analysis in Several Variables*, Birkhäuser, 2005.

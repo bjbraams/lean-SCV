@@ -45,13 +45,6 @@ namespace SeveralComplexVariables
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
 
-omit [CompleteSpace F] in
-/-- The real derivative of a holomorphic map is the restriction of scalars of its complex
-derivative. -/
-theorem fderiv_real_eq_restrictScalars {Φ : E → F} {a : E} (hΦ : DifferentiableAt ℂ Φ a) :
-    fderiv ℝ Φ a = (fderiv ℂ Φ a).restrictScalars ℝ :=
-  (hΦ.hasFDerivAt.restrictScalars ℝ).fderiv
-
 /-- The real second derivative of a holomorphic map is complex bilinear: it changes sign when both
 arguments are multiplied by `I`. -/
 theorem fderiv_fderiv_smul_I_smul_I {Φ : E → F} {a : E} (hΦ : AnalyticAt ℂ Φ a) (s t : E) :
@@ -105,11 +98,11 @@ theorem leviForm_comp_analytic {g : F → ℝ} {Φ : E → F} {a : E} (hg : Cont
     simp [ContinuousLinearMap.compL_apply]
   -- complex linearity of the first derivative
   have hlin : fderiv ℝ Φ a (I • w) = I • fderiv ℂ Φ a w := by
-    rw [fderiv_real_eq_restrictScalars hΦ.differentiableAt,
+    rw [hΦ.differentiableAt.fderiv_restrictScalars (𝕜 := ℝ),
       ContinuousLinearMap.coe_restrictScalars',
       map_smul]
   have hlin' : fderiv ℝ Φ a w = fderiv ℂ Φ a w := by
-    rw [fderiv_real_eq_restrictScalars hΦ.differentiableAt,
+    rw [hΦ.differentiableAt.fderiv_restrictScalars (𝕜 := ℝ),
       ContinuousLinearMap.coe_restrictScalars']
   rw [leviForm_eq_fderiv, leviForm_eq_fderiv, hD2, hD2, fderiv_fderiv_smul_I_smul_I hΦ, map_neg,
     hlin, hlin']

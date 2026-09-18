@@ -52,7 +52,7 @@ theorem eqOn_const_of_holomorphic_of_isLocalMax_norm
     [StrictConvexSpace ℝ F] {U : Set E} (hU : IsOpen U) (hconn : IsPreconnected U)
     {f : E → F} (hf : DifferentiableOn ℂ f U) {a : E} (ha : a ∈ U)
     (hmax : IsLocalMax (norm ∘ f) a) : EqOn f (const E (f a)) U :=
-  eqOn_of_holomorphic_of_eventuallyEq hU hconn hf (differentiableOn_const (f a)) ha
+  hf.eqOn_of_preconnected_of_eventuallyEq hU hconn (differentiableOn_const (f a)) ha
     (Complex.eventually_eq_of_isLocalMax_norm
       (hf.eventually_differentiableAt (hU.mem_nhds ha)) hmax)
 

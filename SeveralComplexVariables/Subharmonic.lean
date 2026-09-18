@@ -29,7 +29,8 @@ Only real-valued functions are considered; the value `-∞` is not admitted.
 This file proves closure under sums, nonnegative multiples and maxima, gives the holomorphic
 examples (real parts, positive powers of norms, logarithms of nonvanishing moduli), and proves
 the maximum principle: a subharmonic function on a preconnected open set that attains its
-supremum is constant, and on a disc it is bounded by its supremum on the boundary circle.
+supremum is constant. On a disc, if it is upper semicontinuous on the closed disc, it is
+bounded by its supremum on the boundary circle.
 
 References: [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Section 2;
 [Range][Range1986] (1986), Chapter II, Section 5; [Ransford][Ransford1995] (1995), Chapter 2.

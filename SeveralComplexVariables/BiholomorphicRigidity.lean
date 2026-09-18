@@ -82,7 +82,7 @@ theorem eqOn_fderiv_of_circle_equivariant [CompleteSpace F] {U : Set E} (ho : Is
     (hrot : ∀ z ∈ U, ∀ c : ℂ, ‖c‖ = 1 → f (c • z) = c • f z) :
     EqOn f (fderiv ℂ f 0) U := by
   obtain ⟨r, hr, hsub⟩ := Metric.mem_nhds_iff.mp (ho.mem_nhds hzero)
-  apply eqOn_of_holomorphic_of_eqOn ho hc hf (fderiv ℂ f 0).differentiable.differentiableOn
+  apply hf.eqOn_of_preconnected_of_eqOn ho hc (fderiv ℂ f 0).differentiable.differentiableOn
     isOpen_ball ⟨0, mem_ball_self hr⟩ hsub
   intro z hz
   have hcz (c : ℂ) (hc : c ∈ closedBall 0 1) : c • z ∈ U := by

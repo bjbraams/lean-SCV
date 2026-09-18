@@ -6,14 +6,15 @@
 * everything between `-- BEGIN SOLUTION ONLY` and `-- END SOLUTION ONLY` removed,
 * the proof of every `theorem` replaced by `sorry`.
 A proof starts after the first line of the theorem that ends in `:=` or `:= by` and extends to the
-next blank line, so proofs in `Solution.lean` must not contain blank lines.
+next blank line, so proofs in `Solution.lean` must not contain blank lines. Block comments and
+docstrings must start at the beginning of a line; their text is copied and never parsed.
 Also writes the list of compared theorem names into `comparator.json`.
 """
 import json, re
 
 src = open('Solution.lean', encoding='utf-8').read().split('\n')
 out, names, ns = [], [], []
-i, skip = 0, False
+i, skip, in_comment = 0, False, False
 while i < len(src):
     l = src[i]
     if l.strip() == '-- BEGIN SOLUTION ONLY':
@@ -24,6 +25,10 @@ while i < len(src):
             i += 1
     elif skip or re.match(r'^import SeveralComplexVariables\b', l):
         pass
+    elif in_comment or l.startswith('/-'):
+        # block comments and docstrings are copied verbatim; their text is never parsed
+        in_comment = '-/' not in l[2:] if l.startswith('/-') and not in_comment else '-/' not in l
+        out.append(l)
     else:
         m = re.match(r'^namespace (\S+)', l)
         if m:

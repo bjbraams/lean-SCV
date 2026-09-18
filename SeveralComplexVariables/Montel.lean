@@ -150,7 +150,7 @@ theorem exists_tendsto_of_holomorphic_bounded_on_compacts
     simpa only [openExtension_apply U _ (hVU hz)] using
       tendsto_nhds_unique hlim (hy'.comp hφ.tendsto_atTop)
   have heq : EqOn (openExtension U q.val) (openExtension U g.val) U :=
-    eqOn_of_holomorphic_of_eqOn U.isOpen hconn q.property.differentiableOn
+    DifferentiableOn.eqOn_of_preconnected_of_eqOn U.isOpen hconn q.property.differentiableOn
       g.property.differentiableOn hV hne hVU (by
         intro z hz
         obtain ⟨y, hy⟩ := hp z hz

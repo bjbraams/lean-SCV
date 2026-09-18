@@ -31,6 +31,15 @@ principal assertion. The sources are the texts of Boas, Fritzsche–Grauert, Hö
 Jakóbczak–Jarnicki, Korevaar–Wiegerinck, Range, Scheidemann, Shabat and Suwa listed in
 `formalization.yaml`; none of the results is new. The proofs use only the axioms `propext`,
 `Quot.sound` and `Classical.choice`.
+
+## Related formalizations
+
+The development builds on Mathlib. Two results were formalized independently, and earlier, by
+Bochao Kong in the Palomar registry: the analytic Weierstrass preparation theorem (item 41; entry
+PALOMAR-2026-08-29-000010) and Rückert's basis theorem, that the ring of analytic germs is
+Noetherian (item 44; entry PALOMAR-2026-08-30-000001, which also contains the local analytic
+Nullstellensatz, not treated here). Neither is used here. Mathlib's Weierstrass preparation
+theorem concerns formal power series over complete local rings and is likewise not used.
 -/
 
 set_option autoImplicit false

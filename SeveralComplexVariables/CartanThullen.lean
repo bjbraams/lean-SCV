@@ -262,8 +262,8 @@ theorem isDomainOfHolomorphy_iff_exists_domainOfExistence (ho : IsOpen U) :
   ⟨fun h => (h.isHolomorphicallyConvex ho).exists_domainOfExistence ho,
     fun ⟨_, hf⟩ => hf.isDomainOfHolomorphy⟩
 
-/-- Convex open coordinate domains are holomorphically convex. This deduction uses the
-separating-hyperplane example and Thullen's lemma. -/
+/-- Convex open subsets of finite-dimensional complex normed spaces are holomorphically convex.
+This deduction uses the separating-hyperplane example and Thullen's lemma. -/
 theorem isHolomorphicallyConvex_of_convex (hU : Convex ℝ U) (ho : IsOpen U) :
     IsHolomorphicallyConvex U := (isDomainOfHolomorphy_of_convex hU ho).isHolomorphicallyConvex ho
 

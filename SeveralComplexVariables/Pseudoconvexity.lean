@@ -19,9 +19,8 @@ public import SeveralComplexVariables.Subharmonic.Majorant
 This file relates domains of holomorphy to plurisubharmonic functions and to two geometric
 convexity notions.
 
-* **Boundary distance.** On a domain of holomorphy in a finite-dimensional complex normed space, the
-negative logarithm of
-the sup-norm distance to the complement is plurisubharmonic. The proof is
+* **Boundary distance.** On a domain of holomorphy in `Fin n → ℂ`, the negative logarithm of
+the supremum-norm distance to the complement is plurisubharmonic. The proof is
 [Hörmander][Hormander1973]'s: a
 harmonic polynomial majorant of `-log δ` on a circle in a complex line gives, through the
 weighted hull-radius bound of Thullen's lemma, the same bound at the center.
@@ -38,6 +37,13 @@ continuity principle
 holds for continuous families of holomorphic discs, not only affine ones: every point of a
 holomorphic disc lies in the holomorphic hull of the boundary circle, and Thullen's radius
 bound keeps the discs at a fixed distance from the complement.
+
+The boundary-distance result uses the supremum norm on `Fin n → ℂ`. For the whole space,
+`Metric.infDist` of the empty complement and `Real.log 0` are both zero, so the function in
+that theorem is identically zero. This is a real-valued convention; `boundaryEDistance` instead
+takes the value `∞` for an empty complement. Pseudoconvexity and the holomorphic continuity
+principle are transported to arbitrary finite-dimensional complex normed spaces; this transport
+does not identify their boundary-distance functions.
 
 The converse implications, from pseudoconvexity back to the domain-of-holomorphy property, form
 the Levi problem and are outside the present scope.
@@ -162,9 +168,9 @@ theorem mem_holomorphicHull_of_analytic_disc {U : Set E} {φ : ℂ → E} {r : �
 variable {n : ℕ}
 
 /-- **Plurisubharmonicity of the boundary distance ([Hörmander][Hormander1973] 2.6.5).** On a domain
-of
-holomorphy in `Fin n → ℂ`, the negative logarithm of the distance to the complement is
-plurisubharmonic. -/
+of holomorphy in `Fin n → ℂ`, the negative logarithm of the supremum-norm distance to the
+complement is plurisubharmonic. When the complement is empty, this function is zero by the
+conventions `Metric.infDist_empty` and `Real.log_zero`. -/
 theorem IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist {U : Set (Fin n → ℂ)}
     (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) :
     PlurisubharmonicOn (fun z => -Real.log (infDist z Uᶜ)) U := by

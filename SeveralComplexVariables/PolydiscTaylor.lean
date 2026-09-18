@@ -170,7 +170,7 @@ theorem hasSum_polydiscTaylor {f : (Fin d → ℂ) → E} {c h : Fin d → ℂ}
   have hn := hs.const_smul (((2 * π * I : ℂ) ^ d)⁻¹)
   have hterm (m : Fin d → ℕ) : (∏ i, h i ^ m i) • polydiscCauchyCoeffWithRadii f c R m =
       (((2 * π * I : ℂ) ^ d)⁻¹) • torusIntegral (T m) c R := by
-    dsimp only [polydiscCauchyCoeffWithRadii, cauchyTransform, T]
+    dsimp only [polydiscCauchyCoeffWithRadii, polydiscCauchyTransform, T]
     rw [torusIntegral_smul]
     exact smul_comm _ _ _
   rw [two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul hR (fun i => by simpa using hh i) hfc

@@ -93,22 +93,22 @@ variable {G F : Type*} [NormedAddCommGroup G] [NormedSpace ℂ G] [FiniteDimensi
 open scoped ContDiff
 
 /-- Cutoff data for a compact hole `K` in an open set `D`: a smooth function equal to one on an open
-neighborhood `U` of `K`, with open support `s` whose closure is compact in `D`. -/
+neighborhood of `K`, with open support `s` whose closure is compact in `D`. -/
 private structure HoleCutoffData (D K : Set (ℂ × G)) where
   /-- The cutoff function. -/
   φ : ℂ × G → ℝ
   /-- An open neighborhood of `K` on which the cutoff equals one. -/
-  U : Set (ℂ × G)
+  neighborhood : Set (ℂ × G)
   /-- The support of the cutoff. -/
   s : Set (ℂ × G)
   /-- The cutoff is smooth. -/
   contDiff : ContDiff ℝ ∞ φ
   /-- The neighborhood on which the cutoff equals one is open. -/
-  isOpen_U : IsOpen U
+  isOpen_neighborhood : IsOpen neighborhood
   /-- The neighborhood contains the hole. -/
-  subset_U : K ⊆ U
+  subset_neighborhood : K ⊆ neighborhood
   /-- The cutoff equals one on the neighborhood of the hole. -/
-  eq_one : ∀ x ∈ U, φ x = 1
+  eq_one : ∀ x ∈ neighborhood, φ x = 1
   /-- The support is open. -/
   isOpen_s : IsOpen s
   /-- The specified support is the nonzero locus of the cutoff. -/
@@ -139,7 +139,7 @@ omit [FiniteDimensional ℂ G] [NormedSpace ℂ F] [CompleteSpace F] in
 /-- The hole lies in the support of the cutoff. -/
 private theorem HoleCutoffData.subset_s {D K : Set (ℂ × G)} (h : HoleCutoffData D K) : K ⊆ h.s :=
   fun x hx => by
-    rw [← h.support_eq, mem_support, h.eq_one x (h.subset_U hx)]
+    rw [← h.support_eq, mem_support, h.eq_one x (h.subset_neighborhood hx)]
     exact one_ne_zero
 
 omit [FiniteDimensional ℂ G] [NormedSpace ℂ F] [CompleteSpace F] in
@@ -182,12 +182,12 @@ omit [FiniteDimensional ℂ G] in
 private theorem contDiffAt_holeCutoff (h : HoleCutoffData D K) (hD : IsOpen D) (hKc : IsClosed K)
     (hf : AnalyticOnNhd ℂ f (D \ K)) {x : ℂ × G} (hx : x ∈ D) :
     ContDiffAt ℝ 2 (holeCutoff K h.φ f) x := by
-  by_cases hxU : x ∈ h.U
+  by_cases hxU : x ∈ h.neighborhood
   · have heq : holeCutoff K h.φ f =ᶠ[𝓝 x] fun _ => (0 : F) :=
-      eventuallyEq_of_mem (h.isOpen_U.mem_nhds hxU) fun y hy =>
+      eventuallyEq_of_mem (h.isOpen_neighborhood.mem_nhds hxU) fun y hy =>
         holeCutoff_eq_zero_of_one (h.eq_one y hy)
     exact contDiffAt_const.congr_of_eventuallyEq heq
-  · have hxK : x ∉ K := fun hxK => hxU (h.subset_U hxK)
+  · have hxK : x ∉ K := fun hxK => hxU (h.subset_neighborhood hxK)
     have hmem : x ∈ D \ K := ⟨hx, hxK⟩
     have heq : holeCutoff K h.φ f =ᶠ[𝓝 x] fun y => (1 - h.φ y) • f y :=
       eventuallyEq_of_mem ((hD.sdiff hKc).mem_nhds hmem) fun y hy => by
