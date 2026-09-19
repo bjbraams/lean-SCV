@@ -85,7 +85,8 @@ connectedness.
   $j$ imply $w\in U$. This implies Reinhardt symmetry. A nonempty such set
   contains the origin.
 - Its **logarithmic image** is
-  $\lbrace (\log\lvert z_1\rvert,\ldots,\log\lvert z_n\rvert):z\in U,\ z_j\ne0\text{ for all }j\rbrace$.
+  $\lbrace (\log\lvert z_1\rvert,\ldots,\log\lvert z_n\rvert):z\in U,\ z_j\ne0
+  \text{ for all }j\rbrace$.
   Classical logarithmic convexity means convexity of this image.
 - To include zero coordinates, the project also uses the **modulus trace**
   $M(U)=\lbrace (\lvert z_1\rvert,\ldots,\lvert z_n\rvert):z\in U\rbrace\subseteq[0,\infty)^n$.
@@ -117,7 +118,8 @@ connectedness.
 For $K\subset U$, its **holomorphic hull relative to $U$** is
 
 $$
-{\hat{K}_U}=\lbrace z\in U: \lvert f(z)\rvert\leq{\sup_K\lvert f\rvert}\text{ for all }f\in\mathcal O(U)\rbrace.
+{\hat{K}_U}=\lbrace z\in U: \lvert f(z)\rvert\leq{\sup_K\lvert f\rvert}
+\text{ for all }f\in\mathcal O(U)\rbrace.
 $$
 
 The definition uses all real upper bounds instead of a real supremum, so it
@@ -323,7 +325,8 @@ derivative-measurability hypothesis.
 For a compactly supported $C^1$ function $\varphi:\mathbb C\to F$,
 
 $$
-\int_{\mathbb C}\frac{1}{w}\thinspace \frac{\partial\varphi}{\partial\bar w}(w)\thinspace dA(w)=-\pi\thinspace \varphi(0).
+\int_{\mathbb C}\frac{1}{w}\thinspace \frac{\partial\varphi}{\partial\bar w}(w)\thinspace dA(w)=
+-\pi\thinspace \varphi(0).
 $$
 
 The antiholomorphic part along a direction $v$ of a real-linear map $L$ is
@@ -335,9 +338,10 @@ is the angular derivative divided by the radius, whose integral vanishes by peri
 Green or Stokes theorem is used.
 
 The **Cauchy transform** in the first variable of a compactly supported $C^1$ function $g$ on
-$\mathbb C\times G$ is $u(z,y)=\pi^{-1}\int w^{-1}g(z-w,y)\thinspace dA(w)$. It is real-differentiable,
-its derivative is the transform of the derivative of $g$, by differentiation under the integral
-with the locally integrable kernel $w^{-1}$, and it satisfies $`{\partial u/\partial\bar z=g}`$;
+$\mathbb C\times G$ is $u(z,y)=\pi^{-1}\int w^{-1}g(z-w,y)\thinspace dA(w)$.
+It is real-differentiable, its derivative is the transform of the derivative of $g$, by
+differentiation under the integral with the locally integrable kernel $w^{-1}$, and it satisfies
+$`{\partial u/\partial\bar z=g}`$;
 the antiholomorphic parameter derivatives pass through the transform, and $u$ vanishes on
 every slice on which $g$ vanishes. These are the one-variable ingredients of Ehrenpreis' proof
 of the compact-hole theorem in item 31.
@@ -465,8 +469,8 @@ of the analytic extension theorems.
 For coefficients $c_\alpha\in F$, define
 
 $$
-A_c=\left\lbrace z:\sum_\alpha\lVert c_\alpha\rVert\thinspace \lvert z^\alpha\rvert<\infty\right\rbrace,
-\qquad D_c=\mathrm{int}A_c.
+A_c=\left\lbrace z:\sum_\alpha\lVert c_\alpha\rVert\thinspace\lvert z^\alpha\rvert
+<\infty\right\rbrace,\qquad D_c=\mathrm{int}A_c.
 $$
 
 Both the absolute-convergence set and its interior are complete Reinhardt and
@@ -567,14 +571,13 @@ Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
 $$`
-\bigl(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace\bigr)
-\thickspace\cup\thickspace
+\bigl(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace\bigr)\;\cup\;
 \bigl(D_0\times\lbrace w:\lvert w\rvert<R\rbrace\bigr)
 `$$
 
-extends holomorphically to $D\times\lbrace \lvert w\rvert<R\rbrace$. No boundedness assumption on
-the function is needed. The standard Hartogs-figure theorem and uniqueness of
-its extension are proved consequences. These results do not depend on the
+extends holomorphically to $D\times\lbrace \lvert w\rvert<R\rbrace$. No boundedness
+assumption on the function is needed. The standard Hartogs-figure theorem and uniqueness
+of its extension are proved consequences. These results do not depend on the
 fiber-expansion theorems in item 25.
 
 ### 27. Hartogs' unrestricted separate-holomorphy theorem
@@ -642,9 +645,10 @@ exceptional set need not be closed or discrete.
 ### 31. Hartogs' compact-hole extension theorem
 
 In complex dimension at least two, let $U$ be open and $K\subseteq U$ compact, with
-$U\mathbin{\backslash} K$ connected. Every Banach-valued holomorphic function on $U\mathbin{\backslash} K$
-extends holomorphically to $U$. Connectedness of $U$ itself is not assumed. Stated extensions from spherical shells and exteriors of
-closed balls are consequently proved as well.
+$U\mathbin{\backslash} K$ connected. Every Banach-valued holomorphic function on
+$U\mathbin{\backslash}K$ extends holomorphically to $U$.
+Connectedness of $U$ itself is not assumed. Stated extensions from spherical shells and exteriors
+of closed balls are consequently proved as well.
 
 The proof is Ehrenpreis' argument, using the Cauchy–Pompeiu identity and the Cauchy transform
 of item 9. After a linear change of coordinates $E\cong\mathbb C\times G$, a smooth cutoff
@@ -760,9 +764,9 @@ and total order in one coordinate agrees with scalar analytic order.
 
 On a product polydisc, a scalar holomorphic $g$ has a unique decomposition
 
-$$
-`g(z,w)=w^d q(z,w)+\sum_{j<d}a_j(z)w^j.`
-$$
+$$`
+g(z,w)=w^d q(z,w)+\sum_{j<d}a_j(z)w^j.
+`$$
 
 The quotient and coefficients are holomorphic. If $\lvert g\rvert\le M$ and the fiber
 radius is $R$, the proved estimate is $\lvert q\rvert\le(d+1)M/R^d$ throughout the
@@ -775,9 +779,9 @@ parameter variables are included.
 If $f(z,w)$ is regular of order $d$ in $w$ at the origin, every scalar
 analytic numerator germ $g$ has a unique decomposition
 
-$$
-`g=qf+r,\qquad r(z,w)=\sum_{j<d}a_j(z)w^j.`
-$$
+$$`
+g=qf+r,\qquad r(z,w)=\sum_{j<d}a_j(z)w^j.
+`$$
 
 The proved main theorem chooses a fixed product polydisc depending on the
 divisor and permits every bounded holomorphic numerator there, with a quotient
@@ -807,9 +811,9 @@ depend on division, Noetherianity, or unique factorization.
 
 ### 43. Comparison between polynomials and analytic germs
 
-The project maps $\mathcal O_{\mathbb C^{n-1},0}[w]$ into $\mathcal O_{\mathbb C^n,0}$ by evaluating
-the last-coordinate polynomial. Injectivity is **proved**, by restriction to the
-zero section and polynomial induction, independently of Weierstrass division.
+The project maps $\mathcal O_{\mathbb C^{n-1},0}[w]$ into $\mathcal O_{\mathbb C^n,0}$
+by evaluating the last-coordinate polynomial. Injectivity is **proved**, by restriction
+to the zero section and polynomial induction, independently of Weierstrass division.
 Preservation of polynomial quotients under division by a distinguished polynomial
 and comparison of irreducibility are **proved**. In particular, a distinguished
 polynomial is irreducible exactly when its analytic germ is. The ring-theoretic
@@ -1008,9 +1012,9 @@ Mixed derivative bounds transfer from a set to its holomorphic hull; this is
 **proved**, also for Banach-valued functions, by norming functionals.
 The Taylor continuation lemma is also **proved**, for Banach-valued $f$:
 if $q\in\mathcal O(U)$ is scalar, $f$ is holomorphic on $U$ with values in a Banach space,
-$K\subset U$ is compact, and the polydisc of radius $\lvert q(w)\rvert$ centered at $w$ lies in $U$ for
-each $w\in K$, then the Taylor series of $f$ at any $`a\in{\widehat K}_U`$ continues its germ
-to the polydisc of radius $\lvert q(a)\rvert$.
+$K\subset U$ is compact, and the polydisc of radius $\lvert q(w)\rvert$ centered at $w$ lies
+in $U$ for each $w\in K$, then the Taylor series of $f$ at any $`{a\in{\widehat K}_U}`$
+continues its germ to the polydisc of radius $\lvert q(a)\rvert$.
 The statement includes locally uniform convergence there and permits zeros of
 $q$. The proof obtains uniform Cauchy bounds on compact families of smaller balls,
 transfers coefficients weighted by powers of $q$ to the hull, and compares the
@@ -1159,15 +1163,17 @@ Levi pseudoconvex at every boundary point that admits a local `C²` defining fun
 Theorem 2.11). The proof is given in $\mathbb C^n$ with the sup norm and transported by a
 linear equivalence, using the invariance of the Levi condition under pullback; within
 $\mathbb C^n$ it avoids holomorphic coordinate changes. Near $p$ the defining function is
-comparable to the boundary distance: $c\thinspace \lvert\rho\rvert\le\delta\le C\thinspace \lvert\rho\rvert$
+comparable to the boundary distance:
+$c\thinspace \lvert\rho\rvert\le\delta\le C\thinspace \lvert\rho\rvert$
 on $U$, by the mean value inequality and by moving inward along a direction on which $d\rho$
 is positive. If the Levi form were negative in a complex tangent direction $w$, the Levi
 polynomial gives a quadratic analytic disc $\zeta\mapsto p+\zeta w+\zeta^2c+\kappa r^2\nu$
-on which $\rho=-\kappa r^2+\lvert\zeta\rvert^2L+O(\eta r^2)$ with $L<0$, uniformly for $\lvert\zeta\rvert\le r$
-and small $r$, by the uniform second-order Taylor bound and the decomposition of a symmetric
-bilinear form along a complex line. The boundary circle is then deeper inside $U$ than the
-center by a fixed multiple of $r^2$, while the center lies in the holomorphic hull of the
-circle by the maximum modulus principle; Thullen's weighted radius bound contradicts this.
+on which $\rho=-\kappa r^2+\lvert\zeta\rvert^2L+O(\eta r^2)$ with $L<0$, uniformly for
+$\lvert\zeta\rvert\le r$ and small $r$, by the uniform second-order Taylor bound and the
+decomposition of a symmetric bilinear form along a complex line.
+The boundary circle is then deeper inside $U$ than the center by a fixed multiple of $r^2$,
+while the center lies in the holomorphic hull of the circle by the maximum modulus principle;
+Thullen's weighted radius bound contradicts this.
 
 ### 63. Levi form under holomorphic maps and the Kontinuitätssatz
 
@@ -1208,11 +1214,12 @@ function makes the Levi form positive definite on the whole space; the constant 
 sequential compactness argument on the unit sphere. The complex bilinear part of the real
 Hessian is a bounded complex bilinear map, so the Levi polynomial
 $F(z)=\partial\rho(p)(z-p)+Q(z-p)$ is entire, vanishes at $p$, and by the second-order Taylor
-expansion satisfies $`\mathrm{Re}F(z)\le{\tilde\rho}(z)-\tfrac c2\lVert z-p\rVert^2`$ near $p$
-(Range, Proposition 2.16). Hence $\mathrm{Re}F<0$ on the set near $p$, and $1/F$ is a
+expansion satisfies $`{\mathrm{Re}F(z)\le{\tilde\rho}(z)-\tfrac c2\lVert z-p\rVert^2}`$ near
+$p$ (Range, Proposition 2.16). Hence $\mathrm{Re}F<0$ on the set near $p$, and $1/F$ is a
 holomorphic function on the set near $p$ whose modulus tends to infinity at $p$. The
 normalized local peak function is $\exp F$: its value at $p$ is one and its modulus is
-strictly less than one at every other nearby point on the closed side $\rho\le0$. The step from peak functions to the domain-of-holomorphy property of a local piece
+strictly less than one at every other nearby point on the closed side $\rho\le0$.
+The step from peak functions to the domain-of-holomorphy property of a local piece
 is not taken; it is the non-elementary comparison of weak and strong domains of holomorphy.
 
 ## K. Runge pairs, Runge domains, and polynomial hulls
