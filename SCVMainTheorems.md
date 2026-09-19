@@ -196,7 +196,7 @@ L_\rho(a;w)=\tfrac14\bigl(D^2\rho(a)(w,w)+D^2\rho(a)(iw,iw)\bigr),
 $$
 
 which in coordinates is the complex Hessian
-$`{\sum_{j,k}\left({\partial^2\rho}/{\partial z_j\thinspace\partial\bar{z}_k}\right)\thinspace
+$`{\sum_{j,k}({\partial^2\rho}/{\partial z_j\thinspace\partial\bar{z}_k})\thinspace
 w_j\bar{w}_k}`$.
 A **local defining function** for an open set $U$ at a boundary point $p$ is a real $C^2$
 function $\rho$ on an open neighborhood $V$ of $p$ with $\rho(p)=0$, $D\rho(p)\ne0$ and
@@ -226,7 +226,7 @@ The domain-of-holomorphy property is not part of these definitions.
 
 For a real-linear map $L$ from a complex normed space to a complex Banach space and a
 direction $v$, the **antiholomorphic part** of $L$ along $v$ is
-$`{{\tfrac12}\left(Lv+i\thinspace L(iv)\right)}`$.
+$`{{\tfrac12}(Lv+i\thinspace L(iv))}`$.
 A real-linear map is complex-linear exactly when all its antiholomorphic parts vanish.
 
 ## A. Local analysis and differential calculus
@@ -566,11 +566,11 @@ zero-dimensional parameter spaces, and the empty set.
 Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
-$$
-`\bigl(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace\bigr)
+$$`
+\bigl(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace\bigr)
 \thickspace\cup\thickspace
-\bigl(D_0\times\lbrace w:\lvert w\rvert<R\rbrace\bigr)`
-$$
+\bigl(D_0\times\lbrace w:\lvert w\rvert<R\rbrace\bigr)
+`$$
 
 extends holomorphically to $D\times\lbrace \lvert w\rvert<R\rbrace$. No boundedness assumption on
 the function is needed. The standard Hartogs-figure theorem and uniqueness of
@@ -652,7 +652,7 @@ $\varphi$ equal to one near $K$ with compact support in $U$ gives $F_0=(1-\varph
 by zero across $K$.
 Its antiholomorphic derivatives along all directions are compactly supported and commute,
 by symmetry of the second derivative, so $F_0-u$ with $u$ the Cauchy transform of
-$`{\partial F}_0/{\partial\bar z}_1`$ has complex-linear real derivative and is holomorphic
+$`{{\partial F}_0/{\partial\bar z}_1}`$ has complex-linear real derivative and is holomorphic
 on $U$.
 On the open set of points whose $G$-coordinate lies outside the projection of the support of
 $\varphi$, nonempty because a nonempty open subset of $G$ is not compact, both $F_0=f$ and
