@@ -196,7 +196,7 @@ L_\rho(a;w)=\tfrac14\bigl(D^2\rho(a)(w,w)+D^2\rho(a)(iw,iw)\bigr),
 $$
 
 which in coordinates is the complex Hessian
-$`{\sum_{j,k}\frac{\partial^2\rho}{\partial z_j\thinspace\partial\bar{z}_k}\thinspace
+$`{\sum_{j,k}\left({\partial^2\rho}/{\partial z_j\thinspace\partial\bar{z}_k}\right)\thinspace
 w_j\bar{w}_k}`$.
 A **local defining function** for an open set $U$ at a boundary point $p$ is a real $C^2$
 function $\rho$ on an open neighborhood $V$ of $p$ with $\rho(p)=0$, $D\rho(p)\ne0$ and
@@ -226,7 +226,7 @@ The domain-of-holomorphy property is not part of these definitions.
 
 For a real-linear map $L$ from a complex normed space to a complex Banach space and a
 direction $v$, the **antiholomorphic part** of $L$ along $v$ is
-$`{{\tfrac12}\bigl(Lv+i\thinspace L(iv)\bigr)}`$.
+$`{{\tfrac12}\left(Lv+i\thinspace L(iv)\right)}`$.
 A real-linear map is complex-linear exactly when all its antiholomorphic parts vanish.
 
 ## A. Local analysis and differential calculus
@@ -337,7 +337,7 @@ Green or Stokes theorem is used.
 The **Cauchy transform** in the first variable of a compactly supported $C^1$ function $g$ on
 $\mathbb C\times G$ is $u(z,y)=\pi^{-1}\int w^{-1}g(z-w,y)\thinspace dA(w)$. It is real-differentiable,
 its derivative is the transform of the derivative of $g$, by differentiation under the integral
-with the locally integrable kernel $w^{-1}$, and it satisfies $`{\partial u/\partial\bar z}=g`$;
+with the locally integrable kernel $w^{-1}$, and it satisfies $`{\partial u/\partial\bar z=g}`$;
 the antiholomorphic parameter derivatives pass through the transform, and $u$ vanishes on
 every slice on which $g$ vanishes. These are the one-variable ingredients of Ehrenpreis' proof
 of the compact-hole theorem in item 31.
