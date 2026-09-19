@@ -1,7 +1,5 @@
 # Several Complex Variables: mathematical coverage and proof status
 
-*Status reviewed on 18 September 2026.*
-
 This project develops classical analysis on open subsets of finite-dimensional complex
 spaces, with Banach-space targets wherever the statements allow. In the order of the
 catalogue below, it covers: Cauchy and Taylor theory on polydiscs, the Cauchy–Riemann
@@ -66,11 +64,11 @@ The default coordinate norm is the **supremum norm**. Its balls are equal-radius
 polydiscs. A polydisc with separate positive radii is
 
 $$
-P(a;r)=\{z:|z_j-a_j|<r_j\text{ for every }j\}.
+P(a;r)=\lbrace z:|z_j-a_j|<r_j\text{ for every }j\rbrace.
 $$
 
 Its distinguished boundary is the product torus
-$T(a;r)=\{z:|z_j-a_j|=r_j\text{ for every }j\}$, rather than the entire
+$T(a;r)=\lbrace z:|z_j-a_j|=r_j\text{ for every }j\rbrace$, rather than the entire
 topological boundary. Euclidean balls are treated using a Hermitian norm and
 are explicitly identified as such. The Hermitian inner product is conjugate-linear
 in its first argument and linear in its second.
@@ -87,10 +85,10 @@ connectedness.
   $j$ imply $w\in U$. This implies Reinhardt symmetry. A nonempty such set
   contains the origin.
 - Its **logarithmic image** is
-  $\{(\log|z_1|,\ldots,\log|z_n|):z\in U,\ z_j\ne0\text{ for all }j\}$.
+  $\lbrace (\log|z_1|,\ldots,\log|z_n|):z\in U,\ z_j\ne0\text{ for all }j\rbrace$.
   Classical logarithmic convexity means convexity of this image.
 - To include zero coordinates, the project also uses the **modulus trace**
-  $M(U)=\{(|z_1|,\ldots,|z_n|):z\in U\}\subseteq[0,\infty)^n$.
+  $M(U)=\lbrace (|z_1|,\ldots,|z_n|):z\in U\rbrace\subseteq[0,\infty)^n$.
   Its geometric convexity means closure under
   $(r,s)\mapsto(r_j^t s_j^{1-t})_j$, for $0\le t\le1$.
   The endpoint convention $0^0=1$ gives the expected endpoints; for interior
@@ -103,7 +101,7 @@ connectedness.
   Reinhardt hull** allows coordinatewise shrinking only in selected coordinates.
 - A **Hartogs set** in $E\times\mathbb C$ is invariant under rotations of the
   last coordinate: $(z,w)\in U\Rightarrow(z,e^{i\theta}w)\in U$. Its base is
-  the projection to $E$, and its fiber at $z$ is $U_z=\{w:(z,w)\in U\}$.
+  the projection to $E$, and its fiber at $z$ is $U_z=\lbrace w:(z,w)\in U\rbrace$.
   It is **complete Hartogs** if each fiber is closed under decreasing modulus.
   **Connectedness of the nonempty fibers is a separate property**, not part of
   the definition of a Hartogs set. Open nonempty complete fibers are centered
@@ -118,11 +116,11 @@ connectedness.
 
 For $K\subset U$, its **holomorphic hull relative to $U$** is
 $$
-\widehat K_U=\{z\in U: |f(z)|\leq\sup_K|f|\text{ for all }f\in\mathcal O(U)\}.
+\widehat K_U=\lbrace z\in U: |f(z)|\leq\sup_K|f|\text{ for all }f\in\mathcal O(U)\rbrace.
 $$
 The definition uses all real upper bounds instead of a real supremum, so it
 also handles empty sets and unbounded functions. In particular,
-$\widehat\varnothing_U=\varnothing$. A compact set is holomorphically convex
+$\widehat{\varnothing}_U=\varnothing$. A compact set is holomorphically convex
 relative to $U$ when its hull equals itself. An open set $U$ is holomorphically
 convex when every compact $K\subset U$ has compact hull. These notions differ
 from the logarithmic Reinhardt hull used earlier.
@@ -139,7 +137,7 @@ Boundary distance is distance to the complement, with values in $[0,\infty]$.
 This treats the whole ambient space and empty compact sets without exceptions.
 In coordinate spaces its metric is the supremum metric, giving polydisc radii.
 The **tube over $\Omega\subset\mathbb R^n$** is
-$T_\Omega=\{z\in\mathbb C^n:\mathrm{Re}z\in\Omega\}$.
+$T_\Omega=\lbrace z\in\mathbb C^n:\mathrm{Re}z\in\Omega\rbrace$.
 
 ### Maps, germs, and analytic sets
 
@@ -196,10 +194,10 @@ L_\rho(a;w)=\tfrac14\bigl(D^2\rho(a)(w,w)+D^2\rho(a)(iw,iw)\bigr),
 $$
 
 which in coordinates is the complex Hessian
-$\sum_{j,k}\partial^2\rho/\partial z_j\partial\bar z_k\,w_j\bar w_k$. A **local defining
-function** for an open set $U$ at a boundary point $p$ is a real $C^2$ function $\rho$ on an
-open neighborhood $V$ of $p$ with $\rho(p)=0$, $D\rho(p)\ne0$ and
-$U\cap V=\{\rho<0\}\cap V$; the set $U$ has **$C^2$ boundary** if every boundary point has one.
+$\sum_{j,k}\partial^2\rho/\partial z_j\partial\bar z_k\thinspace w_j\bar w_k$.
+A **local defining function** for an open set $U$ at a boundary point $p$ is a real $C^2$
+function $\rho$ on an open neighborhood $V$ of $p$ with $\rho(p)=0$, $D\rho(p)\ne0$ and
+$U\cap V=\lbrace \rho<0\rbrace\cap V$; the set $U$ has **$C^2$ boundary** if every boundary point has one.
 The **complex tangent space** at $p$ consists of the $w$ with $D\rho(p)w=D\rho(p)(iw)=0$. The
 set $U$ is **Levi pseudoconvex at $p$** if for every local defining function the Levi form is
 positive semidefinite on the complex tangent space, **strictly** so if it is positive definite
@@ -224,9 +222,9 @@ $U\subset\mathbb C^n$ is a **Runge domain** if the approximants may be taken to 
 The domain-of-holomorphy property is not part of these definitions.
 
 For a real-linear map $L$ from a complex normed space to a complex Banach space and a
-direction $v$, the **antiholomorphic part** of $L$ along $v$ is $\tfrac12\bigl(Lv+i\,L(iv)\bigr)$.
+direction $v$, the **antiholomorphic part** of $L$ along $v$ is
+${\tfrac12}\bigl(Lv+i\thinspace L(iv)\bigr)$.
 A real-linear map is complex-linear exactly when all its antiholomorphic parts vanish.
-
 
 ## A. Local analysis and differential calculus
 
@@ -236,7 +234,7 @@ For $f$ holomorphic on a neighborhood of a closed polydisc and $z\in P(a;r)$,
 
 $$
 f(z)=\frac{1}{(2\pi i)^n}\int_{T(a;r)}
-\frac{f(\zeta)}{\prod_j(\zeta_j-z_j)}\,d\zeta_1\cdots d\zeta_n.
+\frac{f(\zeta)}{\prod_j(\zeta_j-z_j)}\thinspace d\zeta_1\cdots d\zeta_n.
 $$
 
 The proved version requires only continuity on the closed polydisc and
@@ -279,8 +277,8 @@ On a polydisc, the Taylor coefficients equal the torus Cauchy coefficients:
 
 $$
 c_\alpha=\frac{\partial^\alpha f(a)}{\alpha!},\qquad
-\|\partial^\alpha f(a)\|\le
-\alpha!\,M\prod_j r_j^{-\alpha_j}
+\lVert \partial^\alpha f(a)\Vert\le
+\alpha!\thinspace M\prod_j r_j^{-\alpha_j}
 $$
 
 when $f$ is holomorphic near the closed polydisc and bounded there by $M$.
@@ -322,11 +320,11 @@ derivative-measurability hypothesis.
 For a compactly supported $C^1$ function $\varphi:\mathbb C\to F$,
 
 $$
-\int_{\mathbb C}\frac{1}{w}\,\frac{\partial\varphi}{\partial\bar w}(w)\,dA(w)=-\pi\,\varphi(0).
+\int_{\mathbb C}\frac{1}{w}\thinspace \frac{\partial\varphi}{\partial\bar w}(w)\thinspace dA(w)=-\pi\thinspace \varphi(0).
 $$
 
 The antiholomorphic part along a direction $v$ of a real-linear map $L$ is
-$\tfrac12(Lv+i\,L(iv))$, and it vanishes for all $v$ exactly when $L$ is complex-linear;
+$\tfrac12(Lv+i\thinspace L(iv))$, and it vanishes for all $v$ exactly when $L$ is complex-linear;
 for the real derivative of a function of one complex variable and $v=1$ it is
 $\partial/\partial\bar w$. The identity is proved in polar coordinates: along each ray the
 integrand is the radial derivative, whose integral is $-\varphi(0)$, and around each circle it
@@ -334,9 +332,9 @@ is the angular derivative divided by the radius, whose integral vanishes by peri
 Green or Stokes theorem is used.
 
 The **Cauchy transform** in the first variable of a compactly supported $C^1$ function $g$ on
-$\mathbb C\times G$ is $u(z,y)=\pi^{-1}\int w^{-1}g(z-w,y)\,dA(w)$. It is real-differentiable,
+$\mathbb C\times G$ is $u(z,y)=\pi^{-1}\int w^{-1}g(z-w,y)\thinspace dA(w)$. It is real-differentiable,
 its derivative is the transform of the derivative of $g$, by differentiation under the integral
-with the locally integrable kernel $w^{-1}$, and it satisfies $\partial u/\partial\bar z=g$;
+with the locally integrable kernel $w^{-1}$, and it satisfies ${\partial u/\partial\bar z}=g$;
 the antiholomorphic parameter derivatives pass through the transform, and $u$ vanishes on
 every slice on which $g$ vanishes. These are the one-variable ingredients of Ehrenpreis' proof
 of the compact-hole theorem in item 31.
@@ -391,7 +389,7 @@ whose classes admit holomorphic representatives. Such representatives are
 unique everywhere on $U$, a **proved** fact. The local estimate
 
 $$
-\sup_{z\in K}\|f(z)\|\le C_{K,U,p}\|f\|_{L^p(U)},\qquad K\Subset U,
+\sup_{z\in K}\lVert f(z)\rVert\le C_{K,U,p}\lVert f\rVert_{L^p(U)},\qquad K\Subset U,
 $$
 
 is **proved** by the polydisc volume mean-value formula and Hölder's inequality.
@@ -464,7 +462,7 @@ of the analytic extension theorems.
 For coefficients $c_\alpha\in F$, define
 
 $$
-A_c=\left\{z:\sum_\alpha\|c_\alpha\|\,|z^\alpha|<\infty\right\},
+A_c=\left\lbrace z:\sum_\alpha\lVert c_\alpha\rVert\thinspace |z^\alpha|<\infty\right\rbrace,
 \qquad D_c=\mathrm{int}A_c.
 $$
 
@@ -566,12 +564,12 @@ Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
 $$
-\bigl(D\times\{w:\rho<|w|<R\}\bigr)
+\bigl(D\times\lbrace w:\rho<|w|<R\rbrace\bigr)
 \;\cup\;
-\bigl(D_0\times\{w:|w|<R\}\bigr)
+\bigl(D_0\times\lbrace w:|w|<R\rbrace\bigr)
 $$
 
-extends holomorphically to $D\times\{|w|<R\}$. No boundedness assumption on
+extends holomorphically to $D\times\lbrace |w|<R\rbrace$. No boundedness assumption on
 the function is needed. The standard Hartogs-figure theorem and uniqueness of
 its extension are proved consequences. These results do not depend on the
 fiber-expansion theorems in item 25.
@@ -612,7 +610,7 @@ reindexing along a bijection of coordinate types is proved separately.
 ### 28. Removal of isolated singularities in dimension at least two
 
 If $\dim_{\mathbb C}E\ge2$, $U\subseteq E$ is open, and $a\in U$, every
-Banach-valued holomorphic function on $U\setminus\{a\}$ extends
+Banach-valued holomorphic function on $U\setminus\lbrace a\rbrace$ extends
 holomorphically across $a$. Neither boundedness nor connectedness of $U$
 is assumed. The proof uses concrete Hartogs continuation, independently of
 the general compact-hole theorem below.
@@ -650,8 +648,8 @@ of item 9. After a linear change of coordinates $E\cong\mathbb C\times G$, a smo
 $\varphi$ equal to one near $K$ with compact support in $U$ gives $F_0=(1-\varphi)f$, extended by
 zero across $K$. Its antiholomorphic derivatives along all directions are compactly supported and
 commute, by symmetry of the second derivative, so $F_0-u$ with $u$ the Cauchy transform of
-$\partial F_0/\partial\bar z_1$ has complex-linear real derivative and is holomorphic on $U$. On
-the open set of points whose $G$-coordinate lies outside the projection of the support of
+${\partial F}_0/{\partial\bar z}_1$ has complex-linear real derivative and is holomorphic on $U$.
+On the open set of points whose $G$-coordinate lies outside the projection of the support of
 $\varphi$, nonempty because a nonempty open subset of $G$ is not compact, both $F_0=f$ and
 $u=0$; the identity principle on $U\setminus K$ concludes. No Bochner–Martinelli kernel is
 used.
@@ -675,7 +673,7 @@ uniquely across it, by item 30.
 A point $a\in A$ is regular of codimension $q$ precisely when, locally,
 
 $$
-A=\{f_1=\cdots=f_q=0\},\qquad
+A=\lbrace f_1=\cdots=f_q=0\rbrace,\qquad
 \mathrm{rank}D(f_1,\ldots,f_q)(a)=q
 $$
 
@@ -778,7 +776,7 @@ $$
 
 The proved main theorem chooses a fixed product polydisc depending on the
 divisor and permits every bounded holomorphic numerator there, with a quotient
-bound $\|q\|_\infty\le C\|g\|_\infty$ uniform in the numerator.
+bound $\lVert q\rVert_\infty\le C\lVert g\rVert_\infty$ uniform in the numerator.
 Local existence and uniqueness for arbitrary analytic numerator germs follow
 by shrinking representatives. The ring-theoretic formulation with a polynomial
 remainder over the parameter germ ring is also proved. Division by a
@@ -910,7 +908,7 @@ independently proved, also for Banach-valued holomorphic maps.
 For $a$ in the Euclidean unit ball, the project defines the standard map
 
 $$
-\phi_a(z)=\frac{a-P_a z-\sqrt{1-\|a\|^2}\,(z-P_a z)}
+\phi_a(z)=\frac{a-P_a z-\sqrt{1-\lVert a\rVert^2}\thinspace (z-P_a z)}
 {1-\langle a,z\rangle},
 $$
 
@@ -919,8 +917,8 @@ Its holomorphy, nonvanishing denominator on the ball, exchange of $0$ and $a$,
 preservation of the ball, and involutivity are **proved**. The metric calculation gives
 
 $$
-(1-\|\phi_a(z)\|^2)|1-\langle a,z\rangle|^2
-=(1-\|a\|^2)(1-\|z\|^2).
+(1-\lVert \phi_a(z)\rVert^2)|1-\langle a,z\rangle|^2
+=(1-\lVert a\rVert^2)(1-\lVert z\rVert^2).
 $$
 
 Its biholomorphic automorphism property and transitivity of the ball automorphism
@@ -1007,11 +1005,12 @@ Empty open sets, disconnected open sets, and empty coordinate types are included
 ### 55. Thullen's lemma and hull boundary distance
 
 Mixed derivative bounds transfer from a set to its holomorphic hull; this is
-**proved**, also for Banach-valued functions, by norming functionals. The Taylor
-continuation lemma is also **proved**, for Banach-valued $f$: if $q\in\mathcal O(U)$ is scalar,
-$f$ is holomorphic on $U$ with values in a Banach space, $K\subset U$ is compact, and the
-polydisc of radius $|q(w)|$ centered at $w$ lies in $U$ for each $w\in K$, then the Taylor
-series of $f$ at any $a\in\widehat K_U$ continues its germ to the polydisc of radius $|q(a)|$.
+**proved**, also for Banach-valued functions, by norming functionals.
+The Taylor continuation lemma is also **proved**, for Banach-valued $f$:
+if $q\in\mathcal O(U)$ is scalar, $f$ is holomorphic on $U$ with values in a Banach space,
+$K\subset U$ is compact, and the polydisc of radius $|q(w)|$ centered at $w$ lies in $U$ for
+each $w\in K$, then the Taylor series of $f$ at any $a\in{\widehat K}_U$ continues its germ
+to the polydisc of radius $|q(a)|$.
 The statement includes locally uniform convergence there and permits zeros of
 $q$. The proof obtains uniform Cauchy bounds on compact families of smaller balls,
 transfers coefficients weighted by powers of $q$ to the hull, and compares the
@@ -1071,7 +1070,7 @@ point $x_1$; local agreement propagates along the path, so the extension and the
 function define a holomorphic function on the tube over $\tilde\Omega\cup B(x_1,r)$, which is
 star-convex with respect to $x_1$, and the star-convex case extends it to the convex hull,
 contradicting maximality. Hence $\Omega\subseteq\tilde\Omega$. The general finite index type
-is reached by reindexing from $\mathbb R^{\{1,\dots,n\}}$.
+is reached by reindexing from $\mathbb R^{\lbrace 1,\dots,n\rbrace}$.
 
 ## J. Plurisubharmonic functions, the Levi form, and pseudoconvexity
 
@@ -1127,7 +1126,7 @@ plurisubharmonic, where $\delta$ is the distance to the complement (Hörmander 2
 proof uses harmonic polynomial majorants along complex lines and the weighted hull-radius
 bound of Thullen's lemma. An open set is called pseudoconvex if it carries a continuous
 plurisubharmonic exhaustion function; domains of holomorphy are pseudoconvex, with
-exhaustion $\max(-\log\delta,\|z\|)$. Pseudoconvexity and the two continuity principles
+exhaustion $\max(-\log\delta,\lVert z\rVert)$. Pseudoconvexity and the two continuity principles
 below are transported from $\mathbb C^n$ to domains of holomorphy in any finite-dimensional
 complex normed space, since both notions and the domain-of-holomorphy property are invariant
 under continuous linear equivalences; the boundary-distance statement itself is tied to the
@@ -1144,7 +1143,7 @@ the domain-of-holomorphy property, form the Levi problem and are outside the pre
 
 A local `C²` defining function for an open set $U$ at a boundary point $p$ is a `C²`
 function $\rho$ on an open neighborhood $V$ of $p$ with $\rho(p)=0$, $d\rho(p)\neq0$, and
-$U\cap V=\{\rho<0\}\cap V$. The complex tangent space at $p$ is the kernel of the
+$U\cap V=\lbrace \rho<0\rbrace\cap V$. The complex tangent space at $p$ is the kernel of the
 complex-linear part of $d\rho(p)$. The set $U$ satisfies the Levi condition at $p$ if the Levi
 form of every local defining function is positive semidefinite on the complex tangent space,
 and it is Levi pseudoconvex if this holds at every boundary point. Quantifying over all
@@ -1159,16 +1158,16 @@ point itself.
 Levi pseudoconvex at every boundary point that admits a local `C²` defining function (Range,
 Theorem 2.11). The proof is given in $\mathbb C^n$ with the sup norm and transported by a
 linear equivalence, using the invariance of the Levi condition under pullback; within
-$\mathbb C^n$ it avoids holomorphic coordinate changes. Near $p$ the defining function is comparable to the
-boundary distance: $c\,|\rho|\le\delta\le C\,|\rho|$ on $U$, by the mean value inequality
-and by moving inward along a direction on which $d\rho$ is positive. If the Levi form were
-negative in a complex tangent direction $w$, the Levi polynomial gives a quadratic analytic
-disc $\zeta\mapsto p+\zeta w+\zeta^2c+\kappa r^2\nu$ on which
-$\rho=-\kappa r^2+|\zeta|^2L+O(\eta r^2)$ with $L<0$, uniformly for $|\zeta|\le r$ and small
-$r$, by the uniform second-order Taylor bound and the decomposition of a symmetric bilinear
-form along a complex line. The boundary circle is then deeper inside $U$ than the center by a
-fixed multiple of $r^2$, while the center lies in the holomorphic hull of the circle by the
-maximum modulus principle; Thullen's weighted radius bound contradicts this.
+$\mathbb C^n$ it avoids holomorphic coordinate changes. Near $p$ the defining function is
+comparable to the boundary distance: $c\thinspace |\rho|\le\delta\le C\thinspace |\rho|$
+on $U$, by the mean value inequality and by moving inward along a direction on which $d\rho$
+is positive. If the Levi form were negative in a complex tangent direction $w$, the Levi
+polynomial gives a quadratic analytic disc $\zeta\mapsto p+\zeta w+\zeta^2c+\kappa r^2\nu$
+on which $\rho=-\kappa r^2+|\zeta|^2L+O(\eta r^2)$ with $L<0$, uniformly for $|\zeta|\le r$
+and small $r$, by the uniform second-order Taylor bound and the decomposition of a symmetric
+bilinear form along a complex line. The boundary circle is then deeper inside $U$ than the
+center by a fixed multiple of $r^2$, while the center lies in the holomorphic hull of the
+circle by the maximum modulus principle; Thullen's weighted radius bound contradicts this.
 
 ### 63. Levi form under holomorphic maps and the Kontinuitätssatz
 
@@ -1209,7 +1208,7 @@ function makes the Levi form positive definite on the whole space; the constant 
 sequential compactness argument on the unit sphere. The complex bilinear part of the real
 Hessian is a bounded complex bilinear map, so the Levi polynomial
 $F(z)=\partial\rho(p)(z-p)+Q(z-p)$ is entire, vanishes at $p$, and by the second-order Taylor
-expansion satisfies $\mathrm{Re}F(z)\le\tilde\rho(z)-\tfrac c2\|z-p\|^2$ near $p$
+expansion satisfies $\mathrm{Re}F(z)\le{\tilde\rho}(z)-\tfrac c2\lVert z-p\rVert^2$ near $p$
 (Range, Proposition 2.16). Hence $\mathrm{Re}F<0$ on the set near $p$, and $1/F$ is a
 holomorphic function on the set near $p$ whose modulus tends to infinity at $p$. The
 normalized local peak function is $\exp F$: its value at $p$ is one and its modulus is
@@ -1225,7 +1224,7 @@ approximated within $\varepsilon$ on every compact subset of $U$ by a holomorphi
 $V$; an open subset of $\mathbb C^n$ is a Runge domain if the approximants are polynomials.
 Runge pairs are reflexive and transitive, and on an open set the compact-set formulation is
 equivalent to locally uniform convergence of a sequence of approximants, using a compact
-exhaustion $\overline B(0,k)\cap\{\mathrm{dist}(\cdot,U^c)\ge 1/(k+1)\}$.
+exhaustion $\overline B(0,k)\cap\lbrace \mathrm{dist}(\cdot,U^c)\ge 1/(k+1)\rbrace$.
 
 Entire functions on $\mathbb C^n$ are uniform limits on compact sets of partial sums of their
 Taylor series, which are polynomials. Hence the polynomial hull of a compact set, defined by

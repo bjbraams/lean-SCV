@@ -11,10 +11,13 @@ Runge domains. Statements are Banach-valued wherever the arguments allow.
 
 The mathematical content is described in **[SCVMainTheorems.md](SCVMainTheorems.md)**: the
 definitions and conventions, the catalogue of 65 principal results with proof sketches, and
-the extent and limits of the theory. Every catalogued result is proved. The library and
-`Solution.lean` contain no admitted statements. For the planned Palomar submission,
-`Challenge.lean` restates 67 theorems with intentional `sorry` placeholders; their proofs
-are supplied in `Solution.lean`.
+the extent and limits of the theory. Every catalogued result is proved.
+
+The first version of the project has been entered into the
+[Palomar Registry](https://palomar-registry.org/) as
+[PALOMAR-2026-09-18-000008 v1](https://palomar-registry.org/entry?id=PALOMAR-2026-09-18-000008&version=1).
+For Palomar, `Challenge.lean` restates 63 theorems with intentional `sorry` placeholders;
+their proofs are supplied in `Solution.lean`.
 
 ## Organization
 
@@ -34,7 +37,7 @@ are supplied in `Solution.lean`.
   configuration from `Solution.lean`.
 - `References/` contains the texts that guided the selection of material; see below.
 
-## Building
+## Building the Palomar (V1) version
 
 The project uses Lean and Mathlib at version `v4.34.0` (see `lean-toolchain` and
 `lakefile.toml`). From the repository root:
@@ -45,8 +48,11 @@ To check both Palomar modules:
 
     lake build Solution Challenge
 
-The Challenge build reports the 67 intentional `sorry` placeholders. These build checks
+The Challenge build reports the 63 intentional `sorry` placeholders. These build checks
 are separate from Palomar's Comparator and independent kernel verification.
+
+The Palomar version is a snapshot. The Github version of the project may see further
+development.
 
 ## Documentation
 
