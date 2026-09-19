@@ -64,7 +64,7 @@ The default coordinate norm is the **supremum norm**. Its balls are equal-radius
 polydiscs. A polydisc with separate positive radii is
 
 $$
-P(a;r)=\lbrace z:\lvert z_j-a_j\rvert<r_j\text{ for every }j\rbrace.
+P(a;r)=\lbrace z:\lvert z_j-a_j\rvert<{r_j}\text{ for every }j\rbrace.
 $$
 
 Its distinguished boundary is the product torus
@@ -120,7 +120,7 @@ $$
 $$
 The definition uses all real upper bounds instead of a real supremum, so it
 also handles empty sets and unbounded functions. In particular,
-${\widehat\varnothing}_U=\varnothing$. A compact set is holomorphically convex
+${\widehat\varnothing_U}=\varnothing$. A compact set is holomorphically convex
 relative to $U$ when its hull equals itself. An open set $U$ is holomorphically
 convex when every compact $K\subset U$ has compact hull. These notions differ
 from the logarithmic Reinhardt hull used earlier.
