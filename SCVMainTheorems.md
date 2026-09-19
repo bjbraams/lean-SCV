@@ -120,7 +120,7 @@ $$
 $$
 The definition uses all real upper bounds instead of a real supremum, so it
 also handles empty sets and unbounded functions. In particular,
-${\hat{\varnothing}_U} = \varnothing$. A compact set is holomorphically convex
+${\hat{\varnothing}_U}{=}\varnothing$. A compact set is holomorphically convex
 relative to $U$ when its hull equals itself. An open set $U$ is holomorphically
 convex when every compact $K\subset U$ has compact hull. These notions differ
 from the logarithmic Reinhardt hull used earlier.
