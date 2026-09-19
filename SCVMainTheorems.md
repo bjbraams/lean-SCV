@@ -196,7 +196,8 @@ L_\rho(a;w)=\tfrac14\bigl(D^2\rho(a)(w,w)+D^2\rho(a)(iw,iw)\bigr),
 $$
 
 which in coordinates is the complex Hessian
-$`\sum_{j,k}{\partial^2\rho}/{\partial{z_j}\partial{\bar{z}_k}}{\thinspace}{{w_j}{\bar{w}_k}}`$.
+$`{\sum_{j,k}\frac{\partial^2\rho}{\partial z_j\thinspace\partial\bar{z}_k}\thinspace
+w_j\bar{w}_k}`$.
 A **local defining function** for an open set $U$ at a boundary point $p$ is a real $C^2$
 function $\rho$ on an open neighborhood $V$ of $p$ with $\rho(p)=0$, $D\rho(p)\ne0$ and
 $U\cap V=\lbrace \rho<0\rbrace\cap V$; the set $U$ has **$C^2$ boundary** if every boundary point has one.
@@ -225,7 +226,7 @@ The domain-of-holomorphy property is not part of these definitions.
 
 For a real-linear map $L$ from a complex normed space to a complex Banach space and a
 direction $v$, the **antiholomorphic part** of $L$ along $v$ is
-$`{\tfrac12}{\bigl(Lv+i\thinspace L(iv)\bigr)}`$.
+$`{{\tfrac12}\bigl(Lv+i\thinspace L(iv)\bigr)}`$.
 A real-linear map is complex-linear exactly when all its antiholomorphic parts vanish.
 
 ## A. Local analysis and differential calculus
