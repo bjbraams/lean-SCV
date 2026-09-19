@@ -571,8 +571,8 @@ Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
 $$
-(D\times\lbrace w:\rho\lt|w|\lt R\rbrace)\quad\cup\quad
-(D_0\times\lbrace w:|w|\lt R\rbrace)
+(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace)\quad\cup\quad
+(D_0\times\lbrace w:|w|<R\rbrace)
 $$
 
 extends holomorphically to $D\times\lbrace \lvert w\rvert<R\rbrace$. No boundedness
@@ -765,7 +765,7 @@ and total order in one coordinate agrees with scalar analytic order.
 On a product polydisc, a scalar holomorphic $g$ has a unique decomposition
 
 $$
-g(z,w)=w^d q(z,w)+\sum_{j\lt d}a_j(z)w^j.
+g(z,w)=w^d q(z,w)+\sum_{j<d}a_j(z)w^j.
 $$
 
 The quotient and coefficients are holomorphic. If $\lvert g\rvert\le M$ and the fiber
@@ -780,7 +780,7 @@ If $f(z,w)$ is regular of order $d$ in $w$ at the origin, every scalar
 analytic numerator germ $g$ has a unique decomposition
 
 $$
-g=qf+r,\qquad r(z,w)=\sum_{j\lt d}a_j(z)w^j.
+g=qf+r,\qquad r(z,w)=\sum_{j<d}a_j(z)w^j\quad.
 $$
 
 The proved main theorem chooses a fixed product polydisc depending on the
