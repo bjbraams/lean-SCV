@@ -571,7 +571,7 @@ Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
 $$
-(D\times\lbrace w:\rho\lt|w|\lt R\rbrace)\;\cup\;
+(D\times\lbrace w:\rho\lt|w|\lt R\rbrace)\quad\cup\quad
 (D_0\times\lbrace w:|w|\lt R\rbrace)
 $$
 
