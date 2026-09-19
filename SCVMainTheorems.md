@@ -196,7 +196,7 @@ L_\rho(a;w)=\tfrac14\bigl(D^2\rho(a)(w,w)+D^2\rho(a)(iw,iw)\bigr),
 $$
 
 which in coordinates is the complex Hessian
-$\sum_{j,k}\partial^2\rho/\partial z_j\partial{\bar z}_k\thinspace w_j{\bar w}_k$.
+$`\sum_{j,k}\partial^2\rho/\partial z_j\partial{\bar z}_k\thinspace w_j{\bar w}_k`$.
 A **local defining function** for an open set $U$ at a boundary point $p$ is a real $C^2$
 function $\rho$ on an open neighborhood $V$ of $p$ with $\rho(p)=0$, $D\rho(p)\ne0$ and
 $U\cap V=\lbrace \rho<0\rbrace\cap V$; the set $U$ has **$C^2$ boundary** if every boundary point has one.
@@ -336,7 +336,7 @@ Green or Stokes theorem is used.
 The **Cauchy transform** in the first variable of a compactly supported $C^1$ function $g$ on
 $\mathbb C\times G$ is $u(z,y)=\pi^{-1}\int w^{-1}g(z-w,y)\thinspace dA(w)$. It is real-differentiable,
 its derivative is the transform of the derivative of $g$, by differentiation under the integral
-with the locally integrable kernel $w^{-1}$, and it satisfies ${\partial u/\partial\bar z}=g$;
+with the locally integrable kernel $w^{-1}$, and it satisfies $`{\partial u/\partial\bar z}=g`$;
 the antiholomorphic parameter derivatives pass through the transform, and $u$ vanishes on
 every slice on which $g$ vanishes. These are the one-variable ingredients of Ehrenpreis' proof
 of the compact-hole theorem in item 31.
@@ -566,9 +566,9 @@ Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
 $$
-\bigl(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace\bigr)
-\;\cup\;
-\bigl(D_0\times\lbrace w:\lvert w\rvert<R\rbrace\bigr)
+`\bigl(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace\bigr)
+\thickspace\cup\thickspace
+\bigl(D_0\times\lbrace w:\lvert w\rvert<R\rbrace\bigr)`
 $$
 
 extends holomorphically to $D\times\lbrace \lvert w\rvert<R\rbrace$. No boundedness assumption on
@@ -647,14 +647,16 @@ closed balls are consequently proved as well.
 
 The proof is Ehrenpreis' argument, using the Cauchy–Pompeiu identity and the Cauchy transform
 of item 9. After a linear change of coordinates $E\cong\mathbb C\times G$, a smooth cutoff
-$\varphi$ equal to one near $K$ with compact support in $U$ gives $F_0=(1-\varphi)f$, extended by
-zero across $K$. Its antiholomorphic derivatives along all directions are compactly supported and
-commute, by symmetry of the second derivative, so $F_0-u$ with $u$ the Cauchy transform of
-${\partial F}_0/{\partial\bar z}_1$ has complex-linear real derivative and is holomorphic on $U$.
+$\varphi$ equal to one near $K$ with compact support in $U$ gives $F_0=(1-\varphi)f$, extended
+by zero across $K$.
+Its antiholomorphic derivatives along all directions are compactly supported and commute,
+by symmetry of the second derivative, so $F_0-u$ with $u$ the Cauchy transform of
+$`{\partial F}_0/{\partial\bar z}_1`$ has complex-linear real derivative and is holomorphic
+on $U$.
 On the open set of points whose $G$-coordinate lies outside the projection of the support of
 $\varphi$, nonempty because a nonempty open subset of $G$ is not compact, both $F_0=f$ and
-$u=0$; the identity principle on $U\mathbin{\backslash} K$ concludes. No Bochner–Martinelli kernel is
-used.
+$u=0$; the identity principle on $U\mathbin{\backslash} K$ concludes. No Bochner–Martinelli
+kernel is used.
 
 ## F. Elementary analytic sets
 
@@ -758,7 +760,7 @@ and total order in one coordinate agrees with scalar analytic order.
 On a product polydisc, a scalar holomorphic $g$ has a unique decomposition
 
 $$
-g(z,w)=w^d q(z,w)+\sum_{j<d}a_j(z)w^j.
+`g(z,w)=w^d q(z,w)+\sum_{j<d}a_j(z)w^j.`
 $$
 
 The quotient and coefficients are holomorphic. If $\lvert g\rvert\le M$ and the fiber
@@ -773,7 +775,7 @@ If $f(z,w)$ is regular of order $d$ in $w$ at the origin, every scalar
 analytic numerator germ $g$ has a unique decomposition
 
 $$
-g=qf+r,\qquad r(z,w)=\sum_{j<d}a_j(z)w^j.
+`g=qf+r,\qquad r(z,w)=\sum_{j<d}a_j(z)w^j.`
 $$
 
 The proved main theorem chooses a fixed product polydisc depending on the
@@ -786,12 +788,7 @@ nonvanishing germ includes the order-zero case.
 
 ### 41. Weierstrass preparation and uniqueness
 
-A scalar germ regular of order $d$ in $w$ has a unique factorization
-
-$$
-f=uW,
-$$
-
+A scalar germ regular of order $d$ in $w$ has a unique factorization $f=uW$,
 where $u$ is a unit and $W$ is distinguished of degree $d$. The factors
 have representatives on a sufficiently small product polydisc, with $u$
 nowhere zero there. Existence and uniqueness follow from the proved division
@@ -1011,7 +1008,7 @@ Mixed derivative bounds transfer from a set to its holomorphic hull; this is
 The Taylor continuation lemma is also **proved**, for Banach-valued $f$:
 if $q\in\mathcal O(U)$ is scalar, $f$ is holomorphic on $U$ with values in a Banach space,
 $K\subset U$ is compact, and the polydisc of radius $\lvert q(w)\rvert$ centered at $w$ lies in $U$ for
-each $w\in K$, then the Taylor series of $f$ at any $a\in{\widehat K}_U$ continues its germ
+each $w\in K$, then the Taylor series of $f$ at any $`a\in{\widehat K}_U`$ continues its germ
 to the polydisc of radius $\lvert q(a)\rvert$.
 The statement includes locally uniform convergence there and permits zeros of
 $q$. The proof obtains uniform Cauchy bounds on compact families of smaller balls,
@@ -1210,7 +1207,7 @@ function makes the Levi form positive definite on the whole space; the constant 
 sequential compactness argument on the unit sphere. The complex bilinear part of the real
 Hessian is a bounded complex bilinear map, so the Levi polynomial
 $F(z)=\partial\rho(p)(z-p)+Q(z-p)$ is entire, vanishes at $p$, and by the second-order Taylor
-expansion satisfies $\mathrm{Re}F(z)\le{\tilde\rho}(z)-\tfrac c2\lVert z-p\rVert^2$ near $p$
+expansion satisfies $`\mathrm{Re}F(z)\le{\tilde\rho}(z)-\tfrac c2\lVert z-p\rVert^2`$ near $p$
 (Range, Proposition 2.16). Hence $\mathrm{Re}F<0$ on the set near $p$, and $1/F$ is a
 holomorphic function on the set near $p$ whose modulus tends to infinity at $p$. The
 normalized local peak function is $\exp F$: its value at $p$ is one and its modulus is
