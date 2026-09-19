@@ -571,8 +571,8 @@ Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
 ```math
-{\bigl(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace\bigr)\;\cup\;
-\bigl(D_0\times\lbrace w:\lvert w\rvert<R\rbrace\bigr)}
+{(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace)\;\cup\;
+(D_0\times\lbrace w:\lvert w\rvert<R\rbrace)}
 ```
 
 extends holomorphically to $D\times\lbrace \lvert w\rvert<R\rbrace$. No boundedness
