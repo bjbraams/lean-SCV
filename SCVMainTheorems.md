@@ -51,7 +51,7 @@ series use multi-indices $\alpha$, with
 
 $$
 z^\alpha=\prod_{j=1}^n z_j^{\alpha_j},\qquad
-\lVert\alpha\rVert=\sum_j\alpha_j,\qquad
+\lvert\alpha\rvert=\sum_j\alpha_j,\qquad
 \alpha!=\prod_j\alpha_j!.
 $$
 
@@ -64,11 +64,11 @@ The default coordinate norm is the **supremum norm**. Its balls are equal-radius
 polydiscs. A polydisc with separate positive radii is
 
 $$
-P(a;r)=\lbrace z:\lVert z_j-a_j\rVert<r_j\text{ for every }j\rbrace.
+P(a;r)=\lbrace z:\lvert z_j-a_j\rvert<r_j\text{ for every }j\rbrace.
 $$
 
 Its distinguished boundary is the product torus
-$T(a;r)=\lbrace z:\lVert z_j-a_j\rVert=r_j\text{ for every }j\rbrace$, rather than the entire
+$T(a;r)=\lbrace z:\lvert z_j-a_j\rvert=r_j\text{ for every }j\rbrace$, rather than the entire
 topological boundary. Euclidean balls are treated using a Hermitian norm and
 are explicitly identified as such. The Hermitian inner product is conjugate-linear
 in its first argument and linear in its second.
@@ -81,14 +81,14 @@ connectedness.
 - A set $U\subseteq\mathbb C^n$ is **Reinhardt** if membership is unchanged by
   independent rotations of the coordinates, equivalently by replacing a point
   with another having the same coordinate moduli.
-- It is **complete Reinhardt** if $z\in U$ and $\lVert w_j\rVert\le \lVert z_j\rVert$ for every
+- It is **complete Reinhardt** if $z\in U$ and $\lvert w_j\rvert\le \lvert z_j\rvert$ for every
   $j$ imply $w\in U$. This implies Reinhardt symmetry. A nonempty such set
   contains the origin.
 - Its **logarithmic image** is
-  $\lbrace (\log\lVert z_1\rVert,\ldots,\log\lVert z_n\rVert):z\in U,\ z_j\ne0\text{ for all }j\rbrace$.
+  $\lbrace (\log\lvert z_1\rvert,\ldots,\log\lvert z_n\rvert):z\in U,\ z_j\ne0\text{ for all }j\rbrace$.
   Classical logarithmic convexity means convexity of this image.
 - To include zero coordinates, the project also uses the **modulus trace**
-  $M(U)=\lbrace (\lVert z_1\rVert,\ldots,\lVert z_n\rVert):z\in U\rbrace\subseteq[0,\infty)^n$.
+  $M(U)=\lbrace (\lvert z_1\rvert,\ldots,\lvert z_n\rvert):z\in U\rbrace\subseteq[0,\infty)^n$.
   Its geometric convexity means closure under
   $(r,s)\mapsto(r_j^t s_j^{1-t})_j$, for $0\le t\le1$.
   The endpoint convention $0^0=1$ gives the expected endpoints; for interior
@@ -109,14 +109,14 @@ connectedness.
   can also be annuli or punctured discs.
 - A set is **circular** if it is invariant under simultaneous rotation
   $z\mapsto e^{i\theta}z$. It is **balanced** if $\lambda U\subseteq U$
-  for every $\lVert\lambda\rVert\le1$. These are different from independent-coordinate
+  for every $\lvert\lambda\rvert\le1$. These are different from independent-coordinate
   Reinhardt symmetry. The balanced hull is the smallest balanced containing set.
 
 ### Holomorphic hulls and local continuation
 
 For $K\subset U$, its **holomorphic hull relative to $U$** is
 $$
-\widehat K_U=\lbrace z\in U: \lVert f(z)\rVert\leq\sup_K\lVert f\rVert\text{ for all }f\in\mathcal O(U)\rbrace.
+\widehat K_U=\lbrace z\in U: \lvert f(z)\rvert\leq\sup_K\lvert f\rvert\text{ for all }f\in\mathcal O(U)\rbrace.
 $$
 The definition uses all real upper bounds instead of a real supremum, so it
 also handles empty sets and unbounded functions. In particular,
@@ -277,7 +277,7 @@ On a polydisc, the Taylor coefficients equal the torus Cauchy coefficients:
 
 $$
 c_\alpha=\frac{\partial^\alpha f(a)}{\alpha!},\qquad
-\lVert\partial^\alpha f(a)\Vert\le
+\lVert\partial^\alpha f(a)\rVert\le
 \alpha!\thinspace M\prod_j r_j^{-\alpha_j}
 $$
 
@@ -462,7 +462,7 @@ of the analytic extension theorems.
 For coefficients $c_\alpha\in F$, define
 
 $$
-A_c=\left\lbrace z:\sum_\alpha\lVert c_\alpha\rVert\thinspace \lVert z^\alpha\rVert<\infty\right\rbrace,
+A_c=\left\lbrace z:\sum_\alpha\lVert c_\alpha\rVert\thinspace \lvert z^\alpha\rvert<\infty\right\rbrace,
 \qquad D_c=\mathrm{int}A_c.
 $$
 
@@ -564,12 +564,12 @@ Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
 $$
-\bigl(D\times\lbrace w:\rho<\lVert w\rVert<R\rbrace\bigr)
+\bigl(D\times\lbrace w:\rho<\lvert w\rvert<R\rbrace\bigr)
 \;\cup\;
-\bigl(D_0\times\lbrace w:\lVert w\rVert<R\rbrace\bigr)
+\bigl(D_0\times\lbrace w:\lvert w\rvert<R\rbrace\bigr)
 $$
 
-extends holomorphically to $D\times\lbrace \lVert w\rVert<R\rbrace$. No boundedness assumption on
+extends holomorphically to $D\times\lbrace \lvert w\rvert<R\rbrace$. No boundedness assumption on
 the function is needed. The standard Hartogs-figure theorem and uniqueness of
 its extension are proved consequences. These results do not depend on the
 fiber-expansion theorems in item 25.
@@ -759,8 +759,8 @@ $$
 g(z,w)=w^d q(z,w)+\sum_{j<d}a_j(z)w^j.
 $$
 
-The quotient and coefficients are holomorphic. If $\lVert g\rVert\le M$ and the fiber
-radius is $R$, the proved estimate is $\lVert q\rVert\le(d+1)M/R^d$ throughout the
+The quotient and coefficients are holomorphic. If $\lvert g\rvert\le M$ and the fiber
+radius is $R$, the proved estimate is $\lvert q\rvert\le(d+1)M/R^d$ throughout the
 product polydisc. Existence does not require boundedness of the numerator;
 boundedness is used for the estimate. Uniqueness, $d=0$, and the case of no
 parameter variables are included.
@@ -917,7 +917,7 @@ Its holomorphy, nonvanishing denominator on the ball, exchange of $0$ and $a$,
 preservation of the ball, and involutivity are **proved**. The metric calculation gives
 
 $$
-(1-\lVert\phi_a(z)\rVert^2)\lVert1-\langle a,z\rangle\rVert^2
+(1-\lVert\phi_a(z)\rVert^2)\lvert1-\langle a,z\rangle\rvert^2
 =(1-\lVert a\rVert^2)(1-\lVert z\rVert^2).
 $$
 
@@ -1008,9 +1008,9 @@ Mixed derivative bounds transfer from a set to its holomorphic hull; this is
 **proved**, also for Banach-valued functions, by norming functionals.
 The Taylor continuation lemma is also **proved**, for Banach-valued $f$:
 if $q\in\mathcal O(U)$ is scalar, $f$ is holomorphic on $U$ with values in a Banach space,
-$K\subset U$ is compact, and the polydisc of radius $\lVert q(w)\rVert$ centered at $w$ lies in $U$ for
+$K\subset U$ is compact, and the polydisc of radius $\lvert q(w)\rvert$ centered at $w$ lies in $U$ for
 each $w\in K$, then the Taylor series of $f$ at any $a\in{\widehat K}_U$ continues its germ
-to the polydisc of radius $\lVert q(a)\rVert$.
+to the polydisc of radius $\lvert q(a)\rvert$.
 The statement includes locally uniform convergence there and permits zeros of
 $q$. The proof obtains uniform Cauchy bounds on compact families of smaller balls,
 transfers coefficients weighted by powers of $q$ to the hull, and compares the
@@ -1159,11 +1159,11 @@ Levi pseudoconvex at every boundary point that admits a local `C²` defining fun
 Theorem 2.11). The proof is given in $\mathbb C^n$ with the sup norm and transported by a
 linear equivalence, using the invariance of the Levi condition under pullback; within
 $\mathbb C^n$ it avoids holomorphic coordinate changes. Near $p$ the defining function is
-comparable to the boundary distance: $c\thinspace \lVert\rho\rVert\le\delta\le C\thinspace \lVert\rho\rVert$
+comparable to the boundary distance: $c\thinspace \lvert\rho\rvert\le\delta\le C\thinspace \lvert\rho\rvert$
 on $U$, by the mean value inequality and by moving inward along a direction on which $d\rho$
 is positive. If the Levi form were negative in a complex tangent direction $w$, the Levi
 polynomial gives a quadratic analytic disc $\zeta\mapsto p+\zeta w+\zeta^2c+\kappa r^2\nu$
-on which $\rho=-\kappa r^2+\lVert\zeta\rVert^2L+O(\eta r^2)$ with $L<0$, uniformly for $\lVert\zeta\rVert\le r$
+on which $\rho=-\kappa r^2+\lvert\zeta\rvert^2L+O(\eta r^2)$ with $L<0$, uniformly for $\lvert\zeta\rvert\le r$
 and small $r$, by the uniform second-order Taylor bound and the decomposition of a symmetric
 bilinear form along a complex line. The boundary circle is then deeper inside $U$ than the
 center by a fixed multiple of $r^2$, while the center lies in the holomorphic hull of the
