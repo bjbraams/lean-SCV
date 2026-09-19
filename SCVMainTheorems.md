@@ -115,12 +115,14 @@ connectedness.
 ### Holomorphic hulls and local continuation
 
 For $K\subset U$, its **holomorphic hull relative to $U$** is
+
 $$
 {\hat{K}_U}=\lbrace z\in U: \lvert f(z)\rvert\leq{\sup_K\lvert f\rvert}\text{ for all }f\in\mathcal O(U)\rbrace.
 $$
+
 The definition uses all real upper bounds instead of a real supremum, so it
 also handles empty sets and unbounded functions. In particular,
-${\hat{\varnothing}_U}={\varnothing}$. A compact set is holomorphically convex
+${\hat{\varnothing}_U}{=}{\varnothing}$. A compact set is holomorphically convex
 relative to $U$ when its hull equals itself. An open set $U$ is holomorphically
 convex when every compact $K\subset U$ has compact hull. These notions differ
 from the logarithmic Reinhardt hull used earlier.
