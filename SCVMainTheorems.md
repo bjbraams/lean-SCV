@@ -51,7 +51,7 @@ series use multi-indices $\alpha$, with
 
 $$
 z^\alpha=\prod_{j=1}^n z_j^{\alpha_j},\qquad
-|\alpha|=\sum_j\alpha_j,\qquad
+\lVert\alpha\rVert=\sum_j\alpha_j,\qquad
 \alpha!=\prod_j\alpha_j!.
 $$
 
@@ -64,11 +64,11 @@ The default coordinate norm is the **supremum norm**. Its balls are equal-radius
 polydiscs. A polydisc with separate positive radii is
 
 $$
-P(a;r)=\lbrace z:|z_j-a_j|<r_j\text{ for every }j\rbrace.
+P(a;r)=\lbrace z:\lVert z_j-a_j\rVert<r_j\text{ for every }j\rbrace.
 $$
 
 Its distinguished boundary is the product torus
-$T(a;r)=\lbrace z:|z_j-a_j|=r_j\text{ for every }j\rbrace$, rather than the entire
+$T(a;r)=\lbrace z:\lVert z_j-a_j\rVert=r_j\text{ for every }j\rbrace$, rather than the entire
 topological boundary. Euclidean balls are treated using a Hermitian norm and
 are explicitly identified as such. The Hermitian inner product is conjugate-linear
 in its first argument and linear in its second.
@@ -81,14 +81,14 @@ connectedness.
 - A set $U\subseteq\mathbb C^n$ is **Reinhardt** if membership is unchanged by
   independent rotations of the coordinates, equivalently by replacing a point
   with another having the same coordinate moduli.
-- It is **complete Reinhardt** if $z\in U$ and $|w_j|\le |z_j|$ for every
+- It is **complete Reinhardt** if $z\in U$ and $\lVert w_j\rVert\le \lVert z_j\rVert$ for every
   $j$ imply $w\in U$. This implies Reinhardt symmetry. A nonempty such set
   contains the origin.
 - Its **logarithmic image** is
-  $\lbrace (\log|z_1|,\ldots,\log|z_n|):z\in U,\ z_j\ne0\text{ for all }j\rbrace$.
+  $\lbrace (\log\lVert z_1\rVert,\ldots,\log\lVert z_n\rVert):z\in U,\ z_j\ne0\text{ for all }j\rbrace$.
   Classical logarithmic convexity means convexity of this image.
 - To include zero coordinates, the project also uses the **modulus trace**
-  $M(U)=\lbrace (|z_1|,\ldots,|z_n|):z\in U\rbrace\subseteq[0,\infty)^n$.
+  $M(U)=\lbrace (\lVert z_1\rVert,\ldots,\lVert z_n\rVert):z\in U\rbrace\subseteq[0,\infty)^n$.
   Its geometric convexity means closure under
   $(r,s)\mapsto(r_j^t s_j^{1-t})_j$, for $0\le t\le1$.
   The endpoint convention $0^0=1$ gives the expected endpoints; for interior
@@ -109,18 +109,18 @@ connectedness.
   can also be annuli or punctured discs.
 - A set is **circular** if it is invariant under simultaneous rotation
   $z\mapsto e^{i\theta}z$. It is **balanced** if $\lambda U\subseteq U$
-  for every $|\lambda|\le1$. These are different from independent-coordinate
+  for every $\lVert\lambda\rVert\le1$. These are different from independent-coordinate
   Reinhardt symmetry. The balanced hull is the smallest balanced containing set.
 
 ### Holomorphic hulls and local continuation
 
 For $K\subset U$, its **holomorphic hull relative to $U$** is
 $$
-\widehat K_U=\lbrace z\in U: |f(z)|\leq\sup_K|f|\text{ for all }f\in\mathcal O(U)\rbrace.
+\widehat K_U=\lbrace z\in U: \lVert f(z)\rVert\leq\sup_K\lVert f\rVert\text{ for all }f\in\mathcal O(U)\rbrace.
 $$
 The definition uses all real upper bounds instead of a real supremum, so it
 also handles empty sets and unbounded functions. In particular,
-$\widehat{\varnothing}_U=\varnothing$. A compact set is holomorphically convex
+${\widehat\varnothing}_U=\varnothing$. A compact set is holomorphically convex
 relative to $U$ when its hull equals itself. An open set $U$ is holomorphically
 convex when every compact $K\subset U$ has compact hull. These notions differ
 from the logarithmic Reinhardt hull used earlier.
@@ -194,7 +194,7 @@ L_\rho(a;w)=\tfrac14\bigl(D^2\rho(a)(w,w)+D^2\rho(a)(iw,iw)\bigr),
 $$
 
 which in coordinates is the complex Hessian
-$\sum_{j,k}\partial^2\rho/\partial z_j\partial\bar z_k\thinspace w_j\bar w_k$.
+$\sum_{j,k}\partial^2\rho/\partial z_j\partial{\bar z}_k\thinspace w_j{\bar w}_k$.
 A **local defining function** for an open set $U$ at a boundary point $p$ is a real $C^2$
 function $\rho$ on an open neighborhood $V$ of $p$ with $\rho(p)=0$, $D\rho(p)\ne0$ and
 $U\cap V=\lbrace \rho<0\rbrace\cap V$; the set $U$ has **$C^2$ boundary** if every boundary point has one.
@@ -277,7 +277,7 @@ On a polydisc, the Taylor coefficients equal the torus Cauchy coefficients:
 
 $$
 c_\alpha=\frac{\partial^\alpha f(a)}{\alpha!},\qquad
-\lVert \partial^\alpha f(a)\Vert\le
+\lVert\partial^\alpha f(a)\Vert\le
 \alpha!\thinspace M\prod_j r_j^{-\alpha_j}
 $$
 
@@ -462,7 +462,7 @@ of the analytic extension theorems.
 For coefficients $c_\alpha\in F$, define
 
 $$
-A_c=\left\lbrace z:\sum_\alpha\lVert c_\alpha\rVert\thinspace |z^\alpha|<\infty\right\rbrace,
+A_c=\left\lbrace z:\sum_\alpha\lVert c_\alpha\rVert\thinspace \lVert z^\alpha\rVert<\infty\right\rbrace,
 \qquad D_c=\mathrm{int}A_c.
 $$
 
@@ -564,12 +564,12 @@ Let $D$ be a domain, let $D_0\subseteq D$ be nonempty and open, and let
 $0\le\rho<R$. Every Banach-valued holomorphic function on
 
 $$
-\bigl(D\times\lbrace w:\rho<|w|<R\rbrace\bigr)
+\bigl(D\times\lbrace w:\rho<\lVert w\rVert<R\rbrace\bigr)
 \;\cup\;
-\bigl(D_0\times\lbrace w:|w|<R\rbrace\bigr)
+\bigl(D_0\times\lbrace w:\lVert w\rVert<R\rbrace\bigr)
 $$
 
-extends holomorphically to $D\times\lbrace |w|<R\rbrace$. No boundedness assumption on
+extends holomorphically to $D\times\lbrace \lVert w\rVert<R\rbrace$. No boundedness assumption on
 the function is needed. The standard Hartogs-figure theorem and uniqueness of
 its extension are proved consequences. These results do not depend on the
 fiber-expansion theorems in item 25.
@@ -610,7 +610,7 @@ reindexing along a bijection of coordinate types is proved separately.
 ### 28. Removal of isolated singularities in dimension at least two
 
 If $\dim_{\mathbb C}E\ge2$, $U\subseteq E$ is open, and $a\in U$, every
-Banach-valued holomorphic function on $U\setminus\lbrace a\rbrace$ extends
+Banach-valued holomorphic function on $U\mathbin{\backslash}\lbrace a\rbrace$ extends
 holomorphically across $a$. Neither boundedness nor connectedness of $U$
 is assumed. The proof uses concrete Hartogs continuation, independently of
 the general compact-hole theorem below.
@@ -626,7 +626,7 @@ simultaneous equations can have isolated common zeros.
 ### 30. First Riemann extension theorem and continuous removal
 
 Let $g$ be scalar holomorphic on an open set $U$, with nonzero germ at
-every point. A Banach-valued holomorphic function on $U\setminus Z(g)$
+every point. A Banach-valued holomorphic function on $U\mathbin{\backslash} Z(g)$
 that is locally bounded near $Z(g)$ extends uniquely to $U$. In a domain,
 it suffices that $g$ is not identically zero. Singular zero sets are allowed.
 The local theorem also extends to relatively closed exceptional sets locally
@@ -639,7 +639,7 @@ exceptional set need not be closed or discrete.
 ### 31. Hartogs' compact-hole extension theorem
 
 In complex dimension at least two, let $U$ be open and $K\subseteq U$ compact, with
-$U\setminus K$ connected. Every Banach-valued holomorphic function on $U\setminus K$
+$U\mathbin{\backslash} K$ connected. Every Banach-valued holomorphic function on $U\mathbin{\backslash} K$
 extends holomorphically to $U$. Connectedness of $U$ itself is not assumed. Stated extensions from spherical shells and exteriors of
 closed balls are consequently proved as well.
 
@@ -651,7 +651,7 @@ commute, by symmetry of the second derivative, so $F_0-u$ with $u$ the Cauchy tr
 ${\partial F}_0/{\partial\bar z}_1$ has complex-linear real derivative and is holomorphic on $U$.
 On the open set of points whose $G$-coordinate lies outside the projection of the support of
 $\varphi$, nonempty because a nonempty open subset of $G$ is not compact, both $F_0=f$ and
-$u=0$; the identity principle on $U\setminus K$ concludes. No Bochner–Martinelli kernel is
+$u=0$; the identity principle on $U\mathbin{\backslash} K$ concludes. No Bochner–Martinelli kernel is
 used.
 
 ## F. Elementary analytic sets
@@ -695,7 +695,7 @@ cylinder theorem directly.
 
 Let $A$ be an analytic subset of an open $U$ satisfying the slice condition
 for codimension at least two. Every Banach-valued holomorphic function on
-$U\setminus A$ extends uniquely to $U$, with no boundedness assumption.
+$U\mathbin{\backslash} A$ extends uniquely to $U$, with no boundedness assumption.
 Around an isolated two-dimensional slice, compactness supplies nearby Hartogs
 figures avoiding $A$. Hartogs continuation and connectedness of the complement
 of a proper analytic subset give a local holomorphic extension. Its continuity
@@ -759,8 +759,8 @@ $$
 g(z,w)=w^d q(z,w)+\sum_{j<d}a_j(z)w^j.
 $$
 
-The quotient and coefficients are holomorphic. If $|g|\le M$ and the fiber
-radius is $R$, the proved estimate is $|q|\le(d+1)M/R^d$ throughout the
+The quotient and coefficients are holomorphic. If $\lVert g\rVert\le M$ and the fiber
+radius is $R$, the proved estimate is $\lVert q\rVert\le(d+1)M/R^d$ throughout the
 product polydisc. Existence does not require boundedness of the numerator;
 boundedness is used for the estimate. Uniqueness, $d=0$, and the case of no
 parameter variables are included.
@@ -917,7 +917,7 @@ Its holomorphy, nonvanishing denominator on the ball, exchange of $0$ and $a$,
 preservation of the ball, and involutivity are **proved**. The metric calculation gives
 
 $$
-(1-\lVert \phi_a(z)\rVert^2)|1-\langle a,z\rangle|^2
+(1-\lVert\phi_a(z)\rVert^2)\lVert1-\langle a,z\rangle\rVert^2
 =(1-\lVert a\rVert^2)(1-\lVert z\rVert^2).
 $$
 
@@ -1008,9 +1008,9 @@ Mixed derivative bounds transfer from a set to its holomorphic hull; this is
 **proved**, also for Banach-valued functions, by norming functionals.
 The Taylor continuation lemma is also **proved**, for Banach-valued $f$:
 if $q\in\mathcal O(U)$ is scalar, $f$ is holomorphic on $U$ with values in a Banach space,
-$K\subset U$ is compact, and the polydisc of radius $|q(w)|$ centered at $w$ lies in $U$ for
+$K\subset U$ is compact, and the polydisc of radius $\lVert q(w)\rVert$ centered at $w$ lies in $U$ for
 each $w\in K$, then the Taylor series of $f$ at any $a\in{\widehat K}_U$ continues its germ
-to the polydisc of radius $|q(a)|$.
+to the polydisc of radius $\lVert q(a)\rVert$.
 The statement includes locally uniform convergence there and permits zeros of
 $q$. The proof obtains uniform Cauchy bounds on compact families of smaller balls,
 transfers coefficients weighted by powers of $q$ to the hull, and compares the
@@ -1159,11 +1159,11 @@ Levi pseudoconvex at every boundary point that admits a local `C²` defining fun
 Theorem 2.11). The proof is given in $\mathbb C^n$ with the sup norm and transported by a
 linear equivalence, using the invariance of the Levi condition under pullback; within
 $\mathbb C^n$ it avoids holomorphic coordinate changes. Near $p$ the defining function is
-comparable to the boundary distance: $c\thinspace |\rho|\le\delta\le C\thinspace |\rho|$
+comparable to the boundary distance: $c\thinspace \lVert\rho\rVert\le\delta\le C\thinspace \lVert\rho\rVert$
 on $U$, by the mean value inequality and by moving inward along a direction on which $d\rho$
 is positive. If the Levi form were negative in a complex tangent direction $w$, the Levi
 polynomial gives a quadratic analytic disc $\zeta\mapsto p+\zeta w+\zeta^2c+\kappa r^2\nu$
-on which $\rho=-\kappa r^2+|\zeta|^2L+O(\eta r^2)$ with $L<0$, uniformly for $|\zeta|\le r$
+on which $\rho=-\kappa r^2+\lVert\zeta\rVert^2L+O(\eta r^2)$ with $L<0$, uniformly for $\lVert\zeta\rVert\le r$
 and small $r$, by the uniform second-order Taylor bound and the decomposition of a symmetric
 bilinear form along a complex line. The boundary circle is then deeper inside $U$ than the
 center by a fixed multiple of $r^2$, while the center lies in the holomorphic hull of the
