@@ -535,7 +535,7 @@ fidelity:
 review:
   status: agent-reviewed
   notes: >-
-    The library, Challenge.lean and Solution.lean build with Lean 4.34.0 and the pinned Mathlib
+    The library, Challenge.lean and Solution.lean build with Lean 4.35.0-rc2 and the pinned Mathlib
     without errors, warnings or sorry in the library. The compared declarations use only propext,
     Quot.sound and Classical.choice. The declarations of Challenge.lean, including all auxiliary
     definitions, were checked to have the same types and values in the Solution environment by

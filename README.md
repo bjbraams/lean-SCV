@@ -39,7 +39,7 @@ their proofs are supplied in `Solution.lean`.
 
 ## Building the Palomar (V1) version
 
-The project uses Lean and Mathlib at version `v4.34.0` (see `lean-toolchain` and
+The project uses Lean and Mathlib at version `v4.35.0-rc2` (see `lean-toolchain` and
 `lakefile.toml`). From the repository root:
 
     lake build
