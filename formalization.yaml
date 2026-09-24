@@ -130,7 +130,7 @@ related_formalizations:
 
 classification:
   arxiv: [math.CV]
-  msc2020: ["32A10", "32A05", "32D05", "32D15", "32D20", "32B05", "32U05", "68V20"]
+  msc2020: ["32A10", "32A05", "32D05", "32D15", "32D20", "32B05", "32U05"]
 
 status:
   scope: >-
