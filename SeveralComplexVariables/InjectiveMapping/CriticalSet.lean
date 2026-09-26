@@ -23,6 +23,11 @@ point. Thus the critical set is empty.
 set. `analyticOnNhd_det_complexJacobian` is holomorphy of the Jacobian determinant.
 `isInvertible_fderiv_of_injOn_coordinates` is nonsingularity in coordinates, by emptiness of
 that critical set.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

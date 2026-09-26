@@ -1,6 +1,7 @@
 name = "Main"
-version = "0.1.0"
+version = "0.2.0"
 defaultTargets = ["Main"]
+buildDir = ".lake/build-SCV"
 
 [[lean_lib]]
 name = "Main"
@@ -8,6 +9,15 @@ roots = ["SeveralComplexVariables"]
 globs = [
   "SeveralComplexVariables", "SeveralComplexVariables.+"
 ]
+
+[[lean_lib]]
+name = "ComplexAnalysis"
+globs = ["ComplexAnalysis.+"]
+
+[[lean_lib]]
+name = "ToMathlib"
+roots = ["ToMathlib.Analysis", "ToMathlib.Topology"]
+globs = ["ToMathlib.+"]
 
 # Palomar registry: statement file (Mathlib only) and its proofs from the library.
 [[lean_lib]]

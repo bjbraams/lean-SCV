@@ -22,6 +22,11 @@ such figures near the exceptional set.
 avoids the analytic set. `exists_hartogs_neighborhood` produces such a figure near an isolated
 two-dimensional slice. `IsAnalyticSet.exists_local_extension_of_isolated_two_slice` is local
 extension from that figure.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

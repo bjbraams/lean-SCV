@@ -21,6 +21,11 @@ equicontinuity estimate used in Montel's theorem.
 separately holomorphic map into a joint local Lipschitz bound, hence into joint continuity.
 `analyticOnNhd_of_separately_analytic_locally_bounded` is the corresponding analyticity
 statement, using Osgood after that continuity.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section
@@ -44,20 +49,21 @@ theorem norm_sub_le_sum_of_update {s : ι → Set ℂ} {f : (ι → ℂ) → F} 
     intro i hi
     dsimp only
     split_ifs <;> [exact hy i hi; exact hx i hi]
-  have hstep (t : Finset ι) :
-      ‖f (fun i => if i ∈ t then y i else x i) - f x‖ ≤ ∑ i ∈ t, C * ‖y i - x i‖ := by
-    induction t using Finset.induction_on with
-    | empty => simp
-    | @insert i t hi ih =>
-      have heq : (fun j => if j ∈ insert i t then y j else x j) =
-          update (fun j => if j ∈ t then y j else x j) i (y i) := by
-        funext j
-        by_cases hji : j = i <;> simp [hji]
-      rw [heq, Finset.sum_insert hi]
-      refine (norm_sub_le_norm_sub_add_norm_sub _ (f (fun j => if j ∈ t then y j else x j)) _).trans
-        (add_le_add ?_ ih)
-      simpa [hi] using hf _ (hmem t) i (y i) (hy i (mem_univ i))
-  simpa using hstep Finset.univ
+  suffices hstep : ∀ t : Finset ι,
+      ‖f (fun i => if i ∈ t then y i else x i) - f x‖ ≤ ∑ i ∈ t, C * ‖y i - x i‖ by
+    simpa using hstep Finset.univ
+  intro t
+  induction t using Finset.induction_on with
+  | empty => simp
+  | @insert i t hi ih =>
+    have heq : (fun j => if j ∈ insert i t then y j else x j) =
+        update (fun j => if j ∈ t then y j else x j) i (y i) := by
+      funext j
+      by_cases hji : j = i <;> simp [hji]
+    rw [heq, Finset.sum_insert hi]
+    refine (norm_sub_le_norm_sub_add_norm_sub _ (f (fun j => if j ∈ t then y j else x j)) _).trans
+      (add_le_add ?_ ih)
+    simpa [hi] using hf _ (hmem t) i (y i) (hy i (mem_univ i))
 
 /-- Updating a coordinate within its disc preserves a closed sup-norm ball. -/
 theorem update_mem_closedBall_of_mem {c z : ι → ℂ} {r : ℝ} (hr : 0 ≤ r)

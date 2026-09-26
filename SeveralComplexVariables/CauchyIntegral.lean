@@ -20,6 +20,11 @@ distinguished boundary is the coordinate torus of the closed polydisc `closedPol
 radius in each coordinate; `two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul_const` is the
 equal-radius specialization. `torusIntegrable_cauchyKernelWithRadii` records integrability of the
 Cauchy kernel on that torus whenever the evaluation point lies in the open polydisc.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

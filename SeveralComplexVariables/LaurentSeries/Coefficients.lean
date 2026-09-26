@@ -23,6 +23,11 @@ neighborhoods therefore gives global independence of the coefficient torus.
 connected open Reinhardt domain. `multivariableLaurentCoeff_eq_of_radii` is independence of the
 torus. `multivariableLaurentCoeff_neg_eq_zero` vanishes coefficients with a negative exponent in
 a coordinate that meets a hyperplane.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

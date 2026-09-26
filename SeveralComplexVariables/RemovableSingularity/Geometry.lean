@@ -22,6 +22,11 @@ the original open domain. No preparation or division theorem is used.
 `exists_nonzero_line_of_analyticAt` produces a complex line on which a nonzero germ is not
 identically zero. `exists_translated_circle_avoiding_zeroSet` produces a circle that continues
 to avoid the zeros under small translations of its centre.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

@@ -7,7 +7,7 @@ module
 
 public import SeveralComplexVariables.CauchySeries
 public import SeveralComplexVariables.Derivatives
-public import SeveralComplexVariables.ParametricIntegral
+public import ComplexAnalysis.ParametricIntegral
 
 /-!
 # Mixed Cauchy coefficients
@@ -34,6 +34,11 @@ independence from the contour radii, and yields the sharp mixed-derivative Cauch
   the Cauchy coefficients.
 * `norm_multiIndexDeriv_le`: Cauchy's estimate for every mixed derivative, with the usual
   multi-index factorial and a separate radius in each coordinate.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

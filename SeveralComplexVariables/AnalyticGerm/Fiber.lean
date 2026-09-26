@@ -21,6 +21,11 @@ the local algebra needed for persistence of relative primality.
 irreducibility. `isRelPrime_basePullback_of_fiber_ne_zero` is relative primality of a nonzero
 parameter germ to a germ with nonzero fiber restriction. `eventually_fiber_ne_zero_ofAnalyticAt`
 is persistence of a nonzero fiber germ.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

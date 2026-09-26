@@ -33,6 +33,11 @@ corresponding interface for finite coordinate spaces `ι → ℂ`. Such spaces a
 separate holomorphy, coordinate derivatives, and polydisc expansions. The coordinate theorem is
 proved first and then transported along a linear equivalence; this proof order imposes no choice
 of coordinates on the general statements.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

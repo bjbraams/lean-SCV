@@ -22,6 +22,11 @@ preserve the dependency order.
 `isConnected_nonzero_of_analyticOnNhd` is connectedness of the nonvanishing locus of a nonzero
 scalar holomorphic function. `isConnected_sdiff_of_locallyContainedInAnalyticZeroSet` is the
 corresponding statement for a relatively closed thin exceptional set.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

@@ -6,7 +6,8 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.LinearAlgebra.Dual.Lemmas
-public import SeveralComplexVariables.InjectiveMapping.OneVariable
+public import ComplexAnalysis.Injective
+public import SeveralComplexVariables.Biholomorphic
 
 /-!
 # Immersion points of injective holomorphic maps
@@ -21,6 +22,11 @@ without assuming that source and target dimensions agree.
 positive dimension. `exists_scalar_projection_fderiv_ne_zero` produces a scalar coordinate with
 nonzero derivative. `exists_injective_fderiv_of_injOn` is the immersion-point theorem after
 restricting to a level hyperplane.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

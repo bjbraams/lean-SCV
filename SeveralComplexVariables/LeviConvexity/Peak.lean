@@ -395,11 +395,11 @@ theorem IsLocalDefiningFunction.exists_holomorphic_support (h : IsLocalDefiningF
   have hFan : AnalyticOnNhd ℂ F univ := hFd.analyticOnNhd_of_finiteDimensional
   have hF0 : F p = 0 := by simp [hF, leviBilinear]
   -- Taylor expansion of the modified defining function
-  obtain ⟨δ, hδ, htaylor⟩ := exists_taylor_bound hσc (ε := c / 2) (by positivity)
+  obtain ⟨δ, hδ, htaylor⟩ := ContDiffAt.exists_taylor_bound hσc (ε := c / 2) (by positivity)
   have hsmall : ∀ᶠ z in 𝓝 p, |ρ z| < 1 / (A + 1) := by
     have hcont : ContinuousAt (fun z => |ρ z|) p := hρc.continuousAt.abs
     exact hcont.eventually (eventually_lt_nhds (by
-      show |ρ p| < 1 / (A + 1)
+      change |ρ p| < 1 / (A + 1)
       rw [h.eq_zero, abs_zero]
       positivity))
   refine ⟨ball p δ ∩ {z | |ρ z| < 1 / (A + 1)}, inter_mem (ball_mem_nhds p hδ) hsmall, F, hFan,

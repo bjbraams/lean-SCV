@@ -20,6 +20,11 @@ hypothesis so that the integration space needs no topology.
 
 `analyticOnNhd_integral_of_locally_dominated` is holomorphy of a parameter-dependent integral
 under a locally integrable dominant, without a logarithmic estimate on the parameter.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 open Complex MeasureTheory Filter Metric Set

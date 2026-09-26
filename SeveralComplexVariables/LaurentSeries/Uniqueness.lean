@@ -20,6 +20,11 @@ independently of the existence theorem and without a connectedness hypothesis.
 `tendsto_multivariableLaurentCoeff` extracts coefficients from uniform convergence on a torus.
 `eq_multivariableLaurentCoeff_of_hasSumLocallyUniformlyOn` is uniqueness of the coefficient
 family of a locally uniformly convergent expansion.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

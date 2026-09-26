@@ -8,7 +8,7 @@ module
 public import Mathlib.Analysis.Calculus.FDeriv.Symmetric
 public import Mathlib.Geometry.Manifold.PartitionOfUnity
 public import SeveralComplexVariables.Analyticity
-public import SeveralComplexVariables.CauchyTransform
+public import ComplexAnalysis.CauchyTransform
 
 /-!
 # Hartogs' compact-hole extension theorem in a product space
@@ -361,7 +361,7 @@ theorem exists_analyticOnNhd_extension_of_isCompact_prod {D K : Set (ℂ × G)} 
         dbarExt_holeCutoff_eq_zero h hf e₁ fun hc => hx.2 ⟨(z, x.2), hc, rfl⟩
       have := cauchyTransformFst_eq_zero hz x.1
       simpa using this
-    show F₀ x - u x = f x
+    change F₀ x - u x = f x
     rw [hF, hu0, sub_zero]
   refine ⟨g, hga, ?_⟩
   exact (hga.mono sdiff_subset).eqOn_of_preconnected_of_eventuallyEq hf hconn (hVsub hx₀)

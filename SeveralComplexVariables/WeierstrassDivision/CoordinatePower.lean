@@ -9,7 +9,7 @@ public import Mathlib.Algebra.Field.GeomSum
 public import Mathlib.Analysis.Analytic.Order
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 public import Mathlib.Analysis.Complex.AbsMax
-public import SeveralComplexVariables.CauchyDerivatives
+public import ComplexAnalysis.CauchyDerivatives
 public import SeveralComplexVariables.ContourIntegral
 public import SeveralComplexVariables.IdentityPrinciple
 public import SeveralComplexVariables.WeierstrassDivision.Basic
@@ -379,7 +379,7 @@ theorem cauchyCoeff_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g : (ι → �
   have hEq : EqOn (fun s : ℂ => g (w, s) / s ^ (j + 1))
       (fun s => s ^ (-(j + 1 : ℤ)) * g (w, s)) (sphere (0 : ℂ) ρ) := by
     intro s _
-    show g (w, s) / s ^ (j + 1) = s ^ (-(j + 1 : ℤ)) * g (w, s)
+    change g (w, s) / s ^ (j + 1) = s ^ (-(j + 1 : ℤ)) * g (w, s)
     rw [div_eq_inv_mul, show (-(j + 1 : ℤ)) = -((j + 1 : ℕ) : ℤ) by push_cast; ring,
       zpow_neg, zpow_natCast]
   rw [circleIntegral.integral_congr hρ.le hEq,
@@ -416,7 +416,7 @@ private theorem coordinatePower_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g 
       (fun s => (∑ j ∈ range d, ζ ^ j / s ^ (j + 1)) * g (w, s) +
         ζ ^ d / (s ^ d * (s - ζ)) * g (w, s)) (sphere (0 : ℂ) ρ) := by
     intro s hs
-    show (s - ζ)⁻¹ * g (w, s) =
+    change (s - ζ)⁻¹ * g (w, s) =
       (∑ j ∈ range d, ζ ^ j / s ^ (j + 1)) * g (w, s) + ζ ^ d / (s ^ d * (s - ζ)) * g (w, s)
     rw [← add_mul, weierstrass_kernel_identity d (hne0 s hs) (hnesw s hs)]
   rw [circleIntegral.integral_congr hρ.le hEqOn] at hcauchy
@@ -444,7 +444,7 @@ private theorem coordinatePower_eq_of_lt {V : Set (ι → ℂ)} {R ρ : ℝ} {g 
         ∮ s in C(0, ρ), ∑ j ∈ range d, ζ ^ j * (g (w, s) / s ^ (j + 1)) := by
       apply circleIntegral.integral_congr hρ.le
       intro s _
-      show (∑ j ∈ range d, ζ ^ j / s ^ (j + 1)) * g (w, s) =
+      change (∑ j ∈ range d, ζ ^ j / s ^ (j + 1)) * g (w, s) =
         ∑ j ∈ range d, ζ ^ j * (g (w, s) / s ^ (j + 1))
       rw [Finset.sum_mul]
       exact Finset.sum_congr rfl fun j _ => by ring
@@ -695,7 +695,7 @@ theorem coordinatePower_division (d : ℕ) {r : ι → ℝ} {R : ℝ} (hR : 0 < 
       obtain ⟨hρypos, hρyζ, hρyR⟩ := hρz y.2 hy2R
       have hyρbig : ‖y.2‖ < ρbig := hy2'.trans hρ0'ρbig
       have hρylt : (‖y.2‖ + R) / 2 < ρbig := by linarith
-      show weierstrassCauchyQuotient d g ((‖y.2‖ + R) / 2) y =
+      change weierstrassCauchyQuotient d g ((‖y.2‖ + R) / 2) y =
         weierstrassCauchyQuotient d g ρbig y
       exact weierstrassCauchyQuotient_eq_of_lt hVo hg hρypos hρyR
         ((norm_nonneg y.2).trans_lt hyρbig) hρbigR d hy1
@@ -713,7 +713,7 @@ theorem coordinatePower_division (d : ℕ) {r : ι → ℝ} {R : ℝ} (hR : 0 < 
     have hζR : ‖z.2‖ < R := by simpa [mem_ball, dist_eq_norm] using hz2
     obtain ⟨hρ0pos, hρ0ζ, hρ0R⟩ := hρz z.2 hζR
     have := coordinatePower_eq_of_lt hg hρ0pos hρ0R d hz1 (mem_ball_zero_iff.mpr hρ0ζ)
-    show g z = q z * z.2 ^ d + weierstrassRemainder a z
+    change g z = q z * z.2 ^ d + weierstrassRemainder a z
     rw [this]; ring
   refine ⟨q, a, ⟨hqholo, haholo, heqOnV⟩, ?_, ?_⟩
   · intro M hM0 hMb z hz

@@ -7,7 +7,7 @@ module
 
 public import Mathlib.LinearAlgebra.Complex.FiniteDimensional
 public import Mathlib.LinearAlgebra.Dimension.Finrank
-public import SeveralComplexVariables.Analysis.Connected
+public import ToMathlib.Analysis.Connected
 public import SeveralComplexVariables.HartogsExtension
 
 /-!

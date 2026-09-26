@@ -8,7 +8,7 @@ module
 public import Mathlib.Analysis.Analytic.Uniqueness
 public import Mathlib.Analysis.Calculus.FDeriv.Analytic
 public import SeveralComplexVariables.Analyticity
-public import SeveralComplexVariables.ZeroSets.Persistence
+public import ComplexAnalysis.ZeroPersistence
 
 /-!
 # Local structure of scalar zero sets
@@ -24,12 +24,19 @@ function.
 derivatives all vanish. `exists_analytic_zeroSet_superset_fderiv_ne_zero` produces an analytic
 function with nonzero derivative vanishing on a given zero set.
 `eventually_zeroSet_eq_linear_zeroSet` is the local graph description after straightening.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
+
+open Complex
 
 namespace SeveralComplexVariables
 

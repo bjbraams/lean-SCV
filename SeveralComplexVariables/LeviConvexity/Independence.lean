@@ -7,9 +7,9 @@ module
 
 public import Mathlib.Analysis.Calculus.Deriv.Comp
 public import Mathlib.Analysis.Calculus.Deriv.Slope
-public import SeveralComplexVariables.Analysis.LinearFunctional
+public import ToMathlib.Analysis.LinearFunctional
 public import SeveralComplexVariables.LeviConvexity
-public import SeveralComplexVariables.Subharmonic.SmoothCriterion
+public import ComplexAnalysis.Subharmonic.SmoothCriterion
 
 /-!
 # Independence of the defining function
@@ -53,7 +53,7 @@ open scoped Topology
 
 namespace SeveralComplexVariables
 
-open TaylorBounds
+open Real
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
@@ -73,7 +73,8 @@ theorem exists_parabola_bound (hρ : ContDiffAt ℝ 2 ρ p) (v ν : E) (β : ℝ
   set M₁ : ℝ := |β| * ‖B‖ * ‖v‖ * ‖ν‖ + β ^ 2 * ‖B‖ * ‖ν‖ ^ 2 / 2 with hM₁
   have hM₀0 : 0 ≤ M₀ := by positivity
   have hM₁0 : 0 ≤ M₁ := by positivity
-  obtain ⟨δ', hδ', htaylor⟩ := exists_taylor_bound hρ (ε := η / (2 * (M₀ ^ 2 + 1))) (by positivity)
+  obtain ⟨δ', hδ', htaylor⟩ := ContDiffAt.exists_taylor_bound hρ (ε := η / (2 * (M₀ ^ 2 + 1)))
+      (by positivity)
   refine ⟨min 1 (min (η / (2 * (M₁ + 1))) (δ' / (2 * (M₀ + 1)))), by positivity, fun t ht htδ => ?_⟩
   obtain ⟨ht1, htM₁, htδ'⟩ :=
     le_one_and_mul_add_le_of_le_min hM₀0 hM₁0 ht (le_of_lt htδ)

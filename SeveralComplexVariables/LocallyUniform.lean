@@ -37,6 +37,11 @@ This is a temporary project home for material ultimately intended for a Mathlib 
 
 Derivative convergence uses a one-variable Cauchy estimate on compact thickenings, followed by
 finite sums, currying, and transport along a continuous linear choice of coordinates.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

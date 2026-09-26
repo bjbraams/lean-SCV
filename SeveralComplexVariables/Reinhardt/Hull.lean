@@ -208,7 +208,7 @@ theorem logarithmicReinhardtHull_eq (hU : IsReinhardt U) (hg : HasGeometricallyC
 
 /-- Openness of the geometric logarithmic hull in finite dimension, including zero coordinates. The
 modulus trace of an open Reinhardt set is open, and so is its geometric convex hull. -/
-theorem isOpen_logarithmicReinhardtHull [Fintype ι] (ho : IsOpen U) (hU : IsReinhardt U) :
+theorem isOpen_logarithmicReinhardtHull (ho : IsOpen U) (hU : IsReinhardt U) :
     IsOpen (logarithmicReinhardtHull U) := by
   have htrace : modulusTrace U =
       (fun r : ι → ℝ≥0 => fun i => (r i : ℂ)) ⁻¹' U := by

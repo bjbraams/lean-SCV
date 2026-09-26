@@ -223,21 +223,20 @@ theorem isHolomorphicallyConvex_iff_unbounded_on_escaping_sequences
       let F (n : ℕ) : HolomorphicMap V ℂ :=
         ⟨⟨fun z => f n z, (hf n).continuousOn.domRestrict⟩,
           (hf n).congr ho (fun z hz => by rw [openExtension_apply V _ hz]; rfl)⟩
-      have hlim : Tendsto F atTop (𝓝 0) := by
-        rw [holomorphicMap_tendsto_iff, tendstoLocallyUniformlyOn_iff_forall_isCompact V.isOpen]
-        intro S hSU hS
-        obtain ⟨m, hm⟩ := hcofinal hS hSU
-        rw [Metric.tendstoUniformlyOn_iff]
-        intro ε hε
-        have ht := (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ)).eventually
-          (gt_mem_nhds hε)
-        filter_upwards [eventually_ge_atTop m, ht] with n hn hεn
-        intro z hz
-        rw [openExtension_apply V _ (hSU hz), openExtension_apply V _ (hSU hz)]
-        change dist (0 : ℂ) (f n z) < ε
-        rw [dist_zero_left]
-        exact (hs n z (image_mono (K.subset hn) (hm hz))).trans hεn
-      exact ⟨F, hlim, fun n => ⟨j n, hj n⟩⟩)
+      refine ⟨F, ?_, fun n => ⟨j n, hj n⟩⟩
+      rw [holomorphicMap_tendsto_iff, tendstoLocallyUniformlyOn_iff_forall_isCompact V.isOpen]
+      intro S hSU hS
+      obtain ⟨m, hm⟩ := hcofinal hS hSU
+      rw [Metric.tendstoUniformlyOn_iff]
+      intro ε hε
+      have ht := (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ)).eventually
+        (gt_mem_nhds hε)
+      filter_upwards [eventually_ge_atTop m, ht] with n hn hεn
+      intro z hz
+      rw [openExtension_apply V _ (hSU hz), openExtension_apply V _ (hSU hz)]
+      change dist (0 : ℂ) (f n z) < ε
+      rw [dist_zero_left]
+      exact (hs n z (image_mono (K.subset hn) (hm hz))).trans hεn)
     refine ⟨openExtension V g.val, g.property, ?_⟩
     simpa only [openExtension_apply V _ (hp _)] using hg
   · intro hseq S hS hSU

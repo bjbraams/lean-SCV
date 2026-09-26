@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.LaurentSeries.OneVariable
+
 public import SeveralComplexVariables.LaurentSeries.Iterated
 
 /-!
@@ -19,6 +21,11 @@ independence of the coordinate radii on products of connected circular domains.
 coordinates. `multivariableLaurentCoeff_eq_on_product` is independence of radii on a product of
 connected circular domains. `multivariableLaurentCoeff_neg_on_product` vanishes negative
 exponents in a factor that is a disc.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

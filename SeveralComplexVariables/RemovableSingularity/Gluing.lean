@@ -19,6 +19,11 @@ construction uses no sheaf machinery and imposes no connectedness.
 `exists_analyticOnNhd_extension_of_local` glues local analytic extensions from a dense subset.
 `subset_closure_nonzero_of_nonzero_germs` is density of the nonvanishing locus from nonzero
 germs, without analyticity of a global function.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

@@ -21,6 +21,11 @@ the relative holomorphic hull.
 `exists_monomial_separator_of_isCompact` separates an exterior point from a compact subset by a
 monomial. `isHolomorphicallyConvex_of_completeReinhardt` is holomorphic convexity of an open
 complete logarithmically convex Reinhardt domain.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

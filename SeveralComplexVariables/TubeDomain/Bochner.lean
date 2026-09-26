@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Topology.Connected.LocallyPathConnected
-public import SeveralComplexVariables.Topology.Path
+public import ToMathlib.Topology.Path
 public import SeveralComplexVariables.TubeDomain.StarConvex
 
 /-!
@@ -75,91 +75,104 @@ theorem starConvex_union_ball_of_mem_closure {A : Set (Fin n → ℝ)} (hA : Con
   · right
     exact (convex_ball x r) (mem_ball_self hr) hyB ha hb hab
 
+/-- **Gluing at a boundary point of the maximal base.** Let `x₁ ∈ Ω` lie in the closure of the
+maximal star-convex base of `p`, with a ball about `x₁` inside `Ω`. If the ball meets the base
+at a point `x'` that is joined to `p` by a preconnected subset of the tube over `Ω ∩ maxStar`,
+then `x₁` itself belongs to the maximal base. -/
+private theorem mem_maxStar_of_mem_closure {Ω : Set (Fin n → ℝ)} (hΩ : IsOpen Ω)
+    {p : Fin n → ℝ} (hpÃ : p ∈ maxStar F Ω p) {x₁ : Fin n → ℝ}
+    (hx₁cl : x₁ ∈ closure (maxStar F Ω p)) {r₁ : ℝ} (hr₁ : 0 < r₁) (hr₁Ω : ball x₁ r₁ ⊆ Ω)
+    {x' : Fin n → ℝ} (hx' : x' ∈ maxStar F Ω p ∩ ball x₁ r₁) {K : Set (Fin n → ℂ)}
+    (hK : IsPreconnected K) (hKU : K ⊆ tubeDomain (Ω ∩ maxStar F Ω p))
+    (hpK : ofRealPi p ∈ K) (hx'K : ofRealPi x' ∈ K) : x₁ ∈ maxStar F Ω p := by
+  classical
+  have hÃo : IsOpen (maxStar F Ω p) := isOpen_maxStar
+  have hÃc : Convex ℝ (maxStar F Ω p) := convex_maxStar hpÃ
+  have hA₁o : IsOpen (maxStar F Ω p ∪ ball x₁ r₁) := hÃo.union isOpen_ball
+  have hA₁s : StarConvex ℝ x₁ (maxStar F Ω p ∪ ball x₁ r₁) :=
+    starConvex_union_ball_of_mem_closure hÃc hÃo hx₁cl hr₁
+  have hx₁A₁ : x₁ ∈ maxStar F Ω p ∪ ball x₁ r₁ := Or.inr (mem_ball_self hr₁)
+  suffices hBmem : convexHull ℝ (maxStar F Ω p ∪ ball x₁ r₁) ∈ starFamily F Ω p from
+    subset_maxStar_of_mem hBmem (subset_convexHull ℝ _ hx₁A₁)
+  refine ⟨hA₁o.convexHull, (convex_convexHull ℝ _).starConvex
+    (subset_convexHull ℝ _ (Or.inl hpÃ)), ?_⟩
+  intro f₀ hf₀
+  obtain ⟨g₀, hg₀, hg₀f⟩ := tubeExtends_maxStar hpÃ f₀ hf₀
+  have hnear : g₀ =ᶠ[𝓝 (ofRealPi x')] f₀ :=
+    eventuallyEq_of_isPreconnected (isOpen_tubeDomain (hΩ.inter hÃo))
+      (hf₀.mono (tubeDomain_mono inter_subset_left))
+      (hg₀.mono (tubeDomain_mono inter_subset_right)) hK hKU hpK hg₀f hx'K
+  have hAB : EqOn g₀ f₀ (tubeDomain (maxStar F Ω p ∩ ball x₁ r₁)) :=
+    (hg₀.mono (tubeDomain_mono inter_subset_left)).eqOn_of_preconnected_of_eventuallyEq
+      (hf₀.mono (tubeDomain_mono (inter_subset_right.trans hr₁Ω)))
+      (isPreconnected_tubeDomain (hÃc.inter (convex_ball _ r₁)).isPreconnected)
+      (ofRealPi_mem_tubeDomain.mpr hx') hnear
+  set g₁ : (Fin n → ℂ) → F := fun z => if z ∈ tubeDomain (maxStar F Ω p) then g₀ z else f₀ z
+  have hg₁a : AnalyticOnNhd ℂ g₁ (tubeDomain (maxStar F Ω p ∪ ball x₁ r₁)) :=
+    analyticOnNhd_ite_tubeDomain hÃo isOpen_ball hg₀ (hf₀.mono (tubeDomain_mono hr₁Ω)) hAB
+  have hg₁f : g₁ =ᶠ[𝓝 (ofRealPi p)] f₀ := by
+    have : g₁ =ᶠ[𝓝 (ofRealPi p)] g₀ :=
+      eventuallyEq_of_mem ((isOpen_tubeDomain hÃo).mem_nhds (ofRealPi_mem_tubeDomain.mpr hpÃ))
+        fun w hw => by simp [g₁, hw]
+    exact this.trans hg₀f
+  obtain ⟨g₂, hg₂, hg₂g₁⟩ :=
+    exists_extension_tubeDomain_convexHull_of_starConvex hA₁o hA₁s hx₁A₁ hg₁a
+  refine ⟨g₂, hg₂, ?_⟩
+  have : g₂ =ᶠ[𝓝 (ofRealPi p)] g₁ :=
+    eventuallyEq_of_mem ((isOpen_tubeDomain hA₁o).mem_nhds
+      (ofRealPi_mem_tubeDomain.mpr (Or.inl hpÃ))) hg₂g₁
+  exact this.trans hg₁f
+
+/-- The maximal star-convex base of a point of a connected open base contains the whole base:
+along a path from `p`, the first exit point from the maximal base is a closure point at which
+the gluing lemma applies, a contradiction. -/
+private theorem subset_maxStar_of_isConnected {Ω : Set (Fin n → ℝ)} (hΩ : IsOpen Ω)
+    (hc : IsConnected Ω) {p : Fin n → ℝ} (hp : p ∈ Ω) (hpÃ : p ∈ maxStar F Ω p) :
+    Ω ⊆ maxStar F Ω p := by
+  by_contra hnot
+  obtain ⟨x₀, hx₀Ω, hx₀⟩ := not_subset.mp hnot
+  obtain ⟨γ, hγ⟩ := (hΩ.isConnected_iff_isPathConnected.mp hc).joinedIn p hp x₀ hx₀Ω
+  have hγΩ : ∀ t, γ.extend t ∈ Ω := by
+    intro t
+    have hmem : γ.extend t ∈ range γ.extend := mem_range_self t
+    rw [Path.extend_range] at hmem
+    obtain ⟨u, hu⟩ := hmem
+    rw [← hu]
+    exact hγ u
+  obtain ⟨t₁, ht₁I, hx₁, hs0, hprefix⟩ :=
+    Path.extend_exists_first_notMem γ isOpen_maxStar (by rw [Path.extend_zero]; exact hpÃ)
+      (by rw [Path.extend_one]; exact hx₀)
+  have htend : Tendsto γ.extend (𝓝[<] t₁) (𝓝 (γ.extend t₁)) :=
+    (γ.continuous_extend.tendsto _).mono_left nhdsWithin_le_nhds
+  have hx₁cl : γ.extend t₁ ∈ closure (maxStar F Ω p) := by
+    apply mem_closure_of_tendsto htend
+    filter_upwards [Ioo_mem_nhdsLT hs0] with t ht
+    exact hprefix t ht.1.le ht.2
+  obtain ⟨r₁, hr₁, hr₁Ω⟩ := Metric.isOpen_iff.mp hΩ _ (hγΩ t₁)
+  have hev : ∀ᶠ t in 𝓝[<] t₁, γ.extend t ∈ ball (γ.extend t₁) r₁ :=
+    htend (isOpen_ball.mem_nhds (mem_ball_self hr₁))
+  obtain ⟨t₀, ht₀, ht₀ball⟩ := Filter.nonempty_of_mem (Filter.inter_mem (Ioo_mem_nhdsLT hs0) hev)
+  have hK : IsPreconnected ((fun t => ofRealPi (γ.extend t)) '' Icc 0 t₀) :=
+    isPreconnected_Icc.image _
+      (by fun_prop : Continuous fun t => ofRealPi (γ.extend t)).continuousOn
+  have hKU : (fun t => ofRealPi (γ.extend t)) '' Icc 0 t₀ ⊆ tubeDomain (Ω ∩ maxStar F Ω p) := by
+    rintro _ ⟨t, ht, rfl⟩
+    rw [ofRealPi_mem_tubeDomain]
+    exact ⟨hγΩ t, hprefix t ht.1 (ht.2.trans_lt ht₀.2)⟩
+  exact hx₁ (mem_maxStar_of_mem_closure hΩ hpÃ hx₁cl hr₁ hr₁Ω ⟨hprefix t₀ ht₀.1.le ht₀.2, ht₀ball⟩
+    hK hKU ⟨0, ⟨le_rfl, ht₀.1.le⟩, by simp⟩ ⟨t₀, ⟨ht₀.1.le, le_rfl⟩, rfl⟩)
+
 /-- **Bochner's tube theorem in coordinates.** Every Banach-valued holomorphic function on the
 tube over an open connected base in `ℝⁿ` extends to the tube over the convex hull. -/
 theorem exists_extension_tubeDomain_convexHull_fin {Ω : Set (Fin n → ℝ)} (hΩ : IsOpen Ω)
     (hc : IsConnected Ω) {f : (Fin n → ℂ) → F} (hf : AnalyticOnNhd ℂ f (tubeDomain Ω)) :
     ∃ g : (Fin n → ℂ) → F, AnalyticOnNhd ℂ g (tubeDomain (convexHull ℝ Ω)) ∧
       EqOn g f (tubeDomain Ω) := by
-  classical
   obtain ⟨p, hp⟩ := hc.nonempty
   obtain ⟨r, hr, hrΩ⟩ := Metric.isOpen_iff.mp hΩ p hp
   have hpÃ : p ∈ maxStar F Ω p := mem_maxStar_of_ball hr hrΩ
-  have hÃo : IsOpen (maxStar F Ω p) := isOpen_maxStar
-  have hÃc : Convex ℝ (maxStar F Ω p) := convex_maxStar hpÃ
-  have hΩÃ : Ω ⊆ maxStar F Ω p := by
-    by_contra hnot
-    obtain ⟨x₀, hx₀Ω, hx₀⟩ := not_subset.mp hnot
-    obtain ⟨γ, hγ⟩ := (hΩ.isConnected_iff_isPathConnected.mp hc).joinedIn p hp x₀ hx₀Ω
-    have hγΩ : ∀ t, γ.extend t ∈ Ω := by
-      intro t
-      have hmem : γ.extend t ∈ range γ.extend := mem_range_self t
-      rw [Path.extend_range] at hmem
-      obtain ⟨u, hu⟩ := hmem
-      rw [← hu]
-      exact hγ u
-    obtain ⟨t₁, ht₁I, hx₁, hs0, hprefix⟩ :=
-      Path.extend_exists_first_notMem γ hÃo (by rw [Path.extend_zero]; exact hpÃ)
-        (by rw [Path.extend_one]; exact hx₀)
-    have hx₁Ω : γ.extend t₁ ∈ Ω := hγΩ _
-    have htend : Tendsto γ.extend (𝓝[<] t₁) (𝓝 (γ.extend t₁)) :=
-      (γ.continuous_extend.tendsto _).mono_left nhdsWithin_le_nhds
-    have hx₁cl : γ.extend t₁ ∈ closure (maxStar F Ω p) := by
-      apply mem_closure_of_tendsto htend
-      filter_upwards [Ioo_mem_nhdsLT hs0] with t ht
-      exact hprefix t ht.1.le ht.2
-    obtain ⟨r₁, hr₁, hr₁Ω⟩ := Metric.isOpen_iff.mp hΩ _ hx₁Ω
-    have hev : ∀ᶠ t in 𝓝[<] t₁, γ.extend t ∈ ball (γ.extend t₁) r₁ :=
-      htend (isOpen_ball.mem_nhds (mem_ball_self hr₁))
-    obtain ⟨t₀, ht₀, ht₀ball⟩ := Filter.nonempty_of_mem (Filter.inter_mem (Ioo_mem_nhdsLT hs0) hev)
-    have ht₀Ã : γ.extend t₀ ∈ maxStar F Ω p := hprefix t₀ ht₀.1.le ht₀.2
-    have hA₁o : IsOpen (maxStar F Ω p ∪ ball (γ.extend t₁) r₁) := hÃo.union isOpen_ball
-    have hA₁s : StarConvex ℝ (γ.extend t₁) (maxStar F Ω p ∪ ball (γ.extend t₁) r₁) :=
-      starConvex_union_ball_of_mem_closure hÃc hÃo hx₁cl hr₁
-    have hx₁A₁ : γ.extend t₁ ∈ maxStar F Ω p ∪ ball (γ.extend t₁) r₁ :=
-      Or.inr (mem_ball_self hr₁)
-    have hBmem : convexHull ℝ (maxStar F Ω p ∪ ball (γ.extend t₁) r₁) ∈ starFamily F Ω p := by
-      refine ⟨hA₁o.convexHull, (convex_convexHull ℝ _).starConvex
-        (subset_convexHull ℝ _ (Or.inl hpÃ)), ?_⟩
-      intro f₀ hf₀
-      obtain ⟨g₀, hg₀, hg₀f⟩ := tubeExtends_maxStar hpÃ f₀ hf₀
-      have hK : IsPreconnected ((fun t => ofRealPi (γ.extend t)) '' Icc 0 t₀) :=
-        isPreconnected_Icc.image _
-          (by fun_prop : Continuous fun t => ofRealPi (γ.extend t)).continuousOn
-      have hKU : (fun t => ofRealPi (γ.extend t)) '' Icc 0 t₀ ⊆ tubeDomain (Ω ∩ maxStar F Ω p) := by
-        rintro _ ⟨t, ht, rfl⟩
-        rw [ofRealPi_mem_tubeDomain]
-        exact ⟨hγΩ t, hprefix t ht.1 (ht.2.trans_lt ht₀.2)⟩
-      have hnear : g₀ =ᶠ[𝓝 (ofRealPi (γ.extend t₀))] f₀ := by
-        refine eventuallyEq_of_isPreconnected (isOpen_tubeDomain (hΩ.inter hÃo))
-          (hf₀.mono (tubeDomain_mono inter_subset_left))
-          (hg₀.mono (tubeDomain_mono inter_subset_right)) hK hKU
-          ⟨0, ⟨le_rfl, ht₀.1.le⟩, ?_⟩ hg₀f ⟨t₀, ⟨ht₀.1.le, le_rfl⟩, rfl⟩
-        simp
-      have hAB : EqOn g₀ f₀ (tubeDomain (maxStar F Ω p ∩ ball (γ.extend t₁) r₁)) := by
-        have hpt : γ.extend t₀ ∈ maxStar F Ω p ∩ ball (γ.extend t₁) r₁ := ⟨ht₀Ã, ht₀ball⟩
-        exact (hg₀.mono (tubeDomain_mono inter_subset_left)).eqOn_of_preconnected_of_eventuallyEq
-          (hf₀.mono (tubeDomain_mono (inter_subset_right.trans hr₁Ω)))
-          (isPreconnected_tubeDomain (hÃc.inter (convex_ball _ r₁)).isPreconnected)
-          (ofRealPi_mem_tubeDomain.mpr hpt) hnear
-      set g₁ : (Fin n → ℂ) → F := fun z => if z ∈ tubeDomain (maxStar F Ω p) then g₀ z else f₀ z
-      have hg₁a : AnalyticOnNhd ℂ g₁ (tubeDomain (maxStar F Ω p ∪ ball (γ.extend t₁) r₁)) :=
-        analyticOnNhd_ite_tubeDomain hÃo isOpen_ball hg₀
-          (hf₀.mono (tubeDomain_mono hr₁Ω)) hAB
-      have hg₁f : g₁ =ᶠ[𝓝 (ofRealPi p)] f₀ := by
-        have : g₁ =ᶠ[𝓝 (ofRealPi p)] g₀ :=
-          eventuallyEq_of_mem ((isOpen_tubeDomain hÃo).mem_nhds (ofRealPi_mem_tubeDomain.mpr hpÃ))
-            fun w hw => by simp [g₁, hw]
-        exact this.trans hg₀f
-      obtain ⟨g₂, hg₂, hg₂g₁⟩ :=
-        exists_extension_tubeDomain_convexHull_of_starConvex hA₁o hA₁s hx₁A₁ hg₁a
-      refine ⟨g₂, hg₂, ?_⟩
-      have : g₂ =ᶠ[𝓝 (ofRealPi p)] g₁ :=
-        eventuallyEq_of_mem ((isOpen_tubeDomain hA₁o).mem_nhds
-          (ofRealPi_mem_tubeDomain.mpr (Or.inl hpÃ))) hg₂g₁
-      exact this.trans hg₁f
-    exact hx₁ (subset_maxStar_of_mem hBmem (subset_convexHull ℝ _ hx₁A₁))
-  have hconv : convexHull ℝ Ω ⊆ maxStar F Ω p := convexHull_min hΩÃ hÃc
+  have hΩÃ : Ω ⊆ maxStar F Ω p := subset_maxStar_of_isConnected hΩ hc hp hpÃ
+  have hconv : convexHull ℝ Ω ⊆ maxStar F Ω p := convexHull_min hΩÃ (convex_maxStar hpÃ)
   obtain ⟨g, hg, hgf⟩ := tubeExtends_maxStar hpÃ f hf
   refine ⟨g, hg.mono (tubeDomain_mono hconv), ?_⟩
   exact (hg.mono (tubeDomain_mono hΩÃ)).eqOn_of_preconnected_of_eventuallyEq hf

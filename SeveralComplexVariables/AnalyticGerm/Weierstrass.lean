@@ -35,6 +35,11 @@ finite normalization theorem and the existing analytic preparation theorem.
   itself prime.
 * `exists_equiv_forall_isWeierstrassPreparationAt`: One coordinate system permits preparation of all
   members of a finite family.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
@@ -74,7 +79,7 @@ theorem existsUnique_division [FiniteDimensional ℂ E]
     have hcentral : (fun t : ℂ => weierstrassPolynomial a0 (0, t)) = fun t : ℂ => t ^ d :=
       funext (weierstrassPolynomial_central ha00)
     rw [hcentral]
-    show analyticOrderAt ((id : ℂ → ℂ) ^ d) 0 = d
+    change analyticOrderAt ((id : ℂ → ℂ) ^ d) 0 = d
     rw [analyticOrderAt_pow (analyticAt_id (𝕜 := ℂ)) d, analyticOrderAt_id]; simp
   obtain ⟨f0, hf0, rfl⟩ := exists_rep f
   obtain ⟨q, a, Hdiv, huniqdiv⟩ :=

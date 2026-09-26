@@ -31,6 +31,11 @@ formula.
   polydisc centered at zero returns its center value times the volume.
 * `integral_closedBall_eq_volume_smul`: The volume mean-value formula on an equal-radius polydisc
   with arbitrary center.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

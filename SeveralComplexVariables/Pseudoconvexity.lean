@@ -11,7 +11,7 @@ public import Mathlib.Topology.Order.ProjIcc
 public import SeveralComplexVariables.HartogsContinuation
 public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 public import SeveralComplexVariables.Plurisubharmonic
-public import SeveralComplexVariables.Subharmonic.Majorant
+public import ComplexAnalysis.Subharmonic.Majorant
 
 /-!
 # Pseudoconvexity
@@ -189,7 +189,7 @@ theorem IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist {U : Set (Fin n 
   obtain ⟨i, hi⟩ := Function.ne_iff.mp hw
   have hline : Continuous fun t : ℂ => a + t • w := by fun_prop
   obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hline.continuousAt.preimage_mem_nhds (by
-    show U ∈ 𝓝 ((fun t : ℂ => a + t • w) 0)
+    change U ∈ 𝓝 ((fun t : ℂ => a + t • w) 0)
     simp only [zero_smul, add_zero]
     exact ho.mem_nhds ha))
   refine hasSubmeanAt_of_forall_lt hρ fun r hr hrρ => ?_
@@ -223,7 +223,7 @@ theorem IsDomainOfHolomorphy.plurisubharmonicOn_neg_log_infDist {U : Set (Fin n 
     rintro _ ⟨t, ht, rfl⟩
     have h1 := hQ t ht
     rw [← hFline t] at h1
-    show ball (a + t • w) ‖q (a + t • w)‖ ⊆ U
+    change ball (a + t • w) ‖q (a + t • w)‖ ⊆ U
     rw [hqnorm]
     have hδ : 0 < infDist (a + t • w) Uᶜ := hpos _ (hdisc t (sphere_subset_closedBall ht))
     have h2 : Real.exp (-(F (a + t • w)).re) ≤ infDist (a + t • w) Uᶜ := by
@@ -415,6 +415,33 @@ theorem SatisfiesHolomorphicContinuityPrinciple.satisfiesContinuityPrinciple {U 
 
 variable {n : ℕ}
 
+/-- **Thullen's radius bound for a holomorphic disc.** If an analytic closed disc lies in a domain
+of holomorphy and its boundary circle keeps distance at least `m` from the complement, then so
+does every point of the disc. -/
+private theorem le_infDist_compl_of_analytic_disc {U : Set (Fin n → ℂ)}
+    (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) (hc : Uᶜ.Nonempty) {ψ : ℂ → Fin n → ℂ}
+    (han : AnalyticOnNhd ℂ ψ (closedBall 0 1)) (hdU : ∀ ζ ∈ closedBall (0 : ℂ) 1, ψ ζ ∈ U)
+    {m : ℝ} (hm0 : 0 < m) (hcirc : ∀ ζ ∈ sphere (0 : ℂ) 1, m ≤ infDist (ψ ζ) Uᶜ)
+    {ζ : ℂ} (hζ : ζ ∈ closedBall (0 : ℂ) 1) : m ≤ infDist (ψ ζ) Uᶜ := by
+  have hmC : ‖(m : ℂ)‖ = m := by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hm0]
+  have hKtc : IsCompact (ψ '' sphere 0 1) :=
+    (isCompact_sphere _ _).image_of_continuousOn (han.continuousOn.mono sphere_subset_closedBall)
+  have hKU : ψ '' sphere 0 1 ⊆ U := by
+    rintro _ ⟨ζ', hζ', rfl⟩
+    exact hdU ζ' (sphere_subset_closedBall hζ')
+  have hrad := hU.holomorphic_radius_bound ho hKtc hKU (q := fun _ => (m : ℂ))
+    analyticOnNhd_const (fun z hz => by
+      obtain ⟨ζ', hζ', rfl⟩ := hz
+      rw [hmC]
+      exact (ball_subset_ball (hcirc ζ' hζ')).trans
+        (by simpa using ball_infDist_subset_compl (x := ψ ζ') (s := Uᶜ))) _
+    (mem_holomorphicHull_of_analytic_disc zero_lt_one han hdU hζ)
+  rw [hmC] at hrad
+  by_contra hlt
+  push Not at hlt
+  obtain ⟨y, hy, hdy⟩ := (infDist_lt_iff hc).mp hlt
+  exact hy (hrad (by rwa [mem_ball, dist_comm]))
+
 /-- **Domains of holomorphy in coordinates satisfy the continuity principle for holomorphic
 discs.** The coordinate-free version is
 `IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple`. -/
@@ -455,7 +482,6 @@ theorem IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple_fin {U : Se
     rw [ho.isClosed_compl.closure_eq]
     exact notMem_compl_iff.mpr (hK₀U hz₀K))
   have hmK : ∀ z ∈ K₀, m ≤ infDist z Uᶜ := fun z hz => hz₀min hz
-  have hmC : ‖(m : ℂ)‖ = m := by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hm0]
   set L := {z : Fin n → ℂ | m ≤ infDist z Uᶜ} with hL
   have hLc : IsClosed L := isClosed_le continuous_const (continuous_infDist_pt _)
   have hLU : L ⊆ U := fun z hz => by
@@ -467,25 +493,9 @@ theorem IsDomainOfHolomorphy.satisfiesHolomorphicContinuityPrinciple_fin {U : Se
   set W := {t : ℝ | ∀ ζ ∈ closedBall (0 : ℂ) 1, Φ (t, ζ) ∈ U} with hW
   have hdisc : ∀ t ∈ W, ∀ ζ ∈ closedBall (0 : ℂ) 1, Φ (t, ζ) ∈ L := by
     intro t ht ζ hζ
-    have han : AnalyticOnNhd ℂ (φ (p t)) (closedBall 0 1) := hφan (p t) (hpI t)
-    have hdU : ∀ ζ ∈ closedBall (0 : ℂ) 1, φ (p t) ζ ∈ U := fun ζ hζ => ht ζ hζ
-    have hhull := mem_holomorphicHull_of_analytic_disc zero_lt_one han hdU hζ
-    have hKt : (φ (p t)) '' sphere 0 1 ⊆ K₀ := by
-      rintro _ ⟨ζ', hζ', rfl⟩
-      exact Or.inl ⟨(p t, ζ'), ⟨hpI t, hζ'⟩, by simp only [hΦ, hpp]⟩
-    have hKtc : IsCompact ((φ (p t)) '' sphere 0 1) :=
-      (isCompact_sphere _ _).image_of_continuousOn (han.continuousOn.mono sphere_subset_closedBall)
-    have hrad := hU.holomorphic_radius_bound ho hKtc (hKt.trans hK₀U) (q := fun _ => (m : ℂ))
-      analyticOnNhd_const (fun z hz => by
-        rw [hmC]
-        exact (ball_subset_ball (hmK z (hKt hz))).trans
-          (by simpa using ball_infDist_subset_compl (x := z) (s := Uᶜ))) _ hhull
-    rw [hmC] at hrad
-    show m ≤ infDist (φ (p t) ζ) Uᶜ
-    by_contra hlt
-    push Not at hlt
-    obtain ⟨y, hy, hdy⟩ := (infDist_lt_iff hc).mp hlt
-    exact hy (hrad (by rwa [mem_ball, dist_comm]))
+    refine le_infDist_compl_of_analytic_disc hU ho hc (hφan (p t) (hpI t)) (fun ζ hζ => ht ζ hζ)
+      hm0 (fun ζ' hζ' => hmK _ ?_) hζ
+    exact Or.inl ⟨(p t, ζ'), ⟨hpI t, hζ'⟩, by simp only [hΦ, hpp]⟩
   have hWo : IsOpen W := by
     rw [isOpen_iff_mem_nhds]
     intro t ht

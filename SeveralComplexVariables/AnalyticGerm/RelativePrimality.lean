@@ -30,6 +30,11 @@ reduce the general case to this argument; openness is its direct consequence.
   remain relatively prime nearby.
 * `isOpen_isRelPrime_locus`: The locus where two functions are analytic and their germs are
   relatively prime is open.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

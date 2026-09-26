@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import ComplexAnalysis.RemovableSingularity
 public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.RemovableSingularity.Gluing
 public import SeveralComplexVariables.RemovableSingularity.Local
@@ -45,21 +46,11 @@ public section
 open Filter Function Metric Set
 open scoped Topology
 
+open Complex
+
 namespace SeveralComplexVariables
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
-
-/-- A continuous one-variable function analytic off a countable set is analytic on the whole open
-domain, by Mathlib's Cauchy power-series theorem off countable sets. -/
-theorem analyticOnNhd_of_continuousOn_off_countable {U S : Set ℂ} {f : ℂ → F}
-    (hU : IsOpen U) (hS : S.Countable) (hc : ContinuousOn f U)
-    (hf : AnalyticOnNhd ℂ f (U \ S)) : AnalyticOnNhd ℂ f U := by
-  intro x hx
-  obtain ⟨r, hr, hball⟩ := nhds_basis_closedBall.mem_iff.mp (hU.mem_nhds hx)
-  exact (Complex.hasFPowerSeriesOnBall_of_differentiable_off_countable
-    (R := ⟨r, hr.le⟩) hS (hc.mono hball)
-    (fun z hz => (hf z ⟨hball (ball_subset_closedBall hz.1), hz.2⟩).differentiableAt)
-    hr).analyticAt
 
 /-- Continuous removal of a countable exceptional set in any finite complex coordinate space. Empty
 coordinate types are allowed; no closedness of the exceptional set is required. -/
@@ -144,7 +135,7 @@ omit [NormedSpace ℂ F] [CompleteSpace F] in
 /-- Extensions across a scalar zero set are unique on the domain. The defining germs are assumed
 nonzero locally, so the domain may have several connected components. -/
 theorem eqOn_of_extension_across_zeroSet
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    {E : Type*} [NormedAddCommGroup E]
     {U : Set E} (hU : IsOpen U) {g : E → ℂ} (hne : ∀ a ∈ U, ¬ g =ᶠ[𝓝 a] 0)
     {f f₁ f₂ : E → F} (h₁ : ContinuousOn f₁ U) (h₂ : ContinuousOn f₂ U)
     (he₁ : EqOn f₁ f (U \ g ⁻¹' {0})) (he₂ : EqOn f₂ f (U \ g ⁻¹' {0})) :

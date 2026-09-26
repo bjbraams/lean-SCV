@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.Plurisubharmonic
-public import SeveralComplexVariables.Subharmonic.SmoothCriterion
+public import ComplexAnalysis.Subharmonic.SmoothCriterion
 
 /-!
 # The Levi form

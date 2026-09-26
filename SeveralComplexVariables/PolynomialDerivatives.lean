@@ -21,6 +21,11 @@ one-variable slice identity.
 `hasDerivAt_eval_update` identifies `pderiv i p` with the derivative of the `i`-th coordinate
 slice of `eval`. `partialDeriv_eval` is the corresponding statement for the several-variable
 coordinate derivative `partialDeriv`.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
@@ -42,7 +47,7 @@ theorem hasDerivAt_eval_update [DecidableEq ι] (p : MvPolynomial ι ℂ) (z : �
     · simpa [pderiv_mul, h, Ne.symm h, mul_comm] using! hp.mul (hasDerivAt_const x (z j))
 
 /-- Coordinate differentiation of a polynomial is evaluation of its formal derivative. -/
-theorem partialDeriv_eval [Fintype ι] [DecidableEq ι] (p : MvPolynomial ι ℂ) (z : ι → ℂ) (i : ι) :
+theorem partialDeriv_eval [DecidableEq ι] (p : MvPolynomial ι ℂ) (z : ι → ℂ) (i : ι) :
     SeveralComplexVariables.partialDeriv i (fun w => p.eval w) z = (pderiv i p).eval z := by
   simpa [SeveralComplexVariables.partialDeriv] using (p.hasDerivAt_eval_update z i (z i)).deriv
 

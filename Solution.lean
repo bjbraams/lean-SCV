@@ -125,8 +125,8 @@ theorem maximum_modulus [StrictConvexSpace ℝ F] {U : Set E} (hU : IsOpen U)
 `∂φ/∂w̄ = (∂φ/∂x + i ∂φ/∂y) / 2` written through the real derivative. -/
 theorem cauchy_pompeiu {φ : ℂ → F} (hφ : ContDiff ℝ 1 φ) (hsupp : HasCompactSupport φ) :
     ∫ w, w⁻¹ • ((2 : ℂ)⁻¹ • (fderiv ℝ φ w 1 + I • fderiv ℝ φ w I)) = -((π : ℂ) • φ 0) := by
-  have h := SeveralComplexVariables.integral_inv_smul_dbarAlong_fderiv hφ hsupp
-  simpa [SeveralComplexVariables.dbarAlong] using h
+  have h := Complex.integral_inv_smul_dbarAlong_fderiv hφ hsupp
+  simpa [Complex.dbarAlong] using h
 
 /-- The Taylor series at `c` of a function of `n` complex variables: the coefficient of `zᵐ` is
 `∂ᵐ f (c) / m!`, the mixed derivative being taken coordinate by coordinate. -/
@@ -840,7 +840,7 @@ private theorem isLeviPseudoconvexAt_iff {U : Set E} {p : E} :
 theorem SubharmonicOn.eqOn_const_of_isMaxOn {u : ℂ → ℝ} {U : Set ℂ} {a : ℂ} (hU : IsOpen U)
     (hc : IsPreconnected U) (hu : SubharmonicOn u U) (ha : a ∈ U) (hmax : ∀ z ∈ U, u z ≤ u a) :
     ∀ z ∈ U, u z = u a := by
-  have h : SeveralComplexVariables.SubharmonicOn u U := hu
+  have h : Complex.SubharmonicOn u U := hu
   exact h.eqOn_const_of_isMaxOn hU hc ha hmax
 
 /-- **59. Laplacian criterion**: a `C²` function on an open subset of `ℂ` is subharmonic exactly
@@ -848,8 +848,8 @@ when its Laplacian is nonnegative. -/
 theorem subharmonicOn_iff_laplacian_nonneg {g : ℂ → ℝ} {U : Set ℂ} (hU : IsOpen U)
     (hg : ContDiffOn ℝ 2 g U) : SubharmonicOn g U ↔ ∀ t ∈ U, 0 ≤ Laplacian.laplacian g t := by
   refine ⟨fun h t ht => ?_,
-    fun h => SeveralComplexVariables.subharmonicOn_of_laplacian_nonneg hU hg h⟩
-  exact SeveralComplexVariables.HasSubmeanAt.laplacian_nonneg (hg.contDiffAt (hU.mem_nhds ht))
+    fun h => Complex.subharmonicOn_of_laplacian_nonneg hU hg h⟩
+  exact Complex.HasSubmeanAt.laplacian_nonneg (hg.contDiffAt (hU.mem_nhds ht))
     (h.2 t ht)
 
 omit [FiniteDimensional ℂ E] in

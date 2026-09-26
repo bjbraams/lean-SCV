@@ -64,7 +64,7 @@ open scoped Topology
 
 namespace SeveralComplexVariables
 
-open TaylorBounds
+open Real
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
@@ -226,6 +226,84 @@ theorem IsLocalDefiningFunction.exists_infDist_bounds (hU : IsOpen U) (hp : p �
 @[expose] def leviQuadratic (B : E →L[ℝ] E →L[ℝ] ℝ) (w : E) : ℂ :=
   (((B w w - B (I • w) (I • w)) / 4 : ℝ) : ℂ) - I / 2 * (B w (I • w) : ℝ)
 
+/-- The quadratic part of the disc increment is bounded by `r ^ 2` times a constant depending on
+the directions `c` and `ν`. -/
+private theorem norm_disc_quadratic_part_le {c ν : E} {κ r : ℝ} (hκ : 0 ≤ κ)
+    {ζ : ℂ} (hζ : ‖ζ‖ ≤ r) :
+    ‖ζ ^ 2 • c + (κ * r ^ 2) • ν‖ ≤ r ^ 2 * (‖c‖ + κ * ‖ν‖) := by
+  have hζr2 : ‖ζ‖ ^ 2 ≤ r ^ 2 := by gcongr
+  calc ‖ζ ^ 2 • c + (κ * r ^ 2) • ν‖ ≤ ‖ζ ^ 2 • c‖ + ‖(κ * r ^ 2) • ν‖ := norm_add_le _ _
+    _ = ‖ζ‖ ^ 2 * ‖c‖ + κ * r ^ 2 * ‖ν‖ := by
+        rw [norm_smul, norm_smul, norm_pow, Real.norm_eq_abs, abs_of_nonneg (by positivity)]
+    _ ≤ r ^ 2 * ‖c‖ + κ * r ^ 2 * ‖ν‖ := by gcongr
+    _ = r ^ 2 * (‖c‖ + κ * ‖ν‖) := by ring
+
+/-- The cubic error of a second-order expansion: the cross term and the quadratic term of the
+quadratic part of an increment are of order `r ^ 3`. -/
+private theorem abs_bilinear_cross_add_half_le (B : E →L[ℝ] E →L[ℝ] ℝ) {h₁ h₂ : E}
+    {a b r : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hr : 0 ≤ r) (hn₁ : ‖h₁‖ ≤ r * a)
+    (hn₂ : ‖h₂‖ ≤ r ^ 2 * b)
+    (hn₂' : ‖h₂‖ ≤ r * b) :
+    |B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂| ≤ (‖B‖ * a * b + ‖B‖ * b ^ 2 / 2) * r ^ 3 := by
+  have hBn : 0 ≤ ‖B‖ := ContinuousLinearMap.opNorm_nonneg B
+  have hB₁₂ : |B h₁ h₂| ≤ ‖B‖ * a * b * r ^ 3 := by
+    have := B.le_opNorm₂ h₁ h₂
+    rw [Real.norm_eq_abs] at this
+    refine this.trans ?_
+    calc ‖B‖ * ‖h₁‖ * ‖h₂‖ ≤ ‖B‖ * (r * a) * (r ^ 2 * b) :=
+          mul_le_mul (mul_le_mul_of_nonneg_left hn₁ hBn) hn₂ (norm_nonneg _) (by positivity)
+      _ = ‖B‖ * a * b * r ^ 3 := by ring
+  have hB₂₂ : |(1 / 2 : ℝ) * B h₂ h₂| ≤ ‖B‖ * b ^ 2 / 2 * r ^ 3 := by
+    rw [abs_mul, abs_of_pos (by norm_num : (0:ℝ) < 1 / 2)]
+    have := B.le_opNorm₂ h₂ h₂
+    rw [Real.norm_eq_abs] at this
+    have h2 : ‖B‖ * ‖h₂‖ * ‖h₂‖ ≤ ‖B‖ * (r * b) * (r ^ 2 * b) :=
+      mul_le_mul (mul_le_mul_of_nonneg_left hn₂' hBn) hn₂ (norm_nonneg _) (by positivity)
+    calc 1 / 2 * |B h₂ h₂| ≤ 1 / 2 * (‖B‖ * (r * b) * (r ^ 2 * b)) :=
+          mul_le_mul_of_nonneg_left (this.trans h2) (by norm_num)
+      _ = ‖B‖ * b ^ 2 / 2 * r ^ 3 := by ring
+  exact (abs_add_le _ _).trans (by rw [add_mul]; exact add_le_add hB₁₂ hB₂₂)
+
+/-- The second-order expansion of a defining function along the Levi polynomial disc: with `c`
+cancelling the complex quadratic term and `ν` an inward direction, the linear and quadratic
+terms combine into `-κ r ^ 2 + ‖ζ‖ ^ 2 L` plus the cubic cross terms. -/
+private theorem disc_second_order_expansion {ρ : E → ℝ} {p : E}
+    (hsymm : ∀ v v', fderiv ℝ (fderiv ℝ ρ) p v v' = fderiv ℝ (fderiv ℝ ρ) p v' v)
+    {w : E} (hw : IsComplexTangent ρ p w) {c ν : E}
+    (hc : complexPart (fderiv ℝ ρ p) c = -leviQuadratic (fderiv ℝ (fderiv ℝ ρ) p) w)
+    (hν : fderiv ℝ ρ p ν = -1) (κ r : ℝ) (ζ : ℂ) :
+    fderiv ℝ ρ p (ζ • w + (ζ ^ 2 • c + (κ * r ^ 2) • ν)) +
+        (1 / 2 : ℝ) * fderiv ℝ (fderiv ℝ ρ) p (ζ • w + (ζ ^ 2 • c + (κ * r ^ 2) • ν))
+          (ζ • w + (ζ ^ 2 • c + (κ * r ^ 2) • ν)) =
+      -(κ * r ^ 2) + ‖ζ‖ ^ 2 * leviForm ρ p w +
+        (fderiv ℝ (fderiv ℝ ρ) p (ζ • w) (ζ ^ 2 • c + (κ * r ^ 2) • ν) +
+          (1 / 2 : ℝ) * fderiv ℝ (fderiv ℝ ρ) p (ζ ^ 2 • c + (κ * r ^ 2) • ν)
+            (ζ ^ 2 • c + (κ * r ^ 2) • ν)) := by
+  set ℓ := fderiv ℝ ρ p with hℓ
+  set B := fderiv ℝ (fderiv ℝ ρ) p with hB
+  set h₁ : E := ζ • w with hh₁
+  set h₂ : E := ζ ^ 2 • c + (κ * r ^ 2) • ν with hh₂
+  have hℓw : complexPart ℓ w = 0 := by
+    have h1 : ℓ w = 0 := hw.1
+    have h2 : ℓ (I • w) = 0 := hw.2
+    simp [complexPart_apply, h1, h2]
+  have hlin : ℓ (h₁ + h₂) = (ζ ^ 2 * (-leviQuadratic B w)).re - κ * r ^ 2 := by
+    rw [hh₁, hh₂, map_add, map_add, apply_smul_eq_re_mul_complexPart ℓ ζ w,
+      apply_smul_eq_re_mul_complexPart ℓ (ζ ^ 2) c, hℓw, hc, map_smul, smul_eq_mul, hν]
+    simp
+    ring
+  have hquad : (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂) =
+      (1 / 2 : ℝ) * B h₁ h₁ + B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂ := by
+    simp only [map_add, add_apply, hsymm h₂ h₁]
+    ring
+  have hquad₁ : (1 / 2 : ℝ) * B h₁ h₁ =
+      ‖ζ‖ ^ 2 * leviForm ρ p w + (ζ ^ 2 * leviQuadratic B w).re := by
+    rw [hh₁, bilinear_smul_smul_eq B (hsymm w (I • w)) ζ, leviForm_eq_fderiv, leviQuadratic]
+  have hcancel : (ζ ^ 2 * (-leviQuadratic B w)).re + (ζ ^ 2 * leviQuadratic B w).re = 0 := by
+    rw [mul_neg, Complex.neg_re]; ring
+  rw [hlin, hquad, hquad₁]
+  linarith [hcancel]
+
 /-- **Disc estimate along the Levi polynomial.** With `c` cancelling the complex quadratic
 term and `ν` an inward direction, the defining function along the disc
 `ζ ↦ p + ζ • w + ζ ^ 2 • c + (κ r ^ 2) • ν` is `-κ r ^ 2 + ‖ζ‖ ^ 2 L` up to `η r ^ 2`, for
@@ -238,23 +316,24 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
       p + ζ • w + ζ ^ 2 • c + (κ * r ^ 2) • ν ∈ W ∧
       |ρ (p + ζ • w + ζ ^ 2 • c + (κ * r ^ 2) • ν) - (-(κ * r ^ 2) + ‖ζ‖ ^ 2 * leviForm ρ p w)|
         ≤ η * r ^ 2 := by
-  set ℓ := fderiv ℝ ρ p with hℓ
-  set B := fderiv ℝ (fderiv ℝ ρ) p with hB
   have hρp : ContDiffAt ℝ 2 ρ p := h.contDiffOn.contDiffAt (h.isOpen.mem_nhds h.mem)
   -- symmetry of the second derivative
   have hev : ∀ᶠ y in 𝓝 p, HasFDerivAt ρ (fderiv ℝ ρ y) y := by
     filter_upwards [h.isOpen.mem_nhds h.mem] with y hy
     exact ((h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hy)).differentiableAt (by
       norm_num)).hasFDerivAt
-  have hBd : HasFDerivAt (fderiv ℝ ρ) B p :=
+  have hBd : HasFDerivAt (fderiv ℝ ρ) (fderiv ℝ (fderiv ℝ ρ) p) p :=
     ((hρp.fderiv_right (m := 1) (by norm_num)).differentiableAt (by norm_num)).hasFDerivAt
-  have hsymm : ∀ v v', B v v' = B v' v := second_derivative_symmetric_of_eventually hev hBd
+  have hsymm : ∀ v v', fderiv ℝ (fderiv ℝ ρ) p v v' = fderiv ℝ (fderiv ℝ ρ) p v' v :=
+    second_derivative_symmetric_of_eventually hev hBd
   -- constants
+  set B := fderiv ℝ (fderiv ℝ ρ) p with hB
   set M₀ : ℝ := ‖w‖ + ‖c‖ + κ * ‖ν‖ with hM₀
   have hM₀0 : 0 ≤ M₀ := by positivity
   set M₁ : ℝ := ‖B‖ * ‖w‖ * (‖c‖ + κ * ‖ν‖) + ‖B‖ * (‖c‖ + κ * ‖ν‖) ^ 2 / 2 with hM₁
   have hM₁0 : 0 ≤ M₁ := by positivity
-  obtain ⟨δ', hδ', htaylor⟩ := exists_taylor_bound hρp (ε := η / (2 * (M₀ ^ 2 + 1))) (by positivity)
+  obtain ⟨δ', hδ', htaylor⟩ := ContDiffAt.exists_taylor_bound hρp (ε := η / (2 * (M₀ ^ 2 + 1)))
+      (by positivity)
   obtain ⟨δW, hδW, hballW⟩ := Metric.mem_nhds_iff.mp hW
   set δt := min δ' δW
   have hδt : 0 < δt := lt_min hδ' hδW
@@ -264,21 +343,15 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
   have hrδ' : r * (M₀ + 1) < δ' := hrδt.trans_le (min_le_left _ _)
   have hrδW : r * (M₀ + 1) < δW := hrδt.trans_le (min_le_right _ _)
   -- the increment and its pieces
+  have hexp := disc_second_order_expansion hsymm hw hc hν κ r ζ
+  have hn₂ := norm_disc_quadratic_part_le (c := c) (ν := ν) hκ hζ
   set h₁ : E := ζ • w with hh₁
   set h₂ : E := ζ ^ 2 • c + (κ * r ^ 2) • ν with hh₂
   have hsplit : p + ζ • w + ζ ^ 2 • c + (κ * r ^ 2) • ν = p + (h₁ + h₂) := by
     rw [hh₁, hh₂]; abel
-  have hζr2 : ‖ζ‖ ^ 2 ≤ r ^ 2 := by gcongr
   have hn₁ : ‖h₁‖ ≤ r * ‖w‖ := by
     rw [hh₁, norm_smul]
     exact mul_le_mul_of_nonneg_right hζ (norm_nonneg _)
-  have hn₂ : ‖h₂‖ ≤ r ^ 2 * (‖c‖ + κ * ‖ν‖) := by
-    rw [hh₂]
-    calc ‖ζ ^ 2 • c + (κ * r ^ 2) • ν‖ ≤ ‖ζ ^ 2 • c‖ + ‖(κ * r ^ 2) • ν‖ := norm_add_le _ _
-      _ = ‖ζ‖ ^ 2 * ‖c‖ + κ * r ^ 2 * ‖ν‖ := by
-          rw [norm_smul, norm_smul, norm_pow, Real.norm_eq_abs, abs_of_nonneg (by positivity)]
-      _ ≤ r ^ 2 * ‖c‖ + κ * r ^ 2 * ‖ν‖ := by gcongr
-      _ = r ^ 2 * (‖c‖ + κ * ‖ν‖) := by ring
   have hn₂' : ‖h₂‖ ≤ r * (‖c‖ + κ * ‖ν‖) := by
     refine hn₂.trans ?_
     have : r ^ 2 ≤ r := by nlinarith
@@ -287,64 +360,24 @@ theorem IsLocalDefiningFunction.exists_disc_estimate (h : IsLocalDefiningFunctio
     calc ‖h₁ + h₂‖ ≤ ‖h₁‖ + ‖h₂‖ := norm_add_le _ _
       _ ≤ r * ‖w‖ + r * (‖c‖ + κ * ‖ν‖) := add_le_add hn₁ hn₂'
       _ = r * M₀ := by rw [hM₀]; ring
-  have hnlt : ‖h₁ + h₂‖ < δ' := hn.trans_lt (by nlinarith)
   constructor
   · rw [hsplit]
     apply hballW
     rw [mem_ball, dist_eq_norm, add_sub_cancel_left]
     exact hn.trans_lt (by nlinarith)
-  -- the Taylor expansion
-  have ht := htaylor (h₁ + h₂) hnlt
-  -- linear term
-  have hℓw : complexPart ℓ w = 0 := by
-    have h1 : ℓ w = 0 := hw.1
-    have h2 : ℓ (I • w) = 0 := hw.2
-    simp [complexPart_apply, h1, h2]
-  have hlin : ℓ (h₁ + h₂) = (ζ ^ 2 * (-leviQuadratic B w)).re - κ * r ^ 2 := by
-    rw [hh₁, hh₂, map_add, map_add, apply_smul_eq_re_mul_complexPart ℓ ζ w,
-      apply_smul_eq_re_mul_complexPart ℓ (ζ ^ 2) c, hℓw, hc, map_smul, smul_eq_mul, hν]
-    simp
-    ring
-  -- quadratic term
-  have hquad : (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂) =
-      (1 / 2 : ℝ) * B h₁ h₁ + B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂ := by
-    simp only [map_add, add_apply, hsymm h₂ h₁]
-    ring
-  have hquad₁ : (1 / 2 : ℝ) * B h₁ h₁ = ‖ζ‖ ^ 2 * leviForm ρ p w + (ζ ^ 2 * leviQuadratic B w).re
-    := by
-    rw [hh₁, bilinear_smul_smul_eq B (hsymm w (I • w)) ζ, leviForm_eq_fderiv, leviQuadratic]
-  -- cancellation of the complex quadratic terms
-  have hcancel : (ζ ^ 2 * (-leviQuadratic B w)).re + (ζ ^ 2 * leviQuadratic B w).re = 0 := by
-    rw [mul_neg, Complex.neg_re]; ring
-  -- error bounds
-  have hBn : 0 ≤ ‖B‖ := ContinuousLinearMap.opNorm_nonneg B
-  have hB₁₂ : |B h₁ h₂| ≤ ‖B‖ * ‖w‖ * (‖c‖ + κ * ‖ν‖) * r ^ 3 := by
-    have := B.le_opNorm₂ h₁ h₂
-    rw [Real.norm_eq_abs] at this
-    refine this.trans ?_
-    calc ‖B‖ * ‖h₁‖ * ‖h₂‖ ≤ ‖B‖ * (r * ‖w‖) * (r ^ 2 * (‖c‖ + κ * ‖ν‖)) :=
-          mul_le_mul (mul_le_mul_of_nonneg_left hn₁ hBn) hn₂ (norm_nonneg _) (by positivity)
-      _ = ‖B‖ * ‖w‖ * (‖c‖ + κ * ‖ν‖) * r ^ 3 := by ring
-  have hB₂₂ : |(1 / 2 : ℝ) * B h₂ h₂| ≤ ‖B‖ * (‖c‖ + κ * ‖ν‖) ^ 2 / 2 * r ^ 3 := by
-    rw [abs_mul, abs_of_pos (by norm_num : (0:ℝ) < 1 / 2)]
-    have := B.le_opNorm₂ h₂ h₂
-    rw [Real.norm_eq_abs] at this
-    have h2 : ‖B‖ * ‖h₂‖ * ‖h₂‖ ≤ ‖B‖ * (r * (‖c‖ + κ * ‖ν‖)) * (r ^ 2 * (‖c‖ + κ * ‖ν‖)) :=
-      mul_le_mul (mul_le_mul_of_nonneg_left hn₂' hBn) hn₂ (norm_nonneg _) (by positivity)
-    calc 1 / 2 * |B h₂ h₂| ≤ 1 / 2 * (‖B‖ * (r * (‖c‖ + κ * ‖ν‖)) * (r ^ 2 * (‖c‖ + κ * ‖ν‖))) :=
-          mul_le_mul_of_nonneg_left (this.trans h2) (by norm_num)
-      _ = ‖B‖ * (‖c‖ + κ * ‖ν‖) ^ 2 / 2 * r ^ 3 := by ring
-  have hR : |ρ (p + (h₁ + h₂)) - ρ p - ℓ (h₁ + h₂) - (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂)|
-      ≤ η / (2 * (M₀ ^ 2 + 1)) * (r * M₀) ^ 2 :=
-    ht.trans (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (norm_nonneg _) hn 2) (by positivity))
+  -- the Taylor expansion with its cubic error
+  have hR : |ρ (p + (h₁ + h₂)) - ρ p - fderiv ℝ ρ p (h₁ + h₂) -
+      (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂)| ≤ η / (2 * (M₀ ^ 2 + 1)) * (r * M₀) ^ 2 :=
+    (htaylor (h₁ + h₂) (hn.trans_lt (by nlinarith))).trans
+      (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (norm_nonneg _) hn 2) (by positivity))
   have hcub : |B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂| ≤ M₁ * r ^ 3 :=
-    (abs_add_le _ _).trans (by rw [hM₁, add_mul]; exact add_le_add hB₁₂ hB₂₂)
+    abs_bilinear_cross_add_half_le B (norm_nonneg _) (by positivity) hr.le hn₁ hn₂ hn₂'
   rw [hsplit]
   have hkey : ρ (p + (h₁ + h₂)) - (-(κ * r ^ 2) + ‖ζ‖ ^ 2 * leviForm ρ p w) =
-      (ρ (p + (h₁ + h₂)) - ρ p - ℓ (h₁ + h₂) - (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂)) +
-        (B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂) := by
-    rw [h.eq_zero, hlin, hquad, hquad₁]
-    linarith [hcancel]
+      (ρ (p + (h₁ + h₂)) - ρ p - fderiv ℝ ρ p (h₁ + h₂) -
+        (1 / 2 : ℝ) * B (h₁ + h₂) (h₁ + h₂)) + (B h₁ h₂ + (1 / 2 : ℝ) * B h₂ h₂) := by
+    rw [h.eq_zero]
+    linarith [hexp]
   rw [hkey]
   exact taylor_remainder_add_cubic_le hr hη hrM₁ hR hcub
 
@@ -366,6 +399,41 @@ theorem IsLocalDefiningFunction.disc_subset_of_estimate {U : Set (Fin n → ℂ)
   have h3 : η * r ^ 2 ≤ κ / 2 * r ^ 2 := mul_le_mul_of_nonneg_right hηκ (by positivity)
   have h4 : 0 < κ / 2 * r ^ 2 := by positivity
   linarith
+
+omit [NormedSpace ℂ E] in
+/-- A ball contained in a set with nonempty complement has radius at most the distance from
+its center to the complement. -/
+private theorem le_infDist_compl_of_ball_subset {s : Set E} (hs : sᶜ.Nonempty) {x : E} {m : ℝ}
+    (hb : ball x m ⊆ s) : m ≤ infDist x sᶜ := by
+  by_contra hlt
+  push Not at hlt
+  obtain ⟨y, hy, hdy⟩ := (infDist_lt_iff hs).mp hlt
+  exact hy (hb (by rwa [mem_ball, dist_comm]))
+
+/-- On the boundary circle of the Levi disc, the disc estimate forces the defining function to be
+negative of size at least `-L / 2 * r ^ 2`. -/
+private theorem half_neg_mul_sq_le_abs_of_disc_estimate {x L κ η r : ℝ} (hL : L < 0)
+    (hκ : 0 ≤ κ) (hη : η ≤ -L / 2) (hr : 0 < r)
+    (h : |x - (-(κ * r ^ 2) + r ^ 2 * L)| ≤ η * r ^ 2) :
+    -L / 2 * r ^ 2 ≤ |x| := by
+  have h1 := (abs_le.mp h).2
+  have h3 : η * r ^ 2 ≤ -L / 2 * r ^ 2 := mul_le_mul_of_nonneg_right hη (by positivity)
+  have h4 : 0 ≤ κ * r ^ 2 := by positivity
+  rw [abs_of_nonpos (by nlinarith [pow_pos hr 2])]
+  linarith
+
+/-- At the center of the Levi disc, the disc estimate bounds the defining function by
+`2 κ r ^ 2`. -/
+private theorem abs_le_two_mul_of_disc_estimate {x L κ η r : ℝ} (hκ : 0 ≤ κ) (hη : η ≤ κ / 2)
+    (hr : 0 < r) (h : |x - (-(κ * r ^ 2) + ‖(0 : ℂ)‖ ^ 2 * L)| ≤ η * r ^ 2) :
+    |x| ≤ 2 * κ * r ^ 2 := by
+  have h0 : ‖(0 : ℂ)‖ ^ 2 * L = 0 := by simp
+  rw [h0, add_zero, sub_neg_eq_add] at h
+  have h3 : η * r ^ 2 ≤ κ / 2 * r ^ 2 := mul_le_mul_of_nonneg_right hη (by positivity)
+  have hκr : 0 ≤ κ * r ^ 2 := by positivity
+  have := abs_le.mp h
+  rw [abs_le]
+  constructor <;> linarith
 
 /-- **Levi's theorem in coordinates.** A domain of holomorphy in `Fin n → ℂ` is Levi
 pseudoconvex: the Levi form of every local defining function is positive semidefinite on the
@@ -415,15 +483,9 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
     obtain ⟨hmem, hρ⟩ := hest' ζ hζ'.le
     have hin := hdiscU ζ (sphere_subset_closedBall hζ)
     have hlow := (hdist (φ ζ) hmem.2 hin).1
-    have h1 := (abs_le.mp hρ).2
-    rw [hζ'] at h1
-    have hρneg : ρ (φ ζ) ≤ L / 2 * r ^ 2 := by
-      have h3 : η * r ^ 2 ≤ -L / 2 * r ^ 2 := mul_le_mul_of_nonneg_right hηL (by positivity)
-      have h4 : 0 ≤ κ * r ^ 2 := by positivity
-      linarith
-    have habs : -L / 2 * r ^ 2 ≤ |ρ (φ ζ)| := by
-      rw [abs_of_nonpos (by nlinarith [pow_pos hr 2])]
-      linarith
+    rw [hζ'] at hρ
+    have habs : -L / 2 * r ^ 2 ≤ |ρ (φ ζ)| :=
+      half_neg_mul_sq_le_abs_of_disc_estimate hneg hκ0.le hηL hr hρ
     calc m = c₂ * (-L / 2 * r ^ 2) := by rw [hm]; ring
       _ ≤ c₂ * |ρ (φ ζ)| := mul_le_mul_of_nonneg_left habs hc₂.le
       _ ≤ infDist (φ ζ) Uᶜ := hlow
@@ -432,15 +494,8 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
     obtain ⟨hmem, hρ⟩ := hest' 0 (by simp [hr.le])
     have hin := hdiscU 0 (mem_closedBall_self hr.le)
     have hup := (hdist (φ 0) hmem.2 hin).2
-    have habs : |ρ (φ 0)| ≤ 2 * κ * r ^ 2 := by
-      have h0 : ‖(0 : ℂ)‖ ^ 2 * L = 0 := by simp
-      rw [h0, add_zero, sub_neg_eq_add] at hρ
-      have h3 : η * r ^ 2 ≤ κ / 2 * r ^ 2 := mul_le_mul_of_nonneg_right hηκ (by positivity)
-      have hκr : 0 ≤ κ * r ^ 2 := by positivity
-      have := abs_le.mp hρ
-      rw [abs_le]
-      constructor <;> linarith
-    exact hup.trans (mul_le_mul_of_nonneg_left habs hC₁.le)
+    exact hup.trans (mul_le_mul_of_nonneg_left
+      (abs_le_two_mul_of_disc_estimate hκ0.le hηκ hr hρ) hC₁.le)
   -- Thullen's radius bound
   have hhull := mem_holomorphicHull_of_analytic_disc hr hφan hdiscU (mem_closedBall_self hr.le)
   have hK : IsCompact (φ '' sphere 0 r) :=
@@ -459,13 +514,8 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
     (φ 0) hhull
   have hm' : ‖(m : ℂ)‖ = m := by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hm0]
   rw [hm'] at hrad
-  have hUc : Uᶜ.Nonempty := ⟨p, ho.notMem_of_mem_frontier hp⟩
-  have hmle : m ≤ infDist (φ 0) Uᶜ := by
-    by_contra hlt
-    push Not at hlt
-    obtain ⟨y, hy, hdy⟩ := (infDist_lt_iff hUc).mp hlt
-    exact hy (hrad (by rwa [mem_ball, dist_comm]))
-  have hfinal : m ≤ C₁ * (2 * κ * r ^ 2) := hmle.trans hcenter
+  have hfinal : m ≤ C₁ * (2 * κ * r ^ 2) :=
+    (le_infDist_compl_of_ball_subset ⟨p, ho.notMem_of_mem_frontier hp⟩ hrad).trans hcenter
   rw [hm, hκ] at hfinal
   have hC₁' : C₁ * (2 * (c₂ * (-L) / (8 * C₁)) * r ^ 2) = c₂ * (-L) / 4 * r ^ 2 := by
     field_simp

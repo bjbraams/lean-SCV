@@ -37,6 +37,11 @@ derivative to the existing `partialDeriv` interface.
   a holomorphic function.
 * `AnalyticOnNhd.wirtingerDeriv_eq_partialDeriv`: For holomorphic functions the holomorphic
   Wirtinger derivative agrees with the complex coordinate derivative `partialDeriv`.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

@@ -20,6 +20,11 @@ example, when absorbing units into irreducible factorizations.
 
 `exists_isUnit_pow_eq` produces an analytic unit root of each positive integral degree.
 `exists_analyticAt_pow_eq` is the corresponding statement for representatives.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

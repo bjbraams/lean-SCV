@@ -44,6 +44,11 @@ expansion, its uniform convergence and remainder estimates are in `PolydiscTaylo
   series.
 * `polydiscCauchySeries_diag_eq_iteratedFDeriv`: On the diagonal, the Cauchy series is the usual
   Taylor series of iterated Fréchet derivatives.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

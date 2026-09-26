@@ -23,6 +23,11 @@ supplies a nonzero parameter germ in the generated ideal.
 distinguished polynomial and a relatively prime polynomial germ.
 `exists_base_combination_of_isRelPrime` produces a nonzero parameter germ in the generated
 ideal. `sylvesterMap_injective_of_isRelPrime` is injectivity of the Sylvester map.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

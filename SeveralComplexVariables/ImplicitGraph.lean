@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.ImplicitMapping
-public import SeveralComplexVariables.Topology.Graph
+public import ToMathlib.Topology.Graph
 
 /-!
 # Local zero sets as graphs

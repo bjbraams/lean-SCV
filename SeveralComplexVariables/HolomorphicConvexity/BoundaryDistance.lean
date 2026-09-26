@@ -24,6 +24,11 @@ implications do not depend on Cartan–Thullen or Taylor continuation.
 `HasHolomorphicHullRadiusProperty` is uniform polydisc-radius preservation on hulls.
 `HasHolomorphicHullDistanceProperty` is exact preservation of extended boundary distance. Each
 implies the other, and each implies `IsHolomorphicallyConvex`.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

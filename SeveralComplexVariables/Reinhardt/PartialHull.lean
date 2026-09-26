@@ -97,7 +97,7 @@ theorem partialReinhardtHull_empty (hU : IsReinhardt U) : partialReinhardtHull â
 
 /-- Partial hulls of open Reinhardt sets are open. A continuous modulus majorant supplies nearby
 witnesses in the original open set. -/
-theorem isOpen_partialReinhardtHull [Fintype Î¹] (ho : IsOpen U) (hR : IsReinhardt U) :
+theorem isOpen_partialReinhardtHull (ho : IsOpen U) (hR : IsReinhardt U) :
     IsOpen (partialReinhardtHull I U) := by
   classical
   rw [isOpen_iff_mem_nhds]

@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.LaurentSeries.OneVariable
+
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Defs
 public import Mathlib.Analysis.Complex.Liouville
 public import Mathlib.Analysis.Complex.TaylorSeries
@@ -68,6 +70,8 @@ public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
+
+open Complex
 
 namespace SeveralComplexVariables
 

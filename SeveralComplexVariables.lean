@@ -5,10 +5,6 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Analysis.Connected
-public import SeveralComplexVariables.Analysis.LinearFunctional
-public import SeveralComplexVariables.Analysis.OpenMapping
-public import SeveralComplexVariables.Analysis.TaylorBounds
 public import SeveralComplexVariables.AnalyticGerm
 public import SeveralComplexVariables.AnalyticGerm.CoefficientPolynomial
 public import SeveralComplexVariables.AnalyticGerm.CoordinateChange
@@ -37,13 +33,10 @@ public import SeveralComplexVariables.BiholomorphicRigidity
 public import SeveralComplexVariables.CartanThullen
 public import SeveralComplexVariables.CartanUniqueness
 public import SeveralComplexVariables.CauchyCoefficients
-public import SeveralComplexVariables.CauchyDerivatives
 public import SeveralComplexVariables.CauchyEstimates
 public import SeveralComplexVariables.CauchyIntegral
-public import SeveralComplexVariables.CauchyPompeiu
 public import SeveralComplexVariables.CauchyRiemann
 public import SeveralComplexVariables.CauchySeries
-public import SeveralComplexVariables.CauchyTransform
 public import SeveralComplexVariables.Circular
 public import SeveralComplexVariables.CircularContinuation
 public import SeveralComplexVariables.CommonExtension
@@ -72,12 +65,9 @@ public import SeveralComplexVariables.InjectiveMapping
 public import SeveralComplexVariables.InjectiveMapping.CorankOne
 public import SeveralComplexVariables.InjectiveMapping.CriticalSet
 public import SeveralComplexVariables.InjectiveMapping.Immersion
-public import SeveralComplexVariables.InjectiveMapping.OneVariable
-public import SeveralComplexVariables.Integral.Circle
 public import SeveralComplexVariables.IsolatedSingularity
 public import SeveralComplexVariables.LaurentApproximation
 public import SeveralComplexVariables.LaurentSeries
-public import SeveralComplexVariables.LaurentSeries.Annulus
 public import SeveralComplexVariables.LaurentSeries.Basic
 public import SeveralComplexVariables.LaurentSeries.Coefficients
 public import SeveralComplexVariables.LaurentSeries.Convergence
@@ -125,7 +115,6 @@ public import SeveralComplexVariables.RemovableSingularity.ExceptionalSet
 public import SeveralComplexVariables.RemovableSingularity.Geometry
 public import SeveralComplexVariables.RemovableSingularity.Gluing
 public import SeveralComplexVariables.RemovableSingularity.Local
-public import SeveralComplexVariables.RemovableSingularity.OneVariable
 public import SeveralComplexVariables.Runge
 public import SeveralComplexVariables.Runge.Examples
 public import SeveralComplexVariables.SeparateAnalytic
@@ -133,16 +122,7 @@ public import SeveralComplexVariables.SeparateAnalytic.Baire
 public import SeveralComplexVariables.SeparateAnalytic.FiberExtension
 public import SeveralComplexVariables.SeparateAnalytic.HartogsLemma
 public import SeveralComplexVariables.SeparateAnalytic.MeanValue
-public import SeveralComplexVariables.SeparateAnalytic.Submean
 public import SeveralComplexVariables.SphericalShell
-public import SeveralComplexVariables.Subharmonic
-public import SeveralComplexVariables.Subharmonic.Majorant
-public import SeveralComplexVariables.Subharmonic.SmoothCriterion
-public import SeveralComplexVariables.Topology.CompactExhaustion
-public import SeveralComplexVariables.Topology.Frontier
-public import SeveralComplexVariables.Topology.Graph
-public import SeveralComplexVariables.Topology.Path
-public import SeveralComplexVariables.Topology.UpperSemicontinuous
 public import SeveralComplexVariables.TubeDomain
 public import SeveralComplexVariables.TubeDomain.Basic
 public import SeveralComplexVariables.TubeDomain.Bochner
@@ -158,7 +138,6 @@ public import SeveralComplexVariables.ZeroSets
 public import SeveralComplexVariables.ZeroSets.Basic
 public import SeveralComplexVariables.ZeroSets.Connected
 public import SeveralComplexVariables.ZeroSets.Local
-public import SeveralComplexVariables.ZeroSets.Persistence
 
 /-!
 # Several complex variables
@@ -168,6 +147,11 @@ complex normed spaces. Analytic maps use Mathlib's `AnalyticOnNhd ℂ`; holomorp
 sets use `DifferentiableOn ℂ`. Banach-valued targets are retained where appropriate. Finite
 coordinate spaces carry the supremum norm, so their balls are polydiscs; Euclidean ball geometry
 uses the inner-product norm explicitly.
+
+Single-variable foundations (Cauchy transforms, the Cauchy–Pompeiu identity, annulus Laurent
+series, subharmonic functions, and one-variable removable singularities) are imported from the
+`ComplexAnalysis` library. General analysis and topology support is imported from
+`ToMathlib.Analysis` and `ToMathlib.Topology`.
 
 ## Local analysis and function spaces
 

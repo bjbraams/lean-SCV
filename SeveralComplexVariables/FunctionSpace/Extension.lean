@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import SeveralComplexVariables.Analysis.OpenMapping
+public import ToMathlib.Analysis.OpenMapping
 public import SeveralComplexVariables.CommonExtension
 public import SeveralComplexVariables.FunctionSpace
 public import SeveralComplexVariables.IdentityPrinciple

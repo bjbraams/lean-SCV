@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.MeasureTheory.Integral.Pi
-public import SeveralComplexVariables.LaurentSeries.OneVariable
+public import ComplexAnalysis.LaurentSeries.Basic
 public import SeveralComplexVariables.Polydisc
 
 /-!
@@ -24,6 +24,11 @@ powers at zero once the torus avoids the coordinate hyperplanes.
 `norm_multivariableLaurentCoeff_le` is the Cauchy bound. `multivariableLaurentCoeff_monomial`
 evaluates the coefficient on a monomial. `multivariableLaurentCoeff_fin_one` recovers the
 one-variable `circleLaurentCoeff`.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

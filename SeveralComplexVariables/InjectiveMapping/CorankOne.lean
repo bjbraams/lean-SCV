@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.ImplicitMapping
-public import SeveralComplexVariables.InjectiveMapping.OneVariable
+public import ComplexAnalysis.Injective
 
 /-!
 # Nonsingularity in the presence of an invertible transverse minor
@@ -21,12 +21,19 @@ derivative. These results are independent of the general injective-mapping theor
 `isInvertible_fderiv_of_injOn_of_hyperplane` is the corresponding statement after restricting to
 a level hyperplane. `injective_of_injective_vertical_of_transverse_vector` is the
 one-dimensional reduction.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
 
 open Set Filter Function
 open scoped Topology
+
+open Complex
 
 namespace SeveralComplexVariables
 

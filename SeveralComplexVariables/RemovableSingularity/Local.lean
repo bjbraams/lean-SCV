@@ -7,7 +7,7 @@ module
 
 public import SeveralComplexVariables.RemovableSingularity.Cauchy
 public import SeveralComplexVariables.RemovableSingularity.Geometry
-public import SeveralComplexVariables.RemovableSingularity.OneVariable
+public import ComplexAnalysis.RemovableSingularity
 
 /-!
 # Local Riemann extension in finite-dimensional complex spaces
@@ -22,6 +22,11 @@ theorem is used.
 
 `exists_local_extension_zeroSet_of_bounded` is local Riemann extension across a scalar zero set
 for a locally bounded Banach-valued holomorphic map.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

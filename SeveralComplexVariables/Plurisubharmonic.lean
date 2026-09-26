@@ -5,8 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.Analysis.Normed.Module.Convex
-public import SeveralComplexVariables.Subharmonic
+public import ComplexAnalysis.Subharmonic.Convex
+public import ComplexAnalysis.Subharmonic.Basic
 
 /-!
 # Plurisubharmonic functions
@@ -59,6 +59,8 @@ public section
 open Filter Metric Set Real
 open scoped Topology
 
+open Complex
+
 namespace SeveralComplexVariables
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
@@ -93,17 +95,6 @@ theorem PlurisubharmonicOn.mono (h : PlurisubharmonicOn f U) (hV : V ⊆ U) :
 theorem upperSemicontinuousOn_slice (h : UpperSemicontinuousOn f U) (a w : E) :
     UpperSemicontinuousOn (fun t : ℂ => f (a + t • w)) {t | a + t • w ∈ U} :=
   h.comp (by fun_prop : Continuous fun t : ℂ => a + t • w).continuousOn fun _ ht => ht
-
-/-- Translating the parameter of a function with the local submean property. -/
-theorem HasSubmeanAt.comp_add_right {u : ℂ → ℝ} {t₀ : ℂ}
-    (h : HasSubmeanAt (fun t => u (t + t₀)) 0) : HasSubmeanAt u t₀ := by
-  filter_upwards [h] with r ⟨hint, hle⟩
-  have hmap : ∀ θ : ℝ, circleMap 0 r θ + t₀ = circleMap t₀ r θ := fun θ => by
-    simp [circleMap, add_comm]
-  refine ⟨?_, ?_⟩
-  · rw [circleIntegrable_def] at hint ⊢
-    simpa only [hmap] using hint
-  · simpa only [zero_add, circleAverage_map_add_const] using hle
 
 /-- Plurisubharmonicity follows from upper semicontinuity and the local submean property of the
 slices through each point of the domain. -/
@@ -149,44 +140,6 @@ end Algebra
 
 section Convex
 
-/-- A continuous function that is convex on an open set of `ℂ` is subharmonic there. -/
-theorem _root_.ConvexOn.subharmonicOn {u : ℂ → ℝ} {W : Set ℂ} (hW : IsOpen W)
-    (hu : ConvexOn ℝ W u) (hc : ContinuousOn u W) : SubharmonicOn u W := by
-  refine ⟨hc.upperSemicontinuousOn, fun a ha => ?_⟩
-  obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hW.mem_nhds ha)
-  refine hasSubmeanAt_of_forall_lt hρ fun r hr hrρ => ?_
-  have hsub : closedBall a r ⊆ W := (closedBall_subset_ball hrρ).trans hball
-  have hint : CircleIntegrable u a r :=
-    (hc.mono (sphere_subset_closedBall.trans hsub)).circleIntegrable hr.le
-  have hrefl : ∀ t ∈ sphere a r, 2 * a - t ∈ sphere a r := by
-    intro t ht
-    rw [mem_sphere, dist_eq_norm] at ht ⊢
-    rw [← ht, ← norm_neg]
-    congr 1
-    ring
-  have hint' : CircleIntegrable (fun t => u (2 * a - t)) a r := by
-    refine ContinuousOn.circleIntegrable hr.le ?_
-    exact (hc.mono (sphere_subset_closedBall.trans hsub)).comp (by fun_prop) fun t ht =>
-      hrefl t (by simpa [abs_of_pos hr] using ht)
-  refine ⟨hint, ?_⟩
-  have hmid : ∀ t ∈ sphere a r, u a ≤ (1 / 2 : ℝ) • u t + (1 / 2 : ℝ) • u (2 * a - t) := by
-    intro t ht
-    have h1 : t ∈ W := hsub (sphere_subset_closedBall ht)
-    have h2 : 2 * a - t ∈ W := hsub (sphere_subset_closedBall (hrefl t ht))
-    have := hu.2 h1 h2 (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num)
-    convert this using 2
-    simp only [Complex.real_smul]
-    push_cast
-    ring
-  have hi₁ : CircleIntegrable (fun t => (1 / 2 : ℝ) • u t) a r := hint.const_smul
-  have hi₂ : CircleIntegrable (fun t => (1 / 2 : ℝ) • u (2 * a - t)) a r := hint'.const_smul
-  have hle := circleAverage_mono (circleIntegrable_const (u a) a r) (hi₁.add hi₂)
-    (fun t ht => hmid t (by simpa [abs_of_pos hr] using ht))
-  rw [circleAverage_const, circleAverage_add hi₁ hi₂, circleAverage_fun_smul,
-    circleAverage_fun_smul, Real.circleAverage_reflect] at hle
-  simp only [smul_eq_mul] at hle
-  linarith
-
 /-- A real convex combination of two points of a complex line, in line coordinates. -/
 private theorem line_combo (a w : E) (s t : ℂ) {α β : ℝ} (hαβ : α + β = 1) :
     a + (α • s + β • t) • w = α • (a + s • w) + β • (a + t • w) := by
@@ -201,7 +154,7 @@ theorem _root_.ConvexOn.plurisubharmonicOn (hU : IsOpen U) (hf : ConvexOn ℝ U 
   refine ⟨hc.upperSemicontinuousOn, fun a ha w => ?_⟩
   apply ConvexOn.subharmonicOn (hU.preimage (by fun_prop : Continuous fun t : ℂ => a + t • w))
   · refine ⟨fun s hs t ht α β hα hβ hαβ => ?_, fun s hs t ht α β hα hβ hαβ => ?_⟩
-    · show a + (α • s + β • t) • w ∈ U
+    · change a + (α • s + β • t) • w ∈ U
       rw [line_combo a w s t hαβ]
       exact hf.1 hs ht hα hβ hαβ
     · have := hf.2 hs ht hα hβ hαβ

@@ -27,6 +27,11 @@ nonnegativity bounds its integral by the fixed integral.
 `eventually_norm_rpow_lt_on_ball` is Hartogs' lemma: a pointwise eventual bound on positive
 powers of holomorphic norms becomes uniform on a neighborhood of each point.
 `exists_radius_area_bound` produces a nearby ball of controlled volume.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

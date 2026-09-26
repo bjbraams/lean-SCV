@@ -35,6 +35,11 @@ The existence theorem for a general divisor is in `SeveralComplexVariables.Weier
 * `IsWeierstrassDivisionAt.exists_divisionOn`: A germ division identity holds as a holomorphic
   division on a sufficiently small polydisc-ball inside any prescribed open neighborhood of the
   origin.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
@@ -115,7 +120,7 @@ theorem IsWeierstrassDivisionAt.unique_zero {f g q q' : E × ℂ → ℂ}
   exact mul_right_cancel₀ hne he
 
 /-- The Weierstrass remainder is linear (here, additive) in its coefficient tuple. -/
-theorem weierstrassRemainder_sub {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+theorem weierstrassRemainder_sub {E : Type*}
     {d : ℕ} (a b : Fin d → E → ℂ) (z : E × ℂ) :
     weierstrassRemainder a z - weierstrassRemainder b z =
       weierstrassRemainder (fun j => a j - b j) z := by

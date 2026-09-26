@@ -26,6 +26,11 @@ recovering isolated-point removal in `ℂ²`.
 * `exists_extension_across_coordinatePlane`: **Coordinate-subspace removal.** The proof uses the
   already proved Hartogs cylinder theorem and gluing, with no dependence on general codimension-two
   removal or local algebra.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

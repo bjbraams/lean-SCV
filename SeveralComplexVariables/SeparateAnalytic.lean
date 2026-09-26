@@ -111,6 +111,39 @@ theorem optionSplit_symm_mem_closedBall {c : Option κ → ℂ} {R : ℝ} (hR : 
 
 end Split
 
+omit [CompleteSpace F] in
+/-- The base slices of a separately analytic function in the split coordinates are analytic,
+by Hartogs' theorem for the coordinate type `κ`. -/
+private theorem analyticOnNhd_optionSplit_base_slice {κ : Type*} [Fintype κ] [DecidableEq κ]
+    (ih : ∀ {U : Set (κ → ℂ)} {g : (κ → ℂ) → F}, IsOpen U →
+      (∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => g (update z i w)) (z i)) → AnalyticOnNhd ℂ g U)
+    {U : Set (Option κ → ℂ)} {f : (Option κ → ℂ) → F} (hU : IsOpen U)
+    (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) (w : ℂ) :
+    AnalyticOnNhd ℂ (fun z' => f ((optionSplit κ).symm (z', w)))
+      {z' | (optionSplit κ).symm (z', w) ∈ U} := by
+  apply ih (hU.preimage (by fun_prop))
+  intro z' hz' i
+  have h := hf _ hz' (some i)
+  dsimp only at h
+  have : (optionSplit κ).symm (z', w) (some i) = z' i := by rw [optionSplit_symm_apply]; rfl
+  rw [this] at h
+  convert h using 2
+  rw [optionSplit_symm_update_some]
+
+omit [CompleteSpace F] in
+/-- The fiber slices of a separately analytic function in the split coordinates are analytic. -/
+private theorem analyticOnNhd_optionSplit_fiber_slice {κ : Type*} [Fintype κ] [DecidableEq κ]
+    {U : Set (Option κ → ℂ)} {f : (Option κ → ℂ) → F}
+    (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) (z' : κ → ℂ) :
+    AnalyticOnNhd ℂ (fun w => f ((optionSplit κ).symm (z', w)))
+      {w | (optionSplit κ).symm (z', w) ∈ U} := by
+  intro w hw
+  have h := hf _ hw none
+  have : (optionSplit κ).symm (z', w) none = w := by rw [optionSplit_symm_apply]; rfl
+  rw [this] at h
+  convert h using 2
+  rw [optionSplit_symm_update_none]
+
 /-- The induction step of Hartogs' theorem: one further coordinate. The hypothesis is Hartogs'
 theorem for the coordinate type `κ`. -/
 theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ] [DecidableEq κ]
@@ -119,27 +152,9 @@ theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ] [D
     {U : Set (Option κ → ℂ)} {f : (Option κ → ℂ) → F} (hU : IsOpen U)
     (hf : ∀ z ∈ U, ∀ i, AnalyticAt ℂ (fun w => f (update z i w)) (z i)) :
     AnalyticOnNhd ℂ f U := by
+  have hslice_base := analyticOnNhd_optionSplit_base_slice ih hU hf
+  have hslice_fiber := analyticOnNhd_optionSplit_fiber_slice hf
   set L := optionSplit κ with hL
-  -- analyticity of the base slices, by the induction hypothesis
-  have hslice_base (w : ℂ) :
-      AnalyticOnNhd ℂ (fun z' => f (L.symm (z', w))) {z' | L.symm (z', w) ∈ U} := by
-    apply ih (hU.preimage (by fun_prop))
-    intro z' hz' i
-    have h := hf _ hz' (some i)
-    dsimp only at h
-    have : L.symm (z', w) (some i) = z' i := by rw [optionSplit_symm_apply]; rfl
-    rw [this] at h
-    convert h using 2
-    rw [optionSplit_symm_update_some]
-  -- analyticity of the fiber slices
-  have hslice_fiber (z' : κ → ℂ) :
-      AnalyticOnNhd ℂ (fun w => f (L.symm (z', w))) {w | L.symm (z', w) ∈ U} := by
-    intro w hw
-    have h := hf _ hw none
-    have : L.symm (z', w) none = w := by rw [optionSplit_symm_apply]; rfl
-    rw [this] at h
-    convert h using 2
-    rw [optionSplit_symm_update_none]
   -- the decidability instance of the coordinate type is adjusted by `convert`
   refine analyticOnNhd_of_separately_analytic_locally_bounded hU
     (fun z hz i => by convert hf z hz i) ?_
@@ -182,7 +197,7 @@ theorem analyticOnNhd_of_separately_analytic_option {κ : Type*} [Fintype κ] [D
   have hg1 : AnalyticOnNhd ℂ (f ∘ L.symm) (ball z₀ R ×ˢ ball b ε₁) := by
     intro q hq
     have hq' : L.symm q ∈ Ω := by
-      show L (L.symm q) ∈ ball z₀ R ×ˢ W
+      change L (L.symm q) ∈ ball z₀ R ×ˢ W
       rw [L.apply_symm_apply]
       exact ⟨hq.1, hbW (ball_subset_closedBall hq.2)⟩
     exact (hfΩ _ hq').comp_of_eq (L.symm.analyticAt q) rfl
@@ -236,7 +251,7 @@ theorem analyticOnNhd_of_separately_analytic_of_equiv {α β : Type*}
     simp only [Function.comp_apply, hL_update]
   intro z hz
   have hzV : L.symm z ∈ L ⁻¹' U := by
-    show L (L.symm z) ∈ U
+    change L (L.symm z) ∈ U
     simpa
   have := (hg _ hzV).comp_of_eq (L.symm.analyticAt z) rfl
   simpa only [Function.comp_def, L.apply_symm_apply] using this

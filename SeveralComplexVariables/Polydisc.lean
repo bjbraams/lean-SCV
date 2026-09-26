@@ -31,6 +31,11 @@ distinguished boundary is parametrized by `torusMap`.
 `polydisc_const_eq_ball` identifies equal positive radii with the open sup-norm ball.
 `closure_polydisc` identifies the closure of a positive-radius open polydisc with the
 corresponding closed polydisc.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

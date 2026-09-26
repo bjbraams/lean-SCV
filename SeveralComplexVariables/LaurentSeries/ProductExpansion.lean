@@ -19,6 +19,11 @@ expansion on every Reinhardt domain.
 `hasSum_multivariableLaurent_on_product` is the expansion on a finite product of circular
 domains. `hasSum_multivariableLaurent` is the pointwise expansion at an arbitrary point of an
 open Reinhardt domain.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

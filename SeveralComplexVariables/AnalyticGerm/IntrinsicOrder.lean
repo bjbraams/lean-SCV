@@ -35,6 +35,11 @@ series indexed by any finite coordinate type.
   spaces.
 * `intrinsicOrder_mul`: Intrinsic order is additive under multiplication.
 * `intrinsicOrder_eq_top_iff`: A germ has infinite intrinsic order exactly when it is zero.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

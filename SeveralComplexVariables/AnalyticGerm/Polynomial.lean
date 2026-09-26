@@ -39,6 +39,11 @@ hypothesis the source's Lemma 1.8.1(b) fails, for example for `X - 1`.
 * `isDistinguishedAt_of_monic_dvd`: A monic divisor of a distinguished polynomial is distinguished.
 * `exists_distinguished_factors`: Factors of a distinguished polynomial become distinguished after
   multiplying by reciprocal coefficient units (Lemma 1.8.2).
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
@@ -87,23 +92,22 @@ theorem isDistinguishedAt_iff (p : Polynomial (AnalyticGerm ℂ (0 : E))) :
     (p : Polynomial (AnalyticGerm ℂ (0 : E))) :
     pullback (fun z : E => (z, (0 : ℂ))) (analyticAt_id.prod analyticAt_const)
       (polynomialHom p) = p.coeff 0 := by
-  have h : (pullback (fun z : E => (z, (0 : ℂ)))
+  suffices h : (pullback (fun z : E => (z, (0 : ℂ)))
       (analyticAt_id.prod analyticAt_const)).toRingHom.comp polynomialHom =
-      Polynomial.constantCoeff := by
-    apply Polynomial.ringHom_ext
-    · intro a
-      obtain ⟨f, hf, rfl⟩ := exists_rep a
-      change pullback (fun z : E => (z, (0 : ℂ))) (analyticAt_id.prod analyticAt_const)
-        (polynomialHom (Polynomial.C (ofAnalyticAt f hf))) =
-        (Polynomial.C (ofAnalyticAt f hf)).coeff 0
-      rw [polynomialHom_C, Polynomial.coeff_C_zero]
-      rfl
-    · change pullback (fun z : E => (z, (0 : ℂ))) (analyticAt_id.prod analyticAt_const)
-        (polynomialHom (Polynomial.X : Polynomial (AnalyticGerm ℂ (0 : E)))) =
-          (Polynomial.X : Polynomial (AnalyticGerm ℂ (0 : E))).coeff 0
-      rw [polynomialHom_X, Polynomial.coeff_X_zero]
-      rfl
-  exact DFunLike.congr_fun h p
+      Polynomial.constantCoeff from DFunLike.congr_fun h p
+  apply Polynomial.ringHom_ext
+  · intro a
+    obtain ⟨f, hf, rfl⟩ := exists_rep a
+    change pullback (fun z : E => (z, (0 : ℂ))) (analyticAt_id.prod analyticAt_const)
+      (polynomialHom (Polynomial.C (ofAnalyticAt f hf))) =
+      (Polynomial.C (ofAnalyticAt f hf)).coeff 0
+    rw [polynomialHom_C, Polynomial.coeff_C_zero]
+    rfl
+  · change pullback (fun z : E => (z, (0 : ℂ))) (analyticAt_id.prod analyticAt_const)
+      (polynomialHom (Polynomial.X : Polynomial (AnalyticGerm ℂ (0 : E)))) =
+        (Polynomial.X : Polynomial (AnalyticGerm ℂ (0 : E))).coeff 0
+    rw [polynomialHom_X, Polynomial.coeff_X_zero]
+    rfl
 
 /-- The distinguished coordinate is a nonzero germ, even with no parameter variables. -/
 theorem lastCoordinate_ne_zero : (lastCoordinate (E := E)) ≠ 0 := by

@@ -174,7 +174,7 @@ theorem exists_analyticOnNhd_extension_of_isCompact
   obtain ⟨g', hg', hg'f⟩ :=
     exists_analyticOnNhd_extension_of_isCompact_prod hD'o hK'c hK'D' hconn' hf'
   refine ⟨g' ∘ e, hg'.comp (e.toContinuousLinearMap.analyticOnNhd _) fun z hz => ?_, ?_⟩
-  · show e.symm (e z) ∈ U
+  · change e.symm (e z) ∈ U
     simpa using hz
   · intro z hz
     have hz' : e z ∈ D' \ K' := by

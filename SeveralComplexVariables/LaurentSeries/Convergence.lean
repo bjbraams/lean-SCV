@@ -21,6 +21,11 @@ sequences. Their finite products give summable local majorants.
 `summable_norm_multivariableLaurent` is absolute summability of the terms.
 `hasSumLocallyUniformlyOn_multivariableLaurent_of_pointwise` upgrades a pointwise summable
 expansion to locally uniform convergence.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

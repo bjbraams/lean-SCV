@@ -7,7 +7,7 @@ module
 
 public import Mathlib.Topology.Algebra.InfiniteSum.NatInt
 public import SeveralComplexVariables.HartogsDomain
-public import SeveralComplexVariables.LaurentSeries.OneVariable
+public import ComplexAnalysis.LaurentSeries.Basic
 public import SeveralComplexVariables.LocallyUniform
 
 /-!
@@ -23,12 +23,19 @@ uniform convergence.
 `IsHartogs.exists_circle_bound` is a uniform bound on nearby fibers from a compact circle in a
 Hartogs set. `hasSumLocallyUniformlyOn_hartogsLaurent` upgrades a pointwise fiber expansion to
 locally uniform convergence on the Hartogs set.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
 
 open Set Filter Metric
 open scoped Topology
+
+open Complex
 
 namespace SeveralComplexVariables
 

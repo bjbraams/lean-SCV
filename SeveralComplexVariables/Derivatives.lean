@@ -27,6 +27,11 @@ it with the Fréchet derivative on a coordinate vector. `iteratedPartialDeriv` a
 are mixed derivatives, identified by `iteratedPartialDeriv_eq_multiIndexDeriv`.
 `iteratedPartialDeriv_perm` is permutation invariance. `complexJacobian` is the Jacobian matrix of
 coordinate derivatives.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
@@ -356,7 +361,7 @@ end MultiIndex
   fun j i => partialDeriv i (fun w => f w j) z
 
 /-- Entries of the complex Jacobian are the coordinate entries of the Fréchet derivative. -/
-theorem complexJacobian_apply {κ : Type*} [Fintype κ]
+theorem complexJacobian_apply {κ : Type*}
     {f : (ι → ℂ) → (κ → ℂ)} {z : ι → ℂ} (hf : DifferentiableAt ℂ f z)
     (j : κ) (i : ι) : complexJacobian f z j i = fderiv ℂ f z (Pi.single i 1) j := by
   rw [complexJacobian, partialDeriv_eq_fderiv (differentiableAt_pi.mp hf j), fderiv_apply hf j]
@@ -374,7 +379,7 @@ theorem partialDeriv_comp {κ : Type*} [Fintype κ] [DecidableEq κ]
   simp_rw [complexJacobian_apply hf]
 
 /-- Jacobians compose by matrix multiplication. -/
-theorem complexJacobian_comp {κ ν : Type*} [Fintype κ] [DecidableEq κ] [Fintype ν]
+theorem complexJacobian_comp {κ ν : Type*} [Fintype κ] [DecidableEq κ]
     {f : (ι → ℂ) → (κ → ℂ)} {g : (κ → ℂ) → (ν → ℂ)} {z : ι → ℂ}
     (hg : DifferentiableAt ℂ g (f z)) (hf : DifferentiableAt ℂ f z) :
     complexJacobian (g ∘ f) z = complexJacobian g (f z) * complexJacobian f z := by
@@ -385,7 +390,7 @@ theorem complexJacobian_comp {κ ν : Type*} [Fintype κ] [DecidableEq κ] [Fint
 
 /-- The complex Jacobian is Mathlib's matrix of the complex Fréchet derivative in the standard
 coordinate bases. -/
-theorem complexJacobian_eq_toMatrix {κ : Type*} [Fintype κ]
+theorem complexJacobian_eq_toMatrix {κ : Type*}
     {f : (ι → ℂ) → (κ → ℂ)} {z : ι → ℂ} (hf : DifferentiableAt ℂ f z) :
     complexJacobian f z = LinearMap.toMatrix' (fderiv ℂ f z).toLinearMap := by
   ext j i

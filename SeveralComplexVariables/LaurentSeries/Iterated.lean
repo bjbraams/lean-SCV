@@ -18,6 +18,11 @@ Laurent coefficients can be computed one coordinate at a time.
 `torusIntegral_succ_inner` is Fubini for the first circle of a coordinate torus.
 `multivariableLaurentCoeff_succ` identifies the multivariable coefficient with an iterated
 one-variable coefficient in the remaining coordinates.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

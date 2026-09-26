@@ -5,7 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.Analysis.Complex.CauchyIntegral
+public import ToMathlib.Analysis.GeometricBounds
+public import ComplexAnalysis.CauchySeries
 public import SeveralComplexVariables.RemovableSingularity.Cauchy
 public import SeveralComplexVariables.SeparateAnalytic.HartogsLemma
 
@@ -69,82 +70,6 @@ theorem exists_hartogs_fiber_radii {b w₁ : ℂ} {R : ℝ} (hdist : dist w₁ b
   have hq0 : 0 < q := by rw [hq_eq]; positivity
   exact ⟨σ, ρ, ε, q, hσ₁, hσρ, hρR, hσ0, hρ, hε0, hq0, hq1, rfl⟩
 
-omit [CompleteSpace F] in
-/-- Cauchy's estimate for the scalar values of the Cauchy power series coefficients, from a bound on
-the closed disc. -/
-theorem norm_cauchyPowerSeries_apply_one_le {g : ℂ → F} {b : ℂ} {ρ M : ℝ} (hρ : 0 < ρ)
-    (hM : ∀ w ∈ closedBall b ρ, ‖g w‖ ≤ M) (k : ℕ) :
-    ‖cauchyPowerSeries g b ρ k (fun _ => 1)‖ ≤ M * ρ⁻¹ ^ k := by
-  have hint : ∫ θ in (0:ℝ)..2 * π, ‖g (circleMap b ρ θ)‖ ≤ M * (2 * π) := by
-    have := intervalIntegral.norm_integral_le_of_norm_le_const (a := 0) (b := 2 * π)
-      (f := fun θ => ‖g (circleMap b ρ θ)‖) (C := M) (fun θ _ => by
-        rw [Real.norm_eq_abs, abs_of_nonneg (norm_nonneg _)]
-        exact hM _ (circleMap_mem_closedBall b hρ.le θ))
-    rw [sub_zero, abs_of_pos Real.two_pi_pos, Real.norm_eq_abs] at this
-    exact (le_abs_self _).trans this
-  calc ‖cauchyPowerSeries g b ρ k (fun _ => 1)‖
-      ≤ ‖cauchyPowerSeries g b ρ k‖ * ∏ _i : Fin k, ‖(1 : ℂ)‖ :=
-        ContinuousMultilinearMap.le_opNorm _ _
-    _ = ‖cauchyPowerSeries g b ρ k‖ := by simp
-    _ ≤ ((2 * π)⁻¹ * ∫ θ in (0:ℝ)..2 * π, ‖g (circleMap b ρ θ)‖) * |ρ|⁻¹ ^ k :=
-        norm_cauchyPowerSeries_le g b ρ k
-    _ ≤ M * ρ⁻¹ ^ k := by
-        rw [abs_of_pos hρ]
-        apply mul_le_mul_of_nonneg_right _ (by positivity)
-        calc (2 * π)⁻¹ * ∫ θ in (0:ℝ)..2 * π, ‖g (circleMap b ρ θ)‖
-            ≤ (2 * π)⁻¹ * (M * (2 * π)) := by gcongr
-          _ = M := by field_simp
-
-/-- The Cauchy power series of a function analytic on a closed disc converges on the open disc, with
-the radius given as an extended real number. -/
-theorem hasFPowerSeriesOnBall_cauchyPowerSeries_of_analyticOnNhd {g : ℂ → F} {b : ℂ}
-    {r : ℝ} (hr : 0 < r) (hg : AnalyticOnNhd ℂ g (closedBall b r)) :
-    HasFPowerSeriesOnBall g (cauchyPowerSeries g b r) b (ENNReal.ofReal r) := by
-  have := hg.differentiableOn.hasFPowerSeriesOnBall (R := ⟨r, hr.le⟩) hr
-  rwa [ENNReal.ofReal_eq_coe_nnreal hr.le]
-
-/-- Roots of a fixed positive constant tend to one. -/
-theorem tendsto_rpow_inv_natCast_succ {M : ℝ} (hM : 0 < M) :
-    Tendsto (fun n : ℕ => M ^ ((n + 1 : ℕ) : ℝ)⁻¹) atTop (𝓝 1) := by
-  have h : Tendsto (fun n : ℕ => Real.log M * ((n + 1 : ℕ) : ℝ)⁻¹) atTop (𝓝 0) := by
-    have := (tendsto_const_div_atTop_nhds_zero_nat (Real.log M)).comp (tendsto_add_atTop_nat 1)
-    simpa [Function.comp_def, div_eq_mul_inv] using this
-  simpa [Function.comp_def, Real.rpow_def_of_pos hM] using
-    Real.tendsto_exp_nhds_zero_nhds_one.comp h
-
-/-- A root of an exponential-type bound is bounded by a root of the constant times the reciprocal
-radius. -/
-theorem rpow_inv_succ_le_of_le_mul_pow {x M ρ : ℝ} (hx : 0 ≤ x) (hM : 0 ≤ M) (hρ : 0 < ρ)
-    (n : ℕ) (h : x ≤ M * ρ⁻¹ ^ (n + 1)) :
-    x ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ M ^ ((n + 1 : ℕ) : ℝ)⁻¹ * ρ⁻¹ := by
-  calc x ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ (M * ρ⁻¹ ^ (n + 1)) ^ ((n + 1 : ℕ) : ℝ)⁻¹ :=
-        Real.rpow_le_rpow hx h (by positivity)
-    _ = M ^ ((n + 1 : ℕ) : ℝ)⁻¹ * ρ⁻¹ := by
-        rw [Real.mul_rpow hM (by positivity),
-          Real.pow_rpow_inv_natCast (inv_nonneg.mpr hρ.le) n.succ_ne_zero]
-
-/-- A sequence with a uniform exponential bound and an eventual geometric bound has a single
-geometric majorant. -/
-theorem le_geometric_of_bounds {a : ℕ → ℝ} {M s q : ℝ} {N : ℕ} (hM : 0 ≤ M) (hs : 0 ≤ s)
-    (hq0 : 0 < q) (hq1 : q ≤ 1) (h1 : ∀ k, a k ≤ M * s ^ k)
-    (h2 : ∀ k, N + 1 ≤ k → a k ≤ q ^ k) (k : ℕ) :
-    a k ≤ max 1 (M * max 1 s ^ N / q ^ N) * q ^ k := by
-  have hqk : 0 ≤ q ^ k := pow_nonneg hq0.le k
-  by_cases hk : N + 1 ≤ k
-  · exact (h2 k hk).trans (le_mul_of_one_le_left hqk (le_max_left _ _))
-  · have hkN : k ≤ N := by omega
-    have hqN : q ^ N ≤ q ^ k := pow_le_pow_of_le_one hq0.le hq1 hkN
-    have hC₀ : M * s ^ k ≤ M * max 1 s ^ N :=
-      mul_le_mul_of_nonneg_left ((pow_le_pow_left₀ hs (le_max_right 1 s) k).trans
-        (pow_le_pow_right₀ (le_max_left 1 s) hkN)) hM
-    have hqN0 : 0 < q ^ N := pow_pos hq0 N
-    calc a k ≤ M * max 1 s ^ N := (h1 k).trans hC₀
-      _ = M * max 1 s ^ N / q ^ N * q ^ N := by field_simp
-      _ ≤ M * max 1 s ^ N / q ^ N * q ^ k :=
-          mul_le_mul_of_nonneg_left hqN (div_nonneg (by positivity) hqN0.le)
-      _ ≤ max 1 (M * max 1 s ^ N / q ^ N) * q ^ k :=
-          mul_le_mul_of_nonneg_right (le_max_right _ _) hqk
-
 /-- Fiber Taylor coefficients of a function of a base variable and a fiber variable, computed by
 Cauchy's formula on the circle of radius `r` about `b` in the fiber. -/
 private def fiberCoeff (f : E × ℂ → F) (b : ℂ) (r : ℝ) (k : ℕ) (z : E) : F :=
@@ -194,6 +119,76 @@ private theorem fiberCoeff_eq_of_radii {f : E × ℂ → F} {b : ℂ} {r ρ : �
     hgr).hasFPowerSeriesAt.eq_formalMultilinearSeries
     (hasFPowerSeriesOnBall_cauchyPowerSeries_of_analyticOnNhd hρ hgρ).hasFPowerSeriesAt]
 
+omit [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E] [CompleteSpace F] in
+/-- The `(n + 1)`-th roots of the fiber coefficients are bounded by `M * r⁻¹` when the fiber
+function is bounded by `M ≥ 1` on the closed disc. -/
+private theorem norm_fiberCoeff_rpow_inv_succ_le {f : E × ℂ → F} {b : ℂ} {r M : ℝ} (hr : 0 < r)
+    (hM : 1 ≤ M) {z : E} (hMz : ∀ w ∈ closedBall b r, ‖f (z, w)‖ ≤ M) (n : ℕ) :
+    ‖fiberCoeff f b r (n + 1) z‖ ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ M * r⁻¹ := by
+  have hM0 : 0 < M := by linarith
+  refine (Real.rpow_inv_succ_le_of_le_mul_pow (norm_nonneg _) hM0.le hr n
+    (norm_fiberCoeff_le hr hMz (n + 1))).trans ?_
+  gcongr
+  exact Real.rpow_le_self_of_one_le hM (inv_le_one_of_one_le₀ (by exact_mod_cast n.succ_pos))
+
+omit [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E] in
+/-- Hartogs' growth lemma for the fiber coefficients: when the fiber function is analytic on
+the closed disc of radius `ρ`, the `(n + 1)`-th roots of its coefficients are eventually below
+`ρ⁻¹ + δ`. -/
+private theorem eventually_norm_fiberCoeff_rpow_inv_succ_le {f : E × ℂ → F} {b : ℂ} {r ρ : ℝ}
+    (hr : 0 < r) (hρ : 0 < ρ) {z : E}
+    (hgr : AnalyticOnNhd ℂ (fun w => f (z, w)) (closedBall b r))
+    (hgρ : AnalyticOnNhd ℂ (fun w => f (z, w)) (closedBall b ρ)) {δ : ℝ} (hδ : 0 < δ) :
+    ∀ᶠ n : ℕ in atTop, ‖fiberCoeff f b r (n + 1) z‖ ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ ρ⁻¹ + δ := by
+  obtain ⟨M₂, hM₂⟩ := (isCompact_closedBall b ρ).exists_bound_of_continuousOn hgρ.continuousOn
+  have hM₃0 : 0 < max M₂ 1 := lt_of_lt_of_le one_pos (le_max_right _ _)
+  have hcoef : ∀ n : ℕ, ‖fiberCoeff f b r (n + 1) z‖ ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤
+      (max M₂ 1) ^ ((n + 1 : ℕ) : ℝ)⁻¹ * ρ⁻¹ := by
+    intro n
+    apply Real.rpow_inv_succ_le_of_le_mul_pow (norm_nonneg _) hM₃0.le hρ
+    rw [fiberCoeff_eq_of_radii hr hρ hgr hgρ]
+    exact norm_cauchyPowerSeries_apply_one_le hρ
+      (fun w hw => (hM₂ w hw).trans (le_max_left _ _)) _
+  have ht := ((Real.tendsto_rpow_inv_natCast_succ hM₃0).mul_const ρ⁻¹).eventually
+    (eventually_le_nhds (show 1 * ρ⁻¹ < ρ⁻¹ + δ by linarith))
+  filter_upwards [ht] with n hn using (hcoef n).trans hn
+
+omit [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E] in
+/-- The geometric majorant: at a point of the disc of radius `σ`, the fiber Taylor series is
+bounded by a geometric series once its coefficients obey the crude bound `M * r⁻¹ ^ k` for all
+`k` and the sharp bound `(ρ⁻¹ + ε) ^ k` from index `N + 1` on. -/
+private theorem norm_le_of_fiberCoeff_bounds {f : E × ℂ → F} {b : ℂ} {r ρ σ q ε M : ℝ} {N : ℕ}
+    (hr : 0 < r) (hρ : 0 < ρ) (hσ0 : 0 < σ) (hσρ : σ < ρ) (hq0 : 0 < q) (hq1 : q < 1)
+    (hq : q = σ * (ρ⁻¹ + ε)) (hM : 0 ≤ M) {z : E}
+    (hgr : AnalyticOnNhd ℂ (fun w => f (z, w)) (closedBall b r))
+    (hgρ : AnalyticOnNhd ℂ (fun w => f (z, w)) (closedBall b ρ))
+    (hMz : ∀ w ∈ closedBall b r, ‖f (z, w)‖ ≤ M)
+    (hbig : ∀ k, N + 1 ≤ k → ‖fiberCoeff f b r k z‖ ≤ (ρ⁻¹ + ε) ^ k)
+    {w : ℂ} (hwσ : ‖w - b‖ < σ) :
+    ‖f (z, w)‖ ≤ max 1 (M * max 1 (σ / r) ^ N / q ^ N) * (1 - q)⁻¹ := by
+  have hps := hasFPowerSeriesOnBall_cauchyPowerSeries_of_analyticOnNhd hρ hgρ
+  have hsum := hps.hasSum (y := w - b) (by
+    change edist (w - b) 0 < ENNReal.ofReal ρ
+    rw [edist_lt_ofReal, dist_zero_right]
+    exact hwσ.trans hσρ)
+  rw [add_sub_cancel] at hsum
+  have hterm (k : ℕ) : (cauchyPowerSeries (fun w => f (z, w)) b ρ k fun _ => w - b) =
+      (w - b) ^ k • fiberCoeff f b r k z := by
+    rw [fiberCoeff_eq_of_radii hr hρ hgr hgρ]
+    simp
+  refine hsum.norm_le_of_bounded ((hasSum_geometric_of_lt_one hq0.le hq1).mul_left _) ?_
+  apply Real.le_geometric_of_bounds (s := σ / r) hM (by positivity) hq0 hq1.le
+  · intro k
+    rw [hterm, norm_smul, norm_pow]
+    calc ‖w - b‖ ^ k * ‖fiberCoeff f b r k z‖ ≤ σ ^ k * (M * r⁻¹ ^ k) :=
+          mul_le_mul (pow_le_pow_left₀ (norm_nonneg _) hwσ.le k)
+            (norm_fiberCoeff_le hr hMz k) (norm_nonneg _) (by positivity)
+      _ = M * (σ / r) ^ k := by rw [div_pow, inv_pow]; ring
+  · intro k hk
+    rw [hterm, norm_smul, norm_pow, hq, mul_pow]
+    exact mul_le_mul (pow_le_pow_left₀ (norm_nonneg _) hwσ.le k) (hbig k hk)
+      (norm_nonneg _) (by positivity)
+
 variable [MeasureSpace E] [BorelSpace E] [(volume : Measure E).IsAddHaarMeasure]
 
 /-- **Hartogs' fiber extension lemma.** A function jointly analytic on a thin cylinder over
@@ -220,7 +215,6 @@ theorem exists_eventually_norm_le_of_fiber_analytic {D : Set E} (hD : IsOpen D) 
     (isCompact_closedBall b r)).exists_bound_of_continuousOn (hf.continuousOn.mono hcyl)
   set M₁ : ℝ := max M₀ 1
   have hM₁1 : 1 ≤ M₁ := le_max_right _ _
-  have hM₁0 : 0 < M₁ := by linarith
   have hM₁' : ∀ z ∈ closedBall z₁ r, ∀ w ∈ closedBall b r, ‖f (z, w)‖ ≤ M₁ :=
     fun z hz w hw => (hM₀ (z, w) ⟨hz, hw⟩).trans (le_max_left _ _)
   -- slice analyticity on the small and large closed discs
@@ -230,35 +224,15 @@ theorem exists_eventually_norm_le_of_fiber_analytic {D : Set E} (hD : IsOpen D) 
       (analyticAt_const.prod analyticAt_id) rfl
   have hgρ : ∀ z ∈ D, AnalyticOnNhd ℂ (fun w => f (z, w)) (closedBall b ρ) :=
     fun z hz => (hfib z hz).mono (closedBall_subset_ball hρR)
-  -- the coefficient family and its bounds
+  -- Hartogs' lemma for the coefficient family
   have hp0 : ∀ n : ℕ, (0 : ℝ) < ((n + 1 : ℕ) : ℝ)⁻¹ := fun n => by positivity
   have hcan : ∀ n : ℕ, AnalyticOnNhd ℂ (fiberCoeff f b r (n + 1)) (closedBall z₁ r) :=
     fun n => (analyticOnNhd_fiberCoeff hD hr0 hrε hf (n + 1)).mono hrD
-  have hB : ∀ n : ℕ, ∀ z ∈ closedBall z₁ r,
-      ‖fiberCoeff f b r (n + 1) z‖ ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ M₁ * r⁻¹ := by
-    intro n z hz
-    refine (rpow_inv_succ_le_of_le_mul_pow (norm_nonneg _) hM₁0.le hr0 n
-      (norm_fiberCoeff_le hr0 (hM₁' z hz) (n + 1))).trans ?_
-    gcongr
-    exact Real.rpow_le_self_of_one_le hM₁1 (inv_le_one_of_one_le₀ (by exact_mod_cast n.succ_pos))
-  have hlim : ∀ z ∈ closedBall z₁ r, ∀ δ > 0, ∀ᶠ n : ℕ in atTop,
-      ‖fiberCoeff f b r (n + 1) z‖ ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ ρ⁻¹ + δ := by
-    intro z hz δ hδ
-    have hzD : z ∈ D := hrD hz
-    obtain ⟨M₂, hM₂⟩ := (isCompact_closedBall b ρ).exists_bound_of_continuousOn
-      (hgρ z hzD).continuousOn
-    have hM₃0 : 0 < max M₂ 1 := lt_of_lt_of_le one_pos (le_max_right _ _)
-    have hcoef : ∀ n : ℕ, ‖fiberCoeff f b r (n + 1) z‖ ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤
-        (max M₂ 1) ^ ((n + 1 : ℕ) : ℝ)⁻¹ * ρ⁻¹ := by
-      intro n
-      apply rpow_inv_succ_le_of_le_mul_pow (norm_nonneg _) hM₃0.le hρ
-      rw [fiberCoeff_eq_of_radii hr0 hρ (hgr z hzD) (hgρ z hzD)]
-      exact norm_cauchyPowerSeries_apply_one_le hρ
-        (fun w hw => (hM₂ w hw).trans (le_max_left _ _)) _
-    have ht := ((tendsto_rpow_inv_natCast_succ hM₃0).mul_const ρ⁻¹).eventually
-      (eventually_le_nhds (show 1 * ρ⁻¹ < ρ⁻¹ + δ by linarith))
-    filter_upwards [ht] with n hn using (hcoef n).trans hn
-  obtain ⟨r', hr'0, hev⟩ := eventually_norm_rpow_lt_on_ball hr0 hp0 hcan hB hlim hε0
+  obtain ⟨r', hr'0, hev⟩ := eventually_norm_rpow_lt_on_ball hr0 hp0 hcan
+    (fun n z hz => norm_fiberCoeff_rpow_inv_succ_le hr0 hM₁1 (hM₁' z hz) n)
+    (fun z hz δ hδ =>
+      eventually_norm_fiberCoeff_rpow_inv_succ_le hr0 hρ (hgr z (hrD hz)) (hgρ z (hrD hz)) hδ)
+    hε0
   obtain ⟨N, hN⟩ := eventually_atTop.mp hev
   have hbig : ∀ k, N + 1 ≤ k → ∀ z ∈ ball z₁ r',
       ‖fiberCoeff f b r k z‖ ≤ (ρ⁻¹ + ε) ^ k := by
@@ -268,7 +242,7 @@ theorem exists_eventually_norm_le_of_fiber_analytic {D : Set E} (hD : IsOpen D) 
     rw [Real.rpow_inv_lt_iff_of_pos (norm_nonneg _) (by positivity) (by positivity),
       Real.rpow_natCast] at this
     exact this.le
-  -- the geometric majorant
+  -- the geometric majorant on a neighborhood
   refine ⟨max 1 (M₁ * max 1 (σ / r) ^ N / q ^ N) * (1 - q)⁻¹, ?_⟩
   have hopen : IsOpen (ball z₁ (min r' r) ×ˢ ball b σ) := isOpen_ball.prod isOpen_ball
   have hmem : (z₁, w₁) ∈ ball z₁ (min r' r) ×ˢ ball b σ :=
@@ -279,27 +253,7 @@ theorem exists_eventually_norm_le_of_fiber_analytic {D : Set E} (hD : IsOpen D) 
   have hzr : z ∈ closedBall z₁ r := ball_subset_closedBall (ball_subset_ball (min_le_right _ _) hz)
   have hzD : z ∈ D := hrD hzr
   have hwσ : ‖w - b‖ < σ := by rwa [← dist_eq_norm]
-  have hps := hasFPowerSeriesOnBall_cauchyPowerSeries_of_analyticOnNhd hρ (hgρ z hzD)
-  have hsum := hps.hasSum (y := w - b) (by
-    show edist (w - b) 0 < ENNReal.ofReal ρ
-    rw [edist_lt_ofReal, dist_zero_right]
-    exact hwσ.trans hσρ)
-  rw [add_sub_cancel] at hsum
-  have hterm (k : ℕ) : (cauchyPowerSeries (fun w => f (z, w)) b ρ k fun _ => w - b) =
-      (w - b) ^ k • fiberCoeff f b r k z := by
-    rw [fiberCoeff_eq_of_radii hr0 hρ (hgr z hzD) (hgρ z hzD)]
-    simp
-  refine hsum.norm_le_of_bounded ((hasSum_geometric_of_lt_one hq0.le hq1).mul_left _) ?_
-  apply le_geometric_of_bounds (s := σ / r) hM₁0.le (by positivity) hq0 hq1.le
-  · intro k
-    rw [hterm, norm_smul, norm_pow]
-    calc ‖w - b‖ ^ k * ‖fiberCoeff f b r k z‖ ≤ σ ^ k * (M₁ * r⁻¹ ^ k) :=
-          mul_le_mul (pow_le_pow_left₀ (norm_nonneg _) hwσ.le k)
-            (norm_fiberCoeff_le hr0 (hM₁' z hzr) k) (norm_nonneg _) (by positivity)
-      _ = M₁ * (σ / r) ^ k := by rw [div_pow, inv_pow]; ring
-  · intro k hk
-    rw [hterm, norm_smul, norm_pow, hq, mul_pow]
-    exact mul_le_mul (pow_le_pow_left₀ (norm_nonneg _) hwσ.le k) (hbig k hk z hzr')
-      (norm_nonneg _) (by positivity)
+  exact norm_le_of_fiberCoeff_bounds hr0 hρ hσ0 hσρ hq0 hq1 hq (by linarith) (hgr z hzD)
+    (hgρ z hzD) (hM₁' z hzr) (fun k hk => hbig k hk z hzr') hwσ
 
 end SeveralComplexVariables

@@ -26,8 +26,14 @@ their proofs are supplied in `Solution.lean`.
 - `SeveralComplexVariables/` holds the library, grouped by topic (`AnalyticGerm`,
   `AnalyticSet`, `HolomorphicConvexity`,
   `LaurentSeries`, `LeviConvexity`, `Reinhardt`, `RemovableSingularity`, `Runge`,
-  `SeparateAnalytic`, `Subharmonic`, `TubeDomain`, `WeierstrassDivision`, `ZeroSets`, and
-  others). Every file has a documentation header and every declaration a docstring.
+  `SeparateAnalytic`, `TubeDomain`, `WeierstrassDivision`, `ZeroSets`, and others). Every
+  file has a documentation header and every declaration a docstring.
+- `ComplexAnalysis/` holds the single-variable complex analysis used by the library (Cauchy
+  transforms and the Cauchy–Pompeiu identity, annulus Laurent series, subharmonic functions,
+  one-variable removable singularities, and related results). It is the subset of a separate
+  one-variable project that this library needs.
+- `ToMathlib/Analysis/` and `ToMathlib/Topology/` hold general analysis and topology support
+  that depends only on Mathlib, in the namespaces of the Mathlib APIs they extend.
 - `Main.lean` is the executable stub required by the Lake configuration; it only imports the
   library.
 - `Challenge.lean` states the selected Palomar results using Mathlib alone; `Solution.lean`
@@ -35,7 +41,8 @@ their proofs are supplied in `Solution.lean`.
 - `formalization.yaml` records submission metadata and scope; `comparator.json` lists the
   declarations to compare. `make_challenge.py` generates the challenge and Comparator
   configuration from `Solution.lean`.
-- `References/` contains the texts that guided the selection of material; see below.
+- `SeveralComplexVariables/References/` (not in the repository) contains the texts that
+  guided the selection of material; see below.
 
 ## Building the Palomar (V1) version
 

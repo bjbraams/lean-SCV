@@ -25,6 +25,11 @@ from `Polynomial.monic_X_pow_add` and `Polynomial.ofFn_degree_lt`.
 * `Polynomial.natDegree_X_pow_add_ofFn`: Its natural degree over a nontrivial semiring.
 
 These algebraic facts require no topology and apply to arbitrary semirings.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

@@ -114,11 +114,10 @@ theorem eqOn_id_of_mapsTo_of_fderiv_eq_id
     exact sub_eq_zero.mp (tendsto_nhds_unique H ((hzero z hz).comp hφ.tendsto_atTop))
   obtain ⟨V, hV, haV, _, hinj⟩ := exists_open_injOn_of_injective_fderiv hU hg.differentiableOn ha
     (by rw [hgd]; exact Function.injective_id)
-  have heq : f =ᶠ[𝓝 a] id := by
-    have hpre : f ⁻¹' V ∈ 𝓝 a := (hf a ha).continuousAt.preimage_mem_nhds
-      (hV.mem_nhds (by simpa only [hfix] using haV))
-    filter_upwards [hU.mem_nhds ha, hV.mem_nhds haV, hpre] with z hz hzV hfzV
-    exact hinj hfzV hzV (hgf z hz)
-  exact hf.eqOn_of_preconnected_of_eventuallyEq analyticOnNhd_id hconn ha heq
+  apply hf.eqOn_of_preconnected_of_eventuallyEq analyticOnNhd_id hconn ha
+  have hpre : f ⁻¹' V ∈ 𝓝 a := (hf a ha).continuousAt.preimage_mem_nhds
+    (hV.mem_nhds (by simpa only [hfix] using haV))
+  filter_upwards [hU.mem_nhds ha, hV.mem_nhds haV, hpre] with z hz hzV hfzV
+  exact hinj hfzV hzV (hgf z hz)
 
 end SeveralComplexVariables

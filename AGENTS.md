@@ -8,6 +8,12 @@
 - Never run lake build from a subdirectory as if it were the package root.
 - Never copy Mathlib or .lake onto NFS ($HOME).
 - Do not “fix” the link because it points outside the repo. That is intentional.
+- That lake directory is shared with the companion projects (lean-CA, lean-codes, lean-AAR,
+  lean-LCS). They share `.lake/packages` (all pin the same Mathlib), but this project writes
+  its own build outputs to `.lake/build-SCV` (`buildDir` in `lakefile.toml`), because Lake's
+  build traces include the package name and modules with equal names (`ComplexAnalysis.*`,
+  `ToMathlib.*`, `SeveralComplexVariables.*`) would otherwise overwrite each other. Keep
+  that `buildDir` setting; never write to or delete another project's build directory.
 - Do not set `LEAN_PATH`, `LAKE_HOME`, or a custom cache dir unless asked.
 - If `.lake` is missing or is no longer a symlink to the path above, stop and ask. Do not
   repair it.
@@ -60,6 +66,13 @@ references provide guidance for material to be included in the formalization. Se
   nested namespace blocks. Reusable extensions of existing Mathlib APIs belong in their
   original namespaces (use `_root_` from inside a project namespace). Generic results
   belong at the root or in their natural Mathlib namespace, in suitable supporting modules.
+- Supporting code lives outside `SeveralComplexVariables/`: single-variable complex analysis
+  in `ComplexAnalysis/`, general analysis and topology in `ToMathlib/Analysis` and
+  `ToMathlib/Topology`, and algebra (if any) in `ToMathlib/Algebra`. The files in
+  `ComplexAnalysis/` are exact copies of a subset of `../lean-CA/ComplexAnalysis`, restricted to
+  modules this project imports; do not edit them here, but change them in lean-CA and copy
+  them back. A `ToMathlib` file that also exists in lean-CA must have identical content and
+  path in both projects.
 - Expose definitions whose formulas downstream modules need to unfold, either individually
   with `@[expose]` or in a suitably scoped exposed section. Theorem-only sections and
   private implementation details do not need blanket exposure.

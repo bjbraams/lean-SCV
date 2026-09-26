@@ -25,6 +25,11 @@ assert a Jordan-curve theorem or homotopy invariance of contours.
 `analyticOnNhd_integral_mul_compact_kernel` is its scalar specialization. Compactness supplies
 derivative bounds and separable images, with no second-countability assumption on the parameter
 space. `analyticOnNhd_circleIntegral_kernel_mul` is the scalar circle specialization.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 open Complex MeasureTheory Filter Metric Set

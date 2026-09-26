@@ -20,6 +20,11 @@ contour is fixed while its kernel may depend on all parameters.
 `analyticOnNhd_circleIntegral_kernel` is holomorphy of a circle integral of a jointly analytic
 Banach-valued kernel. `analyticOnNhd_integral_smul_compact_kernel` is the compactly parametrized
 form.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

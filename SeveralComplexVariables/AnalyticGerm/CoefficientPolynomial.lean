@@ -41,6 +41,11 @@ analytic germ ring, proved in `SeveralComplexVariables.AnalyticGerm.Weierstrass`
   germs.
 * `eq_remainderOfCoefficients_of_degree_lt`: Any polynomial of degree below `d` is the
   remainder-shape polynomial built from its own coefficients.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
@@ -48,10 +53,11 @@ public noncomputable section
 namespace SeveralComplexVariables.AnalyticGerm
 
 open Filter
-open scoped Topology Classical
+open scoped Topology
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
+open scoped Classical in
 /-- The monic polynomial in `X` of degree `d` with prescribed coefficient germs below `d`. -/
 @[expose] def ofCoefficients {d : ℕ} (b : Fin d → AnalyticGerm ℂ (0 : E)) :
     Polynomial (AnalyticGerm ℂ (0 : E)) :=
@@ -62,16 +68,19 @@ theorem degree_sum_lt {d : ℕ} (b : Fin d → AnalyticGerm ℂ (0 : E)) :
     (∑ j : Fin d, Polynomial.C (b j) * Polynomial.X ^ (j : ℕ)).degree < (d : WithBot ℕ) :=
   Polynomial.degree_sum_fin_lt b
 
+open scoped Classical in
 /-- The distinguished-shape polynomial built from coefficient germs is monic. -/
 theorem monic_ofCoefficients {d : ℕ} (b : Fin d → AnalyticGerm ℂ (0 : E)) :
     (ofCoefficients b).Monic :=
   Polynomial.monic_X_pow_add (Polynomial.ofFn_degree_lt b)
 
+open scoped Classical in
 /-- The distinguished-shape polynomial built from coefficient germs has degree `d`. -/
 theorem natDegree_ofCoefficients {d : ℕ} (b : Fin d → AnalyticGerm ℂ (0 : E)) :
     (ofCoefficients b).natDegree = d :=
   Polynomial.natDegree_X_pow_add_ofFn b
 
+open scoped Classical in
 /-- Coefficients of `ofCoefficients` below `d` recover the prescribed germs. -/
 theorem coeff_ofCoefficients_of_lt {d : ℕ} (b : Fin d → AnalyticGerm ℂ (0 : E)) {i : ℕ}
     (hi : i < d) : (ofCoefficients b).coeff i = b ⟨i, hi⟩ :=
@@ -93,6 +102,7 @@ coefficients. -/
 theorem eq_ofCoefficients_of_monic {w : Polynomial (AnalyticGerm ℂ (0 : E))} {d : ℕ}
     (hm : w.Monic) (hd : w.natDegree = d) :
     w = ofCoefficients (fun j : Fin d => w.coeff (j : ℕ)) := by
+  classical
   subst hd
   exact hm.eq_X_pow_add_ofFn
 
@@ -102,6 +112,7 @@ theorem polynomialHom_ofCoefficients {d : ℕ} (a : Fin d → E → ℂ)
     (ha : ∀ j, AnalyticAt ℂ (a j) 0) :
     polynomialHom (ofCoefficients (fun j => ofAnalyticAt (a j) (ha j))) =
       ofAnalyticAt (weierstrassPolynomial a) (analyticAt_weierstrassPolynomial ha) := by
+  classical
   have hfst : AnalyticAt ℂ (Prod.fst : E × ℂ → E) 0 := analyticAt_fst
   have hsnd : AnalyticAt ℂ (Prod.snd : E × ℂ → ℂ) 0 := analyticAt_snd
   have hlc : (lastCoordinate : AnalyticGerm ℂ (0 : E × ℂ)) = ofAnalyticAt Prod.snd hsnd := rfl
@@ -114,7 +125,7 @@ theorem polynomialHom_ofCoefficients {d : ℕ} (a : Fin d → E → ℂ)
         (((ha j).comp_of_eq hfst rfl).mul (hsnd.pow (j : ℕ))) := by
     intro j
     have hpar := pullback_ofAnalyticAt Prod.fst (analyticAt_fst (p := (0 : E × ℂ))) (a j) (ha j)
-    show pullback Prod.fst (analyticAt_fst (p := (0 : E × ℂ))) (ofAnalyticAt (a j) (ha j)) *
+    change pullback Prod.fst (analyticAt_fst (p := (0 : E × ℂ))) (ofAnalyticAt (a j) (ha j)) *
       ofAnalyticAt Prod.snd hsnd ^ (j : ℕ) = _
     rw [hpar, ← ofAnalyticAt_pow, ofAnalyticAt_mul]
   rw [Finset.sum_congr rfl (fun j _ => hstep j),
@@ -152,19 +163,22 @@ theorem orderInLastVariable_polynomialHom_of_isDistinguishedAt
   have hcentral : (fun t : ℂ => weierstrassPolynomial a0 (0, t)) = fun t : ℂ => t ^ d :=
     funext (weierstrassPolynomial_central ha00)
   rw [hcentral]
-  show analyticOrderAt ((id : ℂ → ℂ) ^ d) 0 = d
+  change analyticOrderAt ((id : ℂ → ℂ) ^ d) 0 = d
   rw [analyticOrderAt_pow (analyticAt_id (𝕜 := ℂ)) d, analyticOrderAt_id]
   simp
 
+open scoped Classical in
 /-- The polynomial in `X` of degree below `d` with prescribed coefficient germs. -/
 @[expose] def remainderOfCoefficients {d : ℕ} (b : Fin d → AnalyticGerm ℂ (0 : E)) :
     Polynomial (AnalyticGerm ℂ (0 : E)) :=
   Polynomial.ofFn d b
 
+open scoped Classical in
 /-- The remainder-shape polynomial has degree strictly below `d`. -/
 theorem degree_remainderOfCoefficients_lt {d : ℕ} (b : Fin d → AnalyticGerm ℂ (0 : E)) :
     (remainderOfCoefficients b).degree < (d : WithBot ℕ) := Polynomial.ofFn_degree_lt b
 
+open scoped Classical in
 /-- Any polynomial of degree below `d` is the remainder-shape polynomial built from its own
 coefficients. -/
 theorem eq_remainderOfCoefficients_of_degree_lt {r : Polynomial (AnalyticGerm ℂ (0 : E))} {d : ℕ}
@@ -178,6 +192,7 @@ theorem polynomialHom_remainderOfCoefficients {d : ℕ} (a : Fin d → E → ℂ
     (ha : ∀ j, AnalyticAt ℂ (a j) 0) :
     polynomialHom (remainderOfCoefficients (fun j => ofAnalyticAt (a j) (ha j))) =
       ofAnalyticAt (weierstrassRemainder a) (analyticAt_weierstrassRemainder ha) := by
+  classical
   have hfst : AnalyticAt ℂ (Prod.fst : E × ℂ → E) 0 := analyticAt_fst
   have hsnd : AnalyticAt ℂ (Prod.snd : E × ℂ → ℂ) 0 := analyticAt_snd
   have hlc : (lastCoordinate : AnalyticGerm ℂ (0 : E × ℂ)) = ofAnalyticAt Prod.snd hsnd := rfl
@@ -190,7 +205,7 @@ theorem polynomialHom_remainderOfCoefficients {d : ℕ} (a : Fin d → E → ℂ
         (((ha j).comp_of_eq hfst rfl).mul (hsnd.pow (j : ℕ))) := by
     intro j
     have hpar := pullback_ofAnalyticAt Prod.fst (analyticAt_fst (p := (0 : E × ℂ))) (a j) (ha j)
-    show pullback Prod.fst (analyticAt_fst (p := (0 : E × ℂ))) (ofAnalyticAt (a j) (ha j)) *
+    change pullback Prod.fst (analyticAt_fst (p := (0 : E × ℂ))) (ofAnalyticAt (a j) (ha j)) *
       ofAnalyticAt Prod.snd hsnd ^ (j : ℕ) = _
     rw [hpar, ← ofAnalyticAt_pow, ofAnalyticAt_mul]
   rw [Finset.sum_congr rfl (fun j _ => hstep j),
@@ -201,6 +216,7 @@ theorem polynomialHom_remainderOfCoefficients {d : ℕ} (a : Fin d → E → ℂ
   funext z
   simp [weierstrassRemainder, Function.comp]
 
+open scoped Classical in
 /-- `remainderOfCoefficients` is additive in the coefficient tuple. -/
 theorem remainderOfCoefficients_add {d : ℕ} (a b : Fin d → AnalyticGerm ℂ (0 : E)) :
     remainderOfCoefficients (a + b) = remainderOfCoefficients a + remainderOfCoefficients b :=
@@ -211,9 +227,11 @@ on the coefficient tuple. -/
 theorem remainderOfCoefficients_smul {d : ℕ} (c : AnalyticGerm ℂ (0 : E))
     (a : Fin d → AnalyticGerm ℂ (0 : E)) :
     remainderOfCoefficients (c • a) = Polynomial.C c * remainderOfCoefficients a := by
+  classical
   simpa only [remainderOfCoefficients, Polynomial.smul_eq_C_mul] using
     (Polynomial.ofFn d).map_smul c a
 
+open scoped Classical in
 /-- `remainderOfCoefficients` commutes with finite sums of coefficient tuples. -/
 theorem remainderOfCoefficients_sum {d : ℕ} {ι : Type*} (s : Finset ι)
     (v : ι → Fin d → AnalyticGerm ℂ (0 : E)) :

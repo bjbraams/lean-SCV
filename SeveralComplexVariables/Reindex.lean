@@ -20,6 +20,11 @@ enumeration whenever the Cauchy hypotheses hold.
 `partialDeriv_reindex` and `iteratedPartialDeriv_reindex` transport coordinate derivatives along a
 renaming of coordinates. `two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul_reindex` transports
 the polydisc Cauchy formula along any enumeration of a finite index type.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

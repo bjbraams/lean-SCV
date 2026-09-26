@@ -21,6 +21,11 @@ available through this file.
 `analyticOnNhd_pi_of_analyticOnNhd_update` is Osgood's theorem on an arbitrary finite coordinate
 space `ι → ℂ`: continuity on an open set together with holomorphy in each coordinate separately
 yields joint analyticity.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public section

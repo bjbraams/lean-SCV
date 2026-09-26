@@ -21,6 +21,11 @@ separating that point from a compact subset of the domain.
 `exists_logarithmic_lift` produces a logarithmic lift of a modulus vector with some zero
 coordinates. `exists_nat_weights` approximates nonnegative separating weights by integer
 exponents. `exists_monomial_separator_of_finite_radii` is the resulting monomial separator.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section

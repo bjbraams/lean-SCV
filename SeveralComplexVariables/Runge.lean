@@ -10,7 +10,7 @@ public import Mathlib.Analysis.Analytic.Polynomial
 public import Mathlib.Topology.Algebra.InfiniteSum.UniformOn
 public import Mathlib.Topology.Algebra.MvPolynomial
 public import SeveralComplexVariables.Analyticity
-public import SeveralComplexVariables.Topology.CompactExhaustion
+public import ToMathlib.Topology.CompactExhaustion
 public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 public import SeveralComplexVariables.PolydiscTaylor
 

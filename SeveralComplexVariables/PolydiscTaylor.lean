@@ -32,6 +32,11 @@ coefficients also define an element of Mathlib's `MvPowerSeries`.
 * `hasSumLocallyUniformlyOn_iteratedPartialDeriv_polydiscTaylor`: Any mixed derivative of the
   separate-radius Taylor expansion is obtained by termwise differentiation, with locally uniform
   convergence on the full open polydisc.
+
+## References
+
+* V. Scheidemann, *Introduction to Complex Analysis in Several Variables*,
+  Birkhäuser, 2005 (background on holomorphic functions of several variables).
 -/
 
 public noncomputable section
