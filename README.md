@@ -16,8 +16,8 @@ the extent and limits of the theory. Every catalogued result is proved.
 The first version of the project has been entered into the
 [Palomar Registry](https://palomar-registry.org/) as
 [PALOMAR-2026-09-18-000008 v1](https://palomar-registry.org/entry?id=PALOMAR-2026-09-18-000008&version=1).
-For Palomar, `Challenge.lean` restates 63 theorems with intentional `sorry` placeholders;
-their proofs are supplied in `Solution.lean`.
+That entry has 63 theorems. The current `Challenge.lean` restates 67 theorems with
+intentional `sorry` placeholders; their proofs are supplied in `Solution.lean`.
 
 ## Organization
 
@@ -32,8 +32,9 @@ their proofs are supplied in `Solution.lean`.
   transforms and the Cauchy–Pompeiu identity, annulus Laurent series, subharmonic functions,
   one-variable removable singularities, and related results). It is the subset of a separate
   one-variable project that this library needs.
-- `ToMathlib/Analysis/` and `ToMathlib/Topology/` hold general analysis and topology support
-  that depends only on Mathlib, in the namespaces of the Mathlib APIs they extend.
+- `ToMathlib/Algebra/`, `ToMathlib/Analysis/` and `ToMathlib/Topology/` hold general algebra,
+  analysis and topology support that depends only on Mathlib, in the namespaces of the Mathlib
+  APIs they extend.
 - `Main.lean` is the executable stub required by the Lake configuration; it only imports the
   library.
 - `Challenge.lean` states the selected Palomar results using Mathlib alone; `Solution.lean`
@@ -55,7 +56,7 @@ To check both Palomar modules:
 
     lake build Solution Challenge
 
-The Challenge build reports the 63 intentional `sorry` placeholders. These build checks
+The Challenge build reports the 67 intentional `sorry` placeholders. These build checks
 are separate from Palomar's Comparator and independent kernel verification.
 
 The Palomar version is a snapshot. The Github version of the project may see further

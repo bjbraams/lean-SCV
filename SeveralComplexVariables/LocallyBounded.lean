@@ -37,44 +37,6 @@ namespace SeveralComplexVariables
 
 variable {ι F : Type*} [Fintype ι] [DecidableEq ι] [NormedAddCommGroup F] [NormedSpace ℂ F]
 
-omit [NormedSpace ℂ F] in
-/-- Coordinate variation bounds telescope to a joint bound on a product set. This also includes the
-empty product, where every function is constant. -/
-theorem norm_sub_le_sum_of_update {s : ι → Set ℂ} {f : (ι → ℂ) → F} {C : ℝ}
-    (hf : ∀ z ∈ Set.pi univ s, ∀ i, ∀ w ∈ s i,
-      ‖f (update z i w) - f z‖ ≤ C * ‖w - z i‖)
-    {x y : ι → ℂ} (hx : x ∈ Set.pi univ s) (hy : y ∈ Set.pi univ s) :
-    ‖f y - f x‖ ≤ ∑ i, C * ‖y i - x i‖ := by
-  have hmem (t : Finset ι) : (fun i => if i ∈ t then y i else x i) ∈ Set.pi univ s := by
-    intro i hi
-    dsimp only
-    split_ifs <;> [exact hy i hi; exact hx i hi]
-  suffices hstep : ∀ t : Finset ι,
-      ‖f (fun i => if i ∈ t then y i else x i) - f x‖ ≤ ∑ i ∈ t, C * ‖y i - x i‖ by
-    simpa using hstep Finset.univ
-  intro t
-  induction t using Finset.induction_on with
-  | empty => simp
-  | @insert i t hi ih =>
-    have heq : (fun j => if j ∈ insert i t then y j else x j) =
-        update (fun j => if j ∈ t then y j else x j) i (y i) := by
-      funext j
-      by_cases hji : j = i <;> simp [hji]
-    rw [heq, Finset.sum_insert hi]
-    refine (norm_sub_le_norm_sub_add_norm_sub _ (f (fun j => if j ∈ t then y j else x j)) _).trans
-      (add_le_add ?_ ih)
-    simpa [hi] using hf _ (hmem t) i (y i) (hy i (mem_univ i))
-
-/-- Updating a coordinate within its disc preserves a closed sup-norm ball. -/
-theorem update_mem_closedBall_of_mem {c z : ι → ℂ} {r : ℝ} (hr : 0 ≤ r)
-    (hz : z ∈ closedBall c r) (i : ι) {w : ℂ} (hw : w ∈ closedBall (c i) r) :
-    update z i w ∈ closedBall c r := by
-  rw [mem_closedBall, dist_pi_le_iff hr] at hz ⊢
-  intro j
-  by_cases hji : j = i
-  · simpa [hji] using hw
-  · simpa [hji] using hz j
-
 /-- A bounded separately holomorphic map is jointly Lipschitz on a smaller polydisc. The constant is
 explicit and uniform over families with the same bound. -/
 theorem norm_sub_le_of_separately_analytic_bounded {f : (ι → ℂ) → F}
@@ -94,22 +56,28 @@ theorem norm_sub_le_of_separately_analytic_bounded {f : (ι → ℂ) → F}
       ‖f (update z i w) - f z‖ ≤ (M / r) * ‖w - z i‖ := by
     have hder (v : ℂ) (hv : v ∈ closedBall (c i) r) :
         ‖deriv (fun a => f (update z i a)) v‖ ≤ M / r := by
-      have hp := update_mem_closedBall_of_mem hr.le hz i hv
+      have hp := update_mem_closedBall hr.le hz i hv
       have hball : closedBall (update z i v) r ⊆ closedBall c (2 * r) :=
         closedBall_subset_closedBall' (by linarith [mem_closedBall.mp hp])
       have hslice := norm_partialDeriv_le_of_slice (f := f) (z := update z i v) i hr
         (fun a ha => (hdiff (update z i v) i a
-          (hball (update_mem_closedBall hr.le ha))).differentiableWithinAt)
-        (fun a ha => hM _ (hball (update_mem_closedBall hr.le (sphere_subset_closedBall ha))))
+          (hball (update_mem_closedBall hr.le (mem_closedBall_self hr.le) i ha))
+          ).differentiableWithinAt)
+        (fun a ha => hM _ (hball (update_mem_closedBall hr.le (mem_closedBall_self hr.le) i
+          (sphere_subset_closedBall ha))))
       simpa only [partialDeriv, update_idem, update_self] using hslice
     have hzi : z i ∈ closedBall (c i) r := (dist_pi_le_iff hr.le).mp (mem_closedBall.mp hz) i
     simpa only [update_eq_self] using
       (convex_closedBall (c i) r).norm_image_sub_le_of_norm_deriv_le
-        (fun v hv => hdiff z i v (hsmall (update_mem_closedBall_of_mem hr.le hz i hv)))
+        (fun v hv => hdiff z i v (hsmall (update_mem_closedBall hr.le hz i hv)))
         hder hzi hw
   have hprod : closedBall c r = Set.pi univ (fun i => closedBall (c i) r) := closedBall_pi c hr.le
-  have hsum := norm_sub_le_sum_of_update (C := M / r)
-    (fun z hz i w hw => hcoord z (hprod.symm ▸ hz) i w hw) (hprod ▸ hx) (hprod ▸ hy)
+  have hsum := dist_le_sum_of_dist_update_le (f := f) (C := fun _ => M / r)
+    (fun z hz i w hw => by
+      rw [dist_eq_norm, dist_eq_norm]
+      exact hcoord z (hprod.symm ▸ hz) i w hw)
+    (hprod ▸ hx) (hprod ▸ hy)
+  simp only [dist_eq_norm] at hsum
   refine hsum.trans ?_
   calc
     ∑ i, (M / r) * ‖y i - x i‖ ≤ ∑ i : ι, (M / r) * ‖y - x‖ :=

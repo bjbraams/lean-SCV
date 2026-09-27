@@ -64,11 +64,14 @@ section Triangle
 /-- The half-sum direction of a triangle with vertex `p` and points `t₁, t₂`. -/
 @[expose] def triDir₂ (p t₁ t₂ : ι → ℝ) : ι → ℝ := (1 / 2 : ℝ) • (t₁ + t₂) - p
 
-/-- The point of the triangle with parameters `u, v`. -/
+/-- The affine parametrization `p + u • triDir₁ + v • triDir₂` of the plane of the triangle.
+The points of `tri p t₁ t₂ b` are those with parameters `|u| ≤ v ≤ b`; for other parameters the
+point need not lie in the triangle. -/
 @[expose] def triPt (p t₁ t₂ : ι → ℝ) (u v : ℝ) : ι → ℝ :=
   p + u • triDir₁ p t₁ t₂ + v • triDir₂ p t₁ t₂
 
-/-- The triangle with vertex `p` and points `t₁, t₂`, scaled by `b` toward `p`. -/
+/-- The triangle with vertex `p` and points `t₁, t₂`, scaled by `b ≥ 0` toward `p`: the points
+`triPt p t₁ t₂ u v` with `|u| ≤ v ≤ b`. For `b < 0` the set is empty. -/
 @[expose] def tri (p t₁ t₂ : ι → ℝ) (b : ℝ) : Set (ι → ℝ) :=
   {x | ∃ u v : ℝ, |u| ≤ v ∧ v ≤ b ∧ x = triPt p t₁ t₂ u v}
 

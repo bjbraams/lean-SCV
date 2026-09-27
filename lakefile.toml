@@ -16,7 +16,7 @@ globs = ["ComplexAnalysis.+"]
 
 [[lean_lib]]
 name = "ToMathlib"
-roots = ["ToMathlib.Analysis", "ToMathlib.Topology"]
+roots = ["ToMathlib.Algebra", "ToMathlib.Analysis", "ToMathlib.Topology"]
 globs = ["ToMathlib.+"]
 
 # Palomar registry: statement file (Mathlib only) and its proofs from the library.

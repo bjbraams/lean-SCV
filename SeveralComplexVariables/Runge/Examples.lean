@@ -22,15 +22,17 @@ Runge domains.
 
 Runge domains are transported by holomorphic maps with polynomial inverses: if `U` is Runge, `Φ`
 is holomorphic on `U` with values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with
-`Φ ∘ Ψ = id` on `U'`, then `U'` is Runge. Translates and polynomial-automorphic images of Runge
-domains are Runge ([Jakóbczak–Jarnicki][JakobczakJarnicki2021], Proposition 4.3.2).
+`Φ ∘ Ψ = id` on `U'`, then `U'` is Runge; the dimensions of the two spaces may differ.
+Translates and polynomial-automorphic images of Runge domains are Runge
+([Jakóbczak–Jarnicki][JakobczakJarnicki2021], Proposition 4.3.2).
 
 References: [Hörmander][Hormander1973] (1973), Section 2.7;
 [Jakóbczak–Jarnicki][JakobczakJarnicki2021] (2021), Section 4.3.
 
 ## Main definitions
 
-* `mvPolynomialMap`: The polynomial map with components `G i`.
+* `mvPolynomialMap`: The polynomial map with components `G i`, between coordinate spaces of
+  possibly different dimensions.
 
 ## Main results
 
@@ -40,8 +42,9 @@ References: [Hörmander][Hormander1973] (1973), Section 2.7;
   domains** : holomorphic functions are locally uniform sums of their homogeneous expansions, whose
   terms are polynomials.
 * `IsRungeDomain.transport`: **Transport of Runge domains.** If `U` is a Runge domain, `Φ` is
-  holomorphic on `U` with values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with `Φ ∘ Ψ
-  = id` on `U'`, then `U'` is a Runge domain.
+  holomorphic on `U` with values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with
+  `Φ ∘ Ψ = id` on `U'`, then `U'` is a Runge domain. The two coordinate spaces may have
+  different dimensions.
 
 ## References
 
@@ -139,28 +142,31 @@ end Circular
 
 section Transport
 
-/-- The polynomial map with components `G i`. -/
-@[expose] def mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ) (z : Fin n → ℂ) : Fin n → ℂ :=
+variable {ι σ τ R : Type*}
+
+/-- The polynomial map from `σ → R` to `τ → R` with components `G i`. -/
+@[expose] def mvPolynomialMap [CommSemiring R] (G : τ → MvPolynomial σ R) (z : σ → R) : τ → R :=
   fun i => MvPolynomial.eval z (G i)
 
 /-- Polynomial maps are continuous. -/
-theorem continuous_mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ) :
-    Continuous (mvPolynomialMap G) :=
+theorem continuous_mvPolynomialMap [CommSemiring R] [TopologicalSpace R]
+    [IsTopologicalSemiring R] (G : τ → MvPolynomial σ R) : Continuous (mvPolynomialMap G) :=
   continuous_pi fun i => (G i).continuous_eval
 
 /-- Substitution of a polynomial map into a polynomial. -/
-theorem eval_bind₁_mvPolynomialMap (G : Fin n → MvPolynomial (Fin n) ℂ)
-    (P : MvPolynomial (Fin n) ℂ) (z : Fin n → ℂ) :
+theorem eval_bind₁_mvPolynomialMap [CommSemiring R] (G : τ → MvPolynomial σ R)
+    (P : MvPolynomial τ R) (z : σ → R) :
     MvPolynomial.eval z (MvPolynomial.bind₁ G P) = MvPolynomial.eval (mvPolynomialMap G z) P := by
   simp only [MvPolynomial.eval, MvPolynomial.eval₂Hom_bind₁]
   rfl
 
-/-- **Transport of Runge domains.** If `U` is a Runge domain, `Φ` is holomorphic on `U` with
-values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with `Φ ∘ Ψ = id` on `U'`, then
-`U'` is a Runge domain. -/
-theorem IsRungeDomain.transport {U U' : Set (Fin n → ℂ)} (hU : IsRungeDomain U)
-    {Φ : (Fin n → ℂ) → (Fin n → ℂ)} (hΦ : AnalyticOnNhd ℂ Φ U) (hΦU : MapsTo Φ U U')
-    (G : Fin n → MvPolynomial (Fin n) ℂ) (hGU : MapsTo (mvPolynomialMap G) U' U)
+/-- **Transport of Runge domains.** If `U ⊆ ℂ^σ` is a Runge domain, `Φ` is holomorphic on `U`
+with values in `U' ⊆ ℂ^τ`, and `Ψ` is a polynomial map from `U'` into `U` with `Φ ∘ Ψ = id` on
+`U'`, then `U'` is a Runge domain. The dimensions of the two spaces may differ; for instance `Φ`
+may be a holomorphic retraction onto a lower-dimensional coordinate space. -/
+theorem IsRungeDomain.transport [Fintype σ] [Fintype τ] {U : Set (σ → ℂ)} {U' : Set (τ → ℂ)}
+    (hU : IsRungeDomain U) {Φ : (σ → ℂ) → (τ → ℂ)} (hΦ : AnalyticOnNhd ℂ Φ U)
+    (hΦU : MapsTo Φ U U') (G : σ → MvPolynomial τ ℂ) (hGU : MapsTo (mvPolynomialMap G) U' U)
     (hinv : ∀ z ∈ U', Φ (mvPolynomialMap G z) = z) : IsRungeDomain U' := by
   intro f hf K hK hKU ε hε
   have hfΦ : AnalyticOnNhd ℂ (f ∘ Φ) U := hf.comp hΦ hΦU
@@ -172,8 +178,8 @@ theorem IsRungeDomain.transport {U U' : Set (Fin n → ℂ)} (hU : IsRungeDomain
   simpa [comp_apply, hinv z (hKU hz)] using this
 
 /-- Runge domains are transported by polynomial automorphisms with polynomial inverses. -/
-theorem IsRungeDomain.image_mvPolynomialMap {U : Set (Fin n → ℂ)} (hU : IsRungeDomain U)
-    (F G : Fin n → MvPolynomial (Fin n) ℂ)
+theorem IsRungeDomain.image_mvPolynomialMap [Fintype ι] {U : Set (ι → ℂ)} (hU : IsRungeDomain U)
+    (F G : ι → MvPolynomial ι ℂ)
     (hFG : ∀ z, mvPolynomialMap F (mvPolynomialMap G z) = z)
     (hGF : ∀ z, mvPolynomialMap G (mvPolynomialMap F z) = z) :
     IsRungeDomain (mvPolynomialMap F '' U) := by
@@ -187,9 +193,9 @@ theorem IsRungeDomain.image_mvPolynomialMap {U : Set (Fin n → ℂ)} (hU : IsRu
     exact hz
 
 /-- Translates of Runge domains are Runge domains. -/
-theorem IsRungeDomain.translate {U : Set (Fin n → ℂ)} (hU : IsRungeDomain U) (a : Fin n → ℂ) :
-    IsRungeDomain ((fun z => z + a) '' U) := by
-  have hF : (fun z : Fin n → ℂ => z + a) =
+theorem IsRungeDomain.translate [Fintype ι] {U : Set (ι → ℂ)} (hU : IsRungeDomain U)
+    (a : ι → ℂ) : IsRungeDomain ((fun z => z + a) '' U) := by
+  have hF : (fun z : ι → ℂ => z + a) =
       mvPolynomialMap (fun i => MvPolynomial.X i + MvPolynomial.C (a i)) := by
     funext z i
     simp [mvPolynomialMap]

@@ -155,7 +155,8 @@ of the derivative. -/
   fderiv ℝ ρ p w = 0 ∧ fderiv ℝ ρ p (I • w) = 0
 
 /-- The Levi condition at a boundary point: the Levi form of every local defining function is
-positive semidefinite on the complex tangent space. -/
+positive semidefinite on the complex tangent space. The condition holds vacuously when `U` has
+no local defining function at `p`; boundary regularity is assumed separately. -/
 @[expose] def IsLeviPseudoconvexAt (U : Set E) (p : E) : Prop :=
   ∀ (ρ : E → ℝ) (V : Set E), IsLocalDefiningFunction U p ρ V →
     ∀ w, IsComplexTangent ρ p w → 0 ≤ leviForm ρ p w

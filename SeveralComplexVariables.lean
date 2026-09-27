@@ -94,7 +94,6 @@ public import SeveralComplexVariables.Plurisubharmonic
 public import SeveralComplexVariables.Polydisc
 public import SeveralComplexVariables.PolydiscMeanValue
 public import SeveralComplexVariables.PolydiscTaylor
-public import SeveralComplexVariables.Polynomial.OfFn
 public import SeveralComplexVariables.PolynomialDerivatives
 public import SeveralComplexVariables.PowerSeriesConvergence
 public import SeveralComplexVariables.PowerSeriesConvergence.Analytic

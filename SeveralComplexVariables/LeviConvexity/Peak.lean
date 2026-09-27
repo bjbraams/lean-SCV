@@ -72,7 +72,8 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 section StrictDefinition
 
 /-- The strict Levi condition at a boundary point: the Levi form of every local defining function is
-positive definite on the complex tangent space. -/
+positive definite on the complex tangent space. The condition holds vacuously when `U` has no
+local defining function at `p`; boundary regularity is assumed separately. -/
 @[expose] def IsStrictlyLeviPseudoconvexAt (U : Set E) (p : E) : Prop :=
   ∀ (ρ : E → ℝ) (V : Set E), IsLocalDefiningFunction U p ρ V →
     ∀ w, IsComplexTangent ρ p w → w ≠ 0 → 0 < leviForm ρ p w

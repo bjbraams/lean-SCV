@@ -20,8 +20,8 @@ spaces. Vitali convergence follows from compactness and the identity theorem: po
 convergence on a nonempty open subset determines every cluster limit uniquely.
 
 The compactness and uniqueness-set arguments are shared with one-variable analysis in
-`Analysis.Holomorphic.NormalFamily`. The results here supply several-variable closedness
-and the identity theorem.
+`ToMathlib.Analysis.Holomorphic.NormalFamily`. The results here supply several-variable
+closedness and the identity theorem.
 
 ## Main results
 

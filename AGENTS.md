@@ -72,7 +72,9 @@ references provide guidance for material to be included in the formalization. Se
   `ComplexAnalysis/` are exact copies of a subset of `../lean-CA/ComplexAnalysis`, restricted to
   modules this project imports; do not edit them here, but change them in lean-CA and copy
   them back. A `ToMathlib` file that also exists in lean-CA must have identical content and
-  path in both projects.
+  path in both projects. The umbrella modules `ToMathlib.lean`, `ToMathlib/Analysis.lean`,
+  `ToMathlib/Topology.lean` and `ToMathlib/Algebra.lean` are exempt: each project's umbrella
+  imports its own inventory.
 - Expose definitions whose formulas downstream modules need to unfold, either individually
   with `@[expose]` or in a suitably scoped exposed section. Theorem-only sections and
   private implementation details do not need blanket exposure.

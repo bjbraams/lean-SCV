@@ -11,9 +11,10 @@ public import SeveralComplexVariables.LocallyUniform
 /-!
 # Several-variable holomorphic function spaces
 
-The shared compact-open function space is defined in `Analysis.Holomorphic.FunctionSpace`.
-This module retains the previous names, proves closedness and completeness using the
-several-variable Weierstrass theorem, and supplies continuous coordinate differentiation.
+The shared compact-open function space is defined in
+`ToMathlib.Analysis.Holomorphic.FunctionSpace`. This module retains the previous names, proves
+closedness and completeness using the several-variable Weierstrass theorem, and supplies
+continuous coordinate differentiation.
 
 ## Main results
 

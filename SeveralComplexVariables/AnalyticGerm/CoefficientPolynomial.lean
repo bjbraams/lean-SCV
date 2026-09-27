@@ -6,7 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.AnalyticGerm.Polynomial
-public import SeveralComplexVariables.Polynomial.OfFn
+public import ToMathlib.Algebra.Polynomial.OfFn
 
 /-!
 # Polynomials built from coefficient germs
@@ -18,7 +18,7 @@ term respectively. Evaluated in the last coordinate by `polynomialHom`, these ma
 coefficients. Every monic polynomial of degree `d`, and every polynomial of degree below `d`, is
 recovered from its own coefficients in one of these two shapes. The constructions are thin
 wrappers around Mathlib's `Polynomial.ofFn`; the algebraic reconstruction results are proved
-over arbitrary semirings in `SeveralComplexVariables.Polynomial.OfFn`.
+over arbitrary semirings in `ToMathlib.Algebra.Polynomial.OfFn`.
 
 This coefficient-level bookkeeping underlies Weierstrass division and preparation in the
 analytic germ ring, proved in `SeveralComplexVariables.AnalyticGerm.Weierstrass`.
