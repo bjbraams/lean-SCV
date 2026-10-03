@@ -13,7 +13,6 @@ public import Mathlib.Topology.Connected.Basic
 
 ## Main results
 
-* `IsOpen.notMem_of_mem_frontier`: A frontier point of an open set does not belong to the set.
 * `IsOpen.connectedComponentIn_compl_frontier`: An open preconnected set is a component
   of the complement of its frontier.
 * `IsClosed.isPreconnected_compl_of_isPreconnected_sdiff`: A connected exterior neighborhood
@@ -27,18 +26,15 @@ public import Mathlib.Topology.Connected.Basic
 
 public section
 
-/-- A frontier point of an open set does not belong to the set. -/
-theorem IsOpen.notMem_of_mem_frontier {X : Type*} [TopologicalSpace X] {s : Set X}
-    (hs : IsOpen s) {x : X} (hx : x ∈ frontier s) : x ∉ s := by
-  rw [hs.frontier_eq] at hx
-  exact hx.2
-
 /-- A nonempty open preconnected set is a connected component of the complement of
 its frontier. This does not assert how many other components there are. -/
 theorem IsOpen.connectedComponentIn_compl_frontier {X : Type*} [TopologicalSpace X]
     {U : Set X} (hU : IsOpen U) (hc : IsPreconnected U) {x : X} (hx : x ∈ U) :
     connectedComponentIn (frontier U)ᶜ x = U := by
-  have hsub : U ⊆ (frontier U)ᶜ := fun y hy hfr ↦ (hU.notMem_of_mem_frontier hfr) hy
+  have hsub : U ⊆ (frontier U)ᶜ := by
+    intro y hy hfr
+    rw [hU.frontier_eq] at hfr
+    exact hfr.2 hy
   apply Set.Subset.antisymm
   · apply isPreconnected_connectedComponentIn.subset_of_closure_inter_subset hU
       ⟨x, mem_connectedComponentIn (hsub hx), hx⟩

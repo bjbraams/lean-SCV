@@ -12,19 +12,12 @@ public import Mathlib.Topology.Homeomorph.Defs
 /-!
 # Graphs characterized by equations
 
-An equation determining a unique fiber value gives uniqueness of solution maps. For a continuous
-solution, projection from the zero set is a homeomorphism onto its parameter domain. Neither
-result requires differentiability.
+For a continuous solution of an equation determining a unique fiber value, projection from
+the zero set is a homeomorphism onto its parameter domain. No differentiability is required.
 
 ## Main definitions
 
 * `Homeomorph.implicitGraph`: A continuous graph characterization makes projection a homeomorphism.
-
-## Main results
-
-* `Set.eqOn_of_forall_mem_eq_iff`: A graph characterization gives uniqueness among all solution maps
-  staying in the specified fiber neighborhood; no regularity assumption on the competing solution is
-  needed.
 
 ## References
 
@@ -36,13 +29,6 @@ result requires differentiability.
 public section
 open Set
 variable {P Q R : Type*}
-
-/-- A graph characterization gives uniqueness among all solution maps staying in the specified fiber
-neighborhood; no regularity assumption on the competing solution is needed. -/
-theorem Set.eqOn_of_forall_mem_eq_iff {U : Set P} {V : Set Q} {f : P × Q → R} {c : R}
-    {g h : P → Q} (hgraph : ∀ x ∈ U, ∀ y ∈ V, f (x, y) = c ↔ y = g x)
-    (hh : MapsTo h U V) (hsol : ∀ x ∈ U, f (x, h x) = c) : EqOn h g U :=
-  fun x hx => (hgraph x hx (h x) (hh hx)).mp (hsol x hx)
 
 variable [TopologicalSpace P] [TopologicalSpace Q] [Zero R]
 

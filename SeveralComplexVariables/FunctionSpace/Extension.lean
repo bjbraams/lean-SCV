@@ -43,14 +43,6 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [NormedAddComm
   [NormedSpace ℂ F]
   {U V : TopologicalSpace.Opens E}
 
-/-- Restriction as a continuous complex-linear operator between compact-open spaces. -/
-@[expose] def holomorphicRestrictCLM (hVU : V ≤ U) : HolomorphicMap U F →L[ℂ] HolomorphicMap V F
-  where
-  toFun := holomorphicRestrict hVU
-  map_add' := by intro f g; rfl
-  map_smul' := by intro c f; rfl
-  cont := continuous_holomorphicRestrict hVU
-
 /-- An ambient extension theorem makes restriction surjective on the bundled spaces. -/
 theorem holomorphicRestrict_surjective (hVU : V ≤ U)
     (hext : ∀ f : E → F, AnalyticOnNhd ℂ f V →

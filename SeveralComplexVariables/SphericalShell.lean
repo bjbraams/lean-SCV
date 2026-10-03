@@ -71,7 +71,7 @@ theorem exists_extension_punctured_polydisc {ι : Type*} [Fintype ι] [Nonempty 
 least two. The proof applies the general compact-hole theorem. -/
 theorem exists_extension_sphericalShell {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     [FiniteDimensional ℂ E] (hdim : 2 ≤ Module.finrank ℂ E)
-    {ρ R : ℝ} (hρ : 0 ≤ ρ) (hρR : ρ < R) {f : E → F}
+    {ρ R : ℝ} (_hρ : 0 ≤ ρ) (hρR : ρ < R) {f : E → F}
     (hf : AnalyticOnNhd ℂ f (ball 0 R \ closedBall 0 ρ)) :
     ∃ g, AnalyticOnNhd ℂ g (ball 0 R) ∧ EqOn g f (ball 0 R \ closedBall 0 ρ) := by
   let : ProperSpace E := FiniteDimensional.proper ℂ E
@@ -83,13 +83,13 @@ theorem exists_extension_sphericalShell {E : Type*} [NormedAddCommGroup E] [Norm
     exact_mod_cast hdimR
   exact exists_analyticOnNhd_extension_of_isCompact hdim isOpen_ball
     (isCompact_closedBall 0 ρ) (closedBall_subset_ball hρR)
-    (isPreconnected_ball_diff_closedBall_zero hrank hρ) hf
+    (isPreconnected_ball_diff_closedBall hrank 0 ρ R) hf
 
 /-- The infinite-outer-radius case of shell extension: a function outside a closed ball extends to
 the whole space. This follows from the compact-hole theorem and imposes no boundedness at
 infinity or near the inner sphere. -/
 theorem exists_extension_exterior_closedBall {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
-    [FiniteDimensional ℂ E] (hdim : 2 ≤ Module.finrank ℂ E) {ρ : ℝ} (hρ : 0 ≤ ρ)
+    [FiniteDimensional ℂ E] (hdim : 2 ≤ Module.finrank ℂ E) {ρ : ℝ} (_hρ : 0 ≤ ρ)
     {f : E → F} (hf : AnalyticOnNhd ℂ f (closedBall (0 : E) ρ)ᶜ) :
     ∃ g, AnalyticOnNhd ℂ g univ ∧ EqOn g f (closedBall (0 : E) ρ)ᶜ := by
   let : ProperSpace E := FiniteDimensional.proper ℂ E
@@ -101,7 +101,7 @@ theorem exists_extension_exterior_closedBall {E : Type*} [NormedAddCommGroup E] 
     exact_mod_cast hdimR
   simpa only [← compl_eq_univ_sdiff] using exists_analyticOnNhd_extension_of_isCompact hdim
     isOpen_univ (isCompact_closedBall 0 ρ) (subset_univ _)
-    (by simpa only [← compl_eq_univ_sdiff] using isPreconnected_compl_closedBall_zero hrank hρ)
+    (by simpa only [← compl_eq_univ_sdiff] using isPreconnected_compl_closedBall hrank 0 ρ)
     (by simpa only [← compl_eq_univ_sdiff] using hf)
 
 end SeveralComplexVariables

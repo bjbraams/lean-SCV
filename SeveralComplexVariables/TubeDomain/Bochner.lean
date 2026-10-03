@@ -139,15 +139,14 @@ private theorem subset_maxStar_of_isConnected {Ω : Set (Fin n → ℝ)} (hΩ : 
     obtain ⟨u, hu⟩ := hmem
     rw [← hu]
     exact hγ u
-  obtain ⟨t₁, ht₁I, hx₁, hs0, hprefix⟩ :=
-    Path.extend_exists_first_notMem γ isOpen_maxStar (by rw [Path.extend_zero]; exact hpÃ)
-      (by rw [Path.extend_one]; exact hx₀)
+  obtain ⟨t₁, ht₁, hfront, hprefix⟩ :=
+    γ.extend_exists_first_mem_frontier isOpen_maxStar hpÃ hx₀
+  have hs0 := ht₁.1
+  rw [(show IsOpen (maxStar F Ω p) from isOpen_maxStar).frontier_eq] at hfront
+  have hx₁cl := hfront.1
+  have hx₁ := hfront.2
   have htend : Tendsto γ.extend (𝓝[<] t₁) (𝓝 (γ.extend t₁)) :=
     (γ.continuous_extend.tendsto _).mono_left nhdsWithin_le_nhds
-  have hx₁cl : γ.extend t₁ ∈ closure (maxStar F Ω p) := by
-    apply mem_closure_of_tendsto htend
-    filter_upwards [Ioo_mem_nhdsLT hs0] with t ht
-    exact hprefix t ht.1.le ht.2
   obtain ⟨r₁, hr₁, hr₁Ω⟩ := Metric.isOpen_iff.mp hΩ _ (hγΩ t₁)
   have hev : ∀ᶠ t in 𝓝[<] t₁, γ.extend t ∈ ball (γ.extend t₁) r₁ :=
     htend (isOpen_ball.mem_nhds (mem_ball_self hr₁))
@@ -158,8 +157,8 @@ private theorem subset_maxStar_of_isConnected {Ω : Set (Fin n → ℝ)} (hΩ : 
   have hKU : (fun t => ofRealPi (γ.extend t)) '' Icc 0 t₀ ⊆ tubeDomain (Ω ∩ maxStar F Ω p) := by
     rintro _ ⟨t, ht, rfl⟩
     rw [ofRealPi_mem_tubeDomain]
-    exact ⟨hγΩ t, hprefix t ht.1 (ht.2.trans_lt ht₀.2)⟩
-  exact hx₁ (mem_maxStar_of_mem_closure hΩ hpÃ hx₁cl hr₁ hr₁Ω ⟨hprefix t₀ ht₀.1.le ht₀.2, ht₀ball⟩
+    exact ⟨hγΩ t, hprefix ⟨ht.1, ht.2.trans_lt ht₀.2⟩⟩
+  exact hx₁ (mem_maxStar_of_mem_closure hΩ hpÃ hx₁cl hr₁ hr₁Ω ⟨hprefix ⟨ht₀.1.le, ht₀.2⟩, ht₀ball⟩
     hK hKU ⟨0, ⟨le_rfl, ht₀.1.le⟩, by simp⟩ ⟨t₀, ⟨ht₀.1.le, le_rfl⟩, rfl⟩)
 
 /-- **Bochner's tube theorem in coordinates.** Every Banach-valued holomorphic function on the

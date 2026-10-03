@@ -7,7 +7,8 @@ module
 
 public import Mathlib.Analysis.RCLike.Extend
 public import SeveralComplexVariables.LeviForm
-public import ToMathlib.Analysis.LinearFunctional
+public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.Algebra.Module.LinearMap.DivisionRing
 public import ToMathlib.Topology.Frontier
 
 /-!
@@ -86,7 +87,9 @@ theorem complexPart_apply (ℓ : E →L[ℝ] ℝ) (c : E) :
 complex-linear part. -/
 theorem apply_smul_eq_re_mul_complexPart (ℓ : E →L[ℝ] ℝ) (ζ : ℂ) (c : E) :
     ℓ (ζ • c) = (ζ * complexPart ℓ c).re := by
-  rw [Complex.smul_eq_re_smul_add_im_smul, map_add, map_smul, map_smul, smul_eq_mul, smul_eq_mul,
+  conv_lhs => rw [← Complex.re_add_im ζ, add_smul, mul_smul,
+    Complex.coe_smul, Complex.coe_smul]
+  rw [map_add, map_smul, map_smul, smul_eq_mul, smul_eq_mul,
     complexPart_apply]
   simp [Complex.mul_re, Complex.mul_im]
 
@@ -119,7 +122,10 @@ theorem bilinear_smul_smul_eq (B : E →L[ℝ] E →L[ℝ] ℝ) {w : E}
     (1 / 2 : ℝ) * B (ζ • w) (ζ • w) =
       ‖ζ‖ ^ 2 * ((B w w + B (I • w) (I • w)) / 4) +
         (ζ ^ 2 * (((B w w - B (I • w) (I • w)) / 4 : ℝ) - I / 2 * B w (I • w))).re := by
-  rw [Complex.smul_eq_re_smul_add_im_smul]
+  have hζ : ζ • w = ζ.re • w + ζ.im • (I • w) := by
+    conv_lhs => rw [← Complex.re_add_im ζ]
+    rw [add_smul, mul_smul, Complex.coe_smul, Complex.coe_smul]
+  rw [hζ]
   simp only [map_add, map_smul, add_apply, smul_apply, smul_eq_mul, hsymm]
   rw [Complex.sq_norm, Complex.normSq_apply]
   simp [Complex.mul_re, Complex.mul_im, pow_two]
@@ -257,7 +263,7 @@ theorem IsLocalDefiningFunction.fderiv_fderiv_nonneg_of_convex (hU : IsOpen U)
   have : p ∈ U := by
     rw [hmid]
     exact hconv h1 h2 (by norm_num) (by norm_num) (by norm_num)
-  exact hU.notMem_of_mem_frontier hp this
+  exact (hU.frontier_eq ▸ hp).2 this
 
 /-- **Convex open sets are Levi pseudoconvex** ([Range][Range1986], Lemma 2.10). -/
 theorem _root_.Convex.isLeviPseudoconvex (hU : IsOpen U) (hconv : Convex ℝ U) :

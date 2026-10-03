@@ -35,10 +35,9 @@ public noncomputable section
 open Complex Filter MeasureTheory Metric Set
 open scoped Topology
 
-variable {𝕜 α E : Type*} [NormedField 𝕜] [MeasurableSpace α]
-  [NormedAddCommGroup E] [NormedSpace 𝕜 E] [CompleteSpace E]
+variable {𝕜 α E : Type*} [NormedRing 𝕜] [MeasurableSpace α]
+  [NormedAddCommGroup E] [Module 𝕜 E] [IsBoundedSMul 𝕜 E]
 
-omit [CompleteSpace E] in
 /-- An integrable scalar weight times a continuous normed-space-valued function on a compact set is
 integrable. Compactness gives both boundedness and a separable image, so no countability
 assumption on either ambient space is required. -/
@@ -52,8 +51,7 @@ theorem MeasureTheory.IntegrableOn.smul_continuousOn_of_isCompact
     (hg.aestronglyMeasurable.smul (hH.aestronglyMeasurable_of_isCompact hK hK.measurableSet))
   filter_upwards [ae_restrict_mem hK.measurableSet] with t ht
   change ‖g t • H t‖ ≤ ‖g t‖ * M
-  rw [norm_smul]
-  exact mul_le_mul_of_nonneg_left (hM ⟨t, ht, rfl⟩) (norm_nonneg _)
+  exact (norm_smul_le _ _).trans (mul_le_mul_of_nonneg_left (hM ⟨t, ht, rfl⟩) (norm_nonneg _))
 
 end
 

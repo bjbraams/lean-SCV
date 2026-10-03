@@ -5,9 +5,11 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.LeviConvexity.Estimates
+
 public import Mathlib.Analysis.Calculus.Deriv.Comp
 public import Mathlib.Analysis.Calculus.Deriv.Slope
-public import ToMathlib.Analysis.LinearFunctional
+public import ToMathlib.Algebra.LinearMap.Ordered
 public import SeveralComplexVariables.LeviConvexity
 public import ComplexAnalysis.Subharmonic.SmoothCriterion
 
@@ -56,6 +58,8 @@ namespace SeveralComplexVariables
 open Real
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+
+
 
 
 section Comparison
@@ -184,8 +188,14 @@ point are positively proportional. -/
 theorem IsLocalDefiningFunction.exists_fderiv_eq_smul (h₁ : IsLocalDefiningFunction U p ρ₁ V₁)
     (h₂ : IsLocalDefiningFunction U p ρ₂ V₂) :
     ∃ c : ℝ, 0 < c ∧ fderiv ℝ ρ₁ p = c • fderiv ℝ ρ₂ p :=
-  ContinuousLinearMap.exists_pos_smul_eq_of_neg_imp_nonpos h₁.fderiv_ne h₂.fderiv_ne fun _ hv =>
-    h₁.fderiv_nonpos_of_fderiv_neg h₂ hv
+  by
+  obtain ⟨c, hc, heq⟩ := LinearMap.exists_pos_smul_eq_of_neg_imp_nonpos
+    (show (fderiv ℝ ρ₁ p).toLinearMap ≠ 0 from
+      fun hz => h₁.fderiv_ne (ContinuousLinearMap.coe_injective hz))
+    (show (fderiv ℝ ρ₂ p).toLinearMap ≠ 0 from
+      fun hz => h₂.fderiv_ne (ContinuousLinearMap.coe_injective hz))
+    (fun _ hv => h₁.fderiv_nonpos_of_fderiv_neg h₂ hv)
+  exact ⟨c, hc, ContinuousLinearMap.coe_injective heq⟩
 
 /-- One half of the second-order comparison on tangent vectors. -/
 theorem IsLocalDefiningFunction.fderiv_fderiv_le (h₁ : IsLocalDefiningFunction U p ρ₁ V₁)

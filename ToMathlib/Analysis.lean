@@ -6,11 +6,9 @@ Authors: Bastiaan J Braams
 module
 
 public import ToMathlib.Analysis.Connected
-public import ToMathlib.Analysis.GeometricBounds
 public import ToMathlib.Analysis.Holomorphic.FunctionSpace
 public import ToMathlib.Analysis.Holomorphic.NormalFamily
 public import ToMathlib.Analysis.Integral.CompactSupport
-public import ToMathlib.Analysis.LinearFunctional
 public import ToMathlib.Analysis.OpenMapping
 public import ToMathlib.Analysis.TaylorBounds
 
@@ -28,12 +26,10 @@ the namespaces of their underlying Mathlib APIs. This library depends only on Ma
 This module re-exports the following developments:
 
 * `ToMathlib.Analysis.Connected`: Connectedness of shells and exteriors of balls.
-* `ToMathlib.Analysis.GeometricBounds`: Real root limits and geometric bounds.
 * `ToMathlib.Analysis.Holomorphic.FunctionSpace`: Shared spaces of holomorphic maps.
 * `ToMathlib.Analysis.Holomorphic.NormalFamily`: Shared Montel and Vitali arguments.
 * `ToMathlib.Analysis.Integral.CompactSupport`: Integration helpers for compactly supported
   and weighted functions.
-* `ToMathlib.Analysis.LinearFunctional`: Scalar actions and continuous linear functionals.
 * `ToMathlib.Analysis.OpenMapping`: Open mapping for complete metrizable real or complex vector
   spaces.
 * `ToMathlib.Analysis.TaylorBounds`: Elementary bounds for Taylor remainders.

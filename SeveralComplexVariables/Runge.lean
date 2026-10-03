@@ -10,7 +10,7 @@ public import Mathlib.Analysis.Analytic.Polynomial
 public import Mathlib.Topology.Algebra.InfiniteSum.UniformOn
 public import Mathlib.Topology.Algebra.MvPolynomial
 public import SeveralComplexVariables.Analyticity
-public import ToMathlib.Topology.CompactExhaustion
+public import Mathlib.Topology.Compactness.SigmaCompact
 public import SeveralComplexVariables.HolomorphicConvexity.Thullen
 public import SeveralComplexVariables.PolydiscTaylor
 
@@ -349,24 +349,27 @@ function on `U`, a sequence of holomorphic functions on `V` converging locally u
 theorem IsRungePair.exists_seq_tendstoLocallyUniformlyOn {U V : Set E} (hU : IsOpen U)
     (h : IsRungePair U V) {f : E → ℂ} (hf : AnalyticOnNhd ℂ f U) :
     ∃ g : ℕ → E → ℂ, (∀ k, AnalyticOnNhd ℂ (g k) V) ∧ TendstoLocallyUniformlyOn g f atTop U := by
-  obtain ⟨L, hLc, hLU, hLmono, hLex⟩ := hU.exists_compact_exhaustion
+  let : LocallyCompactSpace U := hU.locallyCompactSpace
+  let B := CompactExhaustion.choice U
+  let L (k : ℕ) : Set E := Subtype.val '' B k
   have hchoice : ∀ k : ℕ, ∃ g : E → ℂ, AnalyticOnNhd ℂ g V ∧
       ∀ z ∈ L k, ‖f z - g z‖ < 1 / ((k : ℝ) + 1) :=
-    fun k => h.2 f hf (L k) (hLc k) (hLU k) _ (by positivity)
+    fun k => h.2 f hf (L k) ((B.isCompact k).image continuous_subtype_val)
+      (by rintro z ⟨x, _, rfl⟩; exact x.property) _ (by positivity)
   choose g hg using hchoice
   refine ⟨g, fun k => (hg k).1, ?_⟩
   rw [tendstoLocallyUniformlyOn_iff_forall_isCompact hU]
   intro K hKU hK
-  obtain ⟨k₀, hk₀⟩ := hLex K hK hKU
-  have hLmono' : ∀ k, k₀ ≤ k → L k₀ ⊆ L k := fun k hk => by
-    induction hk with
-    | refl => exact Subset.rfl
-    | step _ ih => exact ih.trans (hLmono _)
+  have hpre : IsCompact ((Subtype.val : U → E) ⁻¹' K) := by
+    apply Topology.IsEmbedding.subtypeVal.isCompact_iff.mpr
+    rwa [image_preimage_eq_of_subset (by simpa using hKU)]
+  obtain ⟨k₀, hk₀⟩ := B.exists_superset_of_isCompact hpre
   rw [Metric.tendstoUniformlyOn_iff]
   intro ε hε
   obtain ⟨N, hN⟩ := exists_nat_gt (1 / ε)
   filter_upwards [eventually_ge_atTop (max k₀ N)] with k hk z hz
-  have hzk : z ∈ L k := hLmono' k ((le_max_left _ _).trans hk) (hk₀ hz)
+  have hzk : z ∈ L k :=
+    ⟨⟨z, hKU hz⟩, B.subset ((le_max_left _ _).trans hk) (hk₀ hz), rfl⟩
   have h1 := (hg k).2 z hzk
   rw [dist_eq_norm]
   refine h1.trans_le ?_

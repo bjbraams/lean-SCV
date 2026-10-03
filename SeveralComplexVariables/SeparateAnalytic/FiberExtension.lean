@@ -5,7 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import ToMathlib.Analysis.GeometricBounds
+public import Mathlib.Analysis.SpecialFunctions.Pow.Continuity
+public import Mathlib.Analysis.SpecificLimits.Basic
 public import ComplexAnalysis.CauchySeries
 public import SeveralComplexVariables.RemovableSingularity.Cauchy
 public import SeveralComplexVariables.SeparateAnalytic.HartogsLemma
@@ -42,6 +43,40 @@ open Complex Filter Function MeasureTheory Metric Set
 open scoped Real Topology
 
 namespace SeveralComplexVariables
+
+/-- A root of an exponential-type bound is bounded by a root of the constant times the reciprocal
+radius. -/
+private theorem rpow_inv_succ_le_of_le_mul_pow {x M ρ : ℝ} (hx : 0 ≤ x) (hM : 0 ≤ M) (hρ : 0 < ρ)
+    (n : ℕ) (h : x ≤ M * ρ⁻¹ ^ (n + 1)) :
+    x ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ M ^ ((n + 1 : ℕ) : ℝ)⁻¹ * ρ⁻¹ := by
+  calc x ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ (M * ρ⁻¹ ^ (n + 1)) ^ ((n + 1 : ℕ) : ℝ)⁻¹ :=
+        Real.rpow_le_rpow hx h (by positivity)
+    _ = M ^ ((n + 1 : ℕ) : ℝ)⁻¹ * ρ⁻¹ := by
+        rw [Real.mul_rpow hM (by positivity),
+          Real.pow_rpow_inv_natCast (inv_nonneg.mpr hρ.le) n.succ_ne_zero]
+
+/-- A sequence with a uniform exponential bound and an eventual geometric bound has a single
+geometric majorant. -/
+private theorem le_geometric_of_bounds {a : ℕ → ℝ} {M s q : ℝ} {N : ℕ} (hM : 0 ≤ M) (hs : 0 ≤ s)
+    (hq0 : 0 < q) (hq1 : q ≤ 1) (h1 : ∀ k, a k ≤ M * s ^ k)
+    (h2 : ∀ k, N + 1 ≤ k → a k ≤ q ^ k) (k : ℕ) :
+    a k ≤ max 1 (M * max 1 s ^ N / q ^ N) * q ^ k := by
+  have hqk : 0 ≤ q ^ k := pow_nonneg hq0.le k
+  by_cases hk : N + 1 ≤ k
+  · exact (h2 k hk).trans (le_mul_of_one_le_left hqk (le_max_left _ _))
+  · have hkN : k ≤ N := by omega
+    have hqN : q ^ N ≤ q ^ k := pow_le_pow_of_le_one hq0.le hq1 hkN
+    have hC₀ : M * s ^ k ≤ M * max 1 s ^ N :=
+      mul_le_mul_of_nonneg_left ((pow_le_pow_left₀ hs (le_max_right 1 s) k).trans
+        (pow_le_pow_right₀ (le_max_left 1 s) hkN)) hM
+    have hqN0 : 0 < q ^ N := pow_pos hq0 N
+    calc a k ≤ M * max 1 s ^ N := (h1 k).trans hC₀
+      _ = M * max 1 s ^ N / q ^ N * q ^ N := by field_simp
+      _ ≤ M * max 1 s ^ N / q ^ N * q ^ k :=
+          mul_le_mul_of_nonneg_left hqN (div_nonneg (by positivity) hqN0.le)
+      _ ≤ max 1 (M * max 1 s ^ N / q ^ N) * q ^ k :=
+          mul_le_mul_of_nonneg_right (le_max_right _ _) hqk
+
 
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
   [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
@@ -126,7 +161,7 @@ private theorem norm_fiberCoeff_rpow_inv_succ_le {f : E × ℂ → F} {b : ℂ} 
     (hM : 1 ≤ M) {z : E} (hMz : ∀ w ∈ closedBall b r, ‖f (z, w)‖ ≤ M) (n : ℕ) :
     ‖fiberCoeff f b r (n + 1) z‖ ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤ M * r⁻¹ := by
   have hM0 : 0 < M := by linarith
-  refine (Real.rpow_inv_succ_le_of_le_mul_pow (norm_nonneg _) hM0.le hr n
+  refine (rpow_inv_succ_le_of_le_mul_pow (norm_nonneg _) hM0.le hr n
     (norm_fiberCoeff_le hr hMz (n + 1))).trans ?_
   gcongr
   exact Real.rpow_le_self_of_one_le hM (inv_le_one_of_one_le₀ (by exact_mod_cast n.succ_pos))
@@ -145,11 +180,15 @@ private theorem eventually_norm_fiberCoeff_rpow_inv_succ_le {f : E × ℂ → F}
   have hcoef : ∀ n : ℕ, ‖fiberCoeff f b r (n + 1) z‖ ^ ((n + 1 : ℕ) : ℝ)⁻¹ ≤
       (max M₂ 1) ^ ((n + 1 : ℕ) : ℝ)⁻¹ * ρ⁻¹ := by
     intro n
-    apply Real.rpow_inv_succ_le_of_le_mul_pow (norm_nonneg _) hM₃0.le hρ
+    apply rpow_inv_succ_le_of_le_mul_pow (norm_nonneg _) hM₃0.le hρ
     rw [fiberCoeff_eq_of_radii hr hρ hgr hgρ]
     exact norm_cauchyPowerSeries_apply_one_le hρ
       (fun w hw => (hM₂ w hw).trans (le_max_left _ _)) _
-  have ht := ((Real.tendsto_rpow_inv_natCast_succ hM₃0).mul_const ρ⁻¹).eventually
+  have hroot : Tendsto (fun n : ℕ => (max M₂ 1) ^ ((n + 1 : ℕ) : ℝ)⁻¹)
+      atTop (𝓝 1) := by
+    simpa using (tendsto_const_nhds.rpow
+      (tendsto_inv_atTop_nhds_zero_nat.comp (tendsto_add_atTop_nat 1)) (Or.inl hM₃0.ne'))
+  have ht := (hroot.mul_const ρ⁻¹).eventually
     (eventually_le_nhds (show 1 * ρ⁻¹ < ρ⁻¹ + δ by linarith))
   filter_upwards [ht] with n hn using (hcoef n).trans hn
 
@@ -177,7 +216,7 @@ private theorem norm_le_of_fiberCoeff_bounds {f : E × ℂ → F} {b : ℂ} {r �
     rw [fiberCoeff_eq_of_radii hr hρ hgr hgρ]
     simp
   refine hsum.norm_le_of_bounded ((hasSum_geometric_of_lt_one hq0.le hq1).mul_left _) ?_
-  apply Real.le_geometric_of_bounds (s := σ / r) hM (by positivity) hq0 hq1.le
+  apply le_geometric_of_bounds (s := σ / r) hM (by positivity) hq0 hq1.le
   · intro k
     rw [hterm, norm_smul, norm_pow]
     calc ‖w - b‖ ^ k * ‖fiberCoeff f b r k z‖ ≤ σ ^ k * (M * r⁻¹ ^ k) :=

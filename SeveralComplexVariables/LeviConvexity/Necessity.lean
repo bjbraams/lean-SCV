@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import SeveralComplexVariables.LeviConvexity.Estimates
+
 public import Mathlib.Analysis.Calculus.Deriv.MeanValue
 public import SeveralComplexVariables.LeviConvexity
 public import SeveralComplexVariables.LeviConvexity.Invariance
@@ -72,8 +74,12 @@ variable {U : Set E} {p : E} {ρ : E → ℝ} {V : Set E}
 
 /-- An inward direction for a defining function: the real derivative equals `1`. -/
 theorem IsLocalDefiningFunction.exists_inward_direction (h : IsLocalDefiningFunction U p ρ V) :
-    ∃ ν : E, fderiv ℝ ρ p ν = 1 ∧ 0 < ‖ν‖ :=
-  ContinuousLinearMap.exists_apply_eq_one_of_ne_zero h.fderiv_ne
+    ∃ ν : E, fderiv ℝ ρ p ν = 1 ∧ 0 < ‖ν‖ := by
+  obtain ⟨ν, hν⟩ := LinearMap.surjective
+    (show (fderiv ℝ ρ p).toLinearMap ≠ 0 from
+      fun hz => h.fderiv_ne (ContinuousLinearMap.coe_injective hz)) 1
+  refine ⟨ν, hν, norm_pos_iff.mpr fun hz => ?_⟩
+  simp [hz] at hν
 
 /-- A neighborhood of `p` on which the derivative is Lipschitz-bounded and still points inward. -/
 theorem IsLocalDefiningFunction.exists_ball_fderiv_bound_and_inward
@@ -106,7 +112,7 @@ theorem IsLocalDefiningFunction.mul_abs_le_infDist (hU : IsOpen U) (hp : p ∈ f
     (hball₀ : ball p δ₀ ⊆ {y | y ∈ V ∧ ‖fderiv ℝ ρ y‖ ≤ Lip})
     {z : E} (hz : z ∈ ball p (δ₀ / 2)) (hzU : z ∈ U)
     (hρsmall : |ρ z| < Lip * δ₀ / 2) : |ρ z| / Lip ≤ infDist z Uᶜ := by
-  have hUc : Uᶜ.Nonempty := ⟨p, hU.notMem_of_mem_frontier hp⟩
+  have hUc : Uᶜ.Nonempty := ⟨p, (hU.frontier_eq ▸ hp).2⟩
   have hdiff : ∀ y ∈ V, DifferentiableAt ℝ ρ y := fun y hy =>
     (h.contDiffOn.contDiffAt (h.isOpen.mem_nhds hy)).differentiableAt (by norm_num)
   have hρz : ρ z < 0 := h.neg_of_mem (hball₀ (ball_subset_ball (half_le_self hδ₀.le) hz)).1 hzU
@@ -448,7 +454,7 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
   set ℓ := fderiv ℝ ρ p
   set B := fderiv ℝ (fderiv ℝ ρ) p
   obtain ⟨c, hc⟩ := exists_complexPart_eq h.fderiv_ne (-leviQuadratic B w)
-  obtain ⟨ν0, hν0, _⟩ := ContinuousLinearMap.exists_apply_eq_one_of_ne_zero h.fderiv_ne
+  obtain ⟨ν0, hν0, _⟩ := h.exists_inward_direction
   set ν : Fin n → ℂ := -ν0
   have hℓν : ℓ ν = -1 := by rw [map_neg, hν0]
   obtain ⟨C₁, c₂, δ, hC₁, hc₂, hδ, hdist⟩ := h.exists_infDist_bounds ho hp
@@ -515,7 +521,7 @@ theorem IsDomainOfHolomorphy.isLeviPseudoconvex_fin {U : Set (Fin n → ℂ)}
   have hm' : ‖(m : ℂ)‖ = m := by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hm0]
   rw [hm'] at hrad
   have hfinal : m ≤ C₁ * (2 * κ * r ^ 2) :=
-    (le_infDist_compl_of_ball_subset ⟨p, ho.notMem_of_mem_frontier hp⟩ hrad).trans hcenter
+    (le_infDist_compl_of_ball_subset ⟨p, (ho.frontier_eq ▸ hp).2⟩ hrad).trans hcenter
   rw [hm, hκ] at hfinal
   have hC₁' : C₁ * (2 * (c₂ * (-L) / (8 * C₁)) * r ^ 2) = c₂ * (-L) / 4 * r ^ 2 := by
     field_simp

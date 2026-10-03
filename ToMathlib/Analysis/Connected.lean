@@ -6,19 +6,20 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Analysis.Normed.Module.Connected
+public import Mathlib.Analysis.LocallyConvex.WithSeminorms
 
 /-!
 # Connectedness of shells and exteriors of balls
 
 In a real normed space of dimension at least two, spherical shells and exteriors of closed balls
-centered at the origin are preconnected. The proofs are radial: a shell is the image of the product
-of an interval and the unit sphere.
+with arbitrary centers and radii are preconnected. The proofs are radial: a shell is the image
+of the product of an interval and the unit sphere. Nonempty annuli are path connected.
 
 ## Main results
 
-* `isPreconnected_ball_diff_closedBall_zero`: A shell in a real normed space of dimension at least
+* `isPreconnected_ball_diff_closedBall`: A shell in a real normed space of dimension at least
   two is preconnected.
-* `isPreconnected_compl_closedBall_zero`: The exterior of a closed norm ball is preconnected in
+* `isPreconnected_compl_closedBall`: The exterior of a closed norm ball is preconnected in
   real dimension at least two.
 
 ## References
@@ -32,7 +33,7 @@ open Metric Set
 
 /-- A shell in a real normed space of dimension at least two is preconnected. This radial argument
 is independent of any analytic extension theorem. -/
-theorem isPreconnected_ball_diff_closedBall_zero {E : Type*} [NormedAddCommGroup E]
+private theorem isPreconnected_ball_diff_closedBall_zero {E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E]
     (hdim : 1 < Module.rank ℝ E) {ρ R : ℝ} (hρ : 0 ≤ ρ) :
     IsPreconnected (ball (0 : E) R \ closedBall 0 ρ) := by
@@ -60,7 +61,7 @@ theorem isPreconnected_ball_diff_closedBall_zero {E : Type*} [NormedAddCommGroup
 
 /-- The exterior of a closed norm ball is preconnected in real dimension at least two. It is the
 directed union of the finite shells. -/
-theorem isPreconnected_compl_closedBall_zero {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+private theorem isPreconnected_compl_closedBall_zero {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     (hdim : 1 < Module.rank ℝ E) {ρ : ℝ} (hρ : 0 ≤ ρ) :
     IsPreconnected ((closedBall (0 : E) ρ)ᶜ) := by
   suffices hshells : IsPreconnected (⋃ n : ℕ, ball (0 : E) (n : ℝ) \ closedBall 0 ρ) by
@@ -73,5 +74,53 @@ theorem isPreconnected_compl_closedBall_zero {E : Type*} [NormedAddCommGroup E] 
     · exact sdiff_subset_sdiff_left (ball_subset_ball (by exact_mod_cast le_max_right n m))
   · rintro s ⟨n, rfl⟩
     exact isPreconnected_ball_diff_closedBall_zero hdim hρ
+
+/-- An annulus about any center is preconnected in real dimension at least two.
+The radii are arbitrary, so empty annuli and negative inner radii are included. -/
+theorem isPreconnected_ball_diff_closedBall {E : Type*} [NormedAddCommGroup E]
+    [NormedSpace ℝ E] (hdim : 1 < Module.rank ℝ E) (c : E) (ρ R : ℝ) :
+    IsPreconnected (ball c R \ closedBall c ρ) := by
+  by_cases hρ : 0 ≤ ρ
+  · have he : (fun y : E => y + c) '' (ball 0 R \ closedBall 0 ρ) =
+        ball c R \ closedBall c ρ := by
+      ext z
+      constructor
+      · rintro ⟨y, hy, rfl⟩
+        simpa [mem_ball, mem_closedBall, dist_eq_norm] using hy
+      · intro hz
+        refine ⟨z - c, ?_, sub_add_cancel z c⟩
+        simpa [mem_ball, mem_closedBall, dist_eq_norm] using hz
+    rw [← he]
+    exact (isPreconnected_ball_diff_closedBall_zero hdim hρ).image _
+      (continuous_id.add continuous_const).continuousOn
+  · rw [closedBall_eq_empty.mpr (lt_of_not_ge hρ), sdiff_empty]
+    exact isPreconnected_ball
+
+/-- The exterior of a closed ball about any center is preconnected in dimension at least two. -/
+theorem isPreconnected_compl_closedBall {E : Type*} [NormedAddCommGroup E]
+    [NormedSpace ℝ E] (hdim : 1 < Module.rank ℝ E) (c : E) (ρ : ℝ) :
+    IsPreconnected ((closedBall c ρ)ᶜ) := by
+  by_cases hρ : 0 ≤ ρ
+  · have he : (fun y : E => y + c) '' ((closedBall 0 ρ)ᶜ) = (closedBall c ρ)ᶜ := by
+      ext z
+      constructor
+      · rintro ⟨y, hy, rfl⟩
+        simpa [mem_closedBall, dist_eq_norm] using hy
+      · intro hz
+        refine ⟨z - c, ?_, sub_add_cancel z c⟩
+        simpa [mem_closedBall, dist_eq_norm] using hz
+    rw [← he]
+    exact (isPreconnected_compl_closedBall_zero hdim hρ).image _
+      (continuous_id.add continuous_const).continuousOn
+  · rw [closedBall_eq_empty.mpr (lt_of_not_ge hρ), compl_empty]
+    exact isPreconnected_univ
+
+/-- Every nonempty annulus in real dimension at least two is path connected. -/
+theorem isPathConnected_ball_diff_closedBall {E : Type*} [NormedAddCommGroup E]
+    [NormedSpace ℝ E] (hdim : 1 < Module.rank ℝ E) (c : E) (ρ R : ℝ)
+    (hne : (ball c R \ closedBall c ρ).Nonempty) :
+    IsPathConnected (ball c R \ closedBall c ρ) :=
+  (isOpen_ball.sdiff isClosed_closedBall).isConnected_iff_isPathConnected.mp
+    ⟨hne, isPreconnected_ball_diff_closedBall hdim c ρ R⟩
 
 end

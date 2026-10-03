@@ -10,7 +10,6 @@ public import Mathlib.MeasureTheory.Integral.CircleAverage
 public import Mathlib.Topology.Semicontinuity.Basic
 public import ComplexAnalysis.Integral.Circle
 public import ComplexAnalysis.Subharmonic.Submean
-public import ToMathlib.Topology.UpperSemicontinuous
 
 /-!
 # Subharmonic functions of one complex variable
@@ -147,7 +146,9 @@ theorem HasSubmeanAt.const_mul {c : ℝ} (hc : 0 ≤ c) (hu : HasSubmeanAt u a) 
 /-- Nonnegative multiples of subharmonic functions are subharmonic. -/
 theorem SubharmonicOn.const_mul {c : ℝ} (hc : 0 ≤ c) (hu : SubharmonicOn u U) :
     SubharmonicOn (fun z ↦ c * u z) U :=
-  ⟨hu.1.const_mul hc, fun a ha ↦ (hu.2 a ha).const_mul hc⟩
+  ⟨(continuous_const.mul continuous_id).comp_upperSemicontinuousOn hu.1
+    (fun _ _ hxy ↦ mul_le_mul_of_nonneg_left hxy hc),
+    fun a ha ↦ (hu.2 a ha).const_mul hc⟩
 
 /-- The pointwise maximum preserves the local submean property. -/
 theorem HasSubmeanAt.sup (hu : HasSubmeanAt u a) (hv : HasSubmeanAt v a) :

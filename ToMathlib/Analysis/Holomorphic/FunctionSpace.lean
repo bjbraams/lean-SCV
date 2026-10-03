@@ -161,6 +161,24 @@ theorem continuous_holomorphicRestrict {U V : TopologicalSpace.Opens E}
     ⟨fun z : V ↦ (⟨z, hVU z.property⟩ : U), continuous_subtype_val.subtype_mk _⟩).comp
       continuous_subtype_val
 
+omit [CompleteSpace F] in
+/-- Evaluation as a continuous complex-linear map for the compact-open topology. -/
+@[expose] def holomorphicEvalCLM (U : TopologicalSpace.Opens E) (z : U) :
+    HolomorphicMap U F →L[ℂ] F where
+  toFun f := f.val z
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+  cont := continuous_holomorphicMap_eval U z
+
+omit [CompleteSpace F] in
+/-- Restriction as a continuous complex-linear map between compact-open spaces. -/
+@[expose] def holomorphicRestrictCLM {U V : TopologicalSpace.Opens E} (hVU : V ≤ U) :
+    HolomorphicMap U F →L[ℂ] HolomorphicMap V F where
+  toFun := holomorphicRestrict hVU
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+  cont := continuous_holomorphicRestrict hVU
+
 /-- Restrict an ambient analytic function to its open domain as a holomorphic map. -/
 @[expose] def holomorphicMapOfAnalyticOnNhd (U : TopologicalSpace.Opens E) (f : E → F)
     (hf : AnalyticOnNhd ℂ f U) : HolomorphicMap U F :=

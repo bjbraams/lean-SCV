@@ -121,7 +121,9 @@ theorem PlurisubharmonicOn.add (hf : PlurisubharmonicOn f U) (hg : Plurisubharmo
 /-- Nonnegative multiples of plurisubharmonic functions are plurisubharmonic. -/
 theorem PlurisubharmonicOn.const_mul {c : ℝ} (hc : 0 ≤ c) (hf : PlurisubharmonicOn f U) :
     PlurisubharmonicOn (fun z => c * f z) U :=
-  ⟨(hf.1.const_mul hc), fun a ha w => (hf.2 a ha w).const_mul hc⟩
+  ⟨(continuous_const.mul continuous_id).comp_upperSemicontinuousOn hf.1
+    (fun _ _ hxy ↦ mul_le_mul_of_nonneg_left hxy hc),
+    fun a ha w => (hf.2 a ha w).const_mul hc⟩
 
 /-- The pointwise maximum of two plurisubharmonic functions is plurisubharmonic. -/
 theorem PlurisubharmonicOn.sup (hf : PlurisubharmonicOn f U) (hg : PlurisubharmonicOn g U) :

@@ -132,7 +132,10 @@ theorem isBoundedBilinearMap_leviBilinear (B : E →L[ℝ] E →L[ℝ] ℝ) :
   refine ⟨fun k₁ k₂ k' => ?_, fun c k k' => ?_, fun k k₁' k₂' => ?_, fun c k k' => ?_, ?_⟩
   · simp only [leviBilinear, smul_add, map_add]
     apply Complex.ext <;> simp <;> ring
-  · rw [Complex.smul_eq_re_smul_add_im_smul c k]
+  · have hc : c • k = c.re • k + c.im • (I • k) := by
+      conv_lhs => rw [← Complex.re_add_im c]
+      rw [add_smul, mul_smul, Complex.coe_smul, Complex.coe_smul]
+    rw [hc]
     have h1 : leviBilinear B (c.re • k + c.im • I • k, k') =
         leviBilinear B (c.re • k, k') + leviBilinear B (c.im • I • k, k') := by
       simp only [leviBilinear, smul_add, map_add]
@@ -142,7 +145,10 @@ theorem isBoundedBilinearMap_leviBilinear (B : E →L[ℝ] E →L[ℝ] ℝ) :
     ring
   · simp only [leviBilinear, smul_add, map_add]
     apply Complex.ext <;> simp <;> ring
-  · rw [Complex.smul_eq_re_smul_add_im_smul c k']
+  · have hc : c • k' = c.re • k' + c.im • (I • k') := by
+      conv_lhs => rw [← Complex.re_add_im c]
+      rw [add_smul, mul_smul, Complex.coe_smul, Complex.coe_smul]
+    rw [hc]
     have h1 : leviBilinear B (k, c.re • k' + c.im • I • k') =
         leviBilinear B (k, c.re • k') + leviBilinear B (k, c.im • I • k') := by
       simp only [leviBilinear, smul_add, map_add]
@@ -464,7 +470,7 @@ theorem IsLocalDefiningFunction.exists_holomorphic_support_of_mem (hU : IsOpen U
   obtain ⟨W, hW, F, hFan, hF0, hneg⟩ := h.exists_holomorphic_support hstrict
   refine ⟨W ∩ V, inter_mem hW (h.isOpen.mem_nhds h.mem), F, hFan, hF0, ?_⟩
   rintro z ⟨⟨hzW, hzV⟩, hzU⟩
-  have hzp : z ≠ p := fun hzp => hU.notMem_of_mem_frontier hp (hzp ▸ hzU)
+  have hzp : z ≠ p := fun hzp => (hU.frontier_eq ▸ hp).2 (hzp ▸ hzU)
   exact hneg z hzW hzp (h.neg_of_mem hzV hzU).le
 
 /-- **Local holomorphic blow-up.** At a strictly Levi convex boundary point of an open set there is

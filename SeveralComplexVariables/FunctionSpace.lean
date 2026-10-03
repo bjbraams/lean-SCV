@@ -38,7 +38,8 @@ namespace SeveralComplexVariables
 
 export Complex (openExtension openExtension_apply openExtension_coe holomorphicSubmodule
   HolomorphicMap tendsto_iff_openExtension continuous_holomorphicMap_eval
-  holomorphicMap_tendsto_iff holomorphicRestrict continuous_holomorphicRestrict)
+  holomorphicMap_tendsto_iff holomorphicRestrict continuous_holomorphicRestrict
+  holomorphicEvalCLM holomorphicRestrictCLM)
 
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [NormedAddCommGroup F]
   [NormedSpace ℂ F] [CompleteSpace F]

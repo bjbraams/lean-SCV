@@ -5,7 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
-public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.Analysis.SpecificLimits.Normed
 public import Mathlib.Topology.Algebra.IsUniformGroup.Basic
 public import Mathlib.Topology.Algebra.Module.Equiv
@@ -13,7 +13,7 @@ public import Mathlib.Topology.Baire.CompleteMetrizable
 public import Mathlib.Topology.Baire.Lemmas
 
 /-!
-# Open mapping for complete metrizable real or complex vector spaces
+# Open mapping for complete metrizable vector spaces
 
 This supplies the open-mapping argument needed for holomorphic function spaces with their
 compact-open topology. Baire's theorem first gives neighborhoods in closures of images;
@@ -28,7 +28,7 @@ through a private neighborhood form: the image of every zero neighborhood is a z
 
 ## References
 
-* `Mathlib.Analysis.Complex.Basic`: formal background used by this module.
+* `Mathlib.Analysis.Normed.Field.Basic`: formal background used by this module.
 * `Mathlib.Analysis.SpecificLimits.Normed`: formal background used by this module.
 * `Mathlib.Topology.Algebra.IsUniformGroup.Basic`: formal background used by this module.
 -/
@@ -40,7 +40,7 @@ open scoped Topology
 
 namespace ContinuousLinearMap
 
-variable {𝕜 E F : Type*} [RCLike 𝕜] [AddCommGroup E] [Module 𝕜 E] [PseudoMetricSpace E]
+variable {𝕜 E F : Type*} [NontriviallyNormedField 𝕜] [AddCommGroup E] [Module 𝕜 E] [PseudoMetricSpace E]
   [IsUniformAddGroup E] [ContinuousSMul 𝕜 E]
   [AddCommGroup F] [Module 𝕜 F] [PseudoMetricSpace F]
   [IsUniformAddGroup F] [ContinuousSMul 𝕜 F]
@@ -58,8 +58,9 @@ private theorem closure_image_mem_nhds_of_surjective [BaireSpace F]
   have hB : B ∈ 𝓝 (0 : E) := inter_mem hD hD'
   have hBW {x y : E} (hx : x ∈ B) (hy : y ∈ B) : x - y ∈ W :=
     hDD (show (x, y) ∈ D ×ˢ D' from ⟨hx.1, hy.2⟩)
-  let c (n : ℕ) : 𝕜 := (n + 1 : ℕ)
-  have hc (n : ℕ) : c n ≠ 0 := by dsimp [c]; exact_mod_cast Nat.succ_ne_zero n
+  obtain ⟨a, ha0, ha1⟩ := NormedField.exists_norm_lt_one 𝕜
+  let c (n : ℕ) : 𝕜 := (a ^ n)⁻¹
+  have hc (n : ℕ) : c n ≠ 0 := inv_ne_zero (pow_ne_zero n (norm_pos_iff.mp ha0))
   let e (n : ℕ) : F ≃L[𝕜] F :=
     ContinuousLinearEquiv.smulLeft (R₁ := 𝕜) (M₁ := F) (Units.mk0 (c n) (hc n))
   let S := closure (T '' B)
@@ -68,8 +69,7 @@ private theorem closure_image_mem_nhds_of_surjective [BaireSpace F]
     intro y
     obtain ⟨x, rfl⟩ := hs y
     have ht : Tendsto (fun n => (c n)⁻¹ • x) atTop (𝓝 (0 : E)) := by
-      simpa [c, one_div] using
-        (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := 𝕜)).smul_const x
+      simpa [c] using (tendsto_pow_atTop_nhds_zero_of_norm_lt_one ha1).smul_const x
     obtain ⟨n, hn⟩ := (ht.eventually hB).exists
     refine ⟨n, T ((c n)⁻¹ • x), subset_closure ⟨_, hn, rfl⟩, ?_⟩
     simp [e, map_smul, smul_smul, hc]
@@ -153,7 +153,7 @@ private theorem image_mem_nhds_of_surjective [CompleteSpace E] [BaireSpace F] [T
     (tendsto_const_nhds.sub (T.continuous.tendsto x |>.comp hx)) herr
   exact ⟨x, hxW, (sub_eq_zero.mp heq).symm⟩
 
-/-- A surjective continuous real- or complex-linear map from a complete metrizable topological
+/-- A surjective continuous linear map over a nontrivially normed field from a complete metrizable topological
 vector space to a Hausdorff metrizable Baire vector space is open. The metrics only need to
 induce the additive uniformities; they need not arise from norms. -/
 theorem isOpenMap_of_surjective_complete [CompleteSpace E] [BaireSpace F] [T2Space F]
