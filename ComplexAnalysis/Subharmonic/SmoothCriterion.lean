@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Analysis.Calculus.FDeriv.Symmetric
 public import Mathlib.Analysis.InnerProductSpace.Laplacian
+public import TauCeti.Analysis.InnerProductSpace.Laplacian.Basic
 public import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
 public import ToMathlib.Analysis.TaylorBounds
 public import ComplexAnalysis.Subharmonic.Majorant
@@ -20,7 +21,9 @@ difference between the circle average of radius `r` and the center value is `r ^
 the Laplacian, up to `o(r ^ 2)`. A positive Laplacian therefore gives the strict submean
 inequality on small circles and a negative one the reverse inequality. The nonstrict direction
 adds a small multiple of `‖z - t₀‖ ^ 2`, whose Laplacian is `4`, and uses the submean inequality
-on closed discs for continuous subharmonic functions.
+on closed discs for continuous subharmonic functions. The squared-distance Laplacian uses the
+Tau Ceti contributors' norm-square and translation lemmas from
+`TauCeti.Analysis.InnerProductSpace.Laplacian.Basic`.
 
 The Laplacian is Mathlib's `InnerProductSpace` Laplacian on `ℂ`, written in terms of the second
 Fréchet derivative in the directions `1` and `I`.
@@ -238,46 +241,15 @@ theorem HasSubmeanAt.laplacian_nonneg (hg : ContDiffAt ℝ 2 g t₀) (hs : HasSu
     ((eventually_circleAverage_lt_of_laplacian_neg hg hlt).and hs).exists
   linarith
 
-/-- The Laplacian of the squared distance to a point is `4`. -/
+/-- The Laplacian of the squared distance to a point is `4`.
+
+This specializes the Tau Ceti contributors' `TauCeti.laplacian_norm_sq` and
+`TauCeti.laplacian_comp_add_right` from `TauCeti.Analysis.InnerProductSpace.Laplacian.Basic`. -/
 theorem laplacian_normSq_sub (t₀ t : ℂ) : Δ (fun z : ℂ ↦ ‖z - t₀‖ ^ 2) t = 4 := by
-  have hq : (fun z : ℂ ↦ ‖z - t₀‖ ^ 2) = fun z ↦ (Complex.reCLM (z - t₀)) ^ 2 +
-      (Complex.imCLM (z - t₀)) ^ 2 := by
-    funext z
-    simp only [Complex.reCLM_apply, Complex.imCLM_apply, Complex.sq_norm, Complex.normSq_apply]
-    ring
-  have hD : ∀ z, HasFDerivAt (fun z : ℂ ↦ ‖z - t₀‖ ^ 2)
-      ((2 * (z - t₀).re) • Complex.reCLM + (2 * (z - t₀).im) • Complex.imCLM) z := by
-    intro z
-    rw [hq]
-    have h1 : HasFDerivAt (fun z : ℂ ↦ Complex.reCLM (z - t₀)) Complex.reCLM z :=
-      Complex.reCLM.hasFDerivAt.comp z ((hasFDerivAt_id z).sub_const t₀) |>.congr_fderiv (by simp)
-    have h2 : HasFDerivAt (fun z : ℂ ↦ Complex.imCLM (z - t₀)) Complex.imCLM z :=
-      Complex.imCLM.hasFDerivAt.comp z ((hasFDerivAt_id z).sub_const t₀) |>.congr_fderiv (by simp)
-    have := (h1.pow 2).add (h2.pow 2)
-    convert this using 1
-    ext s
-    simp [Complex.reCLM_apply, Complex.imCLM_apply]
-  have hfd : fderiv ℝ (fun z : ℂ ↦ ‖z - t₀‖ ^ 2) =
-      fun z ↦ (2 * (z - t₀).re) • Complex.reCLM + (2 * (z - t₀).im) • Complex.imCLM :=
-    funext fun z ↦ (hD z).fderiv
-  -- second derivative: differentiate the coefficient functions
-  have h1 : HasFDerivAt (fun z : ℂ ↦ 2 * (z - t₀).re) ((2 : ℝ) • Complex.reCLM) t := by
-    have h := Complex.reCLM.hasFDerivAt.comp t ((hasFDerivAt_id t).sub_const t₀)
-    have := h.const_mul (2 : ℝ)
-    refine this.congr_fderiv ?_
-    ext s
-    simp
-  have h2 : HasFDerivAt (fun z : ℂ ↦ 2 * (z - t₀).im) ((2 : ℝ) • Complex.imCLM) t := by
-    have h := Complex.imCLM.hasFDerivAt.comp t ((hasFDerivAt_id t).sub_const t₀)
-    have := h.const_mul (2 : ℝ)
-    refine this.congr_fderiv ?_
-    ext s
-    simp
-  have hD2 : HasFDerivAt (fun z : ℂ ↦ (2 * (z - t₀).re) • Complex.reCLM +
-      (2 * (z - t₀).im) • Complex.imCLM) _ t :=
-    (h1.smul_const Complex.reCLM).add (h2.smul_const Complex.imCLM)
-  rw [laplacian_eq_fderiv_fderiv, hfd, hD2.fderiv]
-  simp
+  simp only [sub_eq_add_neg]
+  rw [TauCeti.laplacian_comp_add_right (fun z : ℂ ↦ ‖z‖ ^ 2) (-t₀)]
+  change Δ (fun z : ℂ ↦ ‖z‖ ^ 2) (t + -t₀) = 4
+  rw [TauCeti.laplacian_norm_sq (t + -t₀)]
   norm_num
 
 /-- **Sufficiency.** A `C²` function with nonnegative Laplacian on an open set is subharmonic. -/

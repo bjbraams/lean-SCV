@@ -33,4 +33,10 @@ root = "Main"
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "v4.35.0-rc2"
+# rc3 theorem sources, with dependency updates matching TauCeti a780c7ad6beb.
+rev = "5e0c4e5239cb0a2d86d68a884bf52cfd963fce22"
+
+[[require]]
+name = "TauCeti"
+git = "https://github.com/TauCetiProject/TauCeti"
+rev = "a780c7ad6beb23f60a17351a492d177878020ad5"

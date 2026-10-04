@@ -6,6 +6,7 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Analysis.Calculus.InverseFunctionTheorem.ContDiff
+public import TauCeti.Analysis.Calculus.InverseFunctionTheorem
 public import Mathlib.Topology.OpenPartialHomeomorph.Composition
 public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.Derivatives
@@ -17,7 +18,9 @@ public import SeveralComplexVariables.Derivatives
 and target are already open; connectedness and nonemptiness are not required. The derivative
 identities work in complex normed spaces. Equality of dimensions requires a nonempty source.
 Local inverse results use finite-dimensional spaces and the existing holomorphic–analytic
-equivalence and Mathlib's inverse function theorem.
+equivalence and the Tau Ceti contributors' `TauCeti.ContDiffOn.exists_openPartialHomeomorph`
+from `TauCeti.Analysis.Calculus.InverseFunctionTheorem`, which supplies inverse regularity
+throughout the target using Mathlib's inverse function theorem.
 
 Reference: [Range][Range1986] (1986), I §2.4, Theorem 2.5 and Corollary 2.6. The chain rule and
 coordinate Jacobian are in `Derivatives`.
@@ -140,7 +143,10 @@ variable [FiniteDimensional ℂ E] [FiniteDimensional ℂ F]
 
 /-- **Holomorphic inverse mapping theorem.** An invertible complex derivative gives
 a biholomorphic restriction to an open neighborhood inside the given open set.
-The forward representative agrees with the original map everywhere. -/
+The forward representative agrees with the original map everywhere.
+
+This adapts the Tau Ceti contributors' `TauCeti.ContDiffOn.exists_openPartialHomeomorph`
+from `TauCeti.Analysis.Calculus.InverseFunctionTheorem` at regularity `ω`. -/
 theorem exists_biholomorphic_of_isInvertible_fderiv {U : Set E} (hU : IsOpen U)
     {f : E → F} (hf : DifferentiableOn ℂ f U) {a : E} (ha : a ∈ U)
     (hinv : (fderiv ℂ f a).IsInvertible) :
@@ -149,27 +155,12 @@ theorem exists_biholomorphic_of_isInvertible_fderiv {U : Set E} (hU : IsOpen U)
   let := FiniteDimensional.complete ℂ E
   let := FiniteDimensional.complete ℂ F
   obtain ⟨L, hL⟩ := hinv
-  have hfa := hf.analyticOnNhd_of_finiteDimensional hU a ha
-  have hc : ContDiffAt ℂ ω f a := hfa.contDiffAt
-  have hd : HasFDerivAt f (L : E →L[ℂ] F) a := by
-    rw [hL]
-    exact hfa.differentiableAt.hasFDerivAt
-  let e := hc.toOpenPartialHomeomorph f hd (by simp)
-  have hae : a ∈ e.source := hc.mem_toOpenPartialHomeomorph_source hd (by simp)
-  have hga : AnalyticAt ℂ e.symm (f a) := (hc.to_localInverse hd (by simp)).analyticAt
-  have hn : U ∩ e ⁻¹' {y | AnalyticAt ℂ e.symm y} ∈ 𝓝 a :=
-    inter_mem (hU.mem_nhds ha) (hfa.continuousAt.preimage_mem_nhds hga.eventually_analyticAt)
-  obtain ⟨V, hVS, hV, haV⟩ := mem_nhds_iff.mp hn
-  refine ⟨e.restr V, ?_, ?_, ?_, rfl⟩
-  · constructor
-    · exact hf.mono (fun x hx => (hVS (interior_subset hx.2)).1)
-    · intro y hy
-      have h := (hVS (interior_subset hy.2)).2
-      change AnalyticAt ℂ e.symm (e (e.symm y)) at h
-      have hg : AnalyticAt ℂ e.symm y := by simpa only [e.right_inv hy.1] using h
-      exact hg.differentiableAt.differentiableWithinAt
-  · exact ⟨hae, hV.interior_eq.symm ▸ haV⟩
-  · exact fun x hx => (hVS (interior_subset hx.2)).1
+  have hc : ContDiffOn ℂ ω f U :=
+    (hf.analyticOnNhd_of_finiteDimensional hU).contDiffOn hU.uniqueDiffOn
+  obtain ⟨e, he, hae, hsub, hinverse⟩ :=
+    TauCeti.ContDiffOn.exists_openPartialHomeomorph hc hU ha (by simp) hL
+  refine ⟨e, ⟨?_, hinverse.differentiableOn (by simp)⟩, hae, hsub, he⟩
+  simpa only [he] using hf.mono hsub
 
 /-- A holomorphic map is locally biholomorphic exactly when its derivative is invertible. -/
 theorem isInvertible_fderiv_iff_exists_biholomorphic {U : Set E} (hU : IsOpen U)

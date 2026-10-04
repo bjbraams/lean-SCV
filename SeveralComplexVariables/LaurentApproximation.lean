@@ -206,7 +206,9 @@ theorem exists_laurentProjections (U : TopologicalSpace.Opens (Fin n → ℂ))
       · simp [hj, c, multivariableLaurentTerm]
     have hcoeff := (multivariableLaurent_expansion U.isOpen hc.isPreconnected hR
       (P k f).property hr hrU).2.2.2.2 c hs
-    ext z
+    apply Subtype.ext
+    apply ContinuousMap.ext
+    intro z
     rw [hP, ← hcoeff]
     by_cases hmk : m = k
     · subst m

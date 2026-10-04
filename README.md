@@ -1,7 +1,8 @@
 # Several Complex Variables
 
 A Lean 4 formalization of the classical theory of several complex variables, built on
-Mathlib and intended as a contribution to it. The subject is function theory on open subsets
+Mathlib, with pinned TauCeti modules available as an additional source of results, and
+intended as a contribution to Mathlib. The subject is function theory on open subsets
 of finite-dimensional complex normed spaces, in particular domains in ℂⁿ: Cauchy and Taylor
 theory, convergence and function spaces, local holomorphic mappings, Reinhardt and Laurent
 continuation, the Hartogs phenomena and removable singularities, analytic sets, analytic germs
@@ -33,8 +34,8 @@ intentional `sorry` placeholders; their proofs are supplied in `Solution.lean`.
   one-variable removable singularities, and related results). It is the subset of a separate
   one-variable project that this library needs.
 - `ToMathlib/Algebra/`, `ToMathlib/Analysis/` and `ToMathlib/Topology/` hold general algebra,
-  analysis and topology support that depends only on Mathlib, in the namespaces of the Mathlib
-  APIs they extend.
+  analysis and topology support, in the namespaces of the Mathlib APIs they extend.
+  All three layers may import suitable Mathlib and TauCeti modules.
 - `Main.lean` is the executable stub required by the Lake configuration; it only imports the
   library.
 - `Challenge.lean` states the selected Palomar results using Mathlib alone; `Solution.lean`
@@ -45,10 +46,20 @@ intentional `sorry` placeholders; their proofs are supplied in `Solution.lean`.
 - `SeveralComplexVariables/References/` (not in the repository) contains the texts that
   guided the selection of material; see below.
 
-## Building the Palomar (V1) version
+## Building the current project
 
-The project uses Lean and Mathlib at version `v4.35.0-rc2` (see `lean-toolchain` and
-`lakefile.toml`). From the repository root:
+The current working tree uses Lean `v4.35.0-rc3`, Mathlib revision
+`5e0c4e5239cb0a2d86d68a884bf52cfd963fce22`, and TauCeti revision
+`a780c7ad6beb23f60a17351a492d177878020ad5` (see `lean-toolchain` and `lakefile.toml`).
+The published Palomar V1 snapshot used `v4.35.0-rc2`.
+
+Prefer existing results in Mathlib, then the pinned TauCeti, before developing local proofs.
+Import individual modules, for example
+`public import TauCeti.Analysis.Complex.Conformal.Inverse.Function`;
+`import TauCeti` does not re-export the library. Resolve TauCeti prerequisites when preparing
+Mathlib contributions. See [TauCetiReview.md](TauCetiReview.md) for the reuse inventory.
+
+From the repository root:
 
     lake build
 
