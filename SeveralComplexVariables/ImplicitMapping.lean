@@ -8,7 +8,6 @@ module
 public import Mathlib.Analysis.Calculus.ImplicitContDiff
 public import SeveralComplexVariables.Analyticity
 public import SeveralComplexVariables.Derivatives
-public import ToMathlib.Topology.Graph
 
 /-!
 # Holomorphic implicit mappings

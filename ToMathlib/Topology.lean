@@ -6,7 +6,6 @@ Authors: Bastiaan J Braams
 module
 
 public import ToMathlib.Topology.Frontier
-public import ToMathlib.Topology.Graph
 public import ToMathlib.Topology.MetricSpace.Pi
 public import ToMathlib.Topology.Path
 public import ToMathlib.Topology.SeparateContinuous
@@ -14,18 +13,16 @@ public import ToMathlib.Topology.SeparateContinuous
 /-!
 # General topology support
 
-Frontier and complementary-component lemmas, graphs characterized by
-equations, coordinate updates in finite products of pseudometric spaces, first exit of paths from
-open sets, and uniform bounds for separately continuous maps. Declarations
-extend the existing Mathlib APIs. This library has no dependency on project analysis or complex
-function theory.
+Frontier and complementary-component lemmas, coordinate updates in finite products of
+pseudometric spaces, first exit of paths from open sets, and uniform bounds for separately
+continuous maps. Declarations extend the existing Mathlib APIs. This library has no dependency
+on project analysis or complex function theory.
 
 ## Main results
 
 This module re-exports the following developments:
 
 * `ToMathlib.Topology.Frontier`: Frontiers and complementary components.
-* `ToMathlib.Topology.Graph`: Graphs characterized by equations.
 * `ToMathlib.Topology.MetricSpace.Pi`: Coordinate updates in finite products of pseudometric
   spaces.
 * `ToMathlib.Topology.Path`: First exit of a path from an open set.

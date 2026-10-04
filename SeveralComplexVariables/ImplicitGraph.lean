@@ -6,7 +6,8 @@ Authors: Bastiaan J Braams
 module
 
 public import SeveralComplexVariables.ImplicitMapping
-public import ToMathlib.Topology.Graph
+
+import Mathlib.Topology.Homeomorph.Lemmas
 
 /-!
 # Local zero sets as graphs
@@ -18,9 +19,9 @@ Corollary 3.1.5.
 
 ## Main results
 
-`Homeomorph.implicitGraph` is the local graph homeomorphism of a regular zero set in a product.
-`exists_implicit_zero_homeomorph` packages existence of that homeomorphism from the implicit
-mapping theorem.
+`exists_implicit_zero_homeomorph` identifies a regular local zero set homeomorphically with
+its parameter neighborhood. It combines the implicit mapping theorem with Mathlib's
+construction of a homeomorphism from a surjective embedding.
 
 ## References
 
@@ -29,7 +30,7 @@ mapping theorem.
 
 public noncomputable section
 
-open Set
+open Set Topology
 
 namespace SeveralComplexVariables
 
@@ -48,7 +49,21 @@ theorem exists_implicit_zero_homeomorph [FiniteDimensional ℂ P] [FiniteDimensi
         ∀ p, (e p).val = p.val.1 := by
   obtain ⟨U, V, g, hU, ha, hV, hb, hsub, hg, hm, _, hgraph⟩ :=
     exists_holomorphic_implicit_zero hD hf hab hz hi
-  exact ⟨U, V, hU, ha, hV, hb, hsub, Homeomorph.implicitGraph hg.continuousOn hm hgraph,
-    fun _ => rfl⟩
+  let Z := {p : P × Q // p ∈ U ×ˢ V ∧ f p = 0}
+  let π : Z → U := fun p ↦ ⟨p.val.1, p.property.1.1⟩
+  let γ : U → P × Q := fun x ↦ (x.val, g x)
+  have hcomp : γ ∘ π = Subtype.val := by
+    funext p
+    apply Prod.ext
+    · rfl
+    · exact ((hgraph p.val.1 p.property.1.1 p.val.2 p.property.1.2).mp p.property.2).symm
+  have he : IsEmbedding π := .of_comp (g := γ)
+    ((continuous_fst.comp continuous_subtype_val).subtype_mk _)
+    (continuous_subtype_val.prodMk hg.continuousOn.domRestrict)
+    (by rw [hcomp]; exact .subtypeVal)
+  have hs : Function.Surjective π := fun x ↦
+    ⟨⟨(x.val, g x), ⟨⟨x.property, hm x.property⟩,
+      (hgraph x x.property (g x) (hm x.property)).mpr rfl⟩⟩, rfl⟩
+  exact ⟨U, V, hU, ha, hV, hb, hsub, he.toHomeomorphOfSurjective hs, fun _ ↦ rfl⟩
 
 end SeveralComplexVariables
