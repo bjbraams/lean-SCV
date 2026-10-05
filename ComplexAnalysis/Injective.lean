@@ -17,9 +17,9 @@ public import TauCeti.Analysis.Complex.Conformal.LocalDegree
 # Nonsingularity of injective holomorphic functions of one variable
 
 Nonsingularity is imported from the Tau Ceti contributors'
-`TauCeti.deriv_ne_zero_of_injOn` in `TauCeti.Analysis.Complex.Conformal.LocalDegree`.
-The local adapter preserves the existing interface. Nonconstancy and the logarithmic-derivative
-circle-integral formulas remain local.
+`TauCeti.deriv_ne_zero_of_injOn` in `TauCeti.Analysis.Complex.Conformal.LocalDegree` and
+restated in the `Complex` namespace. Nonconstancy and the logarithmic-derivative circle-integral
+formulas are proved here.
 
 ## Main results
 
