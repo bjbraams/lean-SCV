@@ -75,6 +75,13 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 section ComplexPart
 
+/-- A complex multiple of a vector decomposes into real multiples of the vector and of `I` times
+the vector. -/
+theorem _root_.Complex.smul_eq_re_smul_add_im_smul_I_smul (ζ : ℂ) (w : E) :
+    ζ • w = ζ.re • w + ζ.im • (I • w) := by
+  conv_lhs => rw [← Complex.re_add_im ζ]
+  rw [add_smul, mul_smul, Complex.coe_smul, Complex.coe_smul]
+
 /-- The complex-linear part `c ↦ ℓ c - I * ℓ (I • c)` of a real functional: Mathlib's
 `StrongDual.extendRCLike` with the scalar field fixed to `ℂ`. -/
 abbrev complexPart (ℓ : E →L[ℝ] ℝ) : E →L[ℂ] ℂ := StrongDual.extendRCLike ℓ
@@ -87,10 +94,8 @@ theorem complexPart_apply (ℓ : E →L[ℝ] ℝ) (c : E) :
 complex-linear part. -/
 theorem apply_smul_eq_re_mul_complexPart (ℓ : E →L[ℝ] ℝ) (ζ : ℂ) (c : E) :
     ℓ (ζ • c) = (ζ * complexPart ℓ c).re := by
-  conv_lhs => rw [← Complex.re_add_im ζ, add_smul, mul_smul,
-    Complex.coe_smul, Complex.coe_smul]
-  rw [map_add, map_smul, map_smul, smul_eq_mul, smul_eq_mul,
-    complexPart_apply]
+  rw [ζ.smul_eq_re_smul_add_im_smul_I_smul, map_add, map_smul, map_smul, smul_eq_mul,
+    smul_eq_mul, complexPart_apply]
   simp [Complex.mul_re, Complex.mul_im]
 
 /-- The real part of the complex part of a real functional is the functional itself. -/
@@ -122,10 +127,7 @@ theorem bilinear_smul_smul_eq (B : E →L[ℝ] E →L[ℝ] ℝ) {w : E}
     (1 / 2 : ℝ) * B (ζ • w) (ζ • w) =
       ‖ζ‖ ^ 2 * ((B w w + B (I • w) (I • w)) / 4) +
         (ζ ^ 2 * (((B w w - B (I • w) (I • w)) / 4 : ℝ) - I / 2 * B w (I • w))).re := by
-  have hζ : ζ • w = ζ.re • w + ζ.im • (I • w) := by
-    conv_lhs => rw [← Complex.re_add_im ζ]
-    rw [add_smul, mul_smul, Complex.coe_smul, Complex.coe_smul]
-  rw [hζ]
+  rw [ζ.smul_eq_re_smul_add_im_smul_I_smul]
   simp only [map_add, map_smul, add_apply, smul_apply, smul_eq_mul, hsymm]
   rw [Complex.sq_norm, Complex.normSq_apply]
   simp [Complex.mul_re, Complex.mul_im, pow_two]

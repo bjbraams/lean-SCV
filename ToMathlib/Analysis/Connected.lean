@@ -8,6 +8,8 @@ module
 public import Mathlib.Analysis.Normed.Module.Connected
 public import TauCeti.Analysis.Normed.Module.Ball.Exterior
 public import Mathlib.Analysis.LocallyConvex.WithSeminorms
+public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.LinearAlgebra.Complex.FiniteDimensional
 
 /-!
 # Connectedness of shells and exteriors of balls
@@ -24,6 +26,8 @@ the Tau Ceti contributors' `TauCeti.isPreconnected_compl_closedBall` from
   two is preconnected.
 * `isPreconnected_compl_closedBall`: The exterior of a closed norm ball is preconnected in
   real dimension at least two.
+* `one_lt_rank_real_of_two_le_finrank_complex`: Complex dimension at least two gives real
+  dimension greater than one, the hypothesis of the connectedness results.
 
 ## References
 
@@ -33,6 +37,14 @@ the Tau Ceti contributors' `TauCeti.isPreconnected_compl_closedBall` from
 public section
 
 open Metric Set
+
+/-- A complex space of complex dimension at least two has real dimension greater than one. -/
+theorem one_lt_rank_real_of_two_le_finrank_complex {E : Type*} [NormedAddCommGroup E]
+    [NormedSpace ℂ E] [FiniteDimensional ℂ E] (hdim : 2 ≤ Module.finrank ℂ E) :
+    1 < Module.rank ℝ E := by
+  have : FiniteDimensional ℝ E := .complexToReal E
+  rw [← Module.finrank_eq_rank, ← Module.finrank_mul_finrank ℝ ℂ E, Complex.finrank_real_complex]
+  exact_mod_cast (by omega : 1 < 2 * Module.finrank ℂ E)
 
 /-- A shell in a real normed space of dimension at least two is preconnected. This radial argument
 is independent of any analytic extension theorem. -/

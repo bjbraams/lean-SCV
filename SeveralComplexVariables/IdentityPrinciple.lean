@@ -5,6 +5,7 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Normed.Module.Completion
 public import SeveralComplexVariables.Analyticity
 
 /-!
@@ -12,12 +13,13 @@ public import SeveralComplexVariables.Analyticity
 
 Holomorphic maps on a preconnected open subset of a finite-dimensional complex normed space
 agree everywhere if they agree near one point, equivalently on a nonempty open subset. The
-target may be a complex Banach space. The proofs use the project's holomorphic–analytic
-equivalence and Mathlib's analytic identity principle.
+target may be any complex normed space; completeness is not needed. The proofs pass to the
+completion of the target, then use the project's holomorphic–analytic equivalence and Mathlib's
+analytic identity principle.
 
 `DifferentiableOn.eqOn_of_preconnected_of_eqOn` is
 [Fritzsche–Grauert][FritzscheGrauert2002] (2002), I.4.10, p. 22,
-with Banach-valued targets. Finite coordinate spaces `ι → ℂ` are covered as finite-dimensional
+with normed-space targets. Finite coordinate spaces `ι → ℂ` are covered as finite-dimensional
 spaces, including empty coordinate types. The agreement set must be nonempty; agreement merely on a
 set with a cluster point does not suffice in several variables.
 
@@ -41,16 +43,21 @@ open scoped Topology
 namespace DifferentiableOn
 
 variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
-  [FiniteDimensional ℂ E] [NormedAddCommGroup F] [NormedSpace ℂ F] [CompleteSpace F]
+  [FiniteDimensional ℂ E] [NormedAddCommGroup F] [NormedSpace ℂ F]
 
 /-- The holomorphic identity principle from equality near one point of an open, preconnected set.
-The target may be any complex Banach space. -/
+The target may be any complex normed space: composing with the isometric embedding into the
+completion reduces to the Banach-valued analytic identity principle. -/
 theorem eqOn_of_preconnected_of_eventuallyEq {U : Set E} (hU : IsOpen U)
     (hconn : IsPreconnected U) {f g : E → F}
     (hf : DifferentiableOn ℂ f U) (hg : DifferentiableOn ℂ g U)
-    {a : E} (ha : a ∈ U) (heq : f =ᶠ[𝓝 a] g) : EqOn f g U :=
-  (hf.analyticOnNhd_of_finiteDimensional hU).eqOn_of_preconnected_of_eventuallyEq
-    (hg.analyticOnNhd_of_finiteDimensional hU) hconn ha heq
+    {a : E} (ha : a ∈ U) (heq : f =ᶠ[𝓝 a] g) : EqOn f g U := by
+  let ι : F →L[ℂ] UniformSpace.Completion F := UniformSpace.Completion.toComplL
+  have hfι := ι.differentiable.comp_differentiableOn hf
+  have hgι := ι.differentiable.comp_differentiableOn hg
+  have h := (hfι.analyticOnNhd_of_finiteDimensional hU).eqOn_of_preconnected_of_eventuallyEq
+    (hgι.analyticOnNhd_of_finiteDimensional hU) hconn ha (heq.fun_comp ι)
+  exact fun z hz => UniformSpace.Completion.coe_injective F (h hz)
 
 /-- **Identity theorem ([Fritzsche–Grauert][FritzscheGrauert2002] I.4.10).** Two holomorphic maps on
 an open, preconnected set agree everywhere if they agree on a nonempty open subset. -/

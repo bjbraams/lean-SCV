@@ -224,6 +224,7 @@ theorem exists_extension_balancedHull {U : Set E} (ho : IsOpen U)
     := IsCircular.hasSumLocallyUniformlyOn_homogeneousTerm_balancedHull ho hc hrot hzero hf hp
   exact ⟨_, ha, fun z hz => (hs.hasSum hz).tsum_eq⟩
 
+omit [CompleteSpace F] in
 /-- Extensions to the balanced hull are unique by the identity theorem and geometry. -/
 theorem eqOn_balancedHull_of_eqOn {U : Set E} (ho : IsOpen U) (hzero : (0 : E) ∈ U)
     {f g : E → F} (hf : AnalyticOnNhd ℂ f (balancedHull ℂ U))

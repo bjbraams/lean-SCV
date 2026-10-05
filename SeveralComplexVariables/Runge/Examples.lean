@@ -13,7 +13,7 @@ public import SeveralComplexVariables.Runge
 /-!
 # Examples of Runge domains
 
-Complete Reinhardt open sets in `ℂⁿ` are Runge domains, since holomorphic functions on them are
+Complete Reinhardt open sets in `ℂ^ι`, for any finite index type `ι`, are Runge domains, since holomorphic functions on them are
 represented by their Taylor series at the origin, converging locally uniformly. More generally,
 circular connected open sets containing the origin are Runge domains, since holomorphic
 functions on them are locally uniform sums of their homogeneous expansions, whose terms are
@@ -45,6 +45,8 @@ References: [Hörmander][Hormander1973] (1973), Section 2.7;
   holomorphic on `U` with values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with
   `Φ ∘ Ψ = id` on `U'`, then `U'` is a Runge domain. The two coordinate spaces may have
   different dimensions.
+* `IsRungeDomain.of_comp_equiv`: **Reindexing.** Runge domains are invariant under reindexing of
+  coordinates; this reduces the complete Reinhardt case to `Fin n`.
 
 ## References
 
@@ -59,86 +61,6 @@ open Filter Function Metric Set
 open scoped Topology
 
 namespace SeveralComplexVariables
-
-variable {n : ℕ}
-
-section Reinhardt
-
-/-- **Complete Reinhardt open sets are Runge domains**: holomorphic functions are locally uniform
-sums of their Taylor series at the origin. -/
-theorem IsCompleteReinhardt.isRungeDomain {U : Set (Fin n → ℂ)} (ho : IsOpen U)
-    (hc : IsCompleteReinhardt U) : IsRungeDomain U := by
-  intro f hf K hK hKU ε hε
-  obtain ⟨hdom, heq⟩
-    := IsCompleteReinhardt.subset_convergenceDomain_and_eqOn_powerSeriesSum ho hc hf
-  have hsum := hasSumUniformlyOn_powerSeries (taylorCoefficientsAtZero f) hK (hKU.trans hdom)
-  rw [hasSumUniformlyOn_iff_tendstoUniformlyOn, Metric.tendstoUniformlyOn_iff] at hsum
-  obtain ⟨t, ht⟩ := (hsum ε hε).exists
-  obtain ⟨P, hP⟩ := exists_mvPolynomial_eval_eq_sum t (fun m => taylorCoefficientsAtZero f m)
-  refine ⟨P, fun z hz => ?_⟩
-  have := ht z hz
-  rw [dist_eq_norm, heq (hKU hz)] at this
-  rw [hP z]
-  simpa only [smul_eq_mul] using this
-
-/-- Polydiscs centered at the origin are Runge domains. -/
-theorem isRungeDomain_polydisc (r : Fin n → ℝ) :
-    IsRungeDomain (polydisc (0 : Fin n → ℂ) r) :=
-  (isCompleteReinhardt_polydisc r).isRungeDomain (isOpen_polydisc 0 r)
-
-/-- Balls centered at the origin are Runge domains. -/
-theorem isRungeDomain_ball (r : ℝ) : IsRungeDomain (ball (0 : Fin n → ℂ) r) := by
-  refine IsCompleteReinhardt.isRungeDomain isOpen_ball fun z hz w hw => ?_
-  rw [mem_ball_zero_iff] at hz ⊢
-  refine lt_of_le_of_lt ?_ hz
-  rw [pi_norm_le_iff_of_nonneg (norm_nonneg z)]
-  exact fun i => (hw i).trans (norm_le_pi_norm z i)
-
-end Reinhardt
-
-section Circular
-
-/-- The restriction of a continuous multilinear map on `ℂⁿ` to the diagonal is a polynomial. -/
-theorem exists_mvPolynomial_eval_eq_multilinear_diagonal {k : ℕ}
-    (m : ContinuousMultilinearMap ℂ (fun _ : Fin k => (Fin n → ℂ)) ℂ) :
-    ∃ P : MvPolynomial (Fin n) ℂ, ∀ z, MvPolynomial.eval z P = m (fun _ => z) := by
-  refine ⟨∑ r : Fin k → Fin n, MvPolynomial.C (m fun j => Pi.single (r j) (1 : ℂ)) *
-    ∏ j, MvPolynomial.X (r j), fun z => ?_⟩
-  have hz : (fun _ : Fin k => z) = fun _ => ∑ i : Fin n, z i • Pi.single i (1 : ℂ) := by
-    funext _ j
-    simp [Finset.sum_apply, Pi.single_apply]
-  rw [hz, ContinuousMultilinearMap.map_sum]
-  simp only [map_sum, map_mul, MvPolynomial.eval_C, map_prod, MvPolynomial.eval_X]
-  refine Finset.sum_congr rfl fun r _ => ?_
-  rw [ContinuousMultilinearMap.map_smul_univ, smul_eq_mul, mul_comm]
-
-/-- Homogeneous terms of power series on `ℂⁿ` are polynomials. -/
-theorem exists_mvPolynomial_eval_eq_homogeneousTerm
-    (p : FormalMultilinearSeries ℂ (Fin n → ℂ) ℂ) (k : ℕ) :
-    ∃ P : MvPolynomial (Fin n) ℂ, ∀ z, MvPolynomial.eval z P = homogeneousTerm p k z := by
-  obtain ⟨P, hP⟩ := exists_mvPolynomial_eval_eq_multilinear_diagonal (p k)
-  exact ⟨P, fun z => by rw [hP, homogeneousTerm_apply]⟩
-
-/-- **Circular connected open sets containing the origin are Runge domains**: holomorphic
-functions are locally uniform sums of their homogeneous expansions, whose terms are
-polynomials. -/
-theorem IsCircular.isRungeDomain {U : Set (Fin n → ℂ)} (ho : IsOpen U) (hc : IsPreconnected U)
-    (hrot : IsCircular U) (hzero : (0 : Fin n → ℂ) ∈ U) : IsRungeDomain U := by
-  intro f hf K hK hKU ε hε
-  obtain ⟨p, hp⟩ := hf 0 hzero
-  have hsum :=
-    (IsCircular.hasSumLocallyUniformlyOn_homogeneousTerm_balancedHull ho hc hrot hzero hf hp).1
-  rw [hasSumLocallyUniformlyOn_iff_tendstoLocallyUniformlyOn] at hsum
-  have hu := (tendstoLocallyUniformlyOn_iff_tendstoUniformlyOn_of_compact hK).mp (hsum.mono hKU)
-  rw [Metric.tendstoUniformlyOn_iff] at hu
-  obtain ⟨t, ht⟩ := (hu ε hε).exists
-  choose Q hQ using exists_mvPolynomial_eval_eq_homogeneousTerm p
-  refine ⟨∑ k ∈ t, Q k, fun z hz => ?_⟩
-  have := ht z hz
-  rw [dist_eq_norm] at this
-  simpa only [map_sum, hQ] using this
-
-end Circular
 
 section Transport
 
@@ -205,6 +127,107 @@ theorem IsRungeDomain.translate [Fintype ι] {U : Set (ι → ℂ)} (hU : IsRung
       funext i
       simp [mvPolynomialMap]
 
+/-- **Reindexing.** A set is a Runge domain if its preimage under a reindexing of coordinates is. -/
+theorem IsRungeDomain.of_comp_equiv [Fintype σ] [Fintype τ] (e : τ ≃ σ) {U : Set (τ → ℂ)}
+    (h : IsRungeDomain {w : σ → ℂ | w ∘ e ∈ U}) : IsRungeDomain U := by
+  have hG : ∀ z : τ → ℂ, mvPolynomialMap (fun j => MvPolynomial.X (e.symm j)) z ∘ e = z :=
+    fun z => funext fun i => by simp [mvPolynomialMap]
+  exact h.transport (Φ := fun w => w ∘ e) ((analyticOnNhd_comp_equiv e).mono (subset_univ _))
+    (fun _ hw => hw) (fun j => MvPolynomial.X (e.symm j)) (fun z hz => by simpa [hG z] using hz)
+    fun z _ => hG z
+
 end Transport
+
+section Reinhardt
+
+/-- Complete Reinhardt open sets in `ℂ^{Fin n}` are Runge domains, by the Taylor series at the
+origin. -/
+private theorem IsCompleteReinhardt.isRungeDomain_fin {n : ℕ} {U : Set (Fin n → ℂ)} (ho : IsOpen U)
+    (hc : IsCompleteReinhardt U) : IsRungeDomain U := by
+  intro f hf K hK hKU ε hε
+  obtain ⟨hdom, heq⟩
+    := IsCompleteReinhardt.subset_convergenceDomain_and_eqOn_powerSeriesSum ho hc hf
+  have hsum := hasSumUniformlyOn_powerSeries (taylorCoefficientsAtZero f) hK (hKU.trans hdom)
+  rw [hasSumUniformlyOn_iff_tendstoUniformlyOn, Metric.tendstoUniformlyOn_iff] at hsum
+  obtain ⟨t, ht⟩ := (hsum ε hε).exists
+  obtain ⟨P, hP⟩ := exists_mvPolynomial_eval_eq_sum t (fun m => taylorCoefficientsAtZero f m)
+  refine ⟨P, fun z hz => ?_⟩
+  have := ht z hz
+  rw [dist_eq_norm, heq (hKU hz)] at this
+  rw [hP z]
+  simpa only [smul_eq_mul] using this
+
+/-- **Complete Reinhardt open sets are Runge domains**: holomorphic functions are locally uniform
+sums of their Taylor series at the origin. The coordinates are reindexed by `Fin n`. -/
+theorem IsCompleteReinhardt.isRungeDomain {ι : Type*} [Fintype ι] {U : Set (ι → ℂ)}
+    (ho : IsOpen U) (hc : IsCompleteReinhardt U) : IsRungeDomain U := by
+  let e := Fintype.equivFin ι
+  refine IsRungeDomain.of_comp_equiv e (IsCompleteReinhardt.isRungeDomain_fin ?_ ?_)
+  · exact ho.preimage (continuous_pi fun _ => continuous_apply _)
+  · exact fun z hz w hw => hc hz fun i => hw (e i)
+
+/-- Polydiscs centered at the origin are Runge domains. -/
+theorem isRungeDomain_polydisc {ι : Type*} [Fintype ι] (r : ι → ℝ) :
+    IsRungeDomain (polydisc (0 : ι → ℂ) r) :=
+  (isCompleteReinhardt_polydisc r).isRungeDomain (isOpen_polydisc 0 r)
+
+/-- Balls centered at the origin are Runge domains. -/
+theorem isRungeDomain_ball {ι : Type*} [Fintype ι] (r : ℝ) :
+    IsRungeDomain (ball (0 : ι → ℂ) r) := by
+  refine IsCompleteReinhardt.isRungeDomain isOpen_ball fun z hz w hw => ?_
+  rw [mem_ball_zero_iff] at hz ⊢
+  refine lt_of_le_of_lt ?_ hz
+  rw [pi_norm_le_iff_of_nonneg (norm_nonneg z)]
+  exact fun i => (hw i).trans (norm_le_pi_norm z i)
+
+end Reinhardt
+
+section Circular
+
+variable {ι : Type*} [Fintype ι]
+
+/-- The restriction of a continuous multilinear map on `ℂ^ι` to the diagonal is a polynomial. -/
+theorem exists_mvPolynomial_eval_eq_multilinear_diagonal {k : ℕ}
+    (m : ContinuousMultilinearMap ℂ (fun _ : Fin k => (ι → ℂ)) ℂ) :
+    ∃ P : MvPolynomial ι ℂ, ∀ z, MvPolynomial.eval z P = m (fun _ => z) := by
+  classical
+  refine ⟨∑ r : Fin k → ι, MvPolynomial.C (m fun j => Pi.single (r j) (1 : ℂ)) *
+    ∏ j, MvPolynomial.X (r j), fun z => ?_⟩
+  have hz : (fun _ : Fin k => z) = fun _ => ∑ i : ι, z i • Pi.single i (1 : ℂ) := by
+    funext _ j
+    simp [Finset.sum_apply, Pi.single_apply]
+  rw [hz, ContinuousMultilinearMap.map_sum]
+  simp only [map_sum, map_mul, MvPolynomial.eval_C, map_prod, MvPolynomial.eval_X]
+  refine Finset.sum_congr rfl fun r _ => ?_
+  rw [ContinuousMultilinearMap.map_smul_univ, smul_eq_mul, mul_comm]
+
+/-- Homogeneous terms of power series on `ℂ^ι` are polynomials. -/
+theorem exists_mvPolynomial_eval_eq_homogeneousTerm
+    (p : FormalMultilinearSeries ℂ (ι → ℂ) ℂ) (k : ℕ) :
+    ∃ P : MvPolynomial ι ℂ, ∀ z, MvPolynomial.eval z P = homogeneousTerm p k z := by
+  obtain ⟨P, hP⟩ := exists_mvPolynomial_eval_eq_multilinear_diagonal (p k)
+  exact ⟨P, fun z => by rw [hP, homogeneousTerm_apply]⟩
+
+/-- **Circular connected open sets containing the origin are Runge domains**: holomorphic
+functions are locally uniform sums of their homogeneous expansions, whose terms are
+polynomials. -/
+theorem IsCircular.isRungeDomain {U : Set (ι → ℂ)} (ho : IsOpen U) (hc : IsPreconnected U)
+    (hrot : IsCircular U) (hzero : (0 : ι → ℂ) ∈ U) : IsRungeDomain U := by
+  intro f hf K hK hKU ε hε
+  obtain ⟨p, hp⟩ := hf 0 hzero
+  have hsum :=
+    (IsCircular.hasSumLocallyUniformlyOn_homogeneousTerm_balancedHull ho hc hrot hzero hf hp).1
+  rw [hasSumLocallyUniformlyOn_iff_tendstoLocallyUniformlyOn] at hsum
+  have hu := (tendstoLocallyUniformlyOn_iff_tendstoUniformlyOn_of_compact hK).mp (hsum.mono hKU)
+  rw [Metric.tendstoUniformlyOn_iff] at hu
+  obtain ⟨t, ht⟩ := (hu ε hε).exists
+  choose Q hQ using exists_mvPolynomial_eval_eq_homogeneousTerm p
+  refine ⟨∑ k ∈ t, Q k, fun z hz => ?_⟩
+  have := ht z hz
+  rw [dist_eq_norm] at this
+  simpa only [map_sum, hQ] using this
+
+end Circular
+
 
 end SeveralComplexVariables

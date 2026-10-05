@@ -5,22 +5,23 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Convex.Continuous
 public import Mathlib.Analysis.Normed.Module.Convex
 public import ComplexAnalysis.Subharmonic.Basic
 
 /-!
-# Subharmonicity of continuous convex functions on planar domains
+# Subharmonicity of convex functions on planar domains
 
-The local submean property is preserved by translation. A continuous real-valued convex function
-on an open convex subset of the complex plane is subharmonic, by applying convexity to circular
+The local submean property is preserved by translation. A real-valued convex function on an
+open convex subset of the complex plane is subharmonic, by applying convexity to circular
 averages.
 
 ## Main results
 
 * `Complex.HasSubmeanAt.comp_add_right`: Translating the parameter of a function with the local
   submean property.
-* `ConvexOn.subharmonicOn`: A continuous function that is convex on an open set of `ℂ` is
-  subharmonic there.
+* `ConvexOn.subharmonicOn`: A function that is convex on an open set of `ℂ` is subharmonic
+  there; continuity is automatic.
 
 ## References
 
@@ -46,9 +47,11 @@ theorem HasSubmeanAt.comp_add_right {u : ℂ → ℝ} {t₀ : ℂ}
     simpa only [hmap] using hint
   · simpa only [zero_add, circleAverage_map_add_const] using hle
 
-/-- A continuous function that is convex on an open set of `ℂ` is subharmonic there. -/
+/-- A function that is convex on an open set of `ℂ` is subharmonic there. Continuity is
+automatic, by Mathlib's `ConvexOn.continuousOn` in finite dimension. -/
 theorem _root_.ConvexOn.subharmonicOn {u : ℂ → ℝ} {W : Set ℂ} (hW : IsOpen W)
-    (hu : ConvexOn ℝ W u) (hc : ContinuousOn u W) : SubharmonicOn u W := by
+    (hu : ConvexOn ℝ W u) : SubharmonicOn u W := by
+  have hc : ContinuousOn u W := hu.continuousOn hW
   refine ⟨hc.upperSemicontinuousOn, fun a ha ↦ ?_⟩
   obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hW.mem_nhds ha)
   refine hasSubmeanAt_of_forall_lt hρ fun r hr hrρ ↦ ?_

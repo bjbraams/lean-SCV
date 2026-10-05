@@ -114,73 +114,31 @@ theorem leviBilinear_I_smul_right (B : E →L[ℝ] E →L[ℝ] ℝ) (k k' : E) :
   simp only [leviBilinear, smul_smul, Complex.I_mul_I, neg_one_smul, map_neg]
   apply Complex.ext <;> simp <;> ring
 
-/-- The complex bilinear part is a bounded complex bilinear map. -/
+/-- The complex bilinear part is a bounded complex bilinear map. Additivity, real homogeneity and
+the bound come from an equal real continuous bilinear map built from `B`; complex homogeneity
+then follows from the behavior under multiplication by `I`. -/
 theorem isBoundedBilinearMap_leviBilinear (B : E →L[ℝ] E →L[ℝ] ℝ) :
     IsBoundedBilinearMap ℂ (leviBilinear B) := by
-  have hre : ∀ (r : ℝ) (k k' : E), leviBilinear B (r • k, k') = (r : ℂ) * leviBilinear B (k, k')
-    := by
-    intro r k k'
-    have h1 : I • r • k = r • I • k := smul_comm I r k
-    simp only [leviBilinear, h1, map_smul]
-    apply Complex.ext <;> simp <;> ring
-  have hre' : ∀ (r : ℝ) (k k' : E), leviBilinear B (k, r • k') = (r : ℂ) * leviBilinear B (k, k')
-    := by
-    intro r k k'
-    have h1 : I • r • k' = r • I • k' := smul_comm I r k'
-    simp only [leviBilinear, h1, map_smul]
-    apply Complex.ext <;> simp <;> ring
-  refine ⟨fun k₁ k₂ k' => ?_, fun c k k' => ?_, fun k k₁' k₂' => ?_, fun c k k' => ?_, ?_⟩
-  · simp only [leviBilinear, smul_add, map_add]
-    apply Complex.ext <;> simp <;> ring
-  · have hc : c • k = c.re • k + c.im • (I • k) := by
-      conv_lhs => rw [← Complex.re_add_im c]
-      rw [add_smul, mul_smul, Complex.coe_smul, Complex.coe_smul]
-    rw [hc]
-    have h1 : leviBilinear B (c.re • k + c.im • I • k, k') =
-        leviBilinear B (c.re • k, k') + leviBilinear B (c.im • I • k, k') := by
-      simp only [leviBilinear, smul_add, map_add]
-      apply Complex.ext <;> simp <;> ring
-    rw [h1, hre, hre, leviBilinear_I_smul_left, smul_eq_mul]
+  let J : E →L[ℝ] E := (I • ContinuousLinearMap.id ℂ E).restrictScalars ℝ
+  let B' : E →L[ℝ] E →L[ℝ] ℂ := (ContinuousLinearMap.compL ℝ E ℝ ℂ Complex.ofRealCLM).comp B
+  let L : E →L[ℝ] E →L[ℝ] ℂ := (1 / 4 : ℂ) • (B' - B'.bilinearComp J J) -
+    (I / 4) • (B'.bilinearComp (ContinuousLinearMap.id ℝ E) J +
+      B'.bilinearComp J (ContinuousLinearMap.id ℝ E))
+  have hL : leviBilinear B = fun q => L q.1 q.2 := by
+    funext q
+    apply Complex.ext <;> simp [leviBilinear, L, B', J] <;> ring
+  have hR : IsBoundedBilinearMap ℝ (leviBilinear B) := hL ▸ L.isBoundedBilinearMap
+  refine ⟨hR.add_left, fun c k k' => ?_, hR.add_right, fun c k k' => ?_, hR.bound⟩
+  · rw [c.smul_eq_re_smul_add_im_smul_I_smul k, hR.add_left, hR.smul_left, hR.smul_left,
+      leviBilinear_I_smul_left, smul_eq_mul]
     conv_rhs => rw [← Complex.re_add_im c]
+    simp only [Complex.real_smul]
     ring
-  · simp only [leviBilinear, smul_add, map_add]
-    apply Complex.ext <;> simp <;> ring
-  · have hc : c • k' = c.re • k' + c.im • (I • k') := by
-      conv_lhs => rw [← Complex.re_add_im c]
-      rw [add_smul, mul_smul, Complex.coe_smul, Complex.coe_smul]
-    rw [hc]
-    have h1 : leviBilinear B (k, c.re • k' + c.im • I • k') =
-        leviBilinear B (k, c.re • k') + leviBilinear B (k, c.im • I • k') := by
-      simp only [leviBilinear, smul_add, map_add]
-      apply Complex.ext <;> simp <;> ring
-    rw [h1, hre', hre', leviBilinear_I_smul_right, smul_eq_mul]
+  · rw [c.smul_eq_re_smul_add_im_smul_I_smul k', hR.add_right, hR.smul_right, hR.smul_right,
+      leviBilinear_I_smul_right, smul_eq_mul]
     conv_rhs => rw [← Complex.re_add_im c]
+    simp only [Complex.real_smul]
     ring
-  · refine ⟨‖B‖ + 1, by positivity, fun k k' => ?_⟩
-    have hB : ∀ x y : E, |B x y| ≤ ‖B‖ * ‖x‖ * ‖y‖ := fun x y => by
-      have := B.le_opNorm₂ x y
-      rwa [Real.norm_eq_abs] at this
-    have hI : ∀ x : E, ‖I • x‖ = ‖x‖ := fun x => by rw [norm_smul, Complex.norm_I, one_mul]
-    have h1 : |B k k' - B (I • k) (I • k')| ≤ 2 * (‖B‖ * ‖k‖ * ‖k'‖) := by
-      calc |B k k' - B (I • k) (I • k')| ≤ |B k k'| + |B (I • k) (I • k')| := abs_sub _ _
-        _ ≤ ‖B‖ * ‖k‖ * ‖k'‖ + ‖B‖ * ‖I • k‖ * ‖I • k'‖ := add_le_add (hB _ _) (hB _ _)
-        _ = 2 * (‖B‖ * ‖k‖ * ‖k'‖) := by rw [hI, hI]; ring
-    have h2 : |B k (I • k') + B (I • k) k'| ≤ 2 * (‖B‖ * ‖k‖ * ‖k'‖) := by
-      calc |B k (I • k') + B (I • k) k'| ≤ |B k (I • k')| + |B (I • k) k'| := abs_add_le _ _
-        _ ≤ ‖B‖ * ‖k‖ * ‖I • k'‖ + ‖B‖ * ‖I • k‖ * ‖k'‖ := add_le_add (hB _ _) (hB _ _)
-        _ = 2 * (‖B‖ * ‖k‖ * ‖k'‖) := by rw [hI, hI]; ring
-    have hnn : 0 ≤ ‖B‖ * ‖k‖ * ‖k'‖ := by positivity
-    calc ‖leviBilinear B (k, k')‖
-        ≤ ‖(((B k k' - B (I • k) (I • k')) / 4 : ℝ) : ℂ)‖ +
-          ‖I / 4 * (((B k (I • k') + B (I • k) k') : ℝ) : ℂ)‖ := norm_sub_le _ _
-      _ = |B k k' - B (I • k) (I • k')| / 4 + |B k (I • k') + B (I • k) k'| / 4 := by
-          rw [Complex.norm_real, Real.norm_eq_abs, abs_div, abs_of_pos (by norm_num : (0:ℝ) < 4),
-            norm_mul, norm_div, Complex.norm_I, Complex.norm_real, Real.norm_eq_abs]
-          norm_num
-          ring
-      _ ≤ 2 * (‖B‖ * ‖k‖ * ‖k'‖) / 4 + 2 * (‖B‖ * ‖k‖ * ‖k'‖) / 4 := by gcongr
-      _ = ‖B‖ * ‖k‖ * ‖k'‖ := by ring
-      _ ≤ (‖B‖ + 1) * ‖k‖ * ‖k'‖ := by gcongr; linarith
 
 /-- On the diagonal, the complex bilinear part of a symmetric form is the complex quadratic
 coefficient of `LeviConvexity.Necessity`. -/

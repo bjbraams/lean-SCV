@@ -45,7 +45,7 @@ References: [Hörmander][Hormander1973] (1973), Section 2.7;
 * `IsPolynomiallyConvex`: A set is polynomially convex if it equals its polynomial hull.
 * `IsRungePair`: A **Runge pair**: `U ⊆ V`, and every holomorphic function on `U` is approximated
   within `ε` on every compact subset of `U` by a holomorphic function on `V`.
-* `IsRungeDomain`: A **Runge domain** in `ℂⁿ`: every holomorphic function is approximated within `ε`
+* `IsRungeDomain`: A **Runge domain** in `ℂ^ι`: every holomorphic function is approximated within `ε`
   on every compact subset by a polynomial.
 
 ## Main results
@@ -79,31 +79,31 @@ namespace SeveralComplexVariables
 
 section Polynomials
 
-variable {n : ℕ}
+variable {ι : Type*} [Fintype ι]
 
 /-- A finite sum of monomials with complex coefficients, indexed by finitely supported
 multi-indices, is the evaluation of a polynomial. -/
-theorem exists_mvPolynomial_eval_eq_sum (s : Finset (Fin n →₀ ℕ)) (c : (Fin n →₀ ℕ) → ℂ) :
-    ∃ P : MvPolynomial (Fin n) ℂ, ∀ z : Fin n → ℂ,
+theorem exists_mvPolynomial_eval_eq_sum (s : Finset (ι →₀ ℕ)) (c : (ι →₀ ℕ) → ℂ) :
+    ∃ P : MvPolynomial ι ℂ, ∀ z : ι → ℂ,
       MvPolynomial.eval z P = ∑ m ∈ s, (∏ i, z i ^ m i) * c m := by
   refine ⟨∑ m ∈ s, MvPolynomial.C (c m) * ∏ i, MvPolynomial.X i ^ (m i), fun z => ?_⟩
   simp only [map_sum, map_mul, MvPolynomial.eval_C, map_prod, map_pow, MvPolynomial.eval_X]
   refine Finset.sum_congr rfl fun m _ => ?_
   ring
 
-/-- A finite sum of monomials with complex coefficients, indexed by functions `Fin n → ℕ`, is the
+/-- A finite sum of monomials with complex coefficients, indexed by functions `ι → ℕ`, is the
 evaluation of a polynomial. -/
-theorem exists_mvPolynomial_eval_eq_sum' (s : Finset (Fin n → ℕ)) (c : (Fin n → ℕ) → ℂ) :
-    ∃ P : MvPolynomial (Fin n) ℂ, ∀ z : Fin n → ℂ,
+theorem exists_mvPolynomial_eval_eq_sum' (s : Finset (ι → ℕ)) (c : (ι → ℕ) → ℂ) :
+    ∃ P : MvPolynomial ι ℂ, ∀ z : ι → ℂ,
       MvPolynomial.eval z P = ∑ m ∈ s, (∏ i, z i ^ m i) * c m := by
   refine ⟨∑ m ∈ s, MvPolynomial.C (c m) * ∏ i, MvPolynomial.X i ^ (m i), fun z => ?_⟩
   simp only [map_sum, map_mul, MvPolynomial.eval_C, map_prod, map_pow, MvPolynomial.eval_X]
   refine Finset.sum_congr rfl fun m _ => ?_
   ring
 
-/-- **Entire functions are locally uniform limits of polynomials.** On a compact set, an entire
-function is approximated within `ε` by a Taylor polynomial. -/
-theorem exists_mvPolynomial_approx_of_entire {g : (Fin n → ℂ) → ℂ}
+/-- Entire functions on `ℂ^{Fin n}` are approximated on compact sets by Taylor polynomials of the
+polydisc expansion. -/
+private theorem exists_mvPolynomial_approx_of_entire_fin {n : ℕ} {g : (Fin n → ℂ) → ℂ}
     (hg : AnalyticOnNhd ℂ g univ) {K : Set (Fin n → ℂ)} (hK : IsCompact K) {ε : ℝ} (hε : 0 < ε) :
     ∃ P : MvPolynomial (Fin n) ℂ, ∀ z ∈ K, ‖g z - MvPolynomial.eval z P‖ < ε := by
   obtain ⟨B, hB⟩ := hK.isBounded.subset_closedBall 0
@@ -136,11 +136,34 @@ theorem exists_mvPolynomial_approx_of_entire {g : (Fin n → ℂ) → ℂ}
   rw [hP z]
   simpa only [smul_eq_mul] using this
 
+/-- Reindexing the coordinates of `ℂ^κ` along an equivalence is analytic. -/
+theorem analyticOnNhd_comp_equiv {κ : Type*} [Fintype κ] (e : ι ≃ κ) :
+    AnalyticOnNhd ℂ (fun w : κ → ℂ => w ∘ e) univ := fun w _ =>
+  analyticAt_pi_iff.mpr fun i => (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : κ => ℂ)
+    (e i)).analyticAt w
+
+/-- **Entire functions are locally uniform limits of polynomials.** On a compact set, an entire
+function is approximated within `ε` by a Taylor polynomial. The coordinate index type is
+reindexed by `Fin n` to apply the polydisc Taylor expansion. -/
+theorem exists_mvPolynomial_approx_of_entire {g : (ι → ℂ) → ℂ}
+    (hg : AnalyticOnNhd ℂ g univ) {K : Set (ι → ℂ)} (hK : IsCompact K) {ε : ℝ} (hε : 0 < ε) :
+    ∃ P : MvPolynomial ι ℂ, ∀ z ∈ K, ‖g z - MvPolynomial.eval z P‖ < ε := by
+  let e := Fintype.equivFin ι
+  have hK' : IsCompact ((fun z : ι → ℂ => z ∘ e.symm) '' K) :=
+    hK.image (continuous_pi fun _ => continuous_apply _)
+  obtain ⟨P, hP⟩ := exists_mvPolynomial_approx_of_entire_fin
+    (hg.comp (analyticOnNhd_comp_equiv e) (mapsTo_univ _ _)) hK' hε
+  refine ⟨MvPolynomial.rename e.symm P, fun z hz => ?_⟩
+  have h := hP _ (mem_image_of_mem _ hz)
+  have hz' : (z ∘ e.symm) ∘ e = z := by ext i; simp
+  rw [MvPolynomial.eval_rename]
+  simpa only [Function.comp_apply, hz'] using h
+
 end Polynomials
 
 section Hull
 
-variable {n : ℕ} {σ : Type*}
+variable {ι σ : Type*} [Fintype ι]
 
 /-- The polynomial hull of a set: the points at which every polynomial is bounded by each of its
 bounds on the set. The variables may be indexed by any type. -/
@@ -171,7 +194,7 @@ theorem isClosed_polynomialHull (K : Set (σ → ℂ)) : IsClosed (polynomialHul
     isClosed_le (P.continuous_eval).norm continuous_const
 
 /-- The polynomial hull of a bounded set is bounded, by the coordinate polynomials. -/
-theorem polynomialHull_subset_closedBall {K : Set (Fin n → ℂ)} {B : ℝ} (hB0 : 0 ≤ B)
+theorem polynomialHull_subset_closedBall {K : Set (ι → ℂ)} {B : ℝ} (hB0 : 0 ≤ B)
     (hK : K ⊆ closedBall 0 B) : polynomialHull K ⊆ closedBall 0 B := by
   intro z hz
   rw [mem_closedBall_zero_iff, pi_norm_le_iff_of_nonneg hB0]
@@ -182,7 +205,7 @@ theorem polynomialHull_subset_closedBall {K : Set (Fin n → ℂ)} {B : ℝ} (hB
   rwa [MvPolynomial.eval_X] at this
 
 /-- The polynomial hull of a compact set is compact. -/
-theorem isCompact_polynomialHull {K : Set (Fin n → ℂ)} (hK : IsCompact K) :
+theorem isCompact_polynomialHull {K : Set (ι → ℂ)} (hK : IsCompact K) :
     IsCompact (polynomialHull K) := by
   obtain ⟨B, hB⟩ := hK.isBounded.subset_closedBall 0
   have hB' : K ⊆ closedBall 0 (max B 0) :=
@@ -192,7 +215,7 @@ theorem isCompact_polynomialHull {K : Set (Fin n → ℂ)} (hK : IsCompact K) :
 
 /-- **Polynomial and entire hulls agree** on compact sets, since entire functions are locally
 uniform limits of polynomials. -/
-theorem polynomialHull_eq_holomorphicHull_univ {K : Set (Fin n → ℂ)} (hK : IsCompact K) :
+theorem polynomialHull_eq_holomorphicHull_univ {K : Set (ι → ℂ)} (hK : IsCompact K) :
     polynomialHull K = holomorphicHull univ K := by
   ext z
   constructor
@@ -258,10 +281,10 @@ compact subset by a polynomial. Being a domain of holomorphy is not part of the 
   ∀ f : (ι → ℂ) → ℂ, AnalyticOnNhd ℂ f U → ∀ K : Set (ι → ℂ), IsCompact K → K ⊆ U →
     ∀ ε > 0, ∃ P : MvPolynomial ι ℂ, ∀ z ∈ K, ‖f z - MvPolynomial.eval z P‖ < ε
 
-variable {n : ℕ}
+variable {ι : Type*} [Fintype ι]
 
 /-- A set is a Runge domain exactly when it forms a Runge pair with the whole space. -/
-theorem isRungeDomain_iff_isRungePair_univ (U : Set (Fin n → ℂ)) :
+theorem isRungeDomain_iff_isRungePair_univ (U : Set (ι → ℂ)) :
     IsRungeDomain U ↔ IsRungePair U univ := by
   constructor
   · intro h
@@ -278,13 +301,13 @@ theorem isRungeDomain_iff_isRungePair_univ (U : Set (Fin n → ℂ)) :
       _ = ε := add_halves ε
 
 /-- The whole space is a Runge domain. -/
-theorem isRungeDomain_univ : IsRungeDomain (univ : Set (Fin n → ℂ)) :=
+theorem isRungeDomain_univ : IsRungeDomain (univ : Set (ι → ℂ)) :=
   (isRungeDomain_iff_isRungePair_univ _).mpr (isRungePair_refl _)
 
 /-- **Hull identity for Runge domains.** For a Runge domain `U` and a compact `K ⊆ U`, the
 polynomial hull of `K` meets `U` exactly in the holomorphic hull of `K` relative to `U`. -/
-theorem IsRungeDomain.polynomialHull_inter {U : Set (Fin n → ℂ)} (h : IsRungeDomain U)
-    {K : Set (Fin n → ℂ)} (hK : IsCompact K) (hKU : K ⊆ U) :
+theorem IsRungeDomain.polynomialHull_inter {U : Set (ι → ℂ)} (h : IsRungeDomain U)
+    {K : Set (ι → ℂ)} (hK : IsCompact K) (hKU : K ⊆ U) :
     polynomialHull K ∩ U = holomorphicHull U K := by
   ext z
   constructor
@@ -310,7 +333,7 @@ theorem IsRungeDomain.polynomialHull_inter {U : Set (Fin n → ℂ)} (h : IsRung
 
 /-- If the polynomial hull of every compact subset agrees with its holomorphic hull, then in
 particular the intersection with `U` does. -/
-theorem polynomialHull_inter_eq_of_eq {U K : Set (Fin n → ℂ)}
+theorem polynomialHull_inter_eq_of_eq {U K : Set (ι → ℂ)}
     (h : polynomialHull K = holomorphicHull U K) :
     polynomialHull K ∩ U = holomorphicHull U K := by
   rw [h]
@@ -318,8 +341,8 @@ theorem polynomialHull_inter_eq_of_eq {U K : Set (Fin n → ℂ)}
 
 /-- For a Runge domain of holomorphy, the polynomial hull of a compact subset meets the domain in a
 compact set. The converse implications are the Oka–Weil theorem. -/
-theorem IsRungeDomain.isCompact_polynomialHull_inter {U : Set (Fin n → ℂ)} (h : IsRungeDomain U)
-    (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) {K : Set (Fin n → ℂ)} (hK : IsCompact K)
+theorem IsRungeDomain.isCompact_polynomialHull_inter {U : Set (ι → ℂ)} (h : IsRungeDomain U)
+    (hU : IsDomainOfHolomorphy U) (ho : IsOpen U) {K : Set (ι → ℂ)} (hK : IsCompact K)
     (hKU : K ⊆ U) : IsCompact (polynomialHull K ∩ U) := by
   rw [h.polynomialHull_inter hK hKU]
   exact hU.isHolomorphicallyConvex ho K hK hKU

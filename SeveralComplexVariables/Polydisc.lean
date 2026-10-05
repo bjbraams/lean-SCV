@@ -226,10 +226,6 @@ theorem continuous_torusMap_const {n : ℕ} (c : Fin n → ℂ) (R : ℝ) :
     simp only [torusMap]
     fun_prop
 
-/-- No natural-number power of `2 * π * I` vanishes. -/
-theorem _root_.Complex.two_pi_I_pow_ne_zero (n : ℕ) : ((2 * π * I : ℂ) ^ n) ≠ 0 :=
-  pow_ne_zero _ two_pi_I_ne_zero
-
 end SeveralComplexVariables
 
 end

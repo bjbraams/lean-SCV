@@ -294,10 +294,11 @@ admissible radii.
 
 ### 6. Identity and real-parameter uniqueness theorems
 
-Two Banach-valued holomorphic maps on a domain that agree on a nonempty open
-subset agree everywhere. Agreement as germs at one interior point also suffices.
-There is additionally an entire-function theorem with values in any complex normed space,
-without completeness: agreement on all vectors
+Two holomorphic maps on a domain with values in any complex normed space that agree on a
+nonempty open subset agree everywhere; completeness is removed by passing to the completion.
+Agreement as germs at one interior point also suffices.
+There is additionally an entire-function theorem with values in any complex normed space:
+agreement on all vectors
 of strictly positive real coordinates determines the function on $\mathbb C^n$.
 The general several-variable identity theorem does not use mere accumulation
 of agreement points as its hypothesis.
@@ -306,9 +307,9 @@ of agreement points as its hypothesis.
 
 A scalar holomorphic function on a domain is constant if its modulus has a local
 maximum at an interior point. The norm version is also proved for maps into
-strictly convex complex Banach spaces, with strict convexity understood over
-the reals. This target restriction matters: constant norm alone does not force
-a holomorphic map into an arbitrary Banach space to be constant.
+strictly convex complex normed spaces, with strict convexity understood over
+the reals; completeness is not needed. This target restriction matters: constant norm
+alone does not force a holomorphic map into an arbitrary Banach space to be constant.
 
 ### 8. Holomorphic dependence of integrals
 
@@ -382,12 +383,15 @@ targets; the compactness assertion retains the finite-dimensional restriction.
 
 ### 13. Vitali's theorem
 
-Let $(f_k)$ be holomorphic on a domain, with finite-dimensional target, and
+Let $(f_k)$ be holomorphic on a domain, with values in a complex Banach space, and
 bounded uniformly on every compact subset. If $f_k(z)$ converges for every
 $z$ in a nonempty open subset, then the sequence converges locally uniformly
 on the whole domain to a holomorphic map. This is the precise convergence-set
 hypothesis currently provided, rather than a general formulation for arbitrary
-uniqueness sets.
+uniqueness sets. The proof shows that the sequence is uniformly Cauchy on every compact set:
+a violating pair at each stage is tested against a norming functional, scalar Montel gives a
+convergent subsequence of these scalar differences, and its limit vanishes on the open
+subset, hence everywhere by the identity theorem.
 
 ### 14. Holomorphic $L^p$ spaces
 
@@ -618,8 +622,9 @@ reindexing along a bijection of coordinate types is proved separately.
 If $\dim_{\mathbb C}E\ge2$, $U\subseteq E$ is open, and $a\in U$, every
 Banach-valued holomorphic function on $U\mathbin{\backslash}\lbrace a\rbrace$ extends
 holomorphically across $a$. Neither boundedness nor connectedness of $U$
-is assumed. The proof uses concrete Hartogs continuation, independently of
-the general compact-hole theorem below.
+is assumed. It is the special case of the compact-hole theorem (item 31) for a point
+in a small ball, whose punctured ball is connected; the local extension is glued to the
+original function.
 
 ### 29. Scalar zero sets have no isolated points in dimension at least two
 
@@ -1084,9 +1089,11 @@ A real function on an open subset of $\mathbb C$ is subharmonic if it is upper
 semicontinuous and satisfies the local submean inequality: at each point and for all
 small radii, the function is integrable on the circle and its center value is at most its
 circle average (Ransford's definition). Only real values are admitted. Sums, nonnegative
-multiples and maxima of subharmonic functions are subharmonic; real parts of holomorphic
-functions, positive powers of holomorphic norms and logarithms of nonvanishing holomorphic
-moduli are subharmonic. The maximum principle holds in two forms: a subharmonic function
+multiples and maxima of subharmonic functions are subharmonic; harmonic functions are
+subharmonic, by Mathlib's mean value theorem, and hence so are real parts of holomorphic
+functions and logarithms of nonvanishing holomorphic moduli; positive powers of holomorphic
+norms and convex functions are subharmonic, convex functions being automatically
+continuous. The maximum principle holds in two forms: a subharmonic function
 on a preconnected open set attaining its supremum is constant, and on a disc a function
 subharmonic inside and upper semicontinuous on the closure is bounded by its supremum on
 the boundary circle.
@@ -1114,7 +1121,7 @@ A real function on an open subset of a complex normed space is plurisubharmonic 
 upper semicontinuous and its restriction to every complex line is subharmonic. Sums,
 nonnegative multiples, maxima and complex affine substitutions preserve
 plurisubharmonicity; continuous convex functions, in particular the norm, are
-plurisubharmonic; real parts, positive powers of norms and logarithms of nonvanishing
+plurisubharmonic, and in finite dimension continuity of a convex function is automatic; real parts, positive powers of norms and logarithms of nonvanishing
 moduli of holomorphic maps are plurisubharmonic.
 
 The Levi form of a real `C²` function at $a$ in direction $w$ is defined in
@@ -1228,7 +1235,9 @@ is not taken; it is the non-elementary comparison of weak and strong domains of 
 
 A pair of sets $U\subseteq V$ is a Runge pair if every holomorphic function on $U$ is
 approximated within $\varepsilon$ on every compact subset of $U$ by a holomorphic function on
-$V$; an open subset of $\mathbb C^n$ is a Runge domain if the approximants are polynomials.
+$V$; an open subset of $\mathbb C^\iota$, for any finite coordinate index type $\iota$, is a Runge
+domain if the approximants are polynomials. All results below hold for arbitrary finite index
+types; the polydisc Taylor expansion is reached by reindexing.
 Runge pairs are reflexive and transitive, and on an open set the compact-set formulation is
 equivalent to locally uniform convergence of a sequence of approximants, using a compact
 exhaustion $\overline B(0,k)\cap\lbrace \mathrm{dist}(\cdot,U^c)\ge 1/(k+1)\rbrace$.
@@ -1251,16 +1260,16 @@ and balls centered at the origin and the whole space are examples. Circular conn
 containing the origin are Runge domains, since the homogeneous expansion converges locally
 uniformly and each homogeneous term, the diagonal restriction of a continuous multilinear map,
 is a polynomial. Runge domains are transported by holomorphic maps with polynomial inverses,
-in particular by polynomial automorphisms with polynomial inverses and by translations
-(Jakóbczak–Jarnicki, Proposition 4.3.2).
+in particular by polynomial automorphisms with polynomial inverses, by translations and by
+reindexing of coordinates (Jakóbczak–Jarnicki, Proposition 4.3.2).
 
 ## Extent of the present theory
 
 The completed extension results include phenomena that are often proved later
-in textbooks: locally bounded removal across singular zero sets, isolated-point
-removal in dimension at least two, and removal across analytic sets of slice
-codimension at least two. Their proofs use direct analysis and are independent of the
-general compact-hole theorem, which is proved as well. Weierstrass division and
+in textbooks: locally bounded removal across singular zero sets and removal across
+analytic sets of slice codimension at least two. Their proofs use direct analysis and are
+independent of the general compact-hole theorem, which is proved as well and yields
+isolated-point removal in dimension at least two. Weierstrass division and
 preparation, Noetherianity, unique factorization, and persistence of relative primality
 are also complete.
 Total order is invariant under analytic coordinate changes and can be realized

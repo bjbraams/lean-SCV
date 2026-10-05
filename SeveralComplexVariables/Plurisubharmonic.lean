@@ -38,6 +38,8 @@ Section 5.
 * `PlurisubharmonicOn.comp_affine`: Plurisubharmonicity is preserved by complex affine
   substitutions.
 * `ConvexOn.plurisubharmonicOn`: A continuous convex function on an open set is plurisubharmonic.
+* `ConvexOn.plurisubharmonicOn_of_finiteDimensional`: In finite dimension, continuity of the
+  convex function is automatic.
 * `plurisubharmonicOn_norm`: The norm is plurisubharmonic.
 * `AnalyticOnNhd.plurisubharmonicOn_re`: Real parts of holomorphic functions are plurisubharmonic.
 * `AnalyticOnNhd.plurisubharmonicOn_norm_rpow`: Positive powers of the norm of a holomorphic map are
@@ -150,18 +152,25 @@ private theorem line_combo (a w : E) (s t : ℂ) {α β : ℝ} (hαβ : α + β 
   simp only [smul_add, add_smul, Complex.real_smul, mul_smul, Complex.coe_smul]
   abel
 
-/-- A continuous convex function on an open set is plurisubharmonic. -/
+/-- A continuous convex function on an open set is plurisubharmonic. Continuity is needed only in
+infinite dimension; see `ConvexOn.plurisubharmonicOn_of_finiteDimensional`. -/
 theorem _root_.ConvexOn.plurisubharmonicOn (hU : IsOpen U) (hf : ConvexOn ℝ U f)
     (hc : ContinuousOn f U) : PlurisubharmonicOn f U := by
   refine ⟨hc.upperSemicontinuousOn, fun a ha w => ?_⟩
   apply ConvexOn.subharmonicOn (hU.preimage (by fun_prop : Continuous fun t : ℂ => a + t • w))
-  · refine ⟨fun s hs t ht α β hα hβ hαβ => ?_, fun s hs t ht α β hα hβ hαβ => ?_⟩
-    · change a + (α • s + β • t) • w ∈ U
-      rw [line_combo a w s t hαβ]
-      exact hf.1 hs ht hα hβ hαβ
-    · have := hf.2 hs ht hα hβ hαβ
-      simpa only [line_combo a w s t hαβ] using this
-  · exact hc.comp (by fun_prop : Continuous fun t : ℂ => a + t • w).continuousOn fun _ ht => ht
+  refine ⟨fun s hs t ht α β hα hβ hαβ => ?_, fun s hs t ht α β hα hβ hαβ => ?_⟩
+  · change a + (α • s + β • t) • w ∈ U
+    rw [line_combo a w s t hαβ]
+    exact hf.1 hs ht hα hβ hαβ
+  · have := hf.2 hs ht hα hβ hαβ
+    simpa only [line_combo a w s t hαβ] using this
+
+/-- In finite dimension, a convex function on an open set is plurisubharmonic; continuity is
+automatic, by Mathlib's `ConvexOn.continuousOn`. -/
+theorem _root_.ConvexOn.plurisubharmonicOn_of_finiteDimensional [FiniteDimensional ℂ E]
+    (hU : IsOpen U) (hf : ConvexOn ℝ U f) : PlurisubharmonicOn f U :=
+  have : FiniteDimensional ℝ E := .complexToReal E
+  hf.plurisubharmonicOn hU (hf.continuousOn hU)
 
 /-- The norm is plurisubharmonic. -/
 theorem plurisubharmonicOn_norm : PlurisubharmonicOn (fun z : E => ‖z‖) univ :=
@@ -194,14 +203,13 @@ theorem _root_.AnalyticOnNhd.plurisubharmonicOn_norm_rpow (hU : IsOpen U) {h : E
       (analyticOnNhd_slice hh a w)⟩
 
 /-- The logarithm of the modulus of a nonvanishing holomorphic function is plurisubharmonic. -/
-theorem _root_.AnalyticOnNhd.plurisubharmonicOn_log_norm (hU : IsOpen U) {h : E → ℂ}
+theorem _root_.AnalyticOnNhd.plurisubharmonicOn_log_norm {h : E → ℂ}
     (hh : AnalyticOnNhd ℂ h U) (hne : ∀ z ∈ U, h z ≠ 0) :
     PlurisubharmonicOn (fun z => Real.log ‖h z‖) U :=
   ⟨(ContinuousOn.log hh.continuousOn.norm fun z hz =>
       norm_ne_zero_iff.mpr (hne z hz)).upperSemicontinuousOn,
-    fun a _ w => AnalyticOnNhd.subharmonicOn_log_norm
-      (hU.preimage (by fun_prop : Continuous fun t : ℂ => a + t • w))
-      (analyticOnNhd_slice hh a w) fun _ ht => hne _ ht⟩
+    fun a _ w => AnalyticOnNhd.subharmonicOn_log_norm (analyticOnNhd_slice hh a w)
+      fun _ ht => hne _ ht⟩
 
 end Holomorphic
 

@@ -147,7 +147,7 @@ theorem two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul {n : ℕ} {f : (Fi
           torusIntegral (fun y => (∏ i, (y i - w i.succ)⁻¹) • f (Fin.cons x y))
             (c ∘ Fin.succ) (R ∘ Fin.succ) =
             (2 * π * I : ℂ) ^ n • f (Fin.cons x (w ∘ Fin.succ)) :=
-        ((eq_inv_smul_iff₀ (two_pi_I_pow_ne_zero n)).mp ih'.symm).symm
+        ((eq_inv_smul_iff₀ (pow_ne_zero n two_pi_I_ne_zero)).mp ih'.symm).symm
       have hsmul := torusIntegral_smul (x - w 0)⁻¹
         (fun y => (∏ i, (y i - w i.succ)⁻¹) • f (Fin.cons x y))
         (c ∘ Fin.succ) (R ∘ Fin.succ)
@@ -181,7 +181,7 @@ theorem two_pi_I_pow_inv_smul_torusIntegral_prod_sub_inv_smul {n : ℕ} {f : (Fi
     have hw_eq : Fin.cons (w 0) (w ∘ Fin.succ) = w := Fin.cons_self_tail w
     rw [← hw_eq, houter, smul_smul]
     convert hcircle using 2
-    simp [pow_succ, two_pi_I_pow_ne_zero n]
+    simp [pow_succ, pow_ne_zero n two_pi_I_ne_zero]
 
 omit [CompleteSpace E] in
 /-- Equal-radius compatibility form of Cauchy-kernel integrability. -/

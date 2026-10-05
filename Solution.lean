@@ -107,15 +107,17 @@ theorem analyticOnNhd_iff_cauchyRiemann [DecidableEq ι] {U : Set (ι → ℂ)} 
       ∀ z ∈ U, ∀ i, fderiv ℝ f z (Pi.single i I) = I • fderiv ℝ f z (Pi.single i 1) := by
   exact SeveralComplexVariables.analyticOnNhd_iff_differentiableAt_real_cauchyRiemann hU
 
+omit [CompleteSpace F] in
 /-- **6. Identity theorem**: holomorphic maps on a connected open set that agree on a nonempty open
-subset agree everywhere. -/
+subset agree everywhere. The target is any complex normed space. -/
 theorem identity_theorem {U V : Set E} (hU : IsOpen U) (hconn : IsPreconnected U) {f g : E → F}
     (hf : DifferentiableOn ℂ f U) (hg : DifferentiableOn ℂ g U) (hV : IsOpen V) (hne : V.Nonempty)
     (hVU : V ⊆ U) (heq : EqOn f g V) : EqOn f g U := by
   exact DifferentiableOn.eqOn_of_preconnected_of_eqOn hU hconn hf hg hV hne hVU heq
 
-/-- **7. Maximum modulus principle**, for maps into a strictly convex Banach space, in particular
-for scalar functions. -/
+omit [CompleteSpace F] in
+/-- **7. Maximum modulus principle**, for maps into a strictly convex complex normed space, in
+particular for scalar functions. -/
 theorem maximum_modulus [StrictConvexSpace ℝ F] {U : Set E} (hU : IsOpen U)
     (hconn : IsPreconnected U) {f : E → F} (hf : DifferentiableOn ℂ f U) {a : E} (ha : a ∈ U)
     (hmax : IsLocalMax (norm ∘ f) a) : EqOn f (const E (f a)) U := by
@@ -223,9 +225,10 @@ theorem montel [FiniteDimensional ℂ F] {U : Set E} (hU : IsOpen U) {f : ℕ �
       (fun n => (hf n).analyticOnNhd_of_finiteDimensional hU) (fun n z hz => hM n z hz)
   exact ⟨g, φ, hφ, hg.differentiableOn, hlim⟩
 
-/-- **13. Vitali's theorem**: a locally bounded sequence of holomorphic maps on a connected open set
-that converges pointwise on a nonempty open subset converges locally uniformly. -/
-theorem vitali [FiniteDimensional ℂ F] {D V : Set E} (hD : IsOpen D) (hconn : IsPreconnected D)
+/-- **13. Vitali's theorem**: a locally bounded sequence of Banach-valued holomorphic maps on a
+connected open set that converges pointwise on a nonempty open subset converges locally
+uniformly. -/
+theorem vitali {D V : Set E} (hD : IsOpen D) (hconn : IsPreconnected D)
     {f : ℕ → E → F} (hf : ∀ n, DifferentiableOn ℂ (f n) D)
     (hb : ∀ K ⊆ D, IsCompact K → ∃ M : ℝ, ∀ n, ∀ z ∈ K, ‖f n z‖ ≤ M) (hV : IsOpen V)
     (hne : V.Nonempty) (hVD : V ⊆ D)
@@ -913,19 +916,19 @@ theorem exists_local_peak_function {U : Set E} {p : E} {ρ : E → ℝ} {V : Set
 /-! ## K. Runge domains and polynomial hulls -/
 
 /-- The polynomial hull of `K`. -/
-def polynomialHull {n : ℕ} (K : Set (Fin n → ℂ)) : Set (Fin n → ℂ) :=
-  {z | ∀ P : MvPolynomial (Fin n) ℂ, ∀ M : ℝ,
+def polynomialHull (K : Set (ι → ℂ)) : Set (ι → ℂ) :=
+  {z | ∀ P : MvPolynomial ι ℂ, ∀ M : ℝ,
     (∀ w ∈ K, ‖MvPolynomial.eval w P‖ ≤ M) → ‖MvPolynomial.eval z P‖ ≤ M}
 
 /-- `U` is a Runge domain: holomorphic functions on `U` are approximated by polynomials, uniformly
 on compact subsets. -/
-def IsRungeDomain {n : ℕ} (U : Set (Fin n → ℂ)) : Prop :=
-  ∀ f : (Fin n → ℂ) → ℂ, AnalyticOnNhd ℂ f U → ∀ K : Set (Fin n → ℂ), IsCompact K → K ⊆ U →
-    ∀ ε > 0, ∃ P : MvPolynomial (Fin n) ℂ, ∀ z ∈ K, ‖f z - MvPolynomial.eval z P‖ < ε
+def IsRungeDomain (U : Set (ι → ℂ)) : Prop :=
+  ∀ f : (ι → ℂ) → ℂ, AnalyticOnNhd ℂ f U → ∀ K : Set (ι → ℂ), IsCompact K → K ⊆ U →
+    ∀ ε > 0, ∃ P : MvPolynomial ι ℂ, ∀ z ∈ K, ‖f z - MvPolynomial.eval z P‖ < ε
 
 /-- **65. Runge domains**: open complete Reinhardt sets are Runge domains, and in a Runge domain the
 polynomial hull of a compact subset meets the domain in its holomorphic hull. -/
-theorem runge_domains {n : ℕ} {U : Set (Fin n → ℂ)} (ho : IsOpen U) :
+theorem runge_domains {U : Set (ι → ℂ)} (ho : IsOpen U) :
     (IsCompleteReinhardt U → IsRungeDomain U) ∧
       (IsRungeDomain U → ∀ K, IsCompact K → K ⊆ U →
         polynomialHull K ∩ U = holomorphicHull U K) := by

@@ -6,6 +6,8 @@ Authors: Bastiaan J Braams
 module
 
 public import Mathlib.Analysis.Complex.MeanValue
+public import Mathlib.Analysis.Complex.Harmonic.MeanValue
+public import Mathlib.Analysis.InnerProductSpace.Harmonic.Constructions
 public import Mathlib.MeasureTheory.Integral.CircleAverage
 public import Mathlib.Topology.Semicontinuity.Basic
 public import ComplexAnalysis.Integral.Circle
@@ -25,8 +27,9 @@ developed in later files.
 
 Only real-valued functions are considered; the value `-∞` is not admitted.
 
-This file proves closure under sums, nonnegative multiples and maxima, gives the holomorphic
-examples (real parts, positive powers of norms, logarithms of nonvanishing moduli), and proves
+This file proves closure under sums, nonnegative multiples and maxima, shows that harmonic
+functions are subharmonic, gives the holomorphic examples (real parts, positive powers of norms,
+logarithms of nonvanishing moduli), and proves
 the maximum principle: a subharmonic function on a preconnected open set that attains its
 supremum is constant. On a disc, if it is upper semicontinuous on the closed disc, it is
 bounded by its supremum on the boundary circle.
@@ -43,6 +46,7 @@ References: [Fritzsche–Grauert][FritzscheGrauert2002] (2002), Chapter II, Sect
 
 ## Main results
 
+* `InnerProductSpace.HarmonicOnNhd.subharmonicOn`: Harmonic functions are subharmonic.
 * `SubharmonicOn.eqOn_const_of_isMaxOn`: **Maximum principle.** A subharmonic function on a
   preconnected open set that attains its supremum at a point is constant.
 * `SubharmonicOn.le_of_le_sphere`: **Maximum principle on a disc.** A function subharmonic on an
@@ -178,42 +182,27 @@ theorem hasSubmeanAt_of_circleAverage_eq {ρ : ℝ} (hρ : 0 < ρ) (hc : Continu
     ⟨(hc.mono (sphere_subset_closedBall.trans (closedBall_subset_ball hrρ))).circleIntegrable
       hr.le, (h r hr hrρ).ge⟩
 
-/-- Real parts of holomorphic functions have the local submean property, with equality. -/
-theorem circleAverage_re_eq_of_analyticAt {f : ℂ → ℂ} (hf : AnalyticAt ℂ f a) :
-    ∃ ρ > 0, ∀ r, 0 < r → r < ρ → circleAverage (fun z ↦ (f z).re) a r = (f a).re := by
-  obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp hf.eventually_analyticAt
-  have han : AnalyticOnNhd ℂ f (ball a ρ) := fun z hz ↦ hball hz
-  refine ⟨ρ, hρ, fun r hr hrρ ↦ ?_⟩
-  have hd : DiffContOnCl ℂ f (ball a |r|) := by
-    rw [abs_of_pos hr]
-    refine DifferentiableOn.diffContOnCl ?_
-    rw [closure_ball a hr.ne']
-    exact fun z hz ↦ (han z (closedBall_subset_ball hrρ
-      hz)).differentiableAt.differentiableWithinAt
-  have hint : CircleIntegrable f a r :=
-    ((han.mono (sphere_subset_closedBall.trans (closedBall_subset_ball
-      hrρ))).continuousOn).circleIntegrable hr.le
-  have := Complex.reCLM.circleAverage_comp_comm (f := f) (c := a) (R := r)
-  simp only [Function.comp_def, Complex.reCLM_apply] at this
-  rw [this hint, hd.circleAverage]
+/-- **Harmonic functions are subharmonic.** A real function harmonic at every point of a set is
+subharmonic there, with equality in the submean property by Mathlib's mean value theorem
+`InnerProductSpace.HarmonicOnNhd.circleAverage_eq`. The set need not be open. -/
+theorem _root_.InnerProductSpace.HarmonicOnNhd.subharmonicOn
+    (hu : InnerProductSpace.HarmonicOnNhd u U) : SubharmonicOn u U := by
+  refine ⟨hu.continuousOn.upperSemicontinuousOn, fun a ha ↦ ?_⟩
+  obtain ⟨ρ, hρ, hball⟩ := Metric.isOpen_iff.mp (InnerProductSpace.isOpen_setOfPred_harmonicAt u) a
+    (hu a ha)
+  have hh : InnerProductSpace.HarmonicOnNhd u (ball a ρ) := fun z hz ↦ hball hz
+  refine hasSubmeanAt_of_circleAverage_eq hρ hh.continuousOn fun r hr hrρ ↦ ?_
+  exact (hh.mono (by simpa [abs_of_pos hr] using closedBall_subset_ball hrρ)).circleAverage_eq
 
 /-- The real part of a holomorphic function is subharmonic. -/
 theorem _root_.AnalyticOnNhd.subharmonicOn_re {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f U) :
-    SubharmonicOn (fun z ↦ (f z).re) U := by
-  refine ⟨(Complex.continuous_re.comp_continuousOn hf.continuousOn).upperSemicontinuousOn,
-    fun a ha ↦ ?_⟩
-  obtain ⟨ρ, hρ, h⟩ := circleAverage_re_eq_of_analyticAt (hf a ha)
-  obtain ⟨ρ', hρ', hball⟩ := Metric.mem_nhds_iff.mp (hf a ha).eventually_analyticAt
-  refine hasSubmeanAt_of_circleAverage_eq (lt_min hρ hρ') ?_ fun r hr hrρ ↦ h r hr (hrρ.trans_le
-    (min_le_left _ _))
-  exact Complex.continuous_re.comp_continuousOn
-    ((AnalyticOnNhd.continuousOn fun z hz ↦ hball (ball_subset_ball (min_le_right _ _) hz)))
+    SubharmonicOn (fun z ↦ (f z).re) U :=
+  InnerProductSpace.HarmonicOnNhd.subharmonicOn fun z hz ↦ (hf z hz).harmonicAt_re
 
 /-- Minus the real part of a holomorphic function is subharmonic. -/
 theorem _root_.AnalyticOnNhd.subharmonicOn_neg_re {f : ℂ → ℂ} (hf : AnalyticOnNhd ℂ f U) :
     SubharmonicOn (fun z ↦ -(f z).re) U := by
-  have := AnalyticOnNhd.subharmonicOn_re (U := U) (f := fun z ↦ -f z) (hf.neg)
-  simpa using this
+  simpa using hf.neg.subharmonicOn_re
 
 /-- Positive powers of the norm of a holomorphic function are subharmonic. -/
 theorem _root_.AnalyticOnNhd.subharmonicOn_norm_rpow (hU : IsOpen U) {f : ℂ → F} {p : ℝ}
@@ -228,18 +217,12 @@ theorem _root_.AnalyticOnNhd.subharmonicOn_norm_rpow (hU : IsOpen U) {f : ℂ �
     sphere_subset_closedBall |>.circleIntegrable hr.le, ?_⟩
   exact norm_rpow_le_circleAverage hr hp (hf.mono hsub)
 
-/-- The logarithm of the modulus of a nonvanishing holomorphic function is subharmonic. -/
-theorem _root_.AnalyticOnNhd.subharmonicOn_log_norm (hU : IsOpen U) {f : ℂ → ℂ}
+/-- The logarithm of the modulus of a nonvanishing holomorphic function is subharmonic, since it is
+harmonic. -/
+theorem _root_.AnalyticOnNhd.subharmonicOn_log_norm {f : ℂ → ℂ}
     (hf : AnalyticOnNhd ℂ f U) (hne : ∀ z ∈ U, f z ≠ 0) :
-    SubharmonicOn (fun z ↦ Real.log ‖f z‖) U := by
-  have hcont : ContinuousOn (fun z ↦ Real.log ‖f z‖) U := by
-    refine ContinuousOn.log hf.continuousOn.norm fun z hz ↦ norm_ne_zero_iff.mpr (hne z hz)
-  refine ⟨hcont.upperSemicontinuousOn, fun a ha ↦ ?_⟩
-  obtain ⟨ρ, hρ, hball⟩ := Metric.mem_nhds_iff.mp (hU.mem_nhds ha)
-  refine hasSubmeanAt_of_forall_lt hρ fun r hr hrρ ↦ ?_
-  have hsub : closedBall a r ⊆ U := (closedBall_subset_ball hrρ).trans hball
-  refine ⟨(hcont.mono (sphere_subset_closedBall.trans hsub)).circleIntegrable hr.le, ?_⟩
-  exact log_norm_le_circleAverage hr (hf.mono hsub) (hne a ha)
+    SubharmonicOn (fun z ↦ Real.log ‖f z‖) U :=
+  InnerProductSpace.HarmonicOnNhd.subharmonicOn fun z hz ↦ (hf z hz).harmonicAt_log_norm (hne z hz)
 
 end Holomorphic
 
