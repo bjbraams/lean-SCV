@@ -15,6 +15,10 @@ public import Mathlib.Topology.Baire.Lemmas
 /-!
 # Open mapping for complete metrizable vector spaces
 
+This file overlaps with
+[Mathlib PR #44201](https://github.com/leanprover-community/mathlib4/pull/44201).
+Our `OpenMapping.lean` code will be reviewed upon the anticipated adoption of that PR.
+
 This supplies the open-mapping argument needed for holomorphic function spaces with their
 compact-open topology. Baire's theorem first gives neighborhoods in closures of images;
 successive approximations and completeness remove the closure. The compatible metrics need not
