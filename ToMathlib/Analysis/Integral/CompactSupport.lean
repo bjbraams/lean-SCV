@@ -21,13 +21,8 @@ continuous functions that vanish beyond a finite radius.
   a continuous normed-space-valued function on a compact set is integrable. Compactness gives
   both boundedness and a separable image, so no countability assumption on either ambient space
   is required.
-* `MeasureTheory.integrableOn_Ioi_of_continuous_of_eq_zero`: A continuous function on the
-  half-line vanishing beyond a radius is integrable there.
-
-## References
-
-* `Mathlib.Analysis.Calculus.ParametricIntegral`: formal background used by this module.
-* `Mathlib.MeasureTheory.Integral.IntegralEqImproper`: formal background used by this module.
+* `MeasureTheory.integrableOn_Ioi_of_continuousOn_of_eq_zero`: A function continuous on
+  `[a, R]` and vanishing beyond `R` is integrable on `(a, ∞)`.
 -/
 
 public noncomputable section
@@ -61,13 +56,13 @@ open MeasureTheory Set
 
 namespace MeasureTheory
 
-variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
+variable {F : Type*} [NormedAddCommGroup F]
 
-omit [NormedSpace ℂ F] in
-/-- A continuous function on the half-line vanishing beyond a radius is integrable there. -/
-theorem integrableOn_Ioi_of_continuous_of_eq_zero {g : ℝ → F} (hg : Continuous g) {R : ℝ}
-    (hz : ∀ r, R < r → g r = 0) : IntegrableOn g (Ioi 0) := by
-  have h1 : IntegrableOn g (Icc 0 R) := hg.continuousOn.integrableOn_Icc
+/-- A function continuous on `[a, R]` and vanishing beyond `R` is integrable on `(a, ∞)`.
+No continuity is needed beyond `R`, and `R < a` is allowed. -/
+theorem integrableOn_Ioi_of_continuousOn_of_eq_zero {g : ℝ → F} {a R : ℝ}
+    (hg : ContinuousOn g (Icc a R)) (hz : ∀ r, R < r → g r = 0) : IntegrableOn g (Ioi a) := by
+  have h1 : IntegrableOn g (Icc a R) := hg.integrableOn_Icc
   have h2 : IntegrableOn g (Ioi R) :=
     ((integrable_zero _ _ _).integrableOn).congr_fun (fun r hr ↦ (hz r hr).symm) measurableSet_Ioi
   refine (h1.union h2).mono_set fun r hr ↦ ?_

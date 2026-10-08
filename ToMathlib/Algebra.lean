@@ -20,7 +20,8 @@ Ordered-field linear functionals and inclusion of their negative half-spaces are
 
 This module re-exports the following developments:
 
-* `ToMathlib.Algebra.LinearMap.Ordered`: Half-space inclusion and proportionality of linear functionals.
+* `ToMathlib.Algebra.LinearMap.Ordered`: Half-space inclusion and proportionality of linear
+  functionals.
 
 * `ToMathlib.Algebra.Polynomial.OfFn`: Reconstruction of polynomials from finite coefficient
   vectors.

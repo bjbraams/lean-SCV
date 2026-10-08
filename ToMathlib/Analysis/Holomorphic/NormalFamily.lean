@@ -19,7 +19,7 @@ For the one-variable scalar case, we acknowledge Vincent Beffara's
 [RMT4/Montel.lean](https://github.com/vbeffara/RMT4/blob/main/RMT4/Montel.lean).
 Related work includes Yury Kudryashov's Riemann mapping theorem development in
 [Mathlib PR #33505](https://github.com/leanprover-community/mathlib4/pull/33505)
-and TauCeti's normal-family, Montel, and Vitali developments linked below.
+and TauCeti's normal-family, Montel, and Vitali developments listed below.
 Our code will be reviewed upon the anticipated adoption of that PR. These developments
 have substantial mathematical overlap; the bundled-map interface and the general-source
 conditional and finite-dimensional-vector-valued results require separate comparison.
@@ -52,13 +52,10 @@ arbitrary finite-dimensional complex source spaces.
 
 ## References
 
-* [TauCeti normal-family bounds](https://github.com/TauCetiProject/TauCeti/blob/680bd1855971ac82971b9d18f2f85914d62270de/TauCeti/Analysis/Complex/Conformal/NormalFamilies.lean).
-* [TauCeti compact-open precompactness](https://github.com/TauCetiProject/TauCeti/blob/680bd1855971ac82971b9d18f2f85914d62270de/TauCeti/Analysis/Complex/Conformal/Montel/Precompact.lean).
-* [TauCeti Montel selection](https://github.com/TauCetiProject/TauCeti/blob/680bd1855971ac82971b9d18f2f85914d62270de/TauCeti/Analysis/Complex/Conformal/Montel/Basic.lean).
-* [TauCeti Vitali convergence](https://github.com/TauCetiProject/TauCeti/blob/680bd1855971ac82971b9d18f2f85914d62270de/TauCeti/Analysis/Complex/Conformal/Vitali.lean).
-* `Mathlib.Analysis.Complex.Schwarz`: formal background used by this module.
-* `Mathlib.Topology.MetricSpace.Equicontinuity`: formal background used by this module.
-* `Mathlib.Topology.UniformSpace.Ascoli`: formal background used by this module.
+* TauCeti, normal-family bounds: `TauCeti.Analysis.Complex.Conformal.NormalFamilies`.
+* TauCeti, compact-open precompactness: `TauCeti.Analysis.Complex.Conformal.Montel.Precompact`.
+* TauCeti, Montel selection: `TauCeti.Analysis.Complex.Conformal.Montel.Basic`.
+* TauCeti, Vitali convergence: `TauCeti.Analysis.Complex.Conformal.Vitali`.
 -/
 
 public section

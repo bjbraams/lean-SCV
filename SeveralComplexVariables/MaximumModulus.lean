@@ -19,8 +19,8 @@ modulus principle with the holomorphic identity theorem.
 
 The source is any finite-dimensional complex normed space, including `ι → ℂ` for any finite
 index type (also empty). The supporting norm theorem permits strictly convex complex normed
-targets; completeness is not needed. Strict convexity cannot be dropped for constancy of the map: on the unit disc, `z ↦ (1,
-z)` is nonconstant but has constant supremum norm.
+targets; completeness is not needed. Strict convexity cannot be dropped for constancy of the map:
+on the unit disc, `z ↦ (1, z)` is nonconstant but has constant supremum norm.
 
 ## Main results
 
@@ -48,7 +48,8 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimension
 map into a strictly convex complex normed space, in particular a scalar holomorphic function, is
 constant on an open, preconnected domain if its norm has a local maximum at an interior point. -/
 theorem eqOn_const_of_holomorphic_of_isLocalMax_norm
-    {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [StrictConvexSpace ℝ F] {U : Set E} (hU : IsOpen U) (hconn : IsPreconnected U)
+    {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [StrictConvexSpace ℝ F] {U : Set E}
+    (hU : IsOpen U) (hconn : IsPreconnected U)
     {f : E → F} (hf : DifferentiableOn ℂ f U) {a : E} (ha : a ∈ U)
     (hmax : IsLocalMax (norm ∘ f) a) : EqOn f (const E (f a)) U :=
   hf.eqOn_of_preconnected_of_eventuallyEq hU hconn (differentiableOn_const (f a)) ha
@@ -58,7 +59,8 @@ theorem eqOn_const_of_holomorphic_of_isLocalMax_norm
 /-- The maximum principle with the local maximum expressed relative to the domain. Since the point
 is interior, this agrees with the ambient local-maximum formulation. -/
 theorem eqOn_const_of_holomorphic_of_isLocalMaxOn_norm
-    {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [StrictConvexSpace ℝ F] {U : Set E} (hU : IsOpen U) (hconn : IsPreconnected U)
+    {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F] [StrictConvexSpace ℝ F] {U : Set E}
+    (hU : IsOpen U) (hconn : IsPreconnected U)
     {f : E → F} (hf : DifferentiableOn ℂ f U) {a : E} (ha : a ∈ U)
     (hmax : IsLocalMaxOn (norm ∘ f) U a) : EqOn f (const E (f a)) U :=
   eqOn_const_of_holomorphic_of_isLocalMax_norm hU hconn hf ha (hmax.isLocalMax (hU.mem_nhds ha))

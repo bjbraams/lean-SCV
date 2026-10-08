@@ -13,12 +13,12 @@ public import SeveralComplexVariables.Runge
 /-!
 # Examples of Runge domains
 
-Complete Reinhardt open sets in `ℂ^ι`, for any finite index type `ι`, are Runge domains, since holomorphic functions on them are
-represented by their Taylor series at the origin, converging locally uniformly. More generally,
-circular connected open sets containing the origin are Runge domains, since holomorphic
-functions on them are locally uniform sums of their homogeneous expansions, whose terms are
-polynomials. In particular polydiscs and balls centered at the origin, and the whole space, are
-Runge domains.
+Complete Reinhardt open sets in `ℂ^ι`, for any finite index type `ι`, are Runge domains, since
+holomorphic functions on them are represented by their Taylor series at the origin, converging
+locally uniformly. More generally, circular connected open sets containing the origin are Runge
+domains, since holomorphic functions on them are locally uniform sums of their homogeneous
+expansions, whose terms are polynomials. In particular polydiscs and balls centered at the
+origin, and the whole space, are Runge domains.
 
 Runge domains are transported by holomorphic maps with polynomial inverses: if `U` is Runge, `Φ`
 is holomorphic on `U` with values in `U'`, and `Ψ` is a polynomial map from `U'` into `U` with

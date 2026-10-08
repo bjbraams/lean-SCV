@@ -12,8 +12,8 @@ public import SeveralComplexVariables.SphericalShell
 
 A point is a compact hole whose complement in a small ball is preconnected in complex dimension
 at least two, so the compact-hole theorem extends the function across it locally. The extension
-is then glued to the original function. No boundedness hypothesis is imposed near the puncture. Reference:
-[Scheidemann][Scheidemann2005] (2005), Corollary 2.3.2.
+is then glued to the original function. No boundedness hypothesis is imposed near the puncture.
+Reference: [Scheidemann][Scheidemann2005] (2005), Corollary 2.3.2.
 
 ## Main results
 

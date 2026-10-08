@@ -45,8 +45,8 @@ References: [Hörmander][Hormander1973] (1973), Section 2.7;
 * `IsPolynomiallyConvex`: A set is polynomially convex if it equals its polynomial hull.
 * `IsRungePair`: A **Runge pair**: `U ⊆ V`, and every holomorphic function on `U` is approximated
   within `ε` on every compact subset of `U` by a holomorphic function on `V`.
-* `IsRungeDomain`: A **Runge domain** in `ℂ^ι`: every holomorphic function is approximated within `ε`
-  on every compact subset by a polynomial.
+* `IsRungeDomain`: A **Runge domain** in `ℂ^ι`: every holomorphic function is approximated within
+  `ε` on every compact subset by a polynomial.
 
 ## Main results
 

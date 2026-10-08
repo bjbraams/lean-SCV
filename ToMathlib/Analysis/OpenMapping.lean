@@ -29,12 +29,6 @@ arise from norms and scalar multiplication need not preserve them.
 `isOpenMap_of_surjective_complete` is the open mapping theorem for a surjective continuous
 linear map from a complete metrizable space to a Hausdorff metrizable Baire space. Its proof goes
 through a private neighborhood form: the image of every zero neighborhood is a zero neighborhood.
-
-## References
-
-* `Mathlib.Analysis.Normed.Field.Basic`: formal background used by this module.
-* `Mathlib.Analysis.SpecificLimits.Normed`: formal background used by this module.
-* `Mathlib.Topology.Algebra.IsUniformGroup.Basic`: formal background used by this module.
 -/
 
 public noncomputable section
@@ -44,10 +38,11 @@ open scoped Topology
 
 namespace ContinuousLinearMap
 
-variable {𝕜 E F : Type*} [NontriviallyNormedField 𝕜] [AddCommGroup E] [Module 𝕜 E] [PseudoMetricSpace E]
-  [IsUniformAddGroup E] [ContinuousSMul 𝕜 E]
-  [AddCommGroup F] [Module 𝕜 F] [PseudoMetricSpace F]
-  [IsUniformAddGroup F] [ContinuousSMul 𝕜 F]
+variable {𝕜 E F : Type*} [NontriviallyNormedField 𝕜]
+  [AddCommGroup E] [Module 𝕜 E] [PseudoMetricSpace E] [IsUniformAddGroup E]
+  [ContinuousSMul 𝕜 E]
+  [AddCommGroup F] [Module 𝕜 F] [PseudoMetricSpace F] [IsUniformAddGroup F]
+  [ContinuousSMul 𝕜 F]
 
 /-- Baire's theorem gives a neighborhood in the closure of the image of any zero neighborhood under
 a surjective continuous linear map. -/
@@ -72,13 +67,13 @@ private theorem closure_image_mem_nhds_of_surjective [BaireSpace F]
     apply iUnion_eq_univ_iff.mpr
     intro y
     obtain ⟨x, rfl⟩ := hs y
-    have ht : Tendsto (fun n => (c n)⁻¹ • x) atTop (𝓝 (0 : E)) := by
+    have ht : Tendsto (fun n ↦ (c n)⁻¹ • x) atTop (𝓝 (0 : E)) := by
       simpa [c] using (tendsto_pow_atTop_nhds_zero_of_norm_lt_one ha1).smul_const x
     obtain ⟨n, hn⟩ := (ht.eventually hB).exists
     refine ⟨n, T ((c n)⁻¹ • x), subset_closure ⟨_, hn, rfl⟩, ?_⟩
     simp [e, map_smul, smul_smul, hc]
   obtain ⟨n, z, hz⟩ := nonempty_interior_of_iUnion_of_closed
-    (fun n => (e n).toHomeomorph.isClosedMap S isClosed_closure) hcover
+    (fun n ↦ (e n).toHomeomorph.isClosedMap S isClosed_closure) hcover
   let a := (e n).symm z
   have hS : S ∈ 𝓝 a := by
     have hh := (e n).continuous.continuousAt.preimage_mem_nhds
@@ -86,7 +81,7 @@ private theorem closure_image_mem_nhds_of_surjective [BaireSpace F]
         simpa [a] using mem_interior_iff_mem_nhds.mp hz)
     simpa only [preimage_image_eq _ (e n).injective] using hh
   have ha : a ∈ S := mem_of_mem_nhds hS
-  have hN : (fun y : F => y + a) ⁻¹' S ∈ 𝓝 0 :=
+  have hN : (fun y : F ↦ y + a) ⁻¹' S ∈ 𝓝 0 :=
     (continuous_id.add continuous_const).continuousAt.preimage_mem_nhds (by simpa using hS)
   apply mem_of_superset hN
   intro y hy
@@ -108,8 +103,8 @@ private theorem image_mem_nhds_of_surjective [CompleteSpace E] [BaireSpace F] [T
     have h := dist_mem_uniformity (α := E) (show 0 < (r / 2) * (1 / 2 : ℝ) ^ n by positivity)
     rw [uniformity_eq_comap_nhds_zero E] at h
     obtain ⟨B, hB, hsub⟩ := Filter.mem_comap.mp h
-    refine ⟨B, hB, fun x hx s => le_of_lt (hsub
-      (show (s, s + x) ∈ (fun p : E × E => p.2 - p.1) ⁻¹' B from ?_))⟩
+    refine ⟨B, hB, fun x hx s ↦ le_of_lt (hsub
+      (show (s, s + x) ∈ (fun p : E × E ↦ p.2 - p.1) ⁻¹' B from ?_))⟩
     change (s + x) - s ∈ B
     simpa only [add_sub_cancel_left] using hx
   choose B hB hdist using hsmall
@@ -122,7 +117,7 @@ private theorem image_mem_nhds_of_surjective [CompleteSpace E] [BaireSpace F] [T
     positivity
   have happrox (n : ℕ) (y : F) (hy : y ∈ V n) :
       ∃ x ∈ B n, y - T x ∈ V (n + 1) := by
-    have hopen : IsOpen ((fun z : F => y - z) ⁻¹' V (n + 1)) :=
+    have hopen : IsOpen ((fun z : F ↦ y - z) ⁻¹' V (n + 1)) :=
       (hVo _).preimage (continuous_const.sub continuous_id)
     obtain ⟨z, hz, x, hx, rfl⟩ :=
       _root_.mem_closure_iff.mp (interior_subset hy.1) _ hopen (by simpa using hV0 (n + 1))
@@ -135,7 +130,7 @@ private theorem image_mem_nhds_of_surjective [CompleteSpace E] [BaireSpace F] [T
       have h := (happrox n (y - T s.val) s.property).choose_spec.2
       simpa only [map_add, sub_sub] using h⟩
   let seq : (n : ℕ) → {s : E // y - T s ∈ V n} :=
-    fun n => Nat.rec (motive := fun n => {s : E // y - T s ∈ V n})
+    fun n ↦ Nat.rec (motive := fun n ↦ {s : E // y - T s ∈ V n})
       ⟨0, by simpa using hy⟩ step n
   have hd (n : ℕ) : dist (seq n).val (seq (n + 1)).val ≤ (r / 2) * (1 / 2 : ℝ) ^ n :=
     hdist n _ (happrox n (y - T (seq n).val) (seq n).property).choose_spec.1 _
@@ -147,19 +142,19 @@ private theorem image_mem_nhds_of_surjective [CompleteSpace E] [BaireSpace F] [T
     change dist x 0 ≤ r
     norm_num [seq, dist_comm, div_div] at h ⊢
     exact h
-  have herr : Tendsto (fun n => y - T (seq n).val) atTop (𝓝 0) := by
+  have herr : Tendsto (fun n ↦ y - T (seq n).val) atTop (𝓝 0) := by
     apply tendsto_iff_dist_tendsto_zero.mpr
-    apply squeeze_zero (fun _ => dist_nonneg)
-      (fun n => le_of_lt (show dist (y - T (seq n).val) 0 < 1 / ((n : ℝ) + 1) from
+    apply squeeze_zero (fun _ ↦ dist_nonneg)
+      (fun n ↦ le_of_lt (show dist (y - T (seq n).val) 0 < 1 / ((n : ℝ) + 1) from
         (seq n).property.2))
     exact tendsto_one_div_add_atTop_nhds_zero_nat
   have heq : y - T x = 0 := tendsto_nhds_unique
     (tendsto_const_nhds.sub (T.continuous.tendsto x |>.comp hx)) herr
   exact ⟨x, hxW, (sub_eq_zero.mp heq).symm⟩
 
-/-- A surjective continuous linear map over a nontrivially normed field from a complete metrizable topological
-vector space to a Hausdorff metrizable Baire vector space is open. The metrics only need to
-induce the additive uniformities; they need not arise from norms. -/
+/-- A surjective continuous linear map over a nontrivially normed field from a complete
+metrizable topological vector space to a Hausdorff metrizable Baire vector space is open. The
+metrics only need to induce the additive uniformities; they need not arise from norms. -/
 theorem isOpenMap_of_surjective_complete [CompleteSpace E] [BaireSpace F] [T2Space F]
     (T : E →L[𝕜] F) (hs : Function.Surjective T) : IsOpenMap T := by
   apply IsTopologicalAddGroup.isOpenMap_iff_nhds_zero.mpr

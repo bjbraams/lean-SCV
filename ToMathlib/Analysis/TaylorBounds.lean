@@ -17,16 +17,17 @@ real normed spaces. The source and target may be infinite-dimensional.
 
 ## Main results
 
-* `ContDiffAt.isLittleO_sub_sub_fderiv_second_order`: Taylor–Peano remainder.
+* `DifferentiableAt.isLittleO_sub_sub_fderiv_second_order`: Taylor–Peano remainder for a map
+  that is differentiable near the point and whose derivative is differentiable at the point.
+* `ContDiffAt.isLittleO_sub_sub_fderiv_second_order`: the same for a `C²` map.
 * `ContDiffAt.exists_taylor_norm_bound`: Vector-valued uniform second-order remainder estimate.
 * `ContDiffAt.exists_taylor_bound`: Real-valued corollary.
 
-## References
+## Implementation notes
 
-* `Mathlib.Analysis.SpecialFunctions.Pow.Real`: formal background used by this module.
-* `Mathlib.Analysis.Calculus.FDeriv.Symmetric`: formal background used by this module.
-* `Mathlib.Analysis.Calculus.MeanValue`: `Convex.isLittleO_pow_succ`, which integrates the
-  little-o bound for the derivative of the remainder.
+The remainder estimate integrates the little-o bound for the derivative of the remainder along
+segments with Mathlib's `Convex.isLittleO_pow_succ`; symmetry of the second derivative is
+`second_derivative_symmetric_of_eventually`.
 -/
 
 public section
@@ -34,25 +35,22 @@ public section
 open Filter Metric Set
 open scoped Topology
 
-namespace ContDiffAt
-
-/-- **Taylor–Peano remainder of order two.** For a `C²` function on a real normed space, the
-second-order Taylor remainder is little-o of the squared increment norm. The derivative of the
-remainder is `o(‖h‖)` by differentiability of `fderiv ℝ g` and symmetry of the second derivative;
-Mathlib's `Convex.isLittleO_pow_succ` integrates this along segments. -/
-theorem isLittleO_sub_sub_fderiv_second_order {G F : Type*}
+/-- **Taylor–Peano remainder of order two.** Let `g` be differentiable near `t₀`, with
+`fderiv ℝ g` differentiable at `t₀`. Then the second-order Taylor remainder at `t₀` is little-o of
+the squared increment norm. The derivative of the remainder is `o(‖h‖)` by differentiability of
+`fderiv ℝ g` and symmetry of the second derivative; Mathlib's `Convex.isLittleO_pow_succ`
+integrates this along segments. -/
+theorem DifferentiableAt.isLittleO_sub_sub_fderiv_second_order {G F : Type*}
     [NormedAddCommGroup G] [NormedSpace ℝ G] [NormedAddCommGroup F] [NormedSpace ℝ F]
-    {g : G → F} {t₀ : G} (hg : ContDiffAt ℝ 2 g t₀) :
-    (fun h => g (t₀ + h) - g t₀ - fderiv ℝ g t₀ h -
+    {g : G → F} {t₀ : G} (hg' : DifferentiableAt ℝ (fderiv ℝ g) t₀)
+    (hg : ∀ᶠ y in 𝓝 t₀, DifferentiableAt ℝ g y) :
+    (fun h ↦ g (t₀ + h) - g t₀ - fderiv ℝ g t₀ h -
       (1 / 2 : ℝ) • fderiv ℝ (fderiv ℝ g) t₀ h h) =o[𝓝 (0 : G)]
-        (fun h => ‖h‖ ^ 2) := by
+        (fun h ↦ ‖h‖ ^ 2) := by
   set D := fderiv ℝ g
   set B := fderiv ℝ (fderiv ℝ g) t₀
-  have hD : HasFDerivAt D B t₀ :=
-    ((hg.fderiv_right (m := 1) (by norm_num)).differentiableAt (by norm_num)).hasFDerivAt
-  have hev : ∀ᶠ y in 𝓝 t₀, HasFDerivAt g (D y) y := by
-    filter_upwards [hg.eventually (by simp)] with y hy
-    exact (hy.differentiableAt (by norm_num)).hasFDerivAt
+  have hD : HasFDerivAt D B t₀ := hg'.hasFDerivAt
+  have hev : ∀ᶠ y in 𝓝 t₀, HasFDerivAt g (D y) y := hg.mono fun _ hy ↦ hy.hasFDerivAt
   have hsymm : ∀ v w, B v w = B w v := second_derivative_symmetric_of_eventually hev hD
   obtain ⟨δ, hδ, hball⟩ := Metric.mem_nhds_iff.mp hev
   have hφ' : ∀ k ∈ ball (0 : G) δ, HasFDerivWithinAt
@@ -75,6 +73,19 @@ theorem isLittleO_sub_sub_fderiv_second_order {G F : Type*}
   have h := (convex_ball (0 : G) δ).isLittleO_pow_succ (mem_ball_self hδ) hφ' hlo
   rw [nhdsWithin_eq_nhds.mpr (ball_mem_nhds _ hδ)] at h
   simpa using h
+
+namespace ContDiffAt
+
+/-- **Taylor–Peano remainder of order two** for a `C²` function on a real normed space. -/
+theorem isLittleO_sub_sub_fderiv_second_order {G F : Type*}
+    [NormedAddCommGroup G] [NormedSpace ℝ G] [NormedAddCommGroup F] [NormedSpace ℝ F]
+    {g : G → F} {t₀ : G} (hg : ContDiffAt ℝ 2 g t₀) :
+    (fun h ↦ g (t₀ + h) - g t₀ - fderiv ℝ g t₀ h -
+      (1 / 2 : ℝ) • fderiv ℝ (fderiv ℝ g) t₀ h h) =o[𝓝 (0 : G)]
+        (fun h ↦ ‖h‖ ^ 2) :=
+  ((hg.fderiv_right (m := 1) (by norm_num)).differentiableAt (by norm_num))
+    |>.isLittleO_sub_sub_fderiv_second_order
+      (hg.eventually (by simp) |>.mono fun _ hy ↦ hy.differentiableAt (by norm_num))
 
 /-- **Uniform second-order Taylor bound.** For a `C²` function on a real normed space, the
 second-order Taylor remainder at a point is bounded by `ε ‖h‖ ^ 2` for all small increments

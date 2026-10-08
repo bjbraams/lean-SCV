@@ -28,10 +28,6 @@ the Tau Ceti contributors' `TauCeti.isPreconnected_compl_closedBall` from
   real dimension at least two.
 * `one_lt_rank_real_of_two_le_finrank_complex`: Complex dimension at least two gives real
   dimension greater than one, the hypothesis of the connectedness results.
-
-## References
-
-* `Mathlib.Analysis.Normed.Module.Connected`: formal background used by this module.
 -/
 
 public section
@@ -55,8 +51,8 @@ private theorem isPreconnected_ball_diff_closedBall_zero {E : Type*} [NormedAddC
   let A : Set (ℝ × E) := Ioo ρ R ×ˢ sphere 0 1
   have hA : IsPreconnected A := isPreconnected_Ioo.prod
     (isPreconnected_sphere hdim (0 : E) 1)
-  have hc : Continuous (fun p : ℝ × E => p.1 • p.2) := continuous_fst.smul continuous_snd
-  have he : (fun p : ℝ × E => p.1 • p.2) '' A = ball (0 : E) R \ closedBall 0 ρ := by
+  have hc : Continuous (fun p : ℝ × E ↦ p.1 • p.2) := continuous_fst.smul continuous_snd
+  have he : (fun p : ℝ × E ↦ p.1 • p.2) '' A = ball (0 : E) R \ closedBall 0 ρ := by
     apply Subset.antisymm
     · rintro z ⟨⟨t, v⟩, ⟨ht, hv⟩, rfl⟩
       have hvn : ‖v‖ = 1 := by simpa [mem_sphere, dist_zero_right] using hv
@@ -80,7 +76,7 @@ theorem isPreconnected_ball_diff_closedBall {E : Type*} [NormedAddCommGroup E]
     [NormedSpace ℝ E] (hdim : 1 < Module.rank ℝ E) (c : E) (ρ R : ℝ) :
     IsPreconnected (ball c R \ closedBall c ρ) := by
   by_cases hρ : 0 ≤ ρ
-  · have he : (fun y : E => y + c) '' (ball 0 R \ closedBall 0 ρ) =
+  · have he : (fun y : E ↦ y + c) '' (ball 0 R \ closedBall 0 ρ) =
         ball c R \ closedBall c ρ := by
       ext z
       constructor

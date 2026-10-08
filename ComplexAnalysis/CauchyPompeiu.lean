@@ -287,8 +287,8 @@ theorem integral_Ioi_polarRadialDeriv {φ : ℂ → F} (hφ : ContDiff ℝ 1 φ)
       simpa using (hasDerivAt_id r).ofReal_comp.mul_const (exp (θ * I))
     exact (hφ.differentiable one_ne_zero _).hasFDerivAt.comp_hasDerivAt r h1
   have hint : IntegrableOn (fun r : ℝ ↦ polarRadialDeriv φ (r, θ)) (Ioi 0) := by
-    refine MeasureTheory.integrableOn_Ioi_of_continuous_of_eq_zero (R := R)
-      ((continuous_polarRadialDeriv hφ).comp (by fun_prop)) fun r hr ↦ ?_
+    refine MeasureTheory.integrableOn_Ioi_of_continuousOn_of_eq_zero (R := R)
+      ((continuous_polarRadialDeriv hφ).comp (by fun_prop)).continuousOn fun r hr ↦ ?_
     exact polarRadialDeriv_eq_zero hR (lt_of_lt_of_le hr (le_abs_self r))
   have hlim : Tendsto (fun r : ℝ ↦ φ (r * exp (θ * I))) atTop (𝓝 0) := by
     refine tendsto_const_nhds.congr' ((eventually_gt_atTop R).mono fun r hr ↦ ?_)

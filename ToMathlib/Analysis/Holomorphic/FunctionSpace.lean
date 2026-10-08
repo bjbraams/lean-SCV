@@ -42,12 +42,6 @@ at its boundary is asserted.
 * `Complex.holomorphicRestrict`: Restriction to a smaller open domain preserves holomorphy.
 * `Complex.continuous_holomorphicRestrict`: Restriction is continuous for the compact-open
   topology.
-
-## References
-
-* `Mathlib.Topology.Algebra.UniformConvergence`: formal background used by this module.
-* `Mathlib.Topology.ContinuousMap.Algebra`: formal background used by this module.
-* `Mathlib.Topology.UniformSpace.CompactConvergence`: formal background used by this module.
 -/
 
 public noncomputable section
