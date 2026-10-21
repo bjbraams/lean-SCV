@@ -231,6 +231,7 @@ theorem IsRegularAnalyticSetAt.of_zeroSet_subset [FiniteDimensional ℂ E]
     (hU : IsOpen U) (haU : a ∈ U) {f : E → ℂ} (hf : AnalyticOnNhd ℂ f U)
     (hfa : f a = 0) (hsub : ∀ z ∈ U, f z = 0 → z ∈ A) :
     IsRegularAnalyticSetAt (U ∩ f ⁻¹' {0}) a 1 := by
+  letI : CompleteSpace E := FiniteDimensional.complete ℂ E
   obtain ⟨haA, e, L, he, hae, hL, hEq⟩ := hA
   let l : E →L[ℂ] ℂ := (ContinuousLinearMap.proj (0 : Fin 1)).comp L
   have hl (z : E) : l z = 0 ↔ L z = 0 := by
@@ -285,6 +286,7 @@ theorem exists_regularPoint_zeroSet [FiniteDimensional ℂ E]
     {U : Set E} (hU : IsOpen U) (hc : IsPreconnected U) {f : E → ℂ}
     (hf : AnalyticOnNhd ℂ f U) (hne : ∃ b ∈ U, f b ≠ 0) (hz : ∃ a ∈ U, f a = 0) :
     ∃ a, IsRegularAnalyticSetAt (U ∩ f ⁻¹' {0}) a 1 := by
+  letI : CompleteSpace E := FiniteDimensional.complete ℂ E
   obtain ⟨a, g, ha, hfa, hg, hsub, hd⟩ :=
     exists_analytic_zeroSet_superset_fderiv_ne_zero hU hc hf hne hz
   have hreg : IsRegularAnalyticSetAt (U ∩ g ⁻¹' {0}) a 1 :=

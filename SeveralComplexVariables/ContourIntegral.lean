@@ -55,12 +55,12 @@ theorem analyticOnNhd_integral_smul_compact_kernel
     (fderiv ℂ H (x, γ t)).comp (ContinuousLinearMap.inl ℂ E ℂ)
   have hc : ContinuousOn (fun p : E × α => H (p.1, γ p.2)) (U ×ˢ K) :=
     hH.continuousOn.comp
-      (continuousOn_fst.prodMk (hγ.comp continuousOn_snd (fun _ hp => hp.2)))
-      (fun p hp => hW p.1 hp.1 p.2 hp.2)
+      (continuousOn_fst.prodMk (hγ.comp continuousOn_snd (fun p (hp : p ∈ U ×ˢ K) => hp.2)))
+      (fun p (hp : p ∈ U ×ˢ K) => hW p.1 hp.1 p.2 hp.2)
   have hD : ContinuousOn (fun p : E × α => D p.1 p.2) (U ×ˢ K) :=
     (hH.fderiv.continuousOn.comp
-      (continuousOn_fst.prodMk (hγ.comp continuousOn_snd (fun _ hp => hp.2)))
-      (fun p hp => hW p.1 hp.1 p.2 hp.2)).clm_comp continuousOn_const
+      (continuousOn_fst.prodMk (hγ.comp continuousOn_snd (fun p (hp : p ∈ U ×ˢ K) => hp.2)))
+      (fun p (hp : p ∈ U ×ˢ K) => hW p.1 hp.1 p.2 hp.2)).clm_comp continuousOn_const
   have hslice {x : E} (hx : x ∈ U) : ContinuousOn (fun t => H (x, γ t)) K :=
     hc.comp (continuous_const.prodMk continuous_id).continuousOn (fun t ht => ⟨hx, ht⟩)
   apply DifferentiableOn.analyticOnNhd_of_finiteDimensional _ hU

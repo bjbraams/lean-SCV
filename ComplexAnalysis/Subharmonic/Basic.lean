@@ -5,6 +5,8 @@ Authors: Bastiaan J Braams
 -/
 module
 
+public import Mathlib.Analysis.Normed.Module.Connected
+
 public import Mathlib.Analysis.Complex.MeanValue
 public import Mathlib.Analysis.Complex.Harmonic.MeanValue
 public import Mathlib.Analysis.InnerProductSpace.Harmonic.Constructions

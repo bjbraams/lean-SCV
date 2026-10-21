@@ -242,7 +242,7 @@ theorem exists_perturbation_bound_of_coordinatePower_leadingFactor {d : ℕ} {f 
     unfold weierstrassRemainder
     apply DifferentiableOn.fun_sum
     intro j _
-    exact ((hcA1 j).comp differentiableOn_fst (fun z hz => hz.1)).mul
+    exact ((hcA1 j).comp differentiableOn_fst (fun z (hz : z ∈ polydisc (0 : ι → ℂ) (fun _ => ε₁) ×ˢ ball (0 : ℂ) ε₁) => hz.1)).mul
       (differentiableOn_snd.pow (j : ℕ))
   have hf1A1 : DifferentiableOn ℂ f1
       (polydisc (0 : ι → ℂ) (fun _ => ε₁) ×ˢ ball (0 : ℂ) ε₁) :=

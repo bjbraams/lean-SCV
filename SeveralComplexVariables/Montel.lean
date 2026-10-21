@@ -56,8 +56,9 @@ theorem isCompact_closure_of_holomorphic_bounded_on_compacts
     [FiniteDimensional ℂ F] {U : TopologicalSpace.Opens E}
     {S : Set (HolomorphicMap U F)}
     (hb : ∀ K ⊆ (U : Set E), IsCompact K → ∃ M : ℝ,
-      ∀ f ∈ S, ∀ z ∈ K, ‖openExtension U f.val z‖ ≤ M) : IsCompact (closure S) :=
-  Complex.isCompact_closure_of_holomorphic_bounded_on_compacts_of_isClosed
+      ∀ f ∈ S, ∀ z ∈ K, ‖openExtension U f.val z‖ ≤ M) : IsCompact (closure S) := by
+  letI : CompleteSpace F := FiniteDimensional.complete ℂ F
+  exact Complex.isCompact_closure_of_holomorphic_bounded_on_compacts_of_isClosed
     (isClosed_holomorphicSubmodule U) hb
 
 omit [CompleteSpace F] in
@@ -69,6 +70,7 @@ theorem exists_subseq_tendstoLocallyUniformlyOn_of_bounded_on_compacts
     (hb : ∀ K ⊆ U, IsCompact K → ∃ M : ℝ, ∀ n, ∀ z ∈ K, ‖f n z‖ ≤ M) :
     ∃ (g : E → F) (φ : ℕ → ℕ), StrictMono φ ∧ AnalyticOnNhd ℂ g U ∧
       TendstoLocallyUniformlyOn (fun n => f (φ n)) g atTop U := by
+  letI : CompleteSpace F := FiniteDimensional.complete ℂ F
   let V : TopologicalSpace.Opens E := ⟨U, hU⟩
   let s (n : ℕ) := Complex.holomorphicMapOfAnalyticOnNhd V (f n) (hf n)
   obtain ⟨g, φ, hφ, hlim⟩ :=
@@ -111,6 +113,7 @@ private theorem uniformCauchySeqOn_of_bounded_of_tendsto
     (hV : IsOpen V) (hne : V.Nonempty) (hVD : V ⊆ D)
     (hp : ∀ z ∈ V, ∃ y : F, Tendsto (fun n => f n z) atTop (𝓝 y))
     (hK : IsCompact K) (hKD : K ⊆ D) : UniformCauchySeqOn f atTop K := by
+  letI : ProperSpace E := FiniteDimensional.proper ℂ E
   rw [Metric.uniformCauchySeqOn_iff]
   by_contra hcon
   push Not at hcon
