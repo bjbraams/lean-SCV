@@ -38,7 +38,8 @@ theorem ContinuousOn.exists_first_mem_frontier {X : Type*} [TopologicalSpace X]
   refine ⟨sInf S, ⟨hat, htS.1.2⟩, ?_, hprefix⟩
   rw [hA.frontier_eq]
   refine ⟨?_, htS.2⟩
-  apply ((hf _ htS.1).mono (fun s (hs : s ∈ Ico a (sInf S)) ↦ ⟨hs.1, hs.2.le.trans htS.1.2⟩)).mem_closure
+  apply ((hf _ htS.1).mono
+    (fun s (hs : s ∈ Ico a (sInf S)) ↦ ⟨hs.1, hs.2.le.trans htS.1.2⟩)).mem_closure
     (s := Ico a (sInf S)) _ hprefix
   rw [closure_Ico hat.ne]
   exact ⟨hat.le, le_rfl⟩

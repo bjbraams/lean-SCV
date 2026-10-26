@@ -44,4 +44,4 @@ rev = "911003dd6dea5df215dff57f2717be762e11a6ca"
 [[require]]
 name = "TauCeti"
 git = "https://github.com/TauCetiProject/TauCeti"
-rev = "5cdecf40e99d5a5ad0833afff31f5b007d68a149"
+rev = "a049b4264d2cf4dbf4720796f844a3a3764914a5"
